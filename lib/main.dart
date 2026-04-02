@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 void main() {
-  runApp(const MainApp());
+  runApp(const PasswordRecoveryPage());
 }
 
 class MainApp extends StatelessWidget {
@@ -18,3 +18,33 @@ class MainApp extends StatelessWidget {
     );
   }
 }
+
+
+
+class PasswordRecoveryPage extends StatelessWidget{
+
+  const PasswordRecoveryPage({super.key});
+
+  @override
+  Widget build(BuildContext context){
+    return MaterialApp(
+      title: 'Recuperação de Senha',
+      debugShowCheckedModeBanner: false,
+
+      home: Scaffold(
+        appBar: AppBar(
+          title: Text('Recuperar Senha'),
+        ),
+        body: Center(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text('bora recuperar a senha meu filho')
+            ],
+          )
+        )
+      )
+    );
+  }
+}
+
