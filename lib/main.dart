@@ -35,12 +35,28 @@ class PasswordRecoveryPage extends StatelessWidget{
         appBar: AppBar(
           title: Text('Recuperar Senha'),
         ),
+        // backgroundColor: const Color.fromARGB(255, 26, 56, 70),
         body: Center(
-          child: Column(
+          child: Card(
+            color: const Color.fromARGB(255, 173, 193, 211),
+            child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              Text('bora recuperar a senha meu filho')
+              TextFormField(
+                decoration: InputDecoration(
+                  label: Text('E-mail: '),
+                  hintText: 'Informe seu e-mail',
+                ),
+              ),
+              ElevatedButton(
+                onPressed: (){
+                  print('salvou!');
+                },
+                child: Text('Enviar'),
+              ),
             ],
+          )
+          
           )
         )
       )
