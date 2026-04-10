@@ -44,9 +44,10 @@ class PasswordRecoveryPage extends StatelessWidget{
             children: [
               TextFormField(
                 decoration: InputDecoration(
-                  label: Text('E-mail: '),
-                  hintText: 'Informe seu e-mail',
+                  label: Text('Usuário:'),
+                  hintText: 'Informe seu nome de usuário',
                 ),
+                
               ),
               ElevatedButton(
                 onPressed: (){
