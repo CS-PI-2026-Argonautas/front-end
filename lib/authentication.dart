@@ -5,26 +5,47 @@ class Authentication extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const MaterialApp(
-      home: Scaffold (
+    return Scaffold(
+        backgroundColor: Colors.blue,
         body: SafeArea(
           child: Padding(
             padding: EdgeInsets.all(150.0),
-          child: Column(
+            child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             crossAxisAlignment: CrossAxisAlignment.center,
+            spacing: 30,
             children: [
-              TextField(decoration: InputDecoration(hintText: 'Login', border: OutlineInputBorder( 
+              Image.asset('./assets/images/logo.svg',),
+              TextField(decoration: InputDecoration(
+                hintText: 'Login',
+                filled: true,
+                prefixIcon: Icon(Icons.person),
+                border: OutlineInputBorder(
                 borderSide: BorderSide(
                   color: Colors.blue
-                )
-              )),)
+                ),
+              ),),),
+              
+              TextField(decoration: InputDecoration(
+                
+                hintText: 'Senha',
+                filled: true,
+                prefixIcon: Icon(Icons.password),
+                border: OutlineInputBorder(
+                borderSide: BorderSide(
+                  color: Colors.blue
+                ),
+              
+              ),),
+              ),
+          
+              ElevatedButton(onPressed:(){}, child: Text('Entrar')),
             ],
           ),
           ),
         ),
-      ),
-    );
+      );
+    
     }
 }
 
