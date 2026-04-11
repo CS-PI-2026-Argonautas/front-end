@@ -49,12 +49,24 @@ class ProductRegistration extends StatelessWidget {
                     color: const Color.fromARGB(255, 255, 255, 255),
                     borderRadius: BorderRadius.circular(12),
                   ),
-                  child: Column(
-                    children: [
-                      const Align(
-                        
-                      )
-                    ],
+                  child: Form(
+                    child: Column(
+                      children: [
+                        const Align(
+                          alignment: Alignment.centerLeft,
+                          child: Text(
+                            "Descrição do produto: ",
+                            style: TextStyle(fontWeight: FontWeight.bold),
+                          ),
+                        ),
+                        TextFormField(
+                          decoration: InputDecoration(
+                            hintText: 'Tamanho, marca, peso Max...',
+                            prefixIcon: const Icon(Icons.notes),
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
                 ),
               ],
