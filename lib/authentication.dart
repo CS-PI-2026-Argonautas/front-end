@@ -15,7 +15,7 @@ class Authentication extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.center,
             spacing: 30,
             children: [
-              Image.asset('./assets/images/logo.svg',),
+              Image.asset('assets/images/LogoEmpresa.png',),
               TextField(decoration: InputDecoration(
                 hintText: 'Login',
                 filled: true,
