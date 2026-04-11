@@ -7,8 +7,24 @@ class Authentication extends StatelessWidget {
   Widget build(BuildContext context) {
     return const MaterialApp(
       home: Scaffold (
-
-      )
-    )}
+        body: SafeArea(
+          child: Padding(
+            padding: EdgeInsets.all(150.0),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              TextField(decoration: InputDecoration(hintText: 'Login', border: OutlineInputBorder( 
+                borderSide: BorderSide(
+                  color: Colors.blue
+                )
+              )),)
+            ],
+          ),
+          ),
+        ),
+      ),
+    );
+    }
 }
 
