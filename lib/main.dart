@@ -1,22 +1,67 @@
 import 'package:flutter/material.dart';
 
 void main() {
-  runApp(const PasswordRecoveryPage());
+  runApp(const MyApp());
 }
 
-class MainApp extends StatelessWidget {
-  const MainApp({super.key});
+
+
+
+
+class MyApp extends StatelessWidget {
+  const MyApp({super.key});
 
   @override
   Widget build(BuildContext context) {
     return const MaterialApp(
-      home: Scaffold(
-        body: Center(
-          child: Text('Hello World!'),
-        ),
-      ),
+      title: 'Recuperação de Senha',
+      debugShowCheckedModeBanner: false,
+      home: UserInformationScreen(),
     );
   }
+}
+
+
+
+
+class UserInformationScreen extends StatefulWidget{
+
+  const UserInformationScreen({super.key});
+
+  @override
+  State<UserInformationScreen> createState() => _UserInformationScreenState();
+
+}
+
+class _UserInformationScreenState extends State<UserInformationScreen>{
+
+  @override
+  Widget build(BuildContext context){
+
+    return Scaffold(
+
+      appBar: AppBar(
+        title: Text('Recuperar Senha'),
+      ),
+      body: Padding(
+        padding: EdgeInsets.all(16),
+        child: Card(
+          child: Padding(
+            padding: EdgeInsets.all(16),
+            child: Center(
+              child: Column(
+                children: [
+                  Text('Teste de telaaaaaaa'),
+                ],
+              ),
+            ),
+          ),
+        ),
+      ),
+
+    );
+  }
+
 }
 
 

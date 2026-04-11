@@ -20,7 +20,19 @@ class _UserInformationScreenState extends State<UserInformationScreen>{
         title: Text('Recuperar Senha'),
       ),
       body: Padding(
-        child: ,
+        padding: EdgeInsets.all(16),
+        child: Card(
+          child: Padding(
+            padding: EdgeInsets.all(16),
+            child: Center(
+              child: Column(
+                children: [
+                  Text('Teste de telaaaaaaa'),
+                ],
+              ),
+            ),
+          ),
+        ),
       ),
 
     );
