@@ -1,4 +1,4 @@
-import 'package:bernadelli_balancas/widgets/product_registration.dart';
+import 'package:frontend/pages/product_registration.dart';
 import 'package:flutter/material.dart';
 
 void main() {
@@ -8,6 +8,13 @@ void main() {
 class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(home: ProductRegistration());
+    return MaterialApp(
+      home: ProductRegistration(),
+      theme: ThemeData(
+        colorScheme: .fromSeed(
+          seedColor: const Color.fromARGB(255, 64, 126, 207),
+        ),
+      ),
+    );
   }
 }
