@@ -41,7 +41,7 @@ class _UserInformationScreenState extends State<UserInformationScreen>{
     return Scaffold(
 
       appBar: AppBar(
-        title: Text('Recuperar Senha'),
+        title: Text('Alterar Senha'),
       ),
       body: Padding(
         padding: EdgeInsets.all(16),
@@ -51,7 +51,29 @@ class _UserInformationScreenState extends State<UserInformationScreen>{
             child: Center(
               child: Column(
                 children: [
-                  Text('Teste de telaaaaaaa'),
+                  Text(
+                    'INFORME SEU NOME DE USUÁRIO', 
+                    textAlign: TextAlign.justify,
+                  ),
+                  Text(
+                    'Para redefinição de senha, insira seu nome de usuário e enviaremos um e-mail com um código para redefinir sua senha',
+                    textAlign: TextAlign.right,
+                  ),
+                  SizedBox(height: 10,),
+                  TextFormField(
+                    decoration: InputDecoration(
+                      label: Text('Nome de Usuário'),
+                      hintText: 'Digite aqui seu nome de usuário',
+                    ),
+                  ),
+                  SizedBox(height: 10,),
+                  ElevatedButton(
+                    onPressed: () => {
+                      print('Confirmar e-mail'),
+                      print('opa'),
+                    },
+                    child: Text('Avançar'),
+                  ),
                 ],
               ),
             ),
@@ -63,50 +85,3 @@ class _UserInformationScreenState extends State<UserInformationScreen>{
   }
 
 }
-
-
-
-class PasswordRecoveryPage extends StatelessWidget{
-
-  const PasswordRecoveryPage({super.key});
-
-  @override
-  Widget build(BuildContext context){
-    return MaterialApp(
-      title: 'Recuperação de Senha',
-      debugShowCheckedModeBanner: false,
-
-      home: Scaffold(
-        appBar: AppBar(
-          title: Text('Recuperar Senha'),
-        ),
-        // backgroundColor: const Color.fromARGB(255, 26, 56, 70),
-        body: Center(
-          child: Card(
-            color: const Color.fromARGB(255, 173, 193, 211),
-            child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              TextFormField(
-                decoration: InputDecoration(
-                  label: Text('Usuário:'),
-                  hintText: 'Informe seu nome de usuário',
-                ),
-                
-              ),
-              ElevatedButton(
-                onPressed: (){
-                  print('salvou!');
-                },
-                child: Text('Enviar'),
-              ),
-            ],
-          )
-          
-          )
-        )
-      )
-    );
-  }
-}
-
