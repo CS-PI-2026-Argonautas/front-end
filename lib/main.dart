@@ -45,41 +45,59 @@ class _UserInformationScreenState extends State<UserInformationScreen>{
       ),
       body: Padding(
         padding: EdgeInsets.all(16),
-        child: Card(
-          child: Padding(
-            padding: EdgeInsets.all(16),
-            child: Center(
-              child: Column(
-                children: [
-                  Text(
-                    'INFORME SEU NOME DE USUÁRIO', 
-                    textAlign: TextAlign.justify,
-                  ),
-                  Text(
-                    'Para redefinição de senha, insira seu nome de usuário e enviaremos um e-mail com um código para redefinir sua senha',
-                    textAlign: TextAlign.right,
-                  ),
-                  SizedBox(height: 10,),
-                  TextFormField(
-                    decoration: InputDecoration(
-                      label: Text('Nome de Usuário'),
-                      hintText: 'Digite aqui seu nome de usuário',
-                    ),
-                  ),
-                  SizedBox(height: 10,),
-                  ElevatedButton(
-                    onPressed: () => {
-                      print('Confirmar e-mail'),
-                      print('opa'),
-                    },
-                    child: Text('Avançar'),
-                  ),
-                ],
-              ),
+        child: Container(
+          padding: EdgeInsets.all(16),
+          child: Card(
+            child: Text(
+            'Para redefinição de senha, insira seu nome de usuário e enviaremos um e-mail com um código para redefinir sua senha',
+            textAlign: TextAlign.left
             ),
           ),
+          
         ),
       ),
+      
+
+
+
+
+      // body: Padding(
+      //   padding: EdgeInsets.all(16),
+      //   child: Card(
+      //     child: Padding(
+      //       padding: EdgeInsets.all(16),
+      //       child: Center(
+      //         child: Column(
+      //           children: [
+      //             Text(
+      //               'INFORME SEU NOME DE USUÁRIO', 
+      //               textAlign: TextAlign.justify,
+      //             ),
+      //             Text(
+      //               'Para redefinição de senha, insira seu nome de usuário e enviaremos um e-mail com um código para redefinir sua senha',
+      //               textAlign: TextAlign.right,
+      //             ),
+      //             SizedBox(height: 10,),
+      //             TextFormField(
+      //               decoration: InputDecoration(
+      //                 label: Text('Nome de Usuário'),
+      //                 hintText: 'Digite aqui seu nome de usuário',
+      //               ),
+      //             ),
+      //             SizedBox(height: 10,),
+      //             ElevatedButton(
+      //               onPressed: () => {
+      //                 print('Confirmar e-mail'),
+      //                 print('opa'),
+      //               },
+      //               child: Text('Avançar'),
+      //             ),
+      //           ],
+      //         ),
+      //       ),
+      //     ),
+      //   ),
+      // ),
 
     );
   }
