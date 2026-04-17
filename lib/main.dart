@@ -45,19 +45,39 @@ class _UserInformationScreenState extends State<UserInformationScreen>{
       ),
       body: Padding(
         padding: EdgeInsets.all(16),
-        child: Container(
-          padding: EdgeInsets.all(16),
-          child: Card(
-            child: Text(
-            'Para redefinição de senha, insira seu nome de usuário e enviaremos um e-mail com um código para redefinir sua senha',
-            textAlign: TextAlign.left
+        child: Column(
+          children: [
+            Container(
+              child: Text(
+                'Para redefinição de sua senha, informe seu nome de usuário e enviaremos um código para redefinir sua senha',
+                style: TextStyle(
+                  fontWeight: FontWeight(66),
+                ),
+              ),
+              
             ),
-          ),
-          
+            TextFormField(
+              decoration: InputDecoration(
+                // label: Text(
+                //   'Nome de usuário'
+                // ),
+                hintText: 'Digite seu nome de usuário...',
+                border: OutlineInputBorder(
+                  borderSide: BorderSide(width: 8)
+                ),
+              ),
+
+            ),
+            ElevatedButton(
+              onPressed: () => {},
+              child: Text(
+                'Prosseguir'
+              ),
+            ),
+          ],
         ),
       ),
       
-
 
 
 
