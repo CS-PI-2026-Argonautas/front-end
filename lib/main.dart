@@ -43,40 +43,85 @@ class _UserInformationScreenState extends State<UserInformationScreen>{
       appBar: AppBar(
         title: Text('Alterar Senha'),
       ),
-      body: Padding(
-        padding: EdgeInsets.all(16),
-        child: Column(
-          children: [
-            Container(
-              child: Text(
-                'Para redefinição de sua senha, informe seu nome de usuário e enviaremos um código para redefinir sua senha',
-                style: TextStyle(
-                  fontWeight: FontWeight(66),
+        body: SafeArea(
+          child: Padding(
+          padding: EdgeInsets.all(16),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Container(
+                child: Text(
+                  'Para redefinição de sua senha, informe seu nome de usuário e enviaremos um código para redefinir sua senha.',
+                  style: TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+                
+              ),
+              Spacer(),
+              Container(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'Nome de Usuário',
+                      style: TextStyle(
+                        
+                      ),
+                    ),
+                    TextFormField(
+
+                      // POSSIVEL VALIDAÇÃO FUTURA
+                      // validator: (value) {
+                      //   if(value == null || value.isEmpty){
+                      //     return 'Campo obrigatório';
+                      //   }
+                      //   return null;
+                      // },
+                      
+                      decoration: InputDecoration(
+                        hintText: 'Digite seu nome de usuário...',
+                        focusedBorder: OutlineInputBorder(
+                          borderSide: BorderSide(width: 1),
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        enabledBorder: OutlineInputBorder(
+                          borderSide: BorderSide(width: 1),
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                      ),
+
+                    ),
+                  ],
                 ),
               ),
               
-            ),
-            TextFormField(
-              decoration: InputDecoration(
-                // label: Text(
-                //   'Nome de usuário'
-                // ),
-                hintText: 'Digite seu nome de usuário...',
-                border: OutlineInputBorder(
-                  borderSide: BorderSide(width: 8)
+              Spacer(),
+              SizedBox(
+                width: double.infinity,
+                child: FilledButton(
+                  onPressed: () {},
+                  style: FilledButton.styleFrom(
+                    padding: EdgeInsets.symmetric(vertical: 18),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                  ),
+                  child: Text(
+                    'Prosseguir',
+                    style: TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
                 ),
-              ),
-
-            ),
-            ElevatedButton(
-              onPressed: () => {},
-              child: Text(
-                'Prosseguir'
-              ),
-            ),
-          ],
+              )
+            ],
+          ),
         ),
       ),
+        
       
 
 
