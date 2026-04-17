@@ -6,7 +6,7 @@ class ProductRegistration extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFD9ECF1),
+      backgroundColor: const Color.fromARGB(255, 216, 225, 228),
       body: SafeArea(
         child: SingleChildScrollView(
           padding: const EdgeInsets.all(20),
@@ -24,7 +24,10 @@ class ProductRegistration extends StatelessWidget {
                     ),
                     decoration: BoxDecoration(
                       gradient: const LinearGradient(
-                        colors: [Color(0xFF4458D6), Color(0xFF5E72E4)],
+                        colors: [
+                          Color.fromARGB(255, 62, 74, 148),
+                          Color(0xFF5E72E4),
+                        ],
                         begin: Alignment.topLeft,
                         end: Alignment.bottomRight,
                       ),
@@ -43,7 +46,7 @@ class ProductRegistration extends StatelessWidget {
                         Container(
                           padding: const EdgeInsets.all(14),
                           decoration: BoxDecoration(
-                            color: const Color.fromARGB(255, 110, 127, 197),
+                            color: const Color.fromARGB(176, 58, 71, 125),
                             borderRadius: BorderRadius.circular(16),
                           ),
                           child: const Icon(
@@ -69,7 +72,7 @@ class ProductRegistration extends StatelessWidget {
                               Text(
                                 'Preencha as informações para adicionar um novo produto ao estoque.',
                                 style: TextStyle(
-                                  color: Colors.white70,
+                                  color: Color.fromARGB(168, 255, 255, 255),
                                   fontSize: 14,
                                 ),
                               ),
@@ -102,7 +105,8 @@ class ProductRegistration extends StatelessWidget {
 
                   Card(
                     elevation: 8,
-                    shadowColor: Colors.black26,
+
+                    shadowColor: const Color.fromARGB(66, 1, 1, 1),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(22),
                     ),
@@ -131,7 +135,7 @@ class ProductRegistration extends StatelessWidget {
                                 color: Color.fromARGB(137, 3, 3, 3),
                               ),
                             ),
-                            const SizedBox(height: 24),
+                            const SizedBox(height: 30),
 
                             const Row(
                               children: [
@@ -180,7 +184,7 @@ class ProductRegistration extends StatelessWidget {
                               ),
                             ),
 
-                            const SizedBox(height: 20),
+                            const SizedBox(height: 30),
 
                             const Row(
                               children: [
@@ -230,7 +234,7 @@ class ProductRegistration extends StatelessWidget {
                               ),
                             ),
 
-                            const SizedBox(height: 20),
+                            const SizedBox(height: 30),
 
                             const Row(
                               children: [
@@ -280,7 +284,7 @@ class ProductRegistration extends StatelessWidget {
                               ),
                             ),
 
-                            const SizedBox(height: 28),
+                            const SizedBox(height: 30),
 
                             Row(
                               children: [
