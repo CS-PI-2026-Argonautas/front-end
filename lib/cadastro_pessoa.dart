@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:frontend/style/inputDecorationStyles.dart';
+import 'package:frontend/style/ColorScheme.dart';
+import 'package:frontend/style/icon.dart';
 
 void main() {
   runApp(const MaterialApp(
@@ -31,15 +34,19 @@ class _PersonRegistrationState extends State<PersonRegistration> {
           child: Center(
             child: Column(
               children: [
-                TextFormField(
-                  decoration: InputDecoration(
-                    labelText: 'Nome',
-                    enabledBorder: OutlineInputBorder(),
-                    focusedBorder: OutlineInputBorder(),
+                Row(
+                  children: [
+                    TextFormField(
+                      decoration: inputDecorationStyle.copyWith(
+                        labelText: 'Nome',
+                      ),
                     ),
-                  ),
+                  ],
+                ),
+              
                 
                 SizedBox(height: 15),
+
                 TextFormField(
                   decoration: InputDecoration(
                     labelText: 'Email',
