@@ -9,13 +9,15 @@ class Authentication extends StatelessWidget {
         backgroundColor: Colors.blue,
         body: SafeArea(
           child: Padding(
-            padding: EdgeInsetsGeometry.all(30),
+            padding: EdgeInsets.all(30),
             child: Column(
               children: [
                 Image.asset(
-              'assets/images/logoEmpresa.png',
-              width: 150,
+              'lib/assets/images/LogoEmpresa.png',
+              width: 350,
+              height: 180,
           ),
+          
                 TextField(decoration: InputDecoration(
                 hintText: 'Usuário',
                 filled: true,
