@@ -9,25 +9,25 @@ class Authentication extends StatelessWidget {
         backgroundColor: Colors.blue,
         body: SafeArea(
           child: Padding(
-            padding: EdgeInsets.all(150.0),
+            padding: EdgeInsetsGeometry.all(30),
             child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            crossAxisAlignment: CrossAxisAlignment.center,
-            spacing: 30,
-            children: [
-              Image.asset('assets/images/LogoEmpresa.png',),
-              TextField(decoration: InputDecoration(
-                hintText: 'Login',
+              children: [
+                Image.asset(
+              'assets/images/logoEmpresa.png',
+              width: 150,
+          ),
+                TextField(decoration: InputDecoration(
+                hintText: 'Usuário',
                 filled: true,
                 prefixIcon: Icon(Icons.person),
                 border: OutlineInputBorder(
                 borderSide: BorderSide(
                   color: Colors.blue
                 ),
-              ),),),
-              
+              ),),
+              ),
+              SizedBox(height: 20,),
               TextField(decoration: InputDecoration(
-                
                 hintText: 'Senha',
                 filled: true,
                 prefixIcon: Icon(Icons.password),
@@ -35,17 +35,18 @@ class Authentication extends StatelessWidget {
                 borderSide: BorderSide(
                   color: Colors.blue
                 ),
-              
               ),),
               ),
+              SizedBox(height: 20,),
+              
           
               ElevatedButton(onPressed:(){}, child: Text('Entrar')),
-            ],
-          ),
-          ),
-        ),
-      );
-    
-    }
+              ],
+                ),
+              ),
+              ),
+              );
+              
+          }
 }
 
