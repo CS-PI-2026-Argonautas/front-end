@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 class ProductForm extends StatelessWidget {
   final VoidCallback onSave;
@@ -98,7 +99,9 @@ class ProductForm extends StatelessWidget {
               ),
               const SizedBox(height: 10),
               TextFormField(
+                maxLength: 6,
                 keyboardType: TextInputType.number,
+                inputFormatters: [FilteringTextInputFormatter.digitsOnly],
                 decoration: InputDecoration(
                   hintText: '10',
                   prefixIcon: const Icon(Icons.numbers),
@@ -132,8 +135,10 @@ class ProductForm extends StatelessWidget {
                 ],
               ),
               const SizedBox(height: 10),
-              TextFormField(
+              TextField(
+                maxLength: 2,
                 keyboardType: TextInputType.number,
+                inputFormatters: [FilteringTextInputFormatter.digitsOnly],
                 decoration: InputDecoration(
                   hintText: '10',
                   prefixIcon: const Icon(Icons.numbers),
@@ -188,7 +193,7 @@ class ProductForm extends StatelessWidget {
                           borderRadius: BorderRadius.circular(14),
                         ),
                       ),
-                      onPressed: onCancel,
+                      onPressed: () {},
                       icon: const Icon(Icons.cancel_outlined),
                       label: const Text("Cancelar"),
                     ),

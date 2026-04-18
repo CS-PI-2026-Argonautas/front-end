@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:frontend/pages/form.dart';
-import 'header.dart';
+import 'package:frontend/pages/product_form.dart';
+import 'product_header.dart';
 
 class ProductRegistration extends StatelessWidget {
   const ProductRegistration({super.key});

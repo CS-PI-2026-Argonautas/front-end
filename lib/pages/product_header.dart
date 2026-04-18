@@ -6,11 +6,11 @@ class ProductHeader extends StatelessWidget {
   const ProductHeader({super.key, required this.onBack});
 
   static const Color primaryBlue = Color.fromARGB(255, 38, 49, 140);
-  static const Color secondaryBlue = Color.fromARGB(255, 78, 94, 183);
+  static const Color secondaryBlue = Color.fromARGB(255, 77, 91, 173);
   static const Color whiteColor = Colors.white;
   static const Color whiteSoft = Colors.white70;
   static const Color whiteBorder = Colors.white54;
-  static const Color iconBackground = Colors.white24;
+  static const Color iconBackground = Color.fromARGB(56, 19, 42, 104);
   static const Color shadowColor = Colors.black12;
 
   @override
@@ -74,7 +74,7 @@ class ProductHeader extends StatelessWidget {
                 borderRadius: BorderRadius.circular(14),
               ),
             ),
-            onPressed: onBack,
+            onPressed: (onBack),
             icon: const Icon(Icons.arrow_back),
             label: const Text("Voltar"),
           ),
