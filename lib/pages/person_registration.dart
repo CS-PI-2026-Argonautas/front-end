@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:frontend/style/colorScheme.dart' as custom_colors; 
-
+import 'package:frontend/style/colorScheme.dart' as custom_colors;
 
 class PersonRegistration extends StatefulWidget {
   const PersonRegistration({super.key});
@@ -11,10 +10,9 @@ class PersonRegistration extends StatefulWidget {
 
 class _PersonRegistrationState extends State<PersonRegistration> {
   @override
-Widget build(BuildContext context) {
-  return Directionality(
-    textDirection: TextDirection.ltr,
-    child: Scaffold(
+  Widget build(BuildContext context) {
+    // Nota: O Directionality geralmente é fornecido pelo MaterialApp no main.dart
+    return Scaffold(
       backgroundColor: custom_colors.colorScheme.surface,
       body: SafeArea(
         child: SingleChildScrollView(
@@ -25,6 +23,7 @@ Widget build(BuildContext context) {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
+                  // Cabeçalho com Gradiente
                   Container(
                     width: double.infinity,
                     padding: const EdgeInsets.symmetric(
@@ -41,11 +40,11 @@ Widget build(BuildContext context) {
                         end: Alignment.bottomRight,
                       ),
                       borderRadius: BorderRadius.circular(20),
-                      boxShadow: const [
+                      boxShadow: [
                         BoxShadow(
-                          color: Color.fromARGB(255, 255, 255, 255),
+                          color: Colors.black.withOpacity(0.1),
                           blurRadius: 12,
-                          offset: Offset(0, 6),
+                          offset: const Offset(0, 6),
                         ),
                       ],
                     ),
@@ -55,7 +54,7 @@ Widget build(BuildContext context) {
                         Container(
                           padding: const EdgeInsets.all(14),
                           decoration: BoxDecoration(
-                            color: custom_colors.colorScheme.surfaceContainer,
+                            color: Colors.white.withOpacity(0.2),
                             borderRadius: BorderRadius.circular(16),
                           ),
                           child: const Icon(
@@ -73,7 +72,7 @@ Widget build(BuildContext context) {
                                 'Cadastro de cliente',
                                 style: TextStyle(
                                   color: custom_colors.colorScheme.onPrimary,
-                                  fontSize: 28,
+                                  fontSize: 24,
                                   fontWeight: FontWeight.bold,
                                 ),
                               ),
@@ -88,23 +87,9 @@ Widget build(BuildContext context) {
                             ],
                           ),
                         ),
-                        OutlinedButton.icon(
-                          style: OutlinedButton.styleFrom(
-                            foregroundColor: Colors.white,
-                            side: const BorderSide(color: Colors.white54),
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 16,
-                              vertical: 14,
-                            ),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(14),
-                            ),
-                          ),
-                          onPressed: () {
-                            Navigator.pop(context);
-                          },
-                          icon: const Icon(Icons.arrow_back),
-                          label: const Text("Voltar"),
+                        IconButton(
+                          icon: const Icon(Icons.arrow_back, color: Colors.white),
+                          onPressed: () => Navigator.pop(context),
                         ),
                       ],
                     ),
@@ -112,238 +97,72 @@ Widget build(BuildContext context) {
 
                   const SizedBox(height: 24),
 
+                  // Card de Formulário
                   Card(
-                    elevation: 8,
-                    shadowColor: Colors.black26,
+                    elevation: 4,
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(22),
                     ),
                     child: Padding(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 24,
-                        vertical: 28,
-                      ),
+                      padding: const EdgeInsets.all(24),
                       child: Form(
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            const Text(
-                              "Informações do produto",
+                            Text(
+                              "Informações do cliente",
                               style: TextStyle(
                                 fontSize: 20,
                                 fontWeight: FontWeight.bold,
-                                color: Color.fromARGB(255, 46, 45, 45),
-                              ),
-                            ),
-                            const SizedBox(height: 6),
-                            const Text(
-                              "Complete os campos abaixo com os dados necessários.",
-                              style: TextStyle(
-                                fontSize: 14,
-                                color: Color.fromARGB(137, 3, 3, 3),
+                                color: custom_colors.colorScheme.onSurface,
                               ),
                             ),
                             const SizedBox(height: 24),
-
-                            const Row(
-                              children: [
-                                Icon(Icons.description_outlined, size: 20),
-                                SizedBox(width: 8),
-                                Text(
-                                  "Descrição do produto",
-                                  style: TextStyle(
-                                    fontWeight: FontWeight.bold,
-                                    fontSize: 16,
-                                  ),
-                                ),
-                              ],
-                            ),
+                            
+                            // Campo: Descrição
+                            _buildFieldLabel(Icons.description_outlined, "Descrição do produto"),
                             const SizedBox(height: 10),
                             TextFormField(
-                              maxLines: 4,
-                              decoration: InputDecoration(
-                                hintText: 'Ex.: marca, tamanho, peso máximo...',
-                                filled: true,
-                                fillColor: const Color.fromARGB(
-                                  255,
-                                  244,
-                                  246,
-                                  250,
-                                ),
-                                border: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(14),
-                                  borderSide: const BorderSide(
-                                    color: Color.fromARGB(31, 6, 6, 6),
-                                  ),
-                                ),
-                                enabledBorder: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(14),
-                                  borderSide: const BorderSide(
-                                    color: Color.fromARGB(31, 6, 6, 6),
-                                  ),
-                                ),
-                                focusedBorder: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(14),
-                                  borderSide: const BorderSide(
-                                    color: Color.fromARGB(255, 67, 86, 210),
-                                    width: 2,
-                                  ),
-                                ),
-                              ),
+                              decoration: _inputStyle("Ex: Marca, tamanho..."),
+                              maxLines: 3,
                             ),
 
                             const SizedBox(height: 20),
 
-                            const Row(
-                              children: [
-                                Icon(Icons.inventory_outlined, size: 20),
-                                SizedBox(width: 8),
-                                Text(
-                                  "Quantidade em estoque",
-                                  style: TextStyle(
-                                    fontWeight: FontWeight.bold,
-                                    fontSize: 16,
-                                  ),
-                                ),
-                              ],
-                            ),
+                            // Campo: Estoque
+                            _buildFieldLabel(Icons.inventory_outlined, "Quantidade em estoque"),
                             const SizedBox(height: 10),
                             TextFormField(
                               keyboardType: TextInputType.number,
-                              decoration: InputDecoration(
-                                hintText: '10',
-                                prefixIcon: const Icon(Icons.numbers),
-                                filled: true,
-                                fillColor: const Color.fromARGB(
-                                  255,
-                                  246,
-                                  247,
-                                  251,
-                                ),
-                                border: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(14),
-                                  borderSide: const BorderSide(
-                                    color: Colors.black12,
-                                  ),
-                                ),
-                                enabledBorder: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(14),
-                                  borderSide: const BorderSide(
-                                    color: Colors.black12,
-                                  ),
-                                ),
-                                focusedBorder: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(14),
-                                  borderSide: const BorderSide(
-                                    color: Color.fromARGB(255, 69, 89, 217),
-                                    width: 2,
-                                  ),
-                                ),
-                              ),
-                            ),
-
-                            const SizedBox(height: 20),
-
-                            const Row(
-                              children: [
-                                Icon(Icons.warning_amber_rounded, size: 20),
-                                SizedBox(width: 8),
-                                Text(
-                                  "Quantidade mínima",
-                                  style: TextStyle(
-                                    fontWeight: FontWeight.bold,
-                                    fontSize: 16,
-                                  ),
-                                ),
-                              ],
-                            ),
-                            const SizedBox(height: 10),
-                            TextFormField(
-                              keyboardType: TextInputType.number,
-                              decoration: InputDecoration(
-                                hintText: '10',
-                                prefixIcon: const Icon(Icons.numbers),
-                                filled: true,
-                                fillColor: const Color.fromARGB(
-                                  255,
-                                  247,
-                                  248,
-                                  252,
-                                ),
-                                border: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(14),
-                                  borderSide: const BorderSide(
-                                    color: Color.fromARGB(31, 0, 0, 0),
-                                  ),
-                                ),
-                                enabledBorder: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(14),
-                                  borderSide: const BorderSide(
-                                    color: Colors.black12,
-                                  ),
-                                ),
-                                focusedBorder: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(14),
-                                  borderSide: const BorderSide(
-                                    color: Color.fromARGB(255, 67, 87, 212),
-                                    width: 2,
-                                  ),
-                                ),
-                              ),
+                              decoration: _inputStyle("0"),
                             ),
 
                             const SizedBox(height: 28),
 
+                            // Botões de Ação
                             Row(
                               children: [
                                 Expanded(
-                                  child: ElevatedButton.icon(
-                                    onPressed: () {},
+                                  child: ElevatedButton(
                                     style: ElevatedButton.styleFrom(
-                                      elevation: 3,
-                                      backgroundColor: const Color.fromARGB(
-                                        255,
-                                        68,
-                                        87,
-                                        212,
-                                      ),
+                                      backgroundColor: custom_colors.colorScheme.primary,
                                       foregroundColor: Colors.white,
-                                      padding: const EdgeInsets.symmetric(
-                                        vertical: 18,
-                                      ),
-                                      shape: RoundedRectangleBorder(
-                                        borderRadius: BorderRadius.circular(14),
-                                      ),
+                                      padding: const EdgeInsets.symmetric(vertical: 16),
+                                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                                     ),
-                                    icon: const Icon(Icons.save_outlined),
-                                    label: const Text(
-                                      "Salvar",
-                                      style: TextStyle(
-                                        fontWeight: FontWeight.bold,
-                                      ),
-                                    ),
+                                    onPressed: () {},
+                                    child: const Text("Salvar"),
                                   ),
                                 ),
-                                const SizedBox(width: 14),
+                                const SizedBox(width: 12),
                                 Expanded(
-                                  child: OutlinedButton.icon(
+                                  child: OutlinedButton(
                                     style: OutlinedButton.styleFrom(
-                                      foregroundColor: Colors.black87,
-                                      side: const BorderSide(
-                                        color: Colors.black26,
-                                      ),
-                                      padding: const EdgeInsets.symmetric(
-                                        vertical: 18,
-                                      ),
-                                      shape: RoundedRectangleBorder(
-                                        borderRadius: BorderRadius.circular(14),
-                                      ),
+                                      padding: const EdgeInsets.symmetric(vertical: 16),
+                                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                                     ),
-                                    onPressed: () {
-                                      Navigator.pop(context);
-                                    },
-                                    icon: const Icon(Icons.cancel_outlined),
-                                    label: const Text("Cancelar"),
+                                    onPressed: () => Navigator.pop(context),
+                                    child: const Text("Cancelar"),
                                   ),
                                 ),
                               ],
@@ -359,24 +178,30 @@ Widget build(BuildContext context) {
           ),
         ),
       ),
-    ),
+    );
+  }
+
+  // Helper para labels
+  Widget _buildFieldLabel(IconData icon, String label) {
+    return Row(
+      children: [
+        Icon(icon, size: 20, color: custom_colors.colorScheme.primary),
+        const SizedBox(width: 8),
+        Text(label, style: const TextStyle(fontWeight: FontWeight.bold)),
+      ],
+    );
+  }
+
+  // Helper para estilo de input
+  InputDecoration _inputStyle(String hint) {
+    return InputDecoration(
+      hintText: hint,
+      filled: true,
+      fillColor: custom_colors.colorScheme.surfaceContainer,
+      border: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(14),
+        borderSide: BorderSide.none,
+      ),
     );
   }
 }
-
-
-class _PersonRegistrationSecondStepState extends State<PersonRegistration>{
-  @override
-  Widget build(BuildContext context) {
-    return Container();
-  }
-}
-
-class _PersonRegistrationThirdStepState extends State<PersonRegistration>{
-  @override
-  Widget build(BuildContext context) {
-    return Container();
-  }
-}
-
-
