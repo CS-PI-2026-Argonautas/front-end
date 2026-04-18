@@ -1,8 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:frontend/style/inputDecorationStyles.dart';
-import 'package:frontend/style/ColorScheme.dart';
-import 'package:frontend/style/icon.dart';
-
+import 'package:frontend/style/colorScheme.dart' as custom_colors; 
 
 
 class PersonRegistration extends StatefulWidget {
@@ -18,7 +15,7 @@ Widget build(BuildContext context) {
   return Directionality(
     textDirection: TextDirection.ltr,
     child: Scaffold(
-      backgroundColor: Theme.of(context).colorScheme.surface,
+      backgroundColor: custom_colors.colorScheme.surface,
       body: SafeArea(
         child: SingleChildScrollView(
           padding: const EdgeInsets.all(20),
@@ -36,14 +33,17 @@ Widget build(BuildContext context) {
                     ),
                     decoration: BoxDecoration(
                       gradient: LinearGradient(
-                        colors: [Theme.of(context).colorScheme.tertiary, Theme.of(context).colorScheme.primary],
+                        colors: [
+                          custom_colors.colorScheme.tertiary,
+                          custom_colors.colorScheme.primary
+                        ],
                         begin: Alignment.topLeft,
                         end: Alignment.bottomRight,
                       ),
                       borderRadius: BorderRadius.circular(20),
                       boxShadow: const [
                         BoxShadow(
-                          color: Colors.black12,
+                          color: Color.fromARGB(255, 255, 255, 255),
                           blurRadius: 12,
                           offset: Offset(0, 6),
                         ),
@@ -55,7 +55,7 @@ Widget build(BuildContext context) {
                         Container(
                           padding: const EdgeInsets.all(14),
                           decoration: BoxDecoration(
-                            color: const Color.fromARGB(255, 110, 127, 197),
+                            color: custom_colors.colorScheme.surfaceContainer,
                             borderRadius: BorderRadius.circular(16),
                           ),
                           child: const Icon(
@@ -65,21 +65,21 @@ Widget build(BuildContext context) {
                           ),
                         ),
                         const SizedBox(width: 16),
-                        const Expanded(
+                        Expanded(
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Text(
-                                'Cadastro de produtos',
+                                'Cadastro de cliente',
                                 style: TextStyle(
-                                  color: Colors.white,
+                                  color: custom_colors.colorScheme.onPrimary,
                                   fontSize: 28,
                                   fontWeight: FontWeight.bold,
                                 ),
                               ),
-                              SizedBox(height: 6),
-                              Text(
-                                'Preencha as informações para adicionar um novo produto ao estoque.',
+                              const SizedBox(height: 6),
+                              const Text(
+                                'Preencha as informações para adicionar um novo cliente.',
                                 style: TextStyle(
                                   color: Colors.white70,
                                   fontSize: 14,
