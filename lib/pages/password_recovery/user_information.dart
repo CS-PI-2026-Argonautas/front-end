@@ -1,15 +1,17 @@
+import 'dart:ui';
+
 import 'package:flutter/material.dart';
 
-class UserInformationScreen extends StatefulWidget{
+class UserInformation extends StatefulWidget{
 
-  const UserInformationScreen({super.key});
+  const UserInformation({super.key});
 
   @override
-  State<UserInformationScreen> createState() => _UserInformationScreenState();
+  State<UserInformation> createState() => _UserInformationState();
 
 }
 
-class _UserInformationScreenState extends State<UserInformationScreen>{
+class _UserInformationState extends State<UserInformation>{
 
   @override
   Widget build(BuildContext context){
@@ -44,6 +46,7 @@ class _UserInformationScreenState extends State<UserInformationScreen>{
                     Text(
                       'Nome de Usuário',
                       style: TextStyle(
+                        fontSize: 18,
                         fontWeight: FontWeight.w600,
                       ),
                     ),
@@ -80,9 +83,63 @@ class _UserInformationScreenState extends State<UserInformationScreen>{
                 child: SizedBox(
                   width: MediaQuery.of(context).size.width * 0.7,
                   child: FilledButton(
-                    onPressed: () {},
+                    onPressed: () => {
+                      showGeneralDialog(
+                        context: context,
+                        barrierDismissible: true,
+                        barrierLabel: 'Confirmação de e-mail',
+                        pageBuilder: (_, __, ___, ){
+                          return Stack(
+                            children: [
+                              BackdropFilter(
+                                filter: ImageFilter.blur(sigmaX: 6, sigmaY: 6),
+                                child: Container(
+                                  color: Colors.black.withOpacity(0.2),
+                                ),
+                              ),
+
+                              Spacer(flex: 1,),
+                              Center(
+                                child: Container(
+                                  padding: EdgeInsets.all(24),
+                                  width: MediaQuery.of(context).size.width * 0.7,
+                                  decoration: BoxDecoration(
+                                    color: Colors.white,
+                                    borderRadius: BorderRadius.circular(12),
+                                  ),
+                                  child: Column(
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: [
+                                      Text(
+                                        'Este é seu e-mail? ',
+                                        style: TextStyle(
+                                          color: Colors.black,
+                                          fontSize: 18,
+                                          fontWeight: FontWeight.w600,
+                                        ),
+                                      ),
+                                      Text(
+                                        'email****@ex***.com',
+                                        style: TextStyle(
+                                          color: Colors.black,
+                                          fontSize: 18,
+                                          fontWeight: FontWeight.w600,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ),
+
+                              Spacer(flex: 2,),
+                            ],
+                          );
+                        }
+                    
+                      ),
+                    },
                     style: FilledButton.styleFrom(
-                      padding: EdgeInsets.symmetric(vertical: 18),
+                      padding: EdgeInsets.symmetric(vertical: 22),
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(12),
                       ),
@@ -90,7 +147,7 @@ class _UserInformationScreenState extends State<UserInformationScreen>{
                     child: Text(
                       'Prosseguir',
                       style: TextStyle(
-                        fontSize: 16,
+                        fontSize: 18,
                         fontWeight: FontWeight.w600,
                       ),
                     ),
@@ -101,49 +158,6 @@ class _UserInformationScreenState extends State<UserInformationScreen>{
           ),
         ),
       ),
-        
-      
-
-
-
-      // body: Padding(
-      //   padding: EdgeInsets.all(16),
-      //   child: Card(
-      //     child: Padding(
-      //       padding: EdgeInsets.all(16),
-      //       child: Center(
-      //         child: Column(
-      //           children: [
-      //             Text(
-      //               'INFORME SEU NOME DE USUÁRIO', 
-      //               textAlign: TextAlign.justify,
-      //             ),
-      //             Text(
-      //               'Para redefinição de senha, insira seu nome de usuário e enviaremos um e-mail com um código para redefinir sua senha',
-      //               textAlign: TextAlign.right,
-      //             ),
-      //             SizedBox(height: 10,),
-      //             TextFormField(
-      //               decoration: InputDecoration(
-      //                 label: Text('Nome de Usuário'),
-      //                 hintText: 'Digite aqui seu nome de usuário',
-      //               ),
-      //             ),
-      //             SizedBox(height: 10,),
-      //             ElevatedButton(
-      //               onPressed: () => {
-      //                 print('Confirmar e-mail'),
-      //                 print('opa'),
-      //               },
-      //               child: Text('Avançar'),
-      //             ),
-      //           ],
-      //         ),
-      //       ),
-      //     ),
-      //   ),
-      // ),
-
     );
   }
 
