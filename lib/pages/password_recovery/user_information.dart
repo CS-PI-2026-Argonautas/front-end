@@ -84,6 +84,7 @@ class _UserInformationState extends State<UserInformation>{
                   width: MediaQuery.of(context).size.width * 0.7,
                   child: FilledButton(
                     onPressed: () => {
+
                       showGeneralDialog(
                         context: context,
                         barrierDismissible: true,
@@ -93,12 +94,15 @@ class _UserInformationState extends State<UserInformation>{
                             children: [
                               BackdropFilter(
                                 filter: ImageFilter.blur(sigmaX: 6, sigmaY: 6),
-                                child: Container(
-                                  color: Colors.black.withOpacity(0.2),
+                                child: GestureDetector(
+                                  onTap: () => Navigator.pop(context),
+                                  child: Container(
+                                    color: Colors.black.withOpacity(0.2),
+                                  ),
                                 ),
                               ),
 
-                              Spacer(flex: 1,),
+                            
                               Center(
                                 child: Container(
                                   padding: EdgeInsets.all(24),
@@ -126,12 +130,48 @@ class _UserInformationState extends State<UserInformation>{
                                           fontWeight: FontWeight.w600,
                                         ),
                                       ),
+                                      Row(
+                                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                        children: [
+                                          FilledButton(
+                                            style: FilledButton.styleFrom(
+                                              padding: EdgeInsets.symmetric(vertical: 16),
+                                              shape: RoundedRectangleBorder(
+                                                borderRadius: BorderRadiusGeometry.circular(12),
+                                              ),
+                                            ),
+                                            onPressed: () => {},
+                                            child: Text(
+                                              'Sim',
+                                              style: TextStyle(
+                                                fontSize: 16,
+                                                fontWeight: FontWeight.w400,
+                                              ),
+                                            ),
+                                          ),
+                                          FilledButton(
+                                            style: FilledButton.styleFrom(
+                                              padding: EdgeInsets.symmetric(vertical: 16),
+                                              shape: RoundedRectangleBorder(
+                                                borderRadius: BorderRadiusGeometry.circular(12),
+                                              ),
+                                            ),
+                                            onPressed: () => {},
+                                            child: Text(
+                                              'Não',
+                                              style: TextStyle(
+                                                fontSize: 16,
+                                                fontWeight: FontWeight.w400,
+                                              ),
+                                            ),
+                                          ),
+                                        ],
+                                      ),
                                     ],
                                   ),
                                 ),
                               ),
 
-                              Spacer(flex: 2,),
                             ],
                           );
                         }
