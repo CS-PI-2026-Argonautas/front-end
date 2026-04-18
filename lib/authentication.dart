@@ -66,20 +66,42 @@ class _AuthenticationState extends State<Authentication> {
                 borderRadius: BorderRadius.circular(14),
               ),),
               ),
-
               SizedBox(height: 20,),
-              ElevatedButton.icon(
-              onPressed:(){},
-              icon: Icon(Icons.login),
-              label: Text('Entrar', style: TextStyle(fontSize: 18),),
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.white,
-                foregroundColor: const Color.fromARGB(255, 13, 35, 54),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(14),
+              GestureDetector(
+                onTap: () {}, child: Text("Esqueceu senha?", style: TextStyle(color: Colors.white),),
+              ),
+              SizedBox(height: 150,),
+                            SizedBox(
+                height: 50,
+                width: 120,
+                child: ElevatedButton.icon(
+                  onPressed: () {},
+                  icon: const Icon(Icons.login),
+                  label: const Text('Entrar', style: TextStyle(fontSize: 18)),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.white,
+                    foregroundColor: const Color.fromARGB(255, 13, 35, 54),
+                    shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(14),
+                    ),
+                  ),
                 ),
               ),
-              
+              SizedBox(height: 20,),
+              GestureDetector(
+                onTap: () {}, child: Text.rich(
+              TextSpan(
+                style: const TextStyle(color: Colors.white, fontSize: 16),
+                children: [
+                  const TextSpan(text: "Não tem uma conta? "),
+                  const TextSpan(
+                    text: "Cadastre-se",
+                    style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ],
+              ),),
               ),
               ],
                 ),
