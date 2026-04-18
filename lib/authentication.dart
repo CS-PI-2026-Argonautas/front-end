@@ -1,8 +1,16 @@
 import 'package:flutter/material.dart';
 
-class Authentication extends StatelessWidget {
+class Authentication extends StatefulWidget {
   const Authentication({super.key});
 
+@override
+State<Authentication> createState() => _AuthenticationState();
+}
+
+class _AuthenticationState extends State<Authentication> {
+  
+  bool _isPasswordVisible = false;
+  
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -37,17 +45,28 @@ class Authentication extends StatelessWidget {
                 borderRadius: BorderRadius.circular(14),
               ),),
               ),
+
               SizedBox(height: 20,),
               TextField(
-                obscureText: true,
+                obscureText: !_isPasswordVisible,
                 decoration: InputDecoration(
                 hintText: 'Senha',
                 filled: true,
                 prefixIcon: Icon(Icons.password),
+                suffixIcon: IconButton(
+                  icon: Icon(
+                    _isPasswordVisible?Icons.visibility:Icons.visibility_off,),
+                onPressed:() {
+                  setState(() {
+                    _isPasswordVisible = !_isPasswordVisible;
+                  });
+                },
+              ),
                 border: OutlineInputBorder( 
                 borderRadius: BorderRadius.circular(14),
               ),),
               ),
+
               SizedBox(height: 20,),
               ElevatedButton.icon(
               onPressed:(){},
