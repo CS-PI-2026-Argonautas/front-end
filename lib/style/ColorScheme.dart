@@ -5,7 +5,7 @@ import 'package:flutter/material.dart';
 
 final colorScheme = ColorScheme(
   brightness: Brightness.light, //tema claro
-  primary: const Color(0xFF2596be), //cor primária #f0f5f7
+  primary: const Color(0xFF2596be), //cor primária do app
   onPrimary: Colors.blueGrey.shade100, //elementos em cima da cor primária
   secondary: const Color(0xFF2582BE),//cor secundária
   onSecondary: Colors.white,//elementos em cima da cor secundária
