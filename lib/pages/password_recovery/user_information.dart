@@ -66,7 +66,7 @@ class _UserInformationState extends State<UserInformation>{
                         decoration: InputDecoration(
                           hintText: 'Digite seu nome de usuário...',
                           focusedBorder: OutlineInputBorder(
-                            borderSide: BorderSide(width: 1),
+                            borderSide: BorderSide(width: 2),
                             borderRadius: BorderRadius.circular(12),
                           ),
                           enabledBorder: OutlineInputBorder(
@@ -87,99 +87,98 @@ class _UserInformationState extends State<UserInformation>{
                     width: MediaQuery.of(context).size.width * 0.7,
                     child: FilledButton(
                       onPressed: () => {
+                        if (_formKey.currentState!.validate()){
+                          showGeneralDialog(
+                            context: context,
+                            barrierDismissible: true,
+                            barrierLabel: 'Confirmação de e-mail',
+                            pageBuilder: (_, __, ___, ){
+                              return Stack(
+                                children: [
+                                  BackdropFilter(
+                                    filter: ImageFilter.blur(sigmaX: 6, sigmaY: 6),
+                                    child: GestureDetector(
+                                      onTap: () => Navigator.pop(context),
+                                      child: Container(
+                                        color: Colors.black.withOpacity(0.2),
+                                      ),
+                                    ),
+                                  ),
 
-                        showGeneralDialog(
-                          context: context,
-                          barrierDismissible: true,
-                          barrierLabel: 'Confirmação de e-mail',
-                          pageBuilder: (_, __, ___, ){
-                            return Stack(
-                              children: [
-                                BackdropFilter(
-                                  filter: ImageFilter.blur(sigmaX: 6, sigmaY: 6),
-                                  child: GestureDetector(
-                                    onTap: () => Navigator.pop(context),
+                                  Center(
                                     child: Container(
-                                      color: Colors.black.withOpacity(0.2),
+                                      padding: EdgeInsets.all(24),
+                                      width: MediaQuery.of(context).size.width * 0.7,
+                                      decoration: BoxDecoration(
+                                        color: Colors.white,
+                                        borderRadius: BorderRadius.circular(12),
+                                      ),
+                                      child: Column(
+                                        mainAxisSize: MainAxisSize.min,
+                                        children: [
+                                          Text(
+                                            'Este é seu e-mail? ',
+                                            style: TextStyle(
+                                              color: Colors.black,
+                                              fontSize: 18,
+                                              fontWeight: FontWeight.w600,
+                                            ),
+                                          ),
+                                          Text(
+                                            'email****@ex***.com',
+                                            style: TextStyle(
+                                              color: Colors.black,
+                                              fontSize: 18,
+                                              fontWeight: FontWeight.w600,
+                                            ),
+                                          ),
+                                          Row(
+                                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                            children: [
+                                              FilledButton(
+                                                style: FilledButton.styleFrom(
+                                                  padding: EdgeInsets.symmetric(vertical: 16),
+                                                  shape: RoundedRectangleBorder(
+                                                    borderRadius: BorderRadiusGeometry.circular(12),
+                                                  ),
+                                                ),
+                                                onPressed: () => {},
+                                                child: Text(
+                                                  'Sim',
+                                                  style: TextStyle(
+                                                    fontSize: 16,
+                                                    fontWeight: FontWeight.w400,
+                                                  ),
+                                                ),
+                                              ),
+                                              FilledButton(
+                                                style: FilledButton.styleFrom(
+                                                  padding: EdgeInsets.symmetric(vertical: 16),
+                                                  shape: RoundedRectangleBorder(
+                                                    borderRadius: BorderRadiusGeometry.circular(12),
+                                                  ),
+                                                ),
+                                                onPressed: () => {},
+                                                child: Text(
+                                                  'Não',
+                                                  style: TextStyle(
+                                                    fontSize: 16,
+                                                    fontWeight: FontWeight.w400,
+                                                  ),
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+                                        ],
+                                      ),
                                     ),
                                   ),
-                                ),
 
-                              
-                                Center(
-                                  child: Container(
-                                    padding: EdgeInsets.all(24),
-                                    width: MediaQuery.of(context).size.width * 0.7,
-                                    decoration: BoxDecoration(
-                                      color: Colors.white,
-                                      borderRadius: BorderRadius.circular(12),
-                                    ),
-                                    child: Column(
-                                      mainAxisSize: MainAxisSize.min,
-                                      children: [
-                                        Text(
-                                          'Este é seu e-mail? ',
-                                          style: TextStyle(
-                                            color: Colors.black,
-                                            fontSize: 18,
-                                            fontWeight: FontWeight.w600,
-                                          ),
-                                        ),
-                                        Text(
-                                          'email****@ex***.com',
-                                          style: TextStyle(
-                                            color: Colors.black,
-                                            fontSize: 18,
-                                            fontWeight: FontWeight.w600,
-                                          ),
-                                        ),
-                                        Row(
-                                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                          children: [
-                                            FilledButton(
-                                              style: FilledButton.styleFrom(
-                                                padding: EdgeInsets.symmetric(vertical: 16),
-                                                shape: RoundedRectangleBorder(
-                                                  borderRadius: BorderRadiusGeometry.circular(12),
-                                                ),
-                                              ),
-                                              onPressed: () => {},
-                                              child: Text(
-                                                'Sim',
-                                                style: TextStyle(
-                                                  fontSize: 16,
-                                                  fontWeight: FontWeight.w400,
-                                                ),
-                                              ),
-                                            ),
-                                            FilledButton(
-                                              style: FilledButton.styleFrom(
-                                                padding: EdgeInsets.symmetric(vertical: 16),
-                                                shape: RoundedRectangleBorder(
-                                                  borderRadius: BorderRadiusGeometry.circular(12),
-                                                ),
-                                              ),
-                                              onPressed: () => {},
-                                              child: Text(
-                                                'Não',
-                                                style: TextStyle(
-                                                  fontSize: 16,
-                                                  fontWeight: FontWeight.w400,
-                                                ),
-                                              ),
-                                            ),
-                                          ],
-                                        ),
-                                      ],
-                                    ),
-                                  ),
-                                ),
-
-                              ],
-                            );
-                          }
-                      
-                        ),
+                                ],
+                              );
+                            }
+                          ),
+                        }                        
                       },
                       style: FilledButton.styleFrom(
                         padding: EdgeInsets.symmetric(vertical: 22),
