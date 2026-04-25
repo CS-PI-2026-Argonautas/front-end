@@ -1,19 +1,21 @@
 import 'package:flutter/material.dart';
-import 'package:frontend/authentication.dart';
+import 'package:frontend/pages/authentication/authentication.dart';
 
 void main() {
-  runApp(const MainApp());
+  runApp(MyApp());
 }
 
-class MainApp extends StatelessWidget {
-  const MainApp({super.key});
-
+class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    return const MaterialApp(
-      home: Scaffold(
-        body: Authentication()
-      ),
+    return MaterialApp(
+      debugShowCheckedModeBanner: false,
+      home: Authentication(),
+      theme: ThemeData(
+        colorScheme: .fromSeed(
+          seedColor: const Color.fromARGB(255, 64, 126, 207),
+        ),
+        ),
     );
   }
 }
