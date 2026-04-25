@@ -1,23 +1,22 @@
+import 'package:frontend/pages/product_registration.dart';
 import 'package:flutter/material.dart';
 import 'package:frontend/pages/person_registration.dart';
 
 void main() {
-  runApp(const MyApp());
+  runApp(MyApp());
 }
 
 class MyApp extends StatelessWidget {
-  const MyApp({super.key});
-
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      debugShowCheckedModeBanner: false, 
-      title: 'Flutter Demo',
+      debugShowCheckedModeBanner: false,
+      home: ProductRegistration(),
       theme: ThemeData(
-        useMaterial3: true,
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.blue),
+        colorScheme: .fromSeed(
+          seedColor: const Color.fromARGB(255, 64, 126, 207),
+        ),
       ),
-      home: const PersonRegistration(),
     );
   }
 }
