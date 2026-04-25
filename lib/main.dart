@@ -1,21 +1,23 @@
+import 'package:frontend/pages/product_registration.dart';
 import 'package:flutter/material.dart';
 
 import 'package:frontend/pages/password_recovery/user_information.dart';
 
 void main() {
-  runApp(const MyApp());
+  runApp(MyApp());
 }
 
-
 class MyApp extends StatelessWidget {
-  const MyApp({super.key});
-
   @override
   Widget build(BuildContext context) {
-    return const MaterialApp(
-      title: 'Recuperação de Senha',
+    return MaterialApp(
       debugShowCheckedModeBanner: false,
-      home: UserInformation(),
+      home: ProductRegistration(),
+      theme: ThemeData(
+        colorScheme: .fromSeed(
+          seedColor: const Color.fromARGB(255, 64, 126, 207),
+        ),
+      ),
     );
   }
 }
