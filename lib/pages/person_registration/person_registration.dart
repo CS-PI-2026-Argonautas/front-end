@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:frontend/style/colorScheme.dart' as custom_colors;
+import 'package:frontend/pages/person_registration/person_registration2.dart';
 
 class PersonRegistration extends StatefulWidget {
   const PersonRegistration({super.key});
@@ -9,6 +10,8 @@ class PersonRegistration extends StatefulWidget {
 }
 
 class _PersonRegistrationState1 extends State<PersonRegistration> {
+  BuildContext get _PersonRegistrationState2 => _PersonRegistrationState2;
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -158,9 +161,7 @@ class _PersonRegistrationState1 extends State<PersonRegistration> {
                                     borderRadius: BorderRadius.circular(12),
                                   ),
                                 ),
-                                onPressed: () {
-                                  // Sua lógica aqui
-                                },
+                                onPressed: () => Navigator.pop(_PersonRegistrationState2),
                                 child: const Text(
                                   "Próximo",
                                   style: TextStyle(
