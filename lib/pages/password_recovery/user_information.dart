@@ -1,6 +1,8 @@
 import 'dart:ui';
 
 import 'package:flutter/material.dart';
+import 'package:frontend/pages/password_recovery/reset_password.dart';
+import 'package:frontend/utils/password_recovery/validators.dart';
 
 class UserInformation extends StatefulWidget{
 
@@ -35,13 +37,13 @@ class _UserInformationState extends State<UserInformation>{
                   child: Text(
                     'Para redefinição de sua senha, informe seu nome de usuário e enviaremos um código para redefinir sua senha.',
                     style: TextStyle(
-                      fontSize: 18,
+                      fontSize: 20,
                       fontWeight: FontWeight.w600,
                     ),
                   ),
                 ),
 
-                Spacer(flex: 1,),
+                SizedBox(height: 80,),
 
                 Container(
                   child: Column(
@@ -56,12 +58,7 @@ class _UserInformationState extends State<UserInformation>{
                       ),
                       TextFormField(
 
-                        validator: (value) {
-                          if(value == null || value.trim().isEmpty){
-                            return 'Campo obrigatório';
-                          }
-                          return null;
-                        },
+                        validator: (value) => requiredField(value),
                         
                         decoration: InputDecoration(
                           hintText: 'Digite seu nome de usuário...',
@@ -80,15 +77,19 @@ class _UserInformationState extends State<UserInformation>{
                   ),
                 ),
                 
-                Spacer(flex: 3,),
+                Spacer(),
 
                 Center(
-                  child: SizedBox(
+                  child: Column(
+                    children: [
+                      SizedBox(height: 6,),
+                      SizedBox(
                     width: MediaQuery.of(context).size.width * 0.7,
                     child: FilledButton(
-                      onPressed: () => {
+                      onPressed: () async {
                         if (_formKey.currentState!.validate()){
-                          showGeneralDialog(
+                          
+                          final choice = await showGeneralDialog(
                             context: context,
                             barrierDismissible: true,
                             barrierLabel: 'Confirmação de e-mail',
@@ -146,8 +147,8 @@ class _UserInformationState extends State<UserInformation>{
                                                       borderRadius: BorderRadiusGeometry.circular(12),
                                                     ),
                                                   ),
-                                                  onPressed: () => {
-                                                    Navigator.pop(context)
+                                                  onPressed: () {
+                                                    Navigator.pop(context, true);
                                                   },
                                                   child: Text(
                                                     'Sim',
@@ -169,8 +170,8 @@ class _UserInformationState extends State<UserInformation>{
                                                       borderRadius: BorderRadiusGeometry.circular(12),
                                                     ),
                                                   ),
-                                                  onPressed: () => {
-                                                    Navigator.pop(context)
+                                                  onPressed: () {
+                                                    Navigator.pop(context, false);
                                                   },
                                                   child: Text(
                                                     'Não',
@@ -190,9 +191,22 @@ class _UserInformationState extends State<UserInformation>{
 
                                 ],
                               );
-                            }
-                          ),
-                        }                        
+
+                              
+                            },
+                          );
+
+                          if(choice == true){
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (_) => ResetPassword(),
+                              ),
+                            );
+                          }   
+
+                        }
+
                       },
                       style: FilledButton.styleFrom(
                         padding: EdgeInsets.symmetric(vertical: 22),
@@ -209,7 +223,14 @@ class _UserInformationState extends State<UserInformation>{
                       ),
                     ),
                   ),
+
+                  SizedBox(height: 6,),
+
+                    ],
+                  ),
+                  
                 ),
+
               ],
             ),
           ),
@@ -220,3 +241,197 @@ class _UserInformationState extends State<UserInformation>{
 
 }
 
+/* 
+
+🧭 📦 VISÃO GERAL DA ESTRUTURA
+
+Você vai ter basicamente:
+
+/screens
+  user_information.dart   (Tela 1)
+  reset_password.dart     (Tela 2)
+
+/services (ou dentro da State por enquanto)
+  auth_mock.dart          (simulação lógica)
+
+/utils
+  code_utils.dart         (opcional)
+
+Se quiser simples (sem pastas extras), tudo pode ficar dentro dos StatefulWidgets.
+
+🧱 1. Fake “banco de dados”
+
+📍 Onde fica: fora da classe da tela 1 (topo do arquivo)
+
+const fakeUser = {
+  'username': 'usuario123',
+  'email': 'usuario123@gmail.com',
+};
+
+👉 Isso simula seu backend.
+
+🧠 2. Estado global da lógica do código
+
+📍 Onde fica: dentro da State da tela 1 (ou depois mover pra service)
+
+String? generatedCode;
+DateTime? codeExpiration;
+🔐 3. Gerar código + expiração
+
+📍 Onde fica: dentro da State (tela 1 ou service)
+
+import 'dart:math';
+
+String generateCode() {
+  final random = Random();
+  return (100000 + random.nextInt(900000)).toString();
+}
+
+void createCode() {
+  generatedCode = generateCode();
+  codeExpiration = DateTime.now().add(Duration(minutes: 5));
+}
+
+👉 Isso deve ser chamado quando o usuário clica “Sim” no modal.
+
+📩 4. “Envio de e-mail” (mock)
+
+📍 Onde fica: logo após createCode()
+
+void sendEmailMock(String email) {
+  print("Código enviado para $email: $generatedCode");
+}
+
+👉 Aqui você também pode usar SnackBar.
+
+🧾 5. Mascarar e-mail
+
+📍 Onde fica: utilitário (ou dentro da tela 1)
+
+String maskEmail(String email) {
+  final parts = email.split('@');
+
+  final name = parts[0];
+  final domain = parts[1];
+
+  return '${name.substring(0, 3)}******@${domain.substring(0, 2)}*****';
+}
+
+👉 Usado no MODAL da tela 1.
+
+🔁 6. Fluxo entre telas
+
+📍 Onde fica: botão “Sim” do modal
+
+onPressed: () {
+  createCode();
+  sendEmailMock(fakeUser['email']!);
+
+  Navigator.push(
+    context,
+    MaterialPageRoute(
+      builder: (_) => ResetPasswordScreen(),
+    ),
+  );
+}
+📱 7. Tela 2 (UI separada)
+
+📍 Arquivo novo: reset_password.dart
+
+Aqui entra:
+
+campo código
+senha
+confirmar senha
+
+👉 Essa tela DEPENDE do generatedCode e codeExpiration
+
+⏱️ 8. Validar código
+
+📍 Tela 2 (State)
+
+bool isCodeValid(String input) {
+  if (generatedCode == null || codeExpiration == null) return false;
+
+  if (DateTime.now().isAfter(codeExpiration!)) {
+    return false;
+  }
+
+  return input == generatedCode;
+}
+✔️❌ 9. Feedback visual
+
+📍 Dentro do TextField do código (Tela 2)
+
+onChanged: (value) {
+  setState(() {
+    isValid = isCodeValid(value);
+  });
+}
+
+UI:
+
+Icon(
+  isValid == null
+      ? null
+      : isValid!
+          ? Icons.check
+          : Icons.close,
+  color: isValid == true ? Colors.green : Colors.red,
+)
+🔒 10. Bloquear senha se código inválido
+
+📍 Tela 2
+
+bool canEditPassword = isValid == true;
+TextFormField(
+  enabled: canEditPassword,
+)
+🔁 11. Validar senhas iguais
+
+📍 Form validator da Tela 2
+
+validator: (value) {
+  if (value != passwordController.text) {
+    return 'As senhas não coincidem';
+  }
+  return null;
+}
+🆘 12. Link de suporte
+
+📍 Em ambas as telas (rodapé)
+
+TextButton(
+  onPressed: () {},
+  child: Text('Precisa de ajuda? Contate o suporte'),
+)
+🧠 RESUMO INTELIGENTE
+📍 Tela 1 (UserInformation)
+
+Responsável por:
+
+username
+validar usuário fake
+mostrar modal
+gerar código
+iniciar fluxo
+📍 “Backend fake” (mesma tela ou service)
+fakeUser
+generateCode
+expiration
+sendEmailMock
+📍 Tela 2 (ResetPassword)
+
+Responsável por:
+
+validar código
+mostrar ✔️❌
+bloquear senha
+confirmar senha
+finalizar reset
+
+
+
+
+
+*/
