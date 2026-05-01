@@ -1,14 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:frontend/style/colorScheme.dart' as custom_colors;
 
-class PersonRegistration extends StatefulWidget {
-  const PersonRegistration({super.key});
+class PersonRegistration2 extends StatefulWidget {
+  const PersonRegistration2({super.key});
 
   @override
-  State<PersonRegistration> createState() => _PersonRegistrationState();
+  State<PersonRegistration2> createState() => _PersonRegistrationState();
 }
 
-class _PersonRegistrationState extends State<PersonRegistration> {
+class _PersonRegistrationState extends State<PersonRegistration2> {
   @override
   Widget build(BuildContext context) {
     // Nota: O Directionality geralmente é fornecido pelo MaterialApp no main.dart
