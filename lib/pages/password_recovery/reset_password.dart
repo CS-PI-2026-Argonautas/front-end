@@ -17,6 +17,7 @@ class ResetPassword extends StatefulWidget{
 class _ResetPasswordState extends State<ResetPassword>{
 
   bool? isCodeValid;
+  bool canResend = true;
 
   final passwordController = TextEditingController();
   final confirmPasswordController = TextEditingController();
@@ -179,7 +180,29 @@ class _ResetPasswordState extends State<ResetPassword>{
                       SizedBox(
                         width: MediaQuery.of(context).size.width * 0.7,
                         child: FilledButton(
-                          onPressed: () {},
+                          onPressed: 
+                          canResend 
+                          ? 
+                          () {
+                            widget.codeService.createCode();
+
+                            setState(() {
+                              isCodeValid = null;
+                              canResend = false;
+                            });
+
+                            print("REENVIADO: ${widget.codeService.code}");
+
+                            Future.delayed(
+                              Duration(seconds: 3), () {
+                                setState(() {
+                                  canResend = true;
+                                });
+                              }
+                            );
+                          }
+                          : 
+                          null,
                           style: FilledButton.styleFrom(
                             padding: EdgeInsets.symmetric(vertical: 22),
                             shape: RoundedRectangleBorder(
