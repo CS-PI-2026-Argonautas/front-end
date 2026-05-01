@@ -132,38 +132,52 @@ class _UserInformationState extends State<UserInformation>{
                                               fontWeight: FontWeight.w600,
                                             ),
                                           ),
+
+                                          SizedBox(height: 24,),
+
                                           Row(
                                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                             children: [
-                                              FilledButton(
-                                                style: FilledButton.styleFrom(
-                                                  padding: EdgeInsets.symmetric(vertical: 16),
-                                                  shape: RoundedRectangleBorder(
-                                                    borderRadius: BorderRadiusGeometry.circular(12),
+                                              Expanded(
+                                                child: FilledButton(
+                                                  style: FilledButton.styleFrom(
+                                                    padding: EdgeInsets.symmetric(vertical: 16),
+                                                    shape: RoundedRectangleBorder(
+                                                      borderRadius: BorderRadiusGeometry.circular(12),
+                                                    ),
                                                   ),
-                                                ),
-                                                onPressed: () => {},
-                                                child: Text(
-                                                  'Sim',
-                                                  style: TextStyle(
-                                                    fontSize: 16,
-                                                    fontWeight: FontWeight.w400,
+                                                  onPressed: () => {
+                                                    Navigator.pop(context)
+                                                  },
+                                                  child: Text(
+                                                    'Sim',
+                                                    style: TextStyle(
+                                                      fontSize: 16,
+                                                      fontWeight: FontWeight.w400,
+                                                    ),
                                                   ),
                                                 ),
                                               ),
-                                              FilledButton(
-                                                style: FilledButton.styleFrom(
-                                                  padding: EdgeInsets.symmetric(vertical: 16),
-                                                  shape: RoundedRectangleBorder(
-                                                    borderRadius: BorderRadiusGeometry.circular(12),
+
+                                              SizedBox(width: 24,),
+
+                                              Expanded(
+                                                child: FilledButton(
+                                                  style: FilledButton.styleFrom(
+                                                    padding: EdgeInsets.symmetric(vertical: 16),
+                                                    shape: RoundedRectangleBorder(
+                                                      borderRadius: BorderRadiusGeometry.circular(12),
+                                                    ),
                                                   ),
-                                                ),
-                                                onPressed: () => {},
-                                                child: Text(
-                                                  'Não',
-                                                  style: TextStyle(
-                                                    fontSize: 16,
-                                                    fontWeight: FontWeight.w400,
+                                                  onPressed: () => {
+                                                    Navigator.pop(context)
+                                                  },
+                                                  child: Text(
+                                                    'Não',
+                                                    style: TextStyle(
+                                                      fontSize: 16,
+                                                      fontWeight: FontWeight.w400,
+                                                    ),
                                                   ),
                                                 ),
                                               ),
@@ -205,5 +219,4 @@ class _UserInformationState extends State<UserInformation>{
   }
 
 }
-
 
