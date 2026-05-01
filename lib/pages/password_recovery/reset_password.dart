@@ -1,15 +1,22 @@
 import 'package:flutter/material.dart';
+import 'package:frontend/services/password_recovery/code_service.dart';
 import 'package:frontend/utils/password_recovery/validators.dart';
 
 class ResetPassword extends StatefulWidget{
 
-  const ResetPassword({super.key});
+  final CodeService codeService;
+
+  const ResetPassword({
+    super.key,
+    required this.codeService,});
 
   @override
   State<ResetPassword> createState() => _ResetPasswordState();
 }
 
 class _ResetPasswordState extends State<ResetPassword>{
+
+  bool? isCodeValid;
 
   final passwordController = TextEditingController();
   final confirmPasswordController = TextEditingController();
@@ -62,8 +69,19 @@ class _ResetPasswordState extends State<ResetPassword>{
 
                         validator: (value) => codeFormatValidator(value),
 
+                        onChanged: (value) {
+                          setState(() {
+                            isCodeValid = widget.codeService.validateCode(value);
+                          });
+                        },
+
                         decoration: InputDecoration(
                           hintText: 'Informe o código enviado...',
+
+                          suffixIcon: isCodeValid == null ? null : Icon(
+                            isCodeValid! ? Icons.check : Icons.close,
+                            color: isCodeValid! ? Colors.green : Colors.red,
+                          ),
                           focusedBorder: OutlineInputBorder(
                             borderSide: BorderSide(width: 2),
                             borderRadius: BorderRadius.circular(12),
@@ -93,6 +111,9 @@ class _ResetPasswordState extends State<ResetPassword>{
                       ),
                       TextFormField(
                         controller: passwordController,
+
+                        enabled: isCodeValid == true,
+
                         validator: (value) => passwordValidator(value),
 
                         decoration: InputDecoration(
@@ -126,6 +147,9 @@ class _ResetPasswordState extends State<ResetPassword>{
                       ),
                       TextFormField(
                         controller: confirmPasswordController,
+
+                        enabled: isCodeValid == true,
+
                         validator: (value) => confirmPassword(value, passwordController.text),
 
                         decoration: InputDecoration(
@@ -177,11 +201,15 @@ class _ResetPasswordState extends State<ResetPassword>{
                       SizedBox(
                         width: MediaQuery.of(context).size.width * 0.7,
                         child: FilledButton(
-                          onPressed: () {
+                          onPressed: isCodeValid == true 
+                          ? 
+                          () {
                             if (_formKey.currentState!.validate()) {
-                              // deu certo
+                              print('senha alterada');
                             }
-                          },
+                          } 
+                          : 
+                          null,
                           style: FilledButton.styleFrom(
                             padding: EdgeInsets.symmetric(vertical: 22),
                             shape: RoundedRectangleBorder(

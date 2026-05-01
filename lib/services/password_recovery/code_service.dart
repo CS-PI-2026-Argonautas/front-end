@@ -12,6 +12,9 @@ class CodeService {
   void createCode(){
     _code = generateCode();
     _expiration = DateTime.now().add(Duration(minutes: 5));
+
+    print("CODE GERADO: $_code");
+    print("EXPIRA EM: $_expiration");
   }
 
   bool validateCode(String value){

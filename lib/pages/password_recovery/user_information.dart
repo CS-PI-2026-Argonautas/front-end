@@ -2,6 +2,7 @@ import 'dart:ui';
 
 import 'package:flutter/material.dart';
 import 'package:frontend/pages/password_recovery/reset_password.dart';
+import 'package:frontend/services/password_recovery/code_service.dart';
 import 'package:frontend/utils/password_recovery/validators.dart';
 
 class UserInformation extends StatefulWidget{
@@ -14,6 +15,8 @@ class UserInformation extends StatefulWidget{
 }
 
 class _UserInformationState extends State<UserInformation>{
+
+  final CodeService codeService = CodeService();
 
   final _formKey = GlobalKey<FormState>();
 
@@ -197,10 +200,14 @@ class _UserInformationState extends State<UserInformation>{
                           );
 
                           if(choice == true){
+
+                            codeService.createCode();
                             Navigator.push(
                               context,
                               MaterialPageRoute(
-                                builder: (_) => ResetPassword(),
+                                builder: (_) => ResetPassword(
+                                  codeService: codeService,
+                                ),
                               ),
                             );
                           }   
