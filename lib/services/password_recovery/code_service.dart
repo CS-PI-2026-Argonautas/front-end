@@ -3,6 +3,7 @@ import 'dart:math';
 class CodeService {
   String? _code;
   DateTime? _expiration;
+  bool _valid = false;
 
   String generateCode(){
     Random random = Random();
@@ -17,13 +18,22 @@ class CodeService {
     print("EXPIRA EM: $_expiration");
   }
 
-  bool validateCode(String value){
-    if(_code == null || _expiration == null) return false;
+  String? validateCode(String value){
+    if(_code == null || _expiration == null) return 'Nenhum código foi gerado';
 
-    if(DateTime.now().isAfter(_expiration!)) return false;
+    if(!_valid && DateTime.now().isAfter(_expiration!)) return 'Código expirado. Clique em \'Reenviar\'';
 
-    return value == _code ? true : false;
+    if(value != _code) return 'Código incorreto';
+
+    _valid = true;
+    return null;
   }
+
+  void invalidate(){
+    _code = null;
+    _expiration = null;
+  }
+
 
   String? get code => _code;
   DateTime? get expiration => _expiration;

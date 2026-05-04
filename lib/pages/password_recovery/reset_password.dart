@@ -19,10 +19,26 @@ class _ResetPasswordState extends State<ResetPassword>{
   bool? isCodeValid;
   bool canResend = true;
 
+  bool validateCodeField = false;
+
+  final codeController = TextEditingController();
   final passwordController = TextEditingController();
   final confirmPasswordController = TextEditingController();
 
   final _formKey = GlobalKey<FormState>();
+
+  void _clearFields(){
+    codeController.clear();
+    passwordController.clear();
+    confirmPasswordController.clear();
+
+    setState(() {
+      isCodeValid = null;
+      validateCodeField = false;
+    });
+
+  }
+
 
   @override
   Widget build(BuildContext context){
@@ -68,11 +84,26 @@ class _ResetPasswordState extends State<ResetPassword>{
                       ),
                       TextFormField(
 
-                        validator: (value) => codeFormatValidator(value),
+                        controller: codeController,
+
+                        autovalidateMode: validateCodeField ? 
+                        AutovalidateMode.onUserInteraction : 
+                        AutovalidateMode.disabled,
+
+                        validator: (value) {
+                          final formatError = codeFormatValidator(value);
+                          if(formatError != null) return formatError;
+
+                          return widget.codeService.validateCode(value!);
+                        },
 
                         onChanged: (value) {
+
+                          final error = widget.codeService.validateCode(value);
+
                           setState(() {
-                            isCodeValid = widget.codeService.validateCode(value);
+                            validateCodeField = true;
+                            isCodeValid = (error == null);
                           });
                         },
 
@@ -184,6 +215,10 @@ class _ResetPasswordState extends State<ResetPassword>{
                           canResend 
                           ? 
                           () {
+                            _clearFields();
+
+                            widget.codeService.invalidate();
+
                             widget.codeService.createCode();
 
                             setState(() {
@@ -194,7 +229,7 @@ class _ResetPasswordState extends State<ResetPassword>{
                             print("REENVIADO: ${widget.codeService.code}");
 
                             Future.delayed(
-                              Duration(seconds: 3), () {
+                              Duration(seconds: 30), () {
                                 setState(() {
                                   canResend = true;
                                 });
@@ -230,6 +265,9 @@ class _ResetPasswordState extends State<ResetPassword>{
                             if (_formKey.currentState!.validate()) {
                               print('senha alterada');
                             }
+
+                            _clearFields();
+                            widget.codeService.invalidate();
                           } 
                           : 
                           null,
