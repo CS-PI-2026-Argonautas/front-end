@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:frontend/style/ColorScheme.dart' as custom_Corlors;
+import 'package:frontend/style/ColorScheme.dart' as custom_Colors;
+import 'package:frontend/pages/product_registration.dart';
+import 'package:frontend/widgets/bottom_bar.dart';
 
 class Dashboard extends StatelessWidget {
   const Dashboard({super.key});
@@ -7,7 +9,7 @@ class Dashboard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: custom_Corlors.colorScheme.surface,
+      backgroundColor: custom_Colors.colorScheme.surface,
 
       appBar: AppBar(title: const Text("Dashboard")),
 
@@ -15,31 +17,35 @@ class Dashboard extends StatelessWidget {
         child: Column(children: const [Text("Conteúdo da Dashboard")]),
       ),
 
-      bottomNavigationBar: BottomNavigationBar(
-        type: BottomNavigationBarType.fixed,
-        backgroundColor: custom_Corlors.colorScheme.primary,
-        selectedItemColor: custom_Corlors.colorScheme.onTertiary,
-        unselectedItemColor: Colors.white,
+      bottomNavigationBar: AppBottomNavBar(
+        currentIndex: 3,
 
-        currentIndex: 0,
-        items: const [
-          BottomNavigationBarItem(
-            icon: Icon(Icons.person_outline),
-            label: "Clientes",
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.scale_outlined),
-            label: "Peças",
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.assignment_outlined),
-            label: "Ordens",
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.home_outlined),
-            label: "Início",
-          ),
-        ],
+        onTap: (index) {
+          if (index == 1) {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => const ProductRegistration(),
+              ),
+            );
+          }
+
+          if (index == 0) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(content: Text("COLOCAR TELA DE CLIENTES")),
+            );
+          }
+
+          if (index == 2) {
+            ScaffoldMessenger.of(
+              context,
+            ).showSnackBar(const SnackBar(content: Text("COLOCAR TELA DE OS")));
+          }
+
+          if (index == 3) {
+            Navigator.pop(context);
+          }
+        },
       ),
     );
   }
