@@ -1,5 +1,4 @@
 import 'package:frontend/pages/dashboard.dart';
-import 'package:frontend/pages/product_registration.dart';
 import 'package:flutter/material.dart';
 
 void main() {
