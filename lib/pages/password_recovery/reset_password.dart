@@ -289,6 +289,19 @@ class _ResetPasswordState extends State<ResetPassword>{
 
                       SizedBox(height: 6,),
 
+                      TextButton(
+                        onPressed: () {},
+                        child: Text(
+                          'Dúvidas? Contate nosso suporte',
+                          style: TextStyle(
+                            fontSize: 16,
+                            decoration: TextDecoration.underline,
+                          ),
+                        ),
+                      ),
+                      
+                      SizedBox(height: 6,),
+
                     ],
                   ),
                 ),
