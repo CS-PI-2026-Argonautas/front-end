@@ -24,6 +24,7 @@ class _PersonRegistration2State extends State<PersonRegistration2> {
             child: ConstrainedBox(
               constraints: const BoxConstraints(maxWidth: 650),
               child: Form(
+                key: _formKey,
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -79,6 +80,14 @@ class _PersonRegistration2State extends State<PersonRegistration2> {
                           Navigator.push(
                             context, MaterialPageRoute(builder: (context) => const PersonRegistration3())
                           );
+                        }else{
+                          ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                          content: const Text('Preencha todos os campos obrigatórios!'),
+                          backgroundColor: custom_colors.colorScheme.error, // Sua cor de erro[cite: 2]
+                          behavior: SnackBarBehavior.floating,
+                        ),
+                        );
                         }
                       },
                       child: const Text("Próximo"),

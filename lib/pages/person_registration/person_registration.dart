@@ -48,7 +48,7 @@ class _PersonRegistrationState1 extends State<PersonRegistration> {
                   ),
                   const SizedBox(height: 24),
                   _buildFieldLabel(Icons.person_outline, "Nome *"),
-                  TextFormField(decoration: _inputStyle("Exemplo"),
+                  TextFormField(decoration: inputStyle("Exemplo"),
                     validator: (value) {
                       if (value == null || value.isEmpty) {
                         return 'Por favor, informe o nome';
@@ -63,7 +63,7 @@ class _PersonRegistrationState1 extends State<PersonRegistration> {
                   ),
                   TextFormField(
                     key: ValueKey(_isPessoaFisica), // Força o Flutter a redesenhar o campo ao mudar o tipo
-                    decoration: _inputStyle(_isPessoaFisica ? "000.000.000-00" : "00.000.000/0000-00"),
+                    decoration: inputStyle(_isPessoaFisica ? "000.000.000-00" : "00.000.000/0000-00"),
                     keyboardType: TextInputType.number,
                     inputFormatters: [_isPessoaFisica ? _cpfFormatter : _cnpjFormatter], // Máscara dinâmica
                     validator: (value) {
@@ -131,7 +131,7 @@ class _PersonRegistrationState1 extends State<PersonRegistration> {
     );
   }
 
-  InputDecoration _inputStyle(String hint) {
+  InputDecoration inputStyle(String hint) {
   return InputDecoration(
     hintText: hint,
     filled: true,

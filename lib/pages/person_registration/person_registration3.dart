@@ -9,6 +9,8 @@ class PersonRegistration3 extends StatefulWidget {
 }
 
 class _PersonRegistration3State extends State<PersonRegistration3> {
+  final _formKey = GlobalKey<FormState>();
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -19,6 +21,8 @@ class _PersonRegistration3State extends State<PersonRegistration3> {
           child: Center(
             child: ConstrainedBox(
               constraints: const BoxConstraints(maxWidth: 650),
+              child: Form(
+                key: _formKey,
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -78,6 +82,7 @@ class _PersonRegistration3State extends State<PersonRegistration3> {
                     ),
                   ),
                 ],
+              )
               )
             ),
           ),
