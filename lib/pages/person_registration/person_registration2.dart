@@ -1,8 +1,16 @@
 import 'package:flutter/material.dart';
-import 'package:frontend/pages/person_registration/person_registration.dart';
+import 'package:frontend/pages/person_registration/person_registration3.dart';
 import 'package:frontend/style/colorScheme.dart' as custom_colors;
 
-class _PersonRegistrationState2 extends State<PersonRegistration> {
+// Mude de _PersonRegistrationState2 para uma classe pública
+class PersonRegistration2 extends StatefulWidget {
+  const PersonRegistration2({super.key});
+
+  @override
+  State<PersonRegistration2> createState() => _PersonRegistration2State();
+}
+
+class _PersonRegistration2State extends State<PersonRegistration2> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -16,172 +24,51 @@ class _PersonRegistrationState2 extends State<PersonRegistration> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  // Cabeçalho com Gradiente
-                  Container(
-                    width: double.infinity,
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 24,
-                      vertical: 22,
-                    ),
-                    decoration: BoxDecoration(
-                      gradient: LinearGradient(
-                        colors: [
-                          custom_colors.colorScheme.tertiary,
-                          custom_colors.colorScheme.primary,
-                        ],
-                        begin: Alignment.topLeft,
-                        end: Alignment.bottomRight,
-                      ),
-                      borderRadius: BorderRadius.circular(20),
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.black.withOpacity(0.1),
-                          blurRadius: 12,
-                          offset: const Offset(0, 6),
-                        ),
-                      ],
-                    ),
-                    child: Row(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Container(
-                          padding: const EdgeInsets.all(14),
-                          decoration: BoxDecoration(
-                            color: Colors.white.withOpacity(0.2),
-                            borderRadius: BorderRadius.circular(16),
-                          ),
-                          child: const Icon(
-                            Icons.inventory_2_outlined,
-                            color: Colors.white,
-                            size: 32,
-                          ),
-                        ),
-                        const SizedBox(width: 16),
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                'Cadastro de cliente',
-                                style: TextStyle(
-                                  color: custom_colors.colorScheme.onPrimary,
-                                  fontSize: 24,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                              const SizedBox(height: 6),
-                              const Text(
-                                'Preencha as informações para adicionar um novo cliente.',
-                                style: TextStyle(
-                                  color: Colors.white70,
-                                  fontSize: 14,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                        IconButton(
-                          icon: const Icon(
-                            Icons.arrow_back,
-                            color: Colors.white,
-                          ),
-                          onPressed: () => Navigator.pop(context),
-                        ),
-                      ],
-                    ),
+                   Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      IconButton(icon: const Icon(Icons.arrow_back), onPressed: () => Navigator.pop(context)),
+                      const Text("Cadastro", style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+                      IconButton(icon: const Icon(Icons.close), onPressed: () => Navigator.of(context).popUntil((route) => route.isFirst)),
+                    ],
                   ),
-
-                  const SizedBox(height: 24),
-
-                  // Card de Formulário
-                  Card(
-                    elevation: 4,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(22),
-                    ),
-                    child: Padding(
-                      padding: const EdgeInsets.all(24),
-                      child: Form(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              "Informações do cliente",
-                              style: TextStyle(
-                                fontSize: 20,
-                                fontWeight: FontWeight.bold,
-                                color: custom_colors.colorScheme.onSurface,
-                              ),
-                            ),
-                            const SizedBox(height: 24),
-
-                            // Campo: Descrição
-                            _buildFieldLabel(
-                              Icons.description_outlined,
-                              "Nome",
-                            ),
-                            const SizedBox(height: 10),
-                            TextFormField(
-                              decoration: _inputStyle("Ex: "),
-                              maxLines: 3,
-                            ),
-
-                            const SizedBox(height: 20),
-
-                            // Campo: Estoque
-                            _buildFieldLabel(Icons.inventory_outlined, "CNPJ"),
-                            const SizedBox(height: 10),
-                            TextFormField(
-                              keyboardType: TextInputType.number,
-                              decoration: _inputStyle("12345678000100"),
-                            ),
-
-                            const SizedBox(height: 28),
-
-                            SizedBox(
-                              width: double.infinity,
-                              child: ElevatedButton(
-                                style: ElevatedButton.styleFrom(
-                                  backgroundColor:
-                                      custom_colors.colorScheme.primary,
-                                  foregroundColor: Colors.white,
-                                  padding: const EdgeInsets.symmetric(
-                                    vertical: 16,
-                                  ),
-                                  shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(12),
-                                  ),
-                                ),
-                                onPressed: () {
-                                  // Sua lógica aqui
-                                },
-                                child: const Text(
-                                  "Próximo",
-                                  style: TextStyle(
-                                    fontSize: 16,
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                ),
-                              ),
-                            ),
-
-                            const SizedBox(width: 12),
-                          ],
-                        ),
-                      ),
-                    ),
+                  _buildFieldLabel(Icons.map_outlined, "CEP"),
+                  TextFormField(decoration: _inputStyle("12312312")),
+                  const SizedBox(height: 15),
+                  _buildFieldLabel(Icons.home_outlined, "Rua"),
+                  TextFormField(decoration: _inputStyle("Rua exemplo")),
+                  const SizedBox(height: 15),
+                  _buildFieldLabel(Icons.add_location_alt_outlined, "Complemento"),
+                  TextFormField(decoration: _inputStyle("")),
+                  const SizedBox(height: 15),
+                  _buildFieldLabel(Icons.location_city, "Cidade *"),
+                  TextFormField(decoration: _inputStyle("")),
+                  const SizedBox(height: 15),
+                  Row(
+                    children: [
+                      Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [const Text("Número"), TextFormField(decoration: _inputStyle(""))])),
+                      const SizedBox(width: 10),
+                      Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [const Text("UF *"), TextFormField(decoration: _inputStyle(""))])),
+                       
+                    ],
                   ),
+                  const SizedBox(height: 30),
+                  SizedBox(
+                  width: double.infinity,
+                  child: ElevatedButton(
+                    onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (context) => const PersonRegistration3())),
+                    child: const Text("Próximo"),
+                  ),
+                ),
                 ],
-              ),
+              )
             ),
           ),
         ),
       ),
     );
   }
-}
 
-  // Helper para labels
   Widget _buildFieldLabel(IconData icon, String label) {
     return Row(
       children: [
@@ -192,7 +79,6 @@ class _PersonRegistrationState2 extends State<PersonRegistration> {
     );
   }
 
-  // Helper para estilo de input
   InputDecoration _inputStyle(String hint) {
     return InputDecoration(
       hintText: hint,
@@ -204,3 +90,4 @@ class _PersonRegistrationState2 extends State<PersonRegistration> {
       ),
     );
   }
+}
