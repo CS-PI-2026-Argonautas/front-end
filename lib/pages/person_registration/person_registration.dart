@@ -9,7 +9,7 @@ class PersonRegistration extends StatefulWidget {
 }
 
 class _PersonRegistrationState1 extends State<PersonRegistration> {
-  BuildContext get _PersonRegistrationState2 => _PersonRegistrationState2;
+  final _formKey = GlobalKey<FormState>();
 
   @override
   Widget build(BuildContext context) {
@@ -34,10 +34,24 @@ class _PersonRegistrationState1 extends State<PersonRegistration> {
                   ),
                   const SizedBox(height: 24),
                   _buildFieldLabel(Icons.person_outline, "Nome *"),
-                  TextFormField(decoration: _inputStyle("Exemplo")),
+                  TextFormField(decoration: _inputStyle("Exemplo"),
+                    validator: (value) {
+                      if (value == null || value.isEmpty) {
+                        return 'Por favor, informe o nome';
+                        }
+                       return null;
+                      },
+                  ),
                   const SizedBox(height: 20),
                   _buildFieldLabel(Icons.badge_outlined, "CNPJ *"),
-                  TextFormField(decoration: _inputStyle("132123123123"), keyboardType: TextInputType.number),
+                  TextFormField(decoration: _inputStyle("132123123123"), keyboardType: TextInputType.number,
+                    validator: (value) {
+                      if (value == null || value.isEmpty) {
+                        return 'Por favor, informe o cnpj';
+                        }
+                       return null;
+                      },
+                  ),
                   const SizedBox(height: 10),
                   Row(
                     children: [
@@ -47,12 +61,19 @@ class _PersonRegistrationState1 extends State<PersonRegistration> {
                   ),
                   const SizedBox(height: 30),
                   SizedBox(
-                  width: double.infinity,
-                  child: ElevatedButton(
-                    onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (context) => const PersonRegistration2())),
-                    child: const Text("Próximo"),
+                    width: double.infinity,
+                    child: ElevatedButton(
+                      onPressed: () {
+           
+                        if (_formKey.currentState!.validate()) {
+                          Navigator.push(
+                            context, MaterialPageRoute(builder: (context) => const PersonRegistration2())
+                          );
+                        }
+                      },
+                      child: const Text("Próximo"),
+                    )
                   ),
-                ),
                 ],
               )
             ),
@@ -73,16 +94,24 @@ class _PersonRegistrationState1 extends State<PersonRegistration> {
     );
   }
 
-  // Helper para estilo de input
   InputDecoration _inputStyle(String hint) {
-    return InputDecoration(
-      hintText: hint,
-      filled: true,
-      fillColor: custom_colors.colorScheme.surfaceContainer,
-      border: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(14),
-        borderSide: BorderSide.none,
-      ),
-    );
-  }
+  return InputDecoration(
+    hintText: hint,
+    filled: true,
+    fillColor: custom_colors.colorScheme.surfaceContainer,
+    errorStyle: TextStyle(
+      color: custom_colors.colorScheme.error,
+      fontWeight: FontWeight.bold,
+    ),
+    border: OutlineInputBorder(
+      borderRadius: BorderRadius.circular(14),
+      borderSide: BorderSide.none,
+    ),
+    // Borda vermelha quando houver erro
+    errorBorder: OutlineInputBorder(
+      borderRadius: BorderRadius.circular(14),
+      borderSide: BorderSide(color: custom_colors.colorScheme.error, width: 2),
+    ),
+  );
+}
 }

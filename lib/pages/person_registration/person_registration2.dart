@@ -11,6 +11,8 @@ class PersonRegistration2 extends StatefulWidget {
 }
 
 class _PersonRegistration2State extends State<PersonRegistration2> {
+  final _formKey = GlobalKey<FormState>();
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -21,6 +23,7 @@ class _PersonRegistration2State extends State<PersonRegistration2> {
           child: Center(
             child: ConstrainedBox(
               constraints: const BoxConstraints(maxWidth: 650),
+              child: Form(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -42,25 +45,47 @@ class _PersonRegistration2State extends State<PersonRegistration2> {
                   TextFormField(decoration: _inputStyle("")),
                   const SizedBox(height: 15),
                   _buildFieldLabel(Icons.location_city, "Cidade *"),
-                  TextFormField(decoration: _inputStyle("")),
+                  TextFormField(decoration: _inputStyle(""),
+                    validator: (value) {
+                      if (value == null || value.isEmpty) {
+                        return 'Por favor, informe a cidade';
+                        }
+                       return null;
+                      },
+                  ),
                   const SizedBox(height: 15),
                   Row(
                     children: [
                       Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [const Text("Número"), TextFormField(decoration: _inputStyle(""))])),
                       const SizedBox(width: 10),
-                      Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [const Text("UF *"), TextFormField(decoration: _inputStyle(""))])),
+                      Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [const Text("UF *"), TextFormField(decoration: _inputStyle(""),
+                        validator: (value) {
+                      if (value == null || value.isEmpty) {
+                        return 'Por favor, informe a UF';
+                        }
+                       return null;
+                      },
+                      )])),
                        
                     ],
                   ),
                   const SizedBox(height: 30),
                   SizedBox(
-                  width: double.infinity,
-                  child: ElevatedButton(
-                    onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (context) => const PersonRegistration3())),
-                    child: const Text("Próximo"),
+                    width: double.infinity,
+                    child: ElevatedButton(
+                      onPressed: () {
+           
+                        if (_formKey.currentState!.validate()) {
+                          Navigator.push(
+                            context, MaterialPageRoute(builder: (context) => const PersonRegistration3())
+                          );
+                        }
+                      },
+                      child: const Text("Próximo"),
+                    )
                   ),
-                ),
                 ],
+              )
               )
             ),
           ),
