@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:frontend/style/colorScheme.dart' as custom_colors;
 
-// Alterado para ser uma classe pública e um StatefulWidget independente
 class PersonRegistration3 extends StatefulWidget {
   const PersonRegistration3({super.key});
 
@@ -52,7 +51,6 @@ class _PersonRegistration3State extends State<PersonRegistration3> {
                   const SizedBox(height: 15),
                   _buildFieldLabel(Icons.comment_outlined, "Observação"),
                   const SizedBox(height: 10),
-                  // Campo que expande para baixo conforme o conteúdo aumenta
                   TextFormField(
                     maxLines: null, 
                     minLines: 1,    
@@ -72,7 +70,6 @@ class _PersonRegistration3State extends State<PersonRegistration3> {
                         ),
                       ),
                       onPressed: () { 
-                        // Lógica de finalização do cadastro
                       },
                       child: const Text(
                         "Cadastrar",
@@ -89,7 +86,6 @@ class _PersonRegistration3State extends State<PersonRegistration3> {
     );
   }
 
-  // Métodos auxiliares movidos para dentro da classe do Estado
   Widget _buildFieldLabel(IconData icon, String label) {
     return Row(
       children: [

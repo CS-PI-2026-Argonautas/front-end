@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:frontend/pages/person_registration/person_registration3.dart';
 import 'package:frontend/style/colorScheme.dart' as custom_colors;
 
-// Mude de _PersonRegistrationState2 para uma classe pública
+
 class PersonRegistration2 extends StatefulWidget {
   const PersonRegistration2({super.key});
 
