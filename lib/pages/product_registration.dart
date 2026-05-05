@@ -1,19 +1,20 @@
 import 'package:flutter/material.dart';
 import 'package:frontend/pages/product_form.dart';
-import 'product_header.dart';
+import 'package:frontend/pages/product_header.dart';
+import 'package:frontend/style/ColorScheme.dart' as custom_colors;
 
 class ProductRegistration extends StatelessWidget {
   const ProductRegistration({super.key});
 
-  static const Color backgroundColor = Color.fromARGB(255, 208, 217, 220);
-
   @override
   Widget build(BuildContext context) {
+    final colors = custom_colors.colorScheme;
+
     return Scaffold(
-      backgroundColor: backgroundColor,
+      backgroundColor: colors.surface,
       body: SafeArea(
         child: SingleChildScrollView(
-          padding: const EdgeInsets.all(20),
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 18),
           child: Center(
             child: ConstrainedBox(
               constraints: const BoxConstraints(maxWidth: 650),
@@ -25,13 +26,17 @@ class ProductRegistration extends StatelessWidget {
                       Navigator.pop(context);
                     },
                   ),
-                  const SizedBox(height: 24),
+
+                  const SizedBox(height: 20),
+
                   ProductForm(
                     onCancel: () {
                       Navigator.pop(context);
                     },
                     onSave: () {},
                   ),
+
+                  const SizedBox(height: 20),
                 ],
               ),
             ),
