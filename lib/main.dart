@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:frontend/pages/PersonRegistration2.dart';
+import 'package:frontend/pages/person_registration/person_registration2.dart';
+
 
 void main() {
   runApp(MyApp());
