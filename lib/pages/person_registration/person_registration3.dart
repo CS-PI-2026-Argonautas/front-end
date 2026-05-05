@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:frontend/style/colorScheme.dart' as custom_colors;
+import 'package:frontend/style/ColorScheme.dart' as custom_colors;
 import 'package:mask_text_input_formatter/mask_text_input_formatter.dart'; // Necessário adicionar ao pubspec.yaml
 
 class PersonRegistration3 extends StatefulWidget {

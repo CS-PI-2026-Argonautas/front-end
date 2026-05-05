@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:frontend/style/colorScheme.dart' as custom_colors;
+import 'package:frontend/style/ColorScheme.dart' as custom_colors;
 import 'package:frontend/pages/person_registration/person_registration2.dart';
 import 'package:mask_text_input_formatter/mask_text_input_formatter.dart';
 class PersonRegistration extends StatefulWidget {

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:frontend/pages/person_registration/person_registration3.dart';
-import 'package:frontend/style/colorScheme.dart' as custom_colors;
+import 'package:frontend/style/ColorScheme.dart' as custom_colors;
 
 class PersonRegistration2 extends StatefulWidget {
   const PersonRegistration2({super.key});
