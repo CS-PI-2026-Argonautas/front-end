@@ -1,4 +1,4 @@
-import 'package:frontend/pages/dashboard.dart';
+import 'package:frontend/pages/authentication.dart';
 import 'package:flutter/material.dart';
 
 void main() {
@@ -12,7 +12,7 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      home: const Dashboard(),
+      home: const Authentication(),
       theme: ThemeData(
         colorScheme: ColorScheme.fromSeed(
           seedColor: Color.fromARGB(255, 64, 126, 207),

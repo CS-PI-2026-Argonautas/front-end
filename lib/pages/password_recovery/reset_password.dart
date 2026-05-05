@@ -3,21 +3,16 @@ import 'package:frontend/services/password_recovery/code_service.dart';
 import 'package:frontend/utils/password_recovery/validators.dart';
 import 'package:frontend/widgets/password_recovery/password_field.dart';
 
-
-class ResetPassword extends StatefulWidget{
-
+class ResetPassword extends StatefulWidget {
   final CodeService codeService;
 
-  const ResetPassword({
-    super.key,
-    required this.codeService,});
+  const ResetPassword({super.key, required this.codeService});
 
   @override
   State<ResetPassword> createState() => _ResetPasswordState();
 }
 
-class _ResetPasswordState extends State<ResetPassword>{
-
+class _ResetPasswordState extends State<ResetPassword> {
   bool? isCodeValid;
   bool canResend = true;
 
@@ -29,7 +24,7 @@ class _ResetPasswordState extends State<ResetPassword>{
 
   final _formKey = GlobalKey<FormState>();
 
-  void _clearFields(){
+  void _clearFields() {
     codeController.clear();
     passwordController.clear();
     confirmPasswordController.clear();
@@ -38,32 +33,24 @@ class _ResetPasswordState extends State<ResetPassword>{
       isCodeValid = null;
       validateCodeField = false;
     });
-
   }
 
   @override
-  void dispose(){
+  void dispose() {
     codeController.dispose();
     passwordController.dispose();
     confirmPasswordController.dispose();
     super.dispose();
   }
 
-
   @override
-  Widget build(BuildContext context){
-
+  Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text(
-          'Recuperar Senha',
-        ),
-      ),
+      appBar: AppBar(title: Text('Recuperar Senha')),
       body: SafeArea(
         child: Padding(
           padding: EdgeInsets.all(16),
           child: Form(
-
             key: _formKey,
 
             child: Column(
@@ -72,14 +59,11 @@ class _ResetPasswordState extends State<ResetPassword>{
                 Container(
                   child: Text(
                     'Um e-mail com o código para redefinição da senha foi enviado para você. Caso este e-mail não chegue, verifique sua caixa de spam ou reenvie o código.',
-                    style: TextStyle(
-                      fontSize: 20,
-                      fontWeight: FontWeight.w600,
-                    ),
+                    style: TextStyle(fontSize: 20, fontWeight: FontWeight.w600),
                   ),
                 ),
 
-                SizedBox(height: 24,),
+                SizedBox(height: 24),
 
                 Container(
                   child: Column(
@@ -93,22 +77,20 @@ class _ResetPasswordState extends State<ResetPassword>{
                         ),
                       ),
                       TextFormField(
-
                         controller: codeController,
 
-                        autovalidateMode: validateCodeField ? 
-                        AutovalidateMode.onUserInteraction : 
-                        AutovalidateMode.disabled,
+                        autovalidateMode: validateCodeField
+                            ? AutovalidateMode.onUserInteraction
+                            : AutovalidateMode.disabled,
 
                         validator: (value) {
                           final formatError = codeFormatValidator(value);
-                          if(formatError != null) return formatError;
+                          if (formatError != null) return formatError;
 
                           return widget.codeService.validateCode(value!);
                         },
 
                         onChanged: (value) {
-
                           final error = widget.codeService.validateCode(value);
 
                           setState(() {
@@ -120,10 +102,14 @@ class _ResetPasswordState extends State<ResetPassword>{
                         decoration: InputDecoration(
                           hintText: 'Informe o código enviado...',
 
-                          suffixIcon: isCodeValid == null ? null : Icon(
-                            isCodeValid! ? Icons.check : Icons.close,
-                            color: isCodeValid! ? Colors.green : Colors.red,
-                          ),
+                          suffixIcon: isCodeValid == null
+                              ? null
+                              : Icon(
+                                  isCodeValid! ? Icons.check : Icons.close,
+                                  color: isCodeValid!
+                                      ? Colors.green
+                                      : Colors.red,
+                                ),
                           focusedBorder: OutlineInputBorder(
                             borderSide: BorderSide(width: 2),
                             borderRadius: BorderRadius.circular(12),
@@ -138,7 +124,7 @@ class _ResetPasswordState extends State<ResetPassword>{
                   ),
                 ),
 
-                SizedBox(height: 18,),
+                SizedBox(height: 18),
 
                 Container(
                   child: Column(
@@ -163,7 +149,7 @@ class _ResetPasswordState extends State<ResetPassword>{
                   ),
                 ),
 
-                SizedBox(height: 18,),
+                SizedBox(height: 18),
 
                 Container(
                   child: Column(
@@ -180,7 +166,8 @@ class _ResetPasswordState extends State<ResetPassword>{
                       PasswordField(
                         controller: confirmPasswordController,
                         enabled: isCodeValid == true,
-                        validator: (value) => confirmPassword(value, passwordController.text),
+                        validator: (value) =>
+                            confirmPassword(value, passwordController.text),
                         hintText: 'Repita a nova senha...',
                         sensitiveContent: true,
                       ),
@@ -193,39 +180,35 @@ class _ResetPasswordState extends State<ResetPassword>{
                 Center(
                   child: Column(
                     children: [
-
-                      SizedBox(height: 6,),
+                      SizedBox(height: 6),
 
                       SizedBox(
                         width: MediaQuery.of(context).size.width * 0.7,
                         child: FilledButton(
-                          onPressed: 
-                          canResend 
-                          ? 
-                          () {
-                            _clearFields();
+                          onPressed: canResend
+                              ? () {
+                                  _clearFields();
 
-                            widget.codeService.invalidate();
+                                  widget.codeService.invalidate();
 
-                            widget.codeService.createCode();
+                                  widget.codeService.createCode();
 
-                            setState(() {
-                              isCodeValid = null;
-                              canResend = false;
-                            });
+                                  setState(() {
+                                    isCodeValid = null;
+                                    canResend = false;
+                                  });
 
-                            print("REENVIADO: ${widget.codeService.code}");
+                                  print(
+                                    "REENVIADO: ${widget.codeService.code}",
+                                  );
 
-                            Future.delayed(
-                              Duration(seconds: 30), () {
-                                setState(() {
-                                  canResend = true;
-                                });
-                              }
-                            );
-                          }
-                          : 
-                          null,
+                                  Future.delayed(Duration(seconds: 30), () {
+                                    setState(() {
+                                      canResend = true;
+                                    });
+                                  });
+                                }
+                              : null,
                           style: FilledButton.styleFrom(
                             padding: EdgeInsets.symmetric(vertical: 22),
                             shape: RoundedRectangleBorder(
@@ -242,31 +225,26 @@ class _ResetPasswordState extends State<ResetPassword>{
                         ),
                       ),
 
-                      SizedBox(height: 12,),
+                      SizedBox(height: 12),
 
                       SizedBox(
                         width: MediaQuery.of(context).size.width * 0.7,
                         child: FilledButton(
-                          onPressed: isCodeValid == true 
-                          ? 
-                          () {
-                            if (_formKey.currentState!.validate()) {
-                              print('senha alterada');
-                              _clearFields();
-                              widget.codeService.invalidate();
-                            }
+                          onPressed: isCodeValid == true
+                              ? () {
+                                  if (_formKey.currentState!.validate()) {
+                                    print('senha alterada');
+                                    _clearFields();
+                                    widget.codeService.invalidate();
+                                  } else {
+                                    print('Não foi possível alterar sua senha');
 
-                            else{
-                              print('Não foi possível alterar sua senha');
-
-                              setState(() {
-                                if(!canResend) canResend = true;
-                              });
-                            }
-
-                          } 
-                          : 
-                          null,
+                                    setState(() {
+                                      if (!canResend) canResend = true;
+                                    });
+                                  }
+                                }
+                              : null,
                           style: FilledButton.styleFrom(
                             padding: EdgeInsets.symmetric(vertical: 22),
                             shape: RoundedRectangleBorder(
@@ -283,7 +261,7 @@ class _ResetPasswordState extends State<ResetPassword>{
                         ),
                       ),
 
-                      SizedBox(height: 6,),
+                      SizedBox(height: 6),
 
                       TextButton(
                         onPressed: () {},
@@ -295,9 +273,8 @@ class _ResetPasswordState extends State<ResetPassword>{
                           ),
                         ),
                       ),
-                      
-                      SizedBox(height: 6,),
 
+                      SizedBox(height: 6),
                     ],
                   ),
                 ),

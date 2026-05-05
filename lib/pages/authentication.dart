@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:frontend/pages/dashboard.dart';
+import 'package:frontend/pages/password_recovery/user_information.dart';
+import 'package:frontend/pages/person_registration/person_registration.dart';
 
 class Authentication extends StatefulWidget {
   const Authentication({super.key});
@@ -70,7 +73,14 @@ class _AuthenticationState extends State<Authentication> {
               ),
               SizedBox(height: 20),
               GestureDetector(
-                onTap: () {},
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => const UserInformation(),
+                    ),
+                  );
+                },
                 child: Text(
                   "Esqueceu senha?",
                   style: TextStyle(color: Colors.white),
@@ -81,7 +91,14 @@ class _AuthenticationState extends State<Authentication> {
                 height: 50,
                 width: 120,
                 child: ElevatedButton.icon(
-                  onPressed: () {},
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => const Dashboard(),
+                      ),
+                    );
+                  },
                   icon: const Icon(Icons.login),
                   label: const Text('Entrar', style: TextStyle(fontSize: 18)),
                   style: ElevatedButton.styleFrom(
@@ -95,7 +112,14 @@ class _AuthenticationState extends State<Authentication> {
               ),
               SizedBox(height: 20),
               GestureDetector(
-                onTap: () {},
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => const PersonRegistration(),
+                    ),
+                  );
+                },
                 child: Text.rich(
                   TextSpan(
                     style: const TextStyle(color: Colors.white, fontSize: 16),
