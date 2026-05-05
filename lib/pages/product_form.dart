@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:frontend/style/ColorScheme.dart' as custom_colors;
 
 class ProductForm extends StatelessWidget {
   final VoidCallback onSave;
@@ -7,30 +8,15 @@ class ProductForm extends StatelessWidget {
 
   const ProductForm({super.key, required this.onSave, required this.onCancel});
 
-  static const Color cardShadow = Colors.black26;
-  static const Color titleColor = Color.fromARGB(255, 46, 45, 45);
-  static const Color subtitleColor = Color.fromARGB(137, 3, 3, 3);
-
-  static const Color fieldFill1 = Color.fromARGB(255, 244, 246, 250);
-  static const Color fieldFill2 = Color.fromARGB(255, 246, 247, 251);
-  static const Color fieldFill3 = Color.fromARGB(255, 247, 248, 252);
-
-  static const Color lightBorder = Colors.black12;
-  static const Color lighterBorder = Color.fromARGB(31, 6, 6, 6);
-  static const Color focusBlue1 = Color.fromARGB(255, 67, 86, 210);
-  static const Color focusBlue2 = Color.fromARGB(255, 69, 89, 217);
-  static const Color focusBlue3 = Color.fromARGB(255, 67, 87, 212);
-
-  static const Color buttonBlue = Color.fromARGB(255, 68, 87, 212);
-  static const Color whiteColor = Colors.white;
-  static const Color cancelText = Colors.black87;
-  static const Color cancelBorder = Colors.black26;
-
   @override
   Widget build(BuildContext context) {
+    final colors = custom_colors.colorScheme;
+    bool marcado = false;
+
     return Card(
+      color: Colors.white,
       elevation: 8,
-      shadowColor: cardShadow,
+      shadowColor: Colors.black26,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(22)),
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 28),
@@ -38,127 +24,236 @@ class ProductForm extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const Text(
+              Text(
                 "Informações do produto",
                 style: TextStyle(
                   fontSize: 20,
                   fontWeight: FontWeight.bold,
-                  color: titleColor,
+                  color: colors.onSurface,
                 ),
               ),
+
               const SizedBox(height: 6),
-              const Text(
+
+              Text(
                 "Complete os campos abaixo com os dados necessários.",
-                style: TextStyle(fontSize: 14, color: subtitleColor),
+                style: TextStyle(fontSize: 14, color: colors.onSurfaceVariant),
               ),
+
               const SizedBox(height: 30),
 
-              const Row(
+              Row(
                 children: [
-                  Icon(Icons.description_outlined, size: 20),
-                  SizedBox(width: 8),
+                  Icon(
+                    Icons.description_outlined,
+                    size: 20,
+                    color: colors.primary,
+                  ),
+                  const SizedBox(width: 8),
                   Text(
                     "Descrição do produto",
-                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                    style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 16,
+                      color: colors.onSurface,
+                    ),
                   ),
                 ],
               ),
+
               const SizedBox(height: 10),
+
               TextFormField(
                 maxLines: 4,
                 decoration: InputDecoration(
                   hintText: 'Ex.: marca, tamanho, peso máximo...',
                   filled: true,
-                  fillColor: fieldFill1,
+                  fillColor: colors.surfaceContainer,
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(14),
-                    borderSide: const BorderSide(color: lighterBorder),
+                    borderSide: BorderSide(color: colors.surfaceContainerHigh),
                   ),
                   enabledBorder: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(14),
-                    borderSide: const BorderSide(color: lighterBorder),
+                    borderSide: BorderSide(color: colors.surfaceContainerHigh),
                   ),
                   focusedBorder: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(14),
-                    borderSide: const BorderSide(color: focusBlue1, width: 2),
+                    borderSide: BorderSide(color: colors.primary, width: 2),
                   ),
                 ),
               ),
 
               const SizedBox(height: 30),
 
-              const Row(
+              Row(
                 children: [
-                  Icon(Icons.inventory_outlined, size: 20),
-                  SizedBox(width: 8),
+                  Icon(
+                    Icons.inventory_outlined,
+                    size: 20,
+                    color: colors.primary,
+                  ),
+                  const SizedBox(width: 8),
                   Text(
                     "Quantidade em estoque",
-                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                    style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 16,
+                      color: colors.onSurface,
+                    ),
                   ),
                 ],
               ),
+
               const SizedBox(height: 10),
+
               TextFormField(
                 maxLength: 6,
                 keyboardType: TextInputType.number,
                 inputFormatters: [FilteringTextInputFormatter.digitsOnly],
                 decoration: InputDecoration(
                   hintText: '10',
-                  prefixIcon: const Icon(Icons.numbers),
+                  prefixIcon: Icon(Icons.numbers, color: colors.primary),
                   filled: true,
-                  fillColor: fieldFill2,
+                  fillColor: colors.surfaceContainer,
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(14),
-                    borderSide: const BorderSide(color: lightBorder),
+                    borderSide: BorderSide(color: colors.surfaceContainerHigh),
                   ),
                   enabledBorder: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(14),
-                    borderSide: const BorderSide(color: lightBorder),
+                    borderSide: BorderSide(color: colors.surfaceContainerHigh),
                   ),
                   focusedBorder: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(14),
-                    borderSide: const BorderSide(color: focusBlue2, width: 2),
+                    borderSide: BorderSide(color: colors.primary, width: 2),
+                  ),
+                ),
+              ),
+
+              const SizedBox(height: 20),
+
+              Row(
+                children: [
+                  Icon(
+                    Icons.payments_outlined,
+                    size: 20,
+                    color: colors.primary,
+                  ),
+                  const SizedBox(width: 8),
+                  Text(
+                    "Preço do produto",
+                    style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 16,
+                      color: colors.onSurface,
+                    ),
+                  ),
+                ],
+              ),
+
+              const SizedBox(height: 10),
+
+              TextFormField(
+                keyboardType: const TextInputType.numberWithOptions(
+                  decimal: true,
+                ),
+                inputFormatters: [
+                  FilteringTextInputFormatter.allow(RegExp(r'[0-9,.]')),
+                ],
+                decoration: InputDecoration(
+                  hintText: '0,00',
+                  prefixText: 'R\$ ',
+                  prefixIcon: Icon(Icons.attach_money, color: colors.primary),
+                  filled: true,
+                  fillColor: colors.surfaceContainer,
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(14),
+                    borderSide: BorderSide(color: colors.surfaceContainerHigh),
+                  ),
+                  enabledBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(14),
+                    borderSide: BorderSide(color: colors.surfaceContainerHigh),
+                  ),
+                  focusedBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(14),
+                    borderSide: BorderSide(color: colors.primary, width: 2),
                   ),
                 ),
               ),
 
               const SizedBox(height: 30),
 
-              const Row(
+              Row(
                 children: [
-                  Icon(Icons.warning_amber_rounded, size: 20),
-                  SizedBox(width: 8),
+                  Icon(
+                    Icons.warning_amber_rounded,
+                    size: 20,
+                    color: colors.primary,
+                  ),
+                  const SizedBox(width: 8),
                   Text(
                     "Quantidade mínima",
-                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                    style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 16,
+                      color: colors.onSurface,
+                    ),
                   ),
                 ],
               ),
+
               const SizedBox(height: 10),
-              TextField(
+
+              TextFormField(
                 maxLength: 2,
                 keyboardType: TextInputType.number,
                 inputFormatters: [FilteringTextInputFormatter.digitsOnly],
                 decoration: InputDecoration(
                   hintText: '10',
-                  prefixIcon: const Icon(Icons.numbers),
+                  prefixIcon: Icon(Icons.numbers, color: colors.primary),
                   filled: true,
-                  fillColor: fieldFill3,
+                  fillColor: colors.surfaceContainer,
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(14),
-                    borderSide: const BorderSide(color: lighterBorder),
+                    borderSide: BorderSide(color: colors.surfaceContainerHigh),
                   ),
                   enabledBorder: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(14),
-                    borderSide: const BorderSide(color: lightBorder),
+                    borderSide: BorderSide(color: colors.surfaceContainerHigh),
                   ),
                   focusedBorder: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(14),
-                    borderSide: const BorderSide(color: focusBlue3, width: 2),
+                    borderSide: BorderSide(color: colors.primary, width: 2),
                   ),
                 ),
               ),
 
+              const SizedBox(height: 8),
+
+              StatefulBuilder(
+                builder: (context, setStateCheckbox) {
+                  return CheckboxListTile(
+                    value: marcado,
+                    onChanged: (value) {
+                      setStateCheckbox(() {
+                        marcado = value ?? false;
+                      });
+                    },
+                    activeColor: Colors.green,
+                    checkColor: Colors.white,
+                    contentPadding: EdgeInsets.zero,
+                    controlAffinity: ListTileControlAffinity.leading,
+                    title: Text(
+                      "Este item é uma balança",
+                      style: TextStyle(
+                        color: colors.onSurface,
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                  );
+                },
+              ),
               const SizedBox(height: 30),
 
               Row(
@@ -168,8 +263,8 @@ class ProductForm extends StatelessWidget {
                       onPressed: onSave,
                       style: ElevatedButton.styleFrom(
                         elevation: 3,
-                        backgroundColor: buttonBlue,
-                        foregroundColor: whiteColor,
+                        backgroundColor: colors.primary,
+                        foregroundColor: colors.onSecondary,
                         padding: const EdgeInsets.symmetric(vertical: 18),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(14),
@@ -182,18 +277,20 @@ class ProductForm extends StatelessWidget {
                       ),
                     ),
                   ),
+
                   const SizedBox(width: 14),
+
                   Expanded(
                     child: OutlinedButton.icon(
+                      onPressed: onCancel,
                       style: OutlinedButton.styleFrom(
-                        foregroundColor: cancelText,
-                        side: const BorderSide(color: cancelBorder),
+                        foregroundColor: colors.onSurface,
+                        side: BorderSide(color: colors.surfaceContainerHigh),
                         padding: const EdgeInsets.symmetric(vertical: 18),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(14),
                         ),
                       ),
-                      onPressed: () {},
                       icon: const Icon(Icons.cancel_outlined),
                       label: const Text("Cancelar"),
                     ),
