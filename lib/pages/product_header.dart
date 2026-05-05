@@ -20,11 +20,11 @@ class ProductHeader extends StatelessWidget {
           end: Alignment.bottomRight,
         ),
         borderRadius: BorderRadius.circular(22),
-        boxShadow: [
+        boxShadow: const [
           BoxShadow(
-            color: Colors.black,
+            color: Colors.black26,
             blurRadius: 12,
-            offset: const Offset(0, 6),
+            offset: Offset(0, 6),
           ),
         ],
       ),
@@ -39,9 +39,9 @@ class ProductHeader extends StatelessWidget {
                   color: Colors.white,
                   borderRadius: BorderRadius.circular(16),
                 ),
-                child: const Icon(
+                child: Icon(
                   Icons.inventory_2_outlined,
-                  color: Colors.white,
+                  color: colors.primary,
                   size: 30,
                 ),
               ),
@@ -63,7 +63,7 @@ class ProductHeader extends StatelessWidget {
                 onPressed: onBack,
                 style: IconButton.styleFrom(
                   backgroundColor: Colors.white,
-                  foregroundColor: Colors.white,
+                  foregroundColor: colors.primary,
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(14),
                   ),
@@ -75,9 +75,13 @@ class ProductHeader extends StatelessWidget {
 
           const SizedBox(height: 16),
 
-          Text(
+          const Text(
             'Adicione um novo produto ao estoque preenchendo as informações abaixo.',
-            style: TextStyle(color: Colors.white, fontSize: 14, height: 1.4),
+            style: TextStyle(
+              color: Colors.white,
+              fontSize: 14,
+              height: 1.4,
+            ),
           ),
         ],
       ),
