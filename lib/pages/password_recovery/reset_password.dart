@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:frontend/services/password_recovery/code_service.dart';
 import 'package:frontend/utils/password_recovery/validators.dart';
+import 'package:frontend/widgets/password_recovery/password_field.dart';
+
 
 class ResetPassword extends StatefulWidget{
 
@@ -37,6 +39,14 @@ class _ResetPasswordState extends State<ResetPassword>{
       validateCodeField = false;
     });
 
+  }
+
+  @override
+  void dispose(){
+    codeController.dispose();
+    passwordController.dispose();
+    confirmPasswordController.dispose();
+    super.dispose();
   }
 
 
@@ -141,24 +151,13 @@ class _ResetPasswordState extends State<ResetPassword>{
                           fontWeight: FontWeight.w600,
                         ),
                       ),
-                      TextFormField(
+
+                      PasswordField(
                         controller: passwordController,
-
                         enabled: isCodeValid == true,
-
                         validator: (value) => passwordValidator(value),
-
-                        decoration: InputDecoration(
-                          hintText: 'Informe a nova senha...',
-                          focusedBorder: OutlineInputBorder(
-                            borderSide: BorderSide(width: 2),
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                          enabledBorder: OutlineInputBorder(
-                            borderSide: BorderSide(width: 1),
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                        ),
+                        hintText: 'Informe a nova senha...',
+                        sensitiveContent: true,
                       ),
                     ],
                   ),
@@ -177,24 +176,13 @@ class _ResetPasswordState extends State<ResetPassword>{
                           fontWeight: FontWeight.w600,
                         ),
                       ),
-                      TextFormField(
+
+                      PasswordField(
                         controller: confirmPasswordController,
-
                         enabled: isCodeValid == true,
-
                         validator: (value) => confirmPassword(value, passwordController.text),
-
-                        decoration: InputDecoration(
-                          hintText: 'Repita a nova senha...',
-                          focusedBorder: OutlineInputBorder(
-                            borderSide: BorderSide(width: 2),
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                          enabledBorder: OutlineInputBorder(
-                            borderSide: BorderSide(width: 1),
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                        ),
+                        hintText: 'Repita a nova senha...',
+                        sensitiveContent: true,
                       ),
                     ],
                   ),
@@ -264,10 +252,18 @@ class _ResetPasswordState extends State<ResetPassword>{
                           () {
                             if (_formKey.currentState!.validate()) {
                               print('senha alterada');
+                              _clearFields();
+                              widget.codeService.invalidate();
                             }
 
-                            _clearFields();
-                            widget.codeService.invalidate();
+                            else{
+                              print('Não foi possível alterar sua senha');
+
+                              setState(() {
+                                if(!canResend) canResend = true;
+                              });
+                            }
+
                           } 
                           : 
                           null,

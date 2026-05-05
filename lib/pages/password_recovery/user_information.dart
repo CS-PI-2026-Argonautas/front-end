@@ -4,6 +4,8 @@ import 'package:flutter/material.dart';
 import 'package:frontend/pages/password_recovery/reset_password.dart';
 import 'package:frontend/services/password_recovery/code_service.dart';
 import 'package:frontend/utils/password_recovery/validators.dart';
+import 'package:frontend/widgets/password_recovery/password_field.dart';
+import 'package:frontend/widgets/password_recovery/modal.dart';
 
 class UserInformation extends StatefulWidget{
 
@@ -59,22 +61,13 @@ class _UserInformationState extends State<UserInformation>{
                           fontWeight: FontWeight.w600,
                         ),
                       ),
-                      TextFormField(
 
+                      PasswordField(
+                        controller: null,
+                        enabled: true,
                         validator: (value) => requiredField(value),
-                        
-                        decoration: InputDecoration(
-                          hintText: 'Digite seu nome de usuário...',
-                          focusedBorder: OutlineInputBorder(
-                            borderSide: BorderSide(width: 2),
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                          enabledBorder: OutlineInputBorder(
-                            borderSide: BorderSide(width: 1),
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                        ),
-
+                        hintText: 'Digite seu nome de usuário...',
+                        sensitiveContent: false,
                       ),
                     ],
                   ),
@@ -97,108 +90,10 @@ class _UserInformationState extends State<UserInformation>{
                                 barrierDismissible: true,
                                 barrierLabel: 'Confirmação de e-mail',
                                 pageBuilder: (_, __, ___, ){
-                                  return Stack(
-                                    children: [
-                                      BackdropFilter(
-                                        filter: ImageFilter.blur(sigmaX: 6, sigmaY: 6),
-                                        child: GestureDetector(
-                                          onTap: () => Navigator.pop(context),
-                                          child: Container(
-                                            color: Colors.black.withOpacity(0.2),
-                                          ),
-                                        ),
-                                      ),
-
-                                      Center(
-                                        child: Container(
-                                          padding: EdgeInsets.all(24),
-                                          width: MediaQuery.of(context).size.width * 0.7,
-                                          decoration: BoxDecoration(
-                                            color: Colors.white,
-                                            borderRadius: BorderRadius.circular(12),
-                                          ),
-                                          child: Column(
-                                            mainAxisSize: MainAxisSize.min,
-                                            children: [
-                                              Text(
-                                                'Este é seu e-mail? ',
-                                                style: TextStyle(
-                                                  color: Colors.black,
-                                                  fontSize: 18,
-                                                  fontWeight: FontWeight.w600,
-                                                ),
-                                              ),
-
-                                              SizedBox(height: 12,),
-
-                                              Text(
-                                                'email****@ex***.com',
-                                                style: TextStyle(
-                                                  color: Colors.black,
-                                                  fontSize: 18,
-                                                  fontWeight: FontWeight.w600,
-                                                ),
-                                              ),
-
-                                              SizedBox(height: 40,),
-
-                                              Row(
-                                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                                children: [
-                                                  Expanded(
-                                                    child: FilledButton(
-                                                      style: FilledButton.styleFrom(
-                                                        padding: EdgeInsets.symmetric(vertical: 16),
-                                                        shape: RoundedRectangleBorder(
-                                                          borderRadius: BorderRadiusGeometry.circular(12),
-                                                        ),
-                                                      ),
-                                                      onPressed: () {
-                                                        Navigator.pop(context, true);
-                                                      },
-                                                      child: Text(
-                                                        'Sim',
-                                                        style: TextStyle(
-                                                          fontSize: 16,
-                                                          fontWeight: FontWeight.w400,
-                                                        ),
-                                                      ),
-                                                    ),
-                                                  ),
-
-                                                  SizedBox(width: 24,),
-
-                                                  Expanded(
-                                                    child: FilledButton(
-                                                      style: FilledButton.styleFrom(
-                                                        padding: EdgeInsets.symmetric(vertical: 16),
-                                                        shape: RoundedRectangleBorder(
-                                                          borderRadius: BorderRadiusGeometry.circular(12),
-                                                        ),
-                                                      ),
-                                                      onPressed: () {
-                                                        Navigator.pop(context, false);
-                                                      },
-                                                      child: Text(
-                                                        'Não',
-                                                        style: TextStyle(
-                                                          fontSize: 16,
-                                                          fontWeight: FontWeight.w400,
-                                                        ),
-                                                      ),
-                                                    ),
-                                                  ),
-                                                ],
-                                              ),
-                                            ],
-                                          ),
-                                        ),
-                                      ),
-
-                                    ],
+                                  return Modal(
+                                    titleText: 'Seu e-mail está correto? ',
+                                    questionText: 'em*****ail@exem****plo.com',
                                   );
-
-                                  
                                 },
                               );
 
