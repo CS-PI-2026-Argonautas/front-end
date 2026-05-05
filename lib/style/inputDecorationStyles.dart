@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:frontend/style/colorScheme.dart';
+import 'package:frontend/style/ColorScheme.dart';
 
 final inputDecorationStyle = InputDecoration(
   fillColor: colorScheme.onPrimary,
