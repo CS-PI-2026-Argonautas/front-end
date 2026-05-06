@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:frontend/pages/product_registration/product_registration.dart';
 import 'package:frontend/style/ColorScheme.dart' as custom_Colors;
-import 'package:frontend/pages/product_registration.dart';
 import 'package:frontend/widgets/bottom_bar.dart';
+import 'package:frontend/pages/stand_in_page.dart';
 
 class Dashboard extends StatelessWidget {
   const Dashboard({super.key});
@@ -29,15 +30,21 @@ class Dashboard extends StatelessWidget {
           }
 
           if (index == 0) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(content: Text("COLOCAR TELA DE CLIENTES")),
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => const StandInPage(),
+              ),
             );
           }
 
           if (index == 2) {
-            ScaffoldMessenger.of(
+            Navigator.push(
               context,
-            ).showSnackBar(const SnackBar(content: Text("COLOCAR TELA DE OS")));
+              MaterialPageRoute(
+                builder: (context) => const StandInPage(),
+              ),
+            );
           }
 
           if (index == 3) {
