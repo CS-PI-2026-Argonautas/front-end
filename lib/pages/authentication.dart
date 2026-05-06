@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:frontend/pages/dashboard.dart';
 import 'package:frontend/pages/password_recovery/user_information.dart';
 import 'package:frontend/pages/person_registration/person_registration.dart';
+import 'package:frontend/style/ColorScheme.dart' as custom_colors;
+import 'package:frontend/style/inputDecorationStyles.dart';
 
 class Authentication extends StatefulWidget {
   const Authentication({super.key});
@@ -12,21 +14,21 @@ class Authentication extends StatefulWidget {
 
 class _AuthenticationState extends State<Authentication> {
   bool _isPasswordVisible = false;
+  final colors = custom_colors.colorScheme;
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.blue,
       body: Container(
         decoration: BoxDecoration(
           gradient: LinearGradient(
-            colors: [Colors.blue, const Color.fromARGB(255, 0, 59, 86)],
+            colors: [colors.primary, const Color.fromARGB(255, 0, 59, 86)],
             begin: Alignment.topCenter,
             end: Alignment.bottomCenter,
           ),
         ),
         child: Padding(
-          padding: EdgeInsets.all(30),
+          padding: const EdgeInsets.all(30),
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
@@ -37,28 +39,26 @@ class _AuthenticationState extends State<Authentication> {
               ),
 
               TextField(
-                decoration: InputDecoration(
+                decoration: customInputDecoration(
                   hintText: 'Usuário',
-                  filled: true,
-                  prefixIcon: Icon(Icons.person),
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(14),
-                  ),
+                  prefixIcon: const Icon(Icons.person_outline),
                 ),
               ),
 
-              SizedBox(height: 20),
+              const SizedBox(height: 20),
+
               TextField(
                 obscureText: !_isPasswordVisible,
-                decoration: InputDecoration(
+                decoration: customInputDecoration(
                   hintText: 'Senha',
-                  filled: true,
-                  prefixIcon: Icon(Icons.password),
+                  prefixIcon: const Icon(Icons.lock_outline),
+                ).copyWith( // Usamos copyWith para adicionar o suffixIcon específico de senha
                   suffixIcon: IconButton(
                     icon: Icon(
                       _isPasswordVisible
                           ? Icons.visibility
                           : Icons.visibility_off,
+                      color: colors.primary,
                     ),
                     onPressed: () {
                       setState(() {
@@ -66,30 +66,34 @@ class _AuthenticationState extends State<Authentication> {
                       });
                     },
                   ),
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(14),
+                ),
+              ),
+              
+              const SizedBox(height: 20),
+              
+              Align(
+                alignment: Alignment.centerRight,
+                child: GestureDetector(
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => const UserInformation(),
+                      ),
+                    );
+                  },
+                  child: const Text(
+                    "Esqueceu senha?",
+                    style: TextStyle(color: Colors.white, fontWeight: FontWeight.w500),
                   ),
                 ),
               ),
-              SizedBox(height: 20),
-              GestureDetector(
-                onTap: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => const UserInformation(),
-                    ),
-                  );
-                },
-                child: Text(
-                  "Esqueceu senha?",
-                  style: TextStyle(color: Colors.white),
-                ),
-              ),
-              SizedBox(height: 150),
+              
+              const SizedBox(height: 60), 
+
               SizedBox(
-                height: 50,
-                width: 120,
+                height: 55,
+                width: 160,
                 child: ElevatedButton.icon(
                   onPressed: () {
                     Navigator.push(
@@ -100,17 +104,20 @@ class _AuthenticationState extends State<Authentication> {
                     );
                   },
                   icon: const Icon(Icons.login),
-                  label: const Text('Entrar', style: TextStyle(fontSize: 18)),
+                  label: const Text('Entrar', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.white,
-                    foregroundColor: const Color.fromARGB(255, 13, 35, 54),
+                    foregroundColor: colors.primary,
+                    elevation: 5,
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(14),
                     ),
                   ),
                 ),
               ),
-              SizedBox(height: 20),
+              
+              const SizedBox(height: 30),
+              
               GestureDetector(
                 onTap: () {
                   Navigator.push(
@@ -120,14 +127,14 @@ class _AuthenticationState extends State<Authentication> {
                     ),
                   );
                 },
-                child: Text.rich(
+                child: const Text.rich(
                   TextSpan(
-                    style: const TextStyle(color: Colors.white, fontSize: 16),
+                    style: TextStyle(color: Colors.white, fontSize: 16),
                     children: [
-                      const TextSpan(text: "Não tem uma conta? "),
-                      const TextSpan(
+                      TextSpan(text: "Não tem uma conta? "),
+                      TextSpan(
                         text: "Cadastre-se",
-                        style: TextStyle(fontWeight: FontWeight.bold),
+                        style: TextStyle(fontWeight: FontWeight.bold, decoration: TextDecoration.underline),
                       ),
                     ],
                   ),

@@ -1,4 +1,4 @@
-// lib/style/input_decoration_style.dart
+
 import 'package:flutter/material.dart';
 import 'package:frontend/style/ColorScheme.dart';
 
@@ -7,13 +7,15 @@ InputDecoration customInputDecoration({String? hintText, Widget? prefixIcon, Str
     hintText: hintText,
     prefixIcon: prefixIcon,
     prefixText: prefixText,
-    fillColor: colorScheme.surfaceContainer, // Padronizado com o estilo de produtos
+    contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 16),
+    prefixStyle: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+    
+    fillColor: colorScheme.surfaceContainer,
     filled: true,
     errorStyle: TextStyle(
       color: colorScheme.error,
       fontWeight: FontWeight.bold,
     ),
-    // Bordas baseadas no estilo refinado de Product Registration
     border: OutlineInputBorder(
       borderRadius: BorderRadius.circular(14),
       borderSide: BorderSide(color: colorScheme.surfaceContainerHigh),
