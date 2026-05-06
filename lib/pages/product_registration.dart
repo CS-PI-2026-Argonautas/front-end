@@ -33,7 +33,40 @@ class ProductRegistration extends StatelessWidget {
                     onCancel: () {
                       Navigator.pop(context);
                     },
-                    onSave: () {},
+                    onSave: () {
+                      showDialog(
+                        context: context,
+                        builder: (context) {
+                          return AlertDialog(
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(18),
+                            ),
+                            title: const Row(
+                              children: [
+                                Icon(
+                                  Icons.check_circle,
+                                  color: Colors.green,
+                                  size: 28,
+                                ),
+                                SizedBox(width: 10),
+                                Text("Envio confirmado"),
+                              ],
+                            ),
+                            content: const Text(
+                              "O produto foi enviado com sucesso.",
+                            ),
+                            actions: [
+                              TextButton(
+                                onPressed: () {
+                                  Navigator.pop(context);
+                                },
+                                child: Text("OK"),
+                              ),
+                            ],
+                          );
+                        },
+                      );
+                    },
                   ),
 
                   const SizedBox(height: 20),

@@ -77,7 +77,11 @@ class ProductHeader extends StatelessWidget {
 
           const Text(
             'Adicione um novo produto ao estoque preenchendo as informações abaixo.',
-            style: TextStyle(color: Colors.white, fontSize: 14, height: 1.4),
+            style: TextStyle(
+              color: Colors.white,
+              fontSize: 14,
+              height: 1.4,
+            ),
           ),
         ],
       ),
