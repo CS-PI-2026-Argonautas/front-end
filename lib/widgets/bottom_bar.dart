@@ -13,32 +13,54 @@ class AppBottomNavBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return BottomNavigationBar(
-      type: BottomNavigationBarType.fixed,
-      backgroundColor: custom_Colors.colorScheme.primary,
-      selectedItemColor: custom_Colors.colorScheme.onTertiary,
-      unselectedItemColor: Colors.white,
-      currentIndex: currentIndex,
-      onTap: onTap,
+    
+    final colors = custom_Colors.colorScheme;
 
-      items: const [
-        BottomNavigationBarItem(
-          icon: Icon(Icons.person_outline),
-          label: "Clientes",
+    return Container(
+      decoration: BoxDecoration(
+        
+        gradient: LinearGradient(
+          colors: [colors.primary, colors.secondary],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
         ),
-        BottomNavigationBarItem(
-          icon: Icon(Icons.scale_outlined),
-          label: "Peças",
-        ),
-        BottomNavigationBarItem(
-          icon: Icon(Icons.assignment_outlined),
-          label: "Ordens",
-        ),
-        BottomNavigationBarItem(
-          icon: Icon(Icons.home_outlined),
-          label: "Início",
-        ),
-      ],
+       
+        boxShadow: const [
+          BoxShadow(
+            color: Colors.black12,
+            blurRadius: 8,
+            offset: Offset(0, -2),
+          ),
+        ],
+      ),
+      child: BottomNavigationBar(
+        type: BottomNavigationBarType.fixed,
+       
+        backgroundColor: Colors.transparent, 
+        elevation: 0, 
+        selectedItemColor: colors.onTertiary,
+        unselectedItemColor: Colors.white.withOpacity(0.8),
+        currentIndex: currentIndex,
+        onTap: onTap,
+        items: const [
+          BottomNavigationBarItem(
+            icon: Icon(Icons.person_outline),
+            label: "Clientes",
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.scale_outlined),
+            label: "Peças",
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.assignment_outlined),
+            label: "Ordens",
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.home_outlined),
+            label: "Início",
+          ),
+        ],
+      ),
     );
   }
 }

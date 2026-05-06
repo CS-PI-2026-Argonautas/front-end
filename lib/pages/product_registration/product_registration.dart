@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:frontend/pages/product_form.dart';
-import 'package:frontend/pages/product_header.dart';
+import 'package:frontend/pages/product_registration/product_form.dart';
+import 'package:frontend/pages/product_registration/product_header.dart';
 import 'package:frontend/style/ColorScheme.dart' as custom_colors;
 
 class ProductRegistration extends StatelessWidget {

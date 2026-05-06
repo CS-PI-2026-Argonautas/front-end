@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:frontend/style/ColorScheme.dart' as custom_colors;
+import 'package:frontend/style/inputDecorationStyles.dart';
 
 class ProductForm extends StatefulWidget {
   final VoidCallback onSave;
@@ -71,22 +72,9 @@ class _ProductFormState extends State<ProductForm> {
 
               TextFormField(
                 maxLines: 4,
-                decoration: InputDecoration(
+                decoration: customInputDecoration(
                   hintText: 'Ex.: marca, tamanho, peso máximo...',
-                  filled: true,
-                  fillColor: colors.surfaceContainer,
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(14),
-                    borderSide: BorderSide(color: colors.surfaceContainerHigh),
-                  ),
-                  enabledBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(14),
-                    borderSide: BorderSide(color: colors.surfaceContainerHigh),
-                  ),
-                  focusedBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(14),
-                    borderSide: BorderSide(color: colors.primary, width: 2),
-                  ),
+
                 ),
               ),
 
@@ -115,25 +103,12 @@ class _ProductFormState extends State<ProductForm> {
 
               TextFormField(
                 maxLength: 6,
+                
                 keyboardType: TextInputType.number,
                 inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-                decoration: InputDecoration(
+                decoration: customInputDecoration(
                   hintText: '10',
                   prefixIcon: Icon(Icons.numbers, color: colors.primary),
-                  filled: true,
-                  fillColor: colors.surfaceContainer,
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(14),
-                    borderSide: BorderSide(color: colors.surfaceContainerHigh),
-                  ),
-                  enabledBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(14),
-                    borderSide: BorderSide(color: colors.surfaceContainerHigh),
-                  ),
-                  focusedBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(14),
-                    borderSide: BorderSide(color: colors.primary, width: 2),
-                  ),
                 ),
               ),
 
@@ -161,30 +136,13 @@ class _ProductFormState extends State<ProductForm> {
               const SizedBox(height: 10),
 
               TextFormField(
-                keyboardType: const TextInputType.numberWithOptions(
-                  decimal: true,
-                ),
+               keyboardType: const TextInputType.numberWithOptions(decimal: true),
                 inputFormatters: [
                   FilteringTextInputFormatter.allow(RegExp(r'[0-9,.]')),
                 ],
-                decoration: InputDecoration(
+                decoration: customInputDecoration(
                   hintText: '0,00',
-                  prefixText: 'R\$ ',
                   prefixIcon: Icon(Icons.attach_money, color: colors.primary),
-                  filled: true,
-                  fillColor: colors.surfaceContainer,
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(14),
-                    borderSide: BorderSide(color: colors.surfaceContainerHigh),
-                  ),
-                  enabledBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(14),
-                    borderSide: BorderSide(color: colors.surfaceContainerHigh),
-                  ),
-                  focusedBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(14),
-                    borderSide: BorderSide(color: colors.primary, width: 2),
-                  ),
                 ),
               ),
 
@@ -215,23 +173,10 @@ class _ProductFormState extends State<ProductForm> {
                 maxLength: 2,
                 keyboardType: TextInputType.number,
                 inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-                decoration: InputDecoration(
+                decoration: customInputDecoration(
                   hintText: '10',
-                  prefixIcon: Icon(Icons.numbers, color: colors.primary),
-                  filled: true,
-                  fillColor: colors.surfaceContainer,
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(14),
-                    borderSide: BorderSide(color: colors.surfaceContainerHigh),
-                  ),
-                  enabledBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(14),
-                    borderSide: BorderSide(color: colors.surfaceContainerHigh),
-                  ),
-                  focusedBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(14),
-                    borderSide: BorderSide(color: colors.primary, width: 2),
-                  ),
+                  prefixIcon: Icon(Icons.numbers, color: colors.primary),         
+                  
                 ),
               ),
 
