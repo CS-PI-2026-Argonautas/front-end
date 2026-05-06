@@ -3,16 +3,22 @@ import 'package:flutter/services.dart';
 import 'package:frontend/style/ColorScheme.dart' as custom_colors;
 import 'package:frontend/style/inputDecorationStyles.dart';
 
-class ProductForm extends StatelessWidget {
+class ProductForm extends StatefulWidget {
   final VoidCallback onSave;
   final VoidCallback onCancel;
 
   const ProductForm({super.key, required this.onSave, required this.onCancel});
 
   @override
+  State<ProductForm> createState() => _ProductFormState();
+}
+
+class _ProductFormState extends State<ProductForm> {
+  bool marcado = false;
+
+  @override
   Widget build(BuildContext context) {
     final colors = custom_colors.colorScheme;
-    bool marcado = false;
 
     return Card(
       color: Colors.white,
@@ -176,36 +182,33 @@ class ProductForm extends StatelessWidget {
 
               const SizedBox(height: 8),
 
-              StatefulBuilder(
-                builder: (context, setStateCheckbox) {
-                  return CheckboxListTile(
-                    value: marcado,
-                    onChanged: (value) {
-                      setStateCheckbox(() {
-                        marcado = value ?? false;
-                      });
-                    },
-                    activeColor: Colors.green,
-                    checkColor: Colors.white,
-                    contentPadding: EdgeInsets.zero,
-                    controlAffinity: ListTileControlAffinity.leading,
-                    title: Text(
-                      "Este item é uma balança",
-                      style: TextStyle(
-                        color: colors.onSurface,
-                        fontWeight: FontWeight.w500,
-                      ),
-                    ),
-                  );
+              CheckboxListTile(
+                value: marcado,
+                onChanged: (value) {
+                  setState(() {
+                    marcado = value ?? false;
+                  });
                 },
+                activeColor: Colors.green,
+                checkColor: Colors.white,
+                contentPadding: EdgeInsets.zero,
+                controlAffinity: ListTileControlAffinity.leading,
+                title: Text(
+                  "Este item é uma balança",
+                  style: TextStyle(
+                    color: colors.onSurface,
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
               ),
+
               const SizedBox(height: 30),
 
               Row(
                 children: [
                   Expanded(
                     child: ElevatedButton.icon(
-                      onPressed: onSave,
+                      onPressed: widget.onSave,
                       style: ElevatedButton.styleFrom(
                         elevation: 3,
                         backgroundColor: colors.primary,
@@ -227,7 +230,7 @@ class ProductForm extends StatelessWidget {
 
                   Expanded(
                     child: OutlinedButton.icon(
-                      onPressed: onCancel,
+                      onPressed: widget.onCancel,
                       style: OutlinedButton.styleFrom(
                         foregroundColor: colors.onSurface,
                         side: BorderSide(color: colors.surfaceContainerHigh),
