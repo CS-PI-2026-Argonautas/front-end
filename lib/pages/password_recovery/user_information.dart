@@ -68,6 +68,7 @@ class _UserInformationState extends State<UserInformation>{
                         validator: (value) => requiredField(value),
                         hintText: 'Digite seu nome de usuário...',
                         sensitiveContent: false,
+                        isPassword: false,
                       ),
                     ],
                   ),
@@ -105,6 +106,17 @@ class _UserInformationState extends State<UserInformation>{
                                   MaterialPageRoute(
                                     builder: (_) => ResetPassword(
                                       codeService: codeService,
+                                    ),
+                                  ),
+                                );
+
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(
+                                    content: Text('Código gerado: ${codeService.code}'),
+                                    behavior: SnackBarBehavior.floating,
+                                    duration: Duration(seconds: 12),
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(12),
                                     ),
                                   ),
                                 );

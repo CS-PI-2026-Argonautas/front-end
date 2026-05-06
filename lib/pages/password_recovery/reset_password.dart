@@ -158,6 +158,7 @@ class _ResetPasswordState extends State<ResetPassword>{
                         validator: (value) => passwordValidator(value),
                         hintText: 'Informe a nova senha...',
                         sensitiveContent: true,
+                        isPassword: true,
                       ),
                     ],
                   ),
@@ -183,6 +184,7 @@ class _ResetPasswordState extends State<ResetPassword>{
                         validator: (value) => confirmPassword(value, passwordController.text),
                         hintText: 'Repita a nova senha...',
                         sensitiveContent: true,
+                        isPassword: true,
                       ),
                     ],
                   ),
@@ -215,6 +217,19 @@ class _ResetPasswordState extends State<ResetPassword>{
                             });
 
                             print("REENVIADO: ${widget.codeService.code}");
+
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(
+                                content: Text('Código Gerado: ${widget.codeService.code}'),
+                                behavior: SnackBarBehavior.floating,
+                                duration: Duration(seconds: 3),
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(12),
+                                ),
+                              ),
+                            );
+
+                            
 
                             Future.delayed(
                               Duration(seconds: 30), () {
@@ -252,12 +267,34 @@ class _ResetPasswordState extends State<ResetPassword>{
                           () {
                             if (_formKey.currentState!.validate()) {
                               print('senha alterada');
+                              ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(
+                                content: Text('Senha alterada com sucesso!'),
+                                behavior: SnackBarBehavior.floating,
+                                duration: Duration(seconds: 12),
+                                backgroundColor: Colors.green,
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(12),
+                                ),
+                              ),
+                            );
                               _clearFields();
                               widget.codeService.invalidate();
                             }
 
                             else{
                               print('Não foi possível alterar sua senha');
+                              ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(
+                                content: Text('Não foi possível alterar a senha!'),
+                                behavior: SnackBarBehavior.floating,
+                                duration: Duration(seconds: 3),
+                                backgroundColor: Colors.red,
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(12),
+                                ),
+                              ),
+                            );
 
                               setState(() {
                                 if(!canResend) canResend = true;
