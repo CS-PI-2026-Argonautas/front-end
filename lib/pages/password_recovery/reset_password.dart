@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:frontend/services/password_recovery/code_service.dart';
 import 'package:frontend/utils/password_recovery/validators.dart';
 import 'package:frontend/widgets/password_recovery/password_field.dart';
+import 'package:frontend/style/ColorScheme.dart' as custom_colors; // Adicionado
+import 'package:frontend/style/inputDecorationStyles.dart'; // Adicionado
 
 class ResetPassword extends StatefulWidget {
   final CodeService codeService;
@@ -15,7 +17,6 @@ class ResetPassword extends StatefulWidget {
 class _ResetPasswordState extends State<ResetPassword> {
   bool? isCodeValid;
   bool canResend = true;
-
   bool validateCodeField = false;
 
   final codeController = TextEditingController();
@@ -23,12 +24,12 @@ class _ResetPasswordState extends State<ResetPassword> {
   final confirmPasswordController = TextEditingController();
 
   final _formKey = GlobalKey<FormState>();
+  final colors = custom_colors.colorScheme; // Adicionado
 
   void _clearFields() {
     codeController.clear();
     passwordController.clear();
     confirmPasswordController.clear();
-
     setState(() {
       isCodeValid = null;
       validateCodeField = false;
@@ -46,243 +47,216 @@ class _ResetPasswordState extends State<ResetPassword> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text('Recuperar Senha')),
+      backgroundColor: colors.surface, // Padronizado
       body: SafeArea(
-        child: Padding(
-          padding: EdgeInsets.all(16),
-          child: Form(
-            key: _formKey,
-
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Container(
-                  child: Text(
-                    'Um e-mail com o código para redefinição da senha foi enviado para você. Caso este e-mail não chegue, verifique sua caixa de spam ou reenvie o código.',
-                    style: TextStyle(fontSize: 20, fontWeight: FontWeight.w600),
-                  ),
-                ),
-
-                SizedBox(height: 24),
-
-                Container(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        'Código',
-                        style: TextStyle(
-                          fontSize: 18,
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
-                      TextFormField(
-                        controller: codeController,
-
-                        autovalidateMode: validateCodeField
-                            ? AutovalidateMode.onUserInteraction
-                            : AutovalidateMode.disabled,
-
-                        validator: (value) {
-                          final formatError = codeFormatValidator(value);
-                          if (formatError != null) return formatError;
-
-                          return widget.codeService.validateCode(value!);
-                        },
-
-                        onChanged: (value) {
-                          final error = widget.codeService.validateCode(value);
-
-                          setState(() {
-                            validateCodeField = true;
-                            isCodeValid = (error == null);
-                          });
-                        },
-
-                        decoration: InputDecoration(
-                          hintText: 'Informe o código enviado...',
-
-                          suffixIcon: isCodeValid == null
-                              ? null
-                              : Icon(
-                                  isCodeValid! ? Icons.check : Icons.close,
-                                  color: isCodeValid!
-                                      ? Colors.green
-                                      : Colors.red,
-                                ),
-                          focusedBorder: OutlineInputBorder(
-                            borderSide: BorderSide(width: 2),
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                          enabledBorder: OutlineInputBorder(
-                            borderSide: BorderSide(width: 1),
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-
-                SizedBox(height: 18),
-
-                Container(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        'Nova senha',
-                        style: TextStyle(
-                          fontSize: 18,
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
-
-                      PasswordField(
-                        controller: passwordController,
-                        enabled: isCodeValid == true,
-                        validator: (value) => passwordValidator(value),
-                        hintText: 'Informe a nova senha...',
-                        sensitiveContent: true,
-                      ),
-                    ],
-                  ),
-                ),
-
-                SizedBox(height: 18),
-
-                Container(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        'Repita a senha',
-                        style: TextStyle(
-                          fontSize: 18,
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
-
-                      PasswordField(
-                        controller: confirmPasswordController,
-                        enabled: isCodeValid == true,
-                        validator: (value) =>
-                            confirmPassword(value, passwordController.text),
-                        hintText: 'Repita a nova senha...',
-                        sensitiveContent: true,
-                      ),
-                    ],
-                  ),
-                ),
-
-                Spacer(),
-
-                Center(
-                  child: Column(
-                    children: [
-                      SizedBox(height: 6),
-
-                      SizedBox(
-                        width: MediaQuery.of(context).size.width * 0.7,
-                        child: FilledButton(
-                          onPressed: canResend
-                              ? () {
-                                  _clearFields();
-
-                                  widget.codeService.invalidate();
-
-                                  widget.codeService.createCode();
-
-                                  setState(() {
-                                    isCodeValid = null;
-                                    canResend = false;
-                                  });
-
-                                  print(
-                                    "REENVIADO: ${widget.codeService.code}",
-                                  );
-
-                                  Future.delayed(Duration(seconds: 30), () {
-                                    setState(() {
-                                      canResend = true;
-                                    });
-                                  });
-                                }
-                              : null,
-                          style: FilledButton.styleFrom(
-                            padding: EdgeInsets.symmetric(vertical: 22),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(12),
-                            ),
-                          ),
-                          child: Text(
-                            'Reenviar Código',
-                            style: TextStyle(
-                              fontSize: 18,
-                              fontWeight: FontWeight.w600,
-                            ),
-                          ),
-                        ),
-                      ),
-
-                      SizedBox(height: 12),
-
-                      SizedBox(
-                        width: MediaQuery.of(context).size.width * 0.7,
-                        child: FilledButton(
-                          onPressed: isCodeValid == true
-                              ? () {
-                                  if (_formKey.currentState!.validate()) {
-                                    print('senha alterada');
-                                    _clearFields();
-                                    widget.codeService.invalidate();
-                                  } else {
-                                    print('Não foi possível alterar sua senha');
-
-                                    setState(() {
-                                      if (!canResend) canResend = true;
-                                    });
-                                  }
-                                }
-                              : null,
-                          style: FilledButton.styleFrom(
-                            padding: EdgeInsets.symmetric(vertical: 22),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(12),
-                            ),
-                          ),
-                          child: Text(
-                            'Alterar Senha',
-                            style: TextStyle(
-                              fontSize: 18,
-                              fontWeight: FontWeight.w600,
-                            ),
-                          ),
-                        ),
-                      ),
-
-                      SizedBox(height: 6),
-
-                      TextButton(
-                        onPressed: () {},
-                        child: Text(
-                          'Dúvidas? Contate nosso suporte',
-                          style: TextStyle(
-                            fontSize: 16,
-                            decoration: TextDecoration.underline,
-                          ),
-                        ),
-                      ),
-
-                      SizedBox(height: 6),
-                    ],
-                  ),
-                ),
-              ],
+        child: SingleChildScrollView(
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 18),
+          child: Center(
+            child: ConstrainedBox(
+              constraints: const BoxConstraints(maxWidth: 650),
+              child: Column(
+                children: [
+                  _buildHeader(), // Cabeçalho com gradiente padronizado
+                  const SizedBox(height: 20),
+                  _buildFormCard(), // Card do formulário padronizado
+                ],
+              ),
             ),
           ),
         ),
       ),
+    );
+  }
+
+  // Cabeçalho padronizado com UserInformation[cite: 7]
+  Widget _buildHeader() {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.fromLTRB(20, 20, 20, 22),
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          colors: [colors.primary, colors.secondary],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+        ),
+        borderRadius: BorderRadius.circular(22),
+        boxShadow: const [
+          BoxShadow(color: Colors.black26, blurRadius: 12, offset: Offset(0, 6)),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Container(
+                padding: const EdgeInsets.all(12),
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(16),
+                ),
+                child: Icon(Icons.security, color: colors.primary, size: 30),
+              ),
+              const SizedBox(width: 14),
+              const Expanded(
+                child: Text('Nova Senha',
+                    style: TextStyle(color: Colors.white, fontSize: 23, fontWeight: FontWeight.bold)),
+              ),
+              IconButton(
+                onPressed: () => Navigator.pop(context),
+                style: IconButton.styleFrom(
+                  backgroundColor: Colors.white,
+                  foregroundColor: colors.primary,
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+                ),
+                icon: const Icon(Icons.arrow_back),
+              ),
+            ],
+          ),
+          const SizedBox(height: 16),
+          const Text(
+            'Um e-mail com o código foi enviado. Verifique sua caixa de entrada e defina sua nova senha abaixo.',
+            style: TextStyle(color: Colors.white, fontSize: 14, height: 1.4),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildFormCard() {
+    return Card(
+      color: Colors.white,
+      elevation: 8,
+      shadowColor: Colors.black26,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(22)),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 28),
+        child: Form(
+          key: _formKey,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              _buildSectionTitle("Segurança", "Insira o código e sua nova senha."),
+              const SizedBox(height: 30),
+
+              _buildFieldLabel(Icons.dialpad, "Código de Verificação"),
+              const SizedBox(height: 10),
+              TextFormField(
+                controller: codeController,
+                autovalidateMode: validateCodeField ? AutovalidateMode.onUserInteraction : AutovalidateMode.disabled,
+                validator: (value) {
+                  final formatError = codeFormatValidator(value);
+                  if (formatError != null) return formatError;
+                  return widget.codeService.validateCode(value!);
+                },
+                onChanged: (value) {
+                  final error = widget.codeService.validateCode(value);
+                  setState(() {
+                    validateCodeField = true;
+                    isCodeValid = (error == null);
+                  });
+                },
+                decoration: customInputDecoration(
+                  hintText: 'Digite o código aqui...',
+                ).copyWith(
+                  suffixIcon: isCodeValid == null ? null : Icon(
+                    isCodeValid! ? Icons.check_circle : Icons.error,
+                    color: isCodeValid! ? Colors.green : Colors.red,
+                  ),
+                ),
+              ),
+
+              const SizedBox(height: 25),
+
+              _buildFieldLabel(Icons.lock_outline, "Nova Senha"),
+              const SizedBox(height: 10),
+              PasswordField(
+                controller: passwordController,
+                enabled: isCodeValid == true,
+                validator: (value) => passwordValidator(value),
+                hintText: 'Mínimo 8 caracteres...',
+                sensitiveContent: true,
+              ),
+
+              const SizedBox(height: 25),
+
+              _buildFieldLabel(Icons.lock_reset, "Repetir Senha"),
+              const SizedBox(height: 10),
+              PasswordField(
+                controller: confirmPasswordController,
+                enabled: isCodeValid == true,
+                validator: (value) => confirmPassword(value, passwordController.text),
+                hintText: 'Confirme sua senha...',
+                sensitiveContent: true,
+              ),
+
+              const SizedBox(height: 40),
+
+              // Botão Alterar Senha
+              SizedBox(
+                width: double.infinity,
+                child: ElevatedButton.icon(
+                  onPressed: isCodeValid == true ? () {
+                    if (_formKey.currentState!.validate()) {
+                      print('senha alterada');
+                      _clearFields();
+                      widget.codeService.invalidate();
+                    }
+                  } : null,
+                  style: ElevatedButton.styleFrom(
+                    elevation: 3,
+                    backgroundColor: colors.primary,
+                    foregroundColor: colors.onSecondary,
+                    padding: const EdgeInsets.symmetric(vertical: 18),
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+                  ),
+                  icon: const Icon(Icons.check),
+                  label: const Text("Alterar Senha", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+                ),
+              ),
+
+              const SizedBox(height: 16),
+
+              // Botão Reenviar
+              Center(
+                child: TextButton(
+                  onPressed: canResend ? () {
+                    _clearFields();
+                    widget.codeService.createCode();
+                    setState(() => canResend = false);
+                    Future.delayed(const Duration(seconds: 30), () => setState(() => canResend = true));
+                  } : null,
+                  child: Text(
+                    canResend ? "Reenviar código por e-mail" : "Aguarde para reenviar...",
+                    style: TextStyle(color: canResend ? colors.primary : Colors.grey),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildSectionTitle(String title, String subtitle) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(title, style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: colors.onSurface)),
+        const SizedBox(height: 6),
+        Text(subtitle, style: TextStyle(fontSize: 14, color: colors.onSurfaceVariant)),
+      ],
+    );
+  }
+
+  Widget _buildFieldLabel(IconData icon, String label) {
+    return Row(
+      children: [
+        Icon(icon, size: 20, color: colors.primary),
+        const SizedBox(width: 8),
+        Text(label, style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16, color: colors.onSurface)),
+      ],
     );
   }
 }
