@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:frontend/services/password_recovery/code_service.dart';
 import 'package:frontend/utils/password_recovery/validators.dart';
-import 'package:frontend/widgets/password_recovery/password_field.dart';
+import 'package:frontend/widgets/password_recovery/digitation_text_field.dart';
 
 
 class ResetPassword extends StatefulWidget{
@@ -152,7 +152,7 @@ class _ResetPasswordState extends State<ResetPassword>{
                         ),
                       ),
 
-                      PasswordField(
+                      DigitationTextField(
                         controller: passwordController,
                         enabled: isCodeValid == true,
                         validator: (value) => passwordValidator(value),
@@ -178,7 +178,7 @@ class _ResetPasswordState extends State<ResetPassword>{
                         ),
                       ),
 
-                      PasswordField(
+                      DigitationTextField(
                         controller: confirmPasswordController,
                         enabled: isCodeValid == true,
                         validator: (value) => confirmPassword(value, passwordController.text),
@@ -222,7 +222,7 @@ class _ResetPasswordState extends State<ResetPassword>{
                               SnackBar(
                                 content: Text('Código Gerado: ${widget.codeService.code}'),
                                 behavior: SnackBarBehavior.floating,
-                                duration: Duration(seconds: 3),
+                                duration: Duration(seconds: 10),
                                 shape: RoundedRectangleBorder(
                                   borderRadius: BorderRadius.circular(12),
                                 ),
@@ -271,7 +271,7 @@ class _ResetPasswordState extends State<ResetPassword>{
                               SnackBar(
                                 content: Text('Senha alterada com sucesso!'),
                                 behavior: SnackBarBehavior.floating,
-                                duration: Duration(seconds: 12),
+                                duration: Duration(seconds: 3),
                                 backgroundColor: Colors.green,
                                 shape: RoundedRectangleBorder(
                                   borderRadius: BorderRadius.circular(12),

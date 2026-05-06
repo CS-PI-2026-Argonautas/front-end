@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:frontend/pages/password_recovery/reset_password.dart';
 import 'package:frontend/services/password_recovery/code_service.dart';
 import 'package:frontend/utils/password_recovery/validators.dart';
-import 'package:frontend/widgets/password_recovery/password_field.dart';
+import 'package:frontend/widgets/password_recovery/digitation_text_field.dart';
 import 'package:frontend/widgets/password_recovery/modal.dart';
 
 class UserInformation extends StatefulWidget{
@@ -62,7 +62,7 @@ class _UserInformationState extends State<UserInformation>{
                         ),
                       ),
 
-                      PasswordField(
+                      DigitationTextField(
                         controller: null,
                         enabled: true,
                         validator: (value) => requiredField(value),
@@ -114,7 +114,7 @@ class _UserInformationState extends State<UserInformation>{
                                   SnackBar(
                                     content: Text('Código gerado: ${codeService.code}'),
                                     behavior: SnackBarBehavior.floating,
-                                    duration: Duration(seconds: 12),
+                                    duration: Duration(seconds: 10),
                                     shape: RoundedRectangleBorder(
                                       borderRadius: BorderRadius.circular(12),
                                     ),
