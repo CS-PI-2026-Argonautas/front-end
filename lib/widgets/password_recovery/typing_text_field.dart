@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 
-class DigitationTextField extends StatefulWidget {
+class TypingTextField extends StatefulWidget {
   final TextEditingController? controller;
   final String hintText;
   final bool enabled;
@@ -9,7 +9,7 @@ class DigitationTextField extends StatefulWidget {
   final bool sensitiveContent;
   final bool isPassword;
 
-  DigitationTextField({
+  TypingTextField({
     super.key,
     required this.controller,
     required this.hintText,
@@ -20,10 +20,10 @@ class DigitationTextField extends StatefulWidget {
   });
 
   @override
-  State<DigitationTextField> createState() => _DigitationTextFieldState();
+  State<TypingTextField> createState() => _TypingTextFieldState();
 }
 
-class _DigitationTextFieldState extends State<DigitationTextField> {
+class _TypingTextFieldState extends State<TypingTextField> {
 
 
   bool _obscureText = false;

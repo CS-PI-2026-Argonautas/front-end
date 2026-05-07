@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:frontend/pages/password_recovery/reset_password.dart';
 import 'package:frontend/services/password_recovery/code_service.dart';
-import 'package:frontend/utils/password_recovery/validators.dart';
-import 'package:frontend/widgets/password_recovery/digitation_text_field.dart';
 import 'package:frontend/style/ColorScheme.dart' as custom_colors;
 import 'package:frontend/style/inputDecorationStyles.dart';
 import 'package:frontend/widgets/password_recovery/modal.dart';

@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:frontend/pages/authentication.dart';
 import 'package:frontend/services/password_recovery/code_service.dart';
 import 'package:frontend/utils/password_recovery/validators.dart';
-import 'package:frontend/widgets/password_recovery/digitation_text_field.dart';
+import 'package:frontend/widgets/password_recovery/typing_text_field.dart';
 import 'package:frontend/style/ColorScheme.dart' as custom_colors; 
 import 'package:frontend/style/inputDecorationStyles.dart'; 
 class ResetPassword extends StatefulWidget {
@@ -170,7 +170,7 @@ class _ResetPasswordState extends State<ResetPassword> {
 
               _buildFieldLabel(Icons.lock_outline, "Nova Senha"),
               const SizedBox(height: 10),
-              DigitationTextField(
+              TypingTextField(
                 controller: passwordController,
                 enabled: isCodeValid == true,
                 validator: (value) => passwordValidator(value),
@@ -183,7 +183,7 @@ class _ResetPasswordState extends State<ResetPassword> {
 
               _buildFieldLabel(Icons.lock_reset, "Repetir Senha"),
               const SizedBox(height: 10),
-              DigitationTextField(
+              TypingTextField(
                 controller: confirmPasswordController,
                 enabled: isCodeValid == true,
                 validator: (value) => confirmPassword(value, passwordController.text),
