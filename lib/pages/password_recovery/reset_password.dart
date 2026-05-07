@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:frontend/pages/authentication.dart';
 import 'package:frontend/services/password_recovery/code_service.dart';
 import 'package:frontend/utils/password_recovery/validators.dart';
 import 'package:frontend/widgets/password_recovery/digitation_text_field.dart';
-import 'package:frontend/style/ColorScheme.dart' as custom_colors; // Adicionado
-import 'package:frontend/style/inputDecorationStyles.dart'; // Adicionado
-
+import 'package:frontend/style/ColorScheme.dart' as custom_colors; 
+import 'package:frontend/style/inputDecorationStyles.dart'; 
 class ResetPassword extends StatefulWidget {
   final CodeService codeService;
 
@@ -24,7 +24,7 @@ class _ResetPasswordState extends State<ResetPassword> {
   final confirmPasswordController = TextEditingController();
 
   final _formKey = GlobalKey<FormState>();
-  final colors = custom_colors.colorScheme; // Adicionado
+  final colors = custom_colors.colorScheme; 
 
   void _clearFields() {
     codeController.clear();
@@ -47,7 +47,7 @@ class _ResetPasswordState extends State<ResetPassword> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: colors.surface, // Padronizado
+      backgroundColor: colors.surface, 
       body: SafeArea(
         child: SingleChildScrollView(
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 18),
@@ -56,9 +56,9 @@ class _ResetPasswordState extends State<ResetPassword> {
               constraints: const BoxConstraints(maxWidth: 650),
               child: Column(
                 children: [
-                  _buildHeader(), // Cabeçalho com gradiente padronizado
+                  _buildHeader(), 
                   const SizedBox(height: 20),
-                  _buildFormCard(), // Card do formulário padronizado
+                  _buildFormCard(), 
                 ],
               ),
             ),
@@ -68,7 +68,7 @@ class _ResetPasswordState extends State<ResetPassword> {
     );
   }
 
-  // Cabeçalho padronizado com UserInformation[cite: 7]
+  
   Widget _buildHeader() {
     return Container(
       width: double.infinity,
@@ -194,7 +194,23 @@ class _ResetPasswordState extends State<ResetPassword> {
 
               const SizedBox(height: 40),
 
-              // Botão Alterar Senha
+              Center(
+                child: TextButton(
+                  onPressed: canResend ? () {
+                    _clearFields();
+                    widget.codeService.createCode();
+                    setState(() => canResend = false);
+                    Future.delayed(const Duration(seconds: 30), () => setState(() => canResend = true));
+                  } : null,
+                  child: Text(
+                    canResend ? "Reenviar código por e-mail" : "Aguarde para reenviar...",
+                    style: TextStyle(color: canResend ? colors.primary : Colors.grey),
+                  ),
+                ),
+              ),
+
+              const SizedBox(height: 16),
+
               SizedBox(
                 width: double.infinity,
                 child: ElevatedButton.icon(
@@ -203,6 +219,11 @@ class _ResetPasswordState extends State<ResetPassword> {
                       print('senha alterada');
                       _clearFields();
                       widget.codeService.invalidate();
+
+                      Navigator.push(
+                        context, 
+                        MaterialPageRoute(builder: (context) => Authentication()),
+                      );
                     }
                   } : null,
                   style: ElevatedButton.styleFrom(
@@ -218,19 +239,19 @@ class _ResetPasswordState extends State<ResetPassword> {
               ),
 
               const SizedBox(height: 16),
-
-              // Botão Reenviar
+              
               Center(
                 child: TextButton(
-                  onPressed: canResend ? () {
-                    _clearFields();
-                    widget.codeService.createCode();
-                    setState(() => canResend = false);
-                    Future.delayed(const Duration(seconds: 30), () => setState(() => canResend = true));
-                  } : null,
+                  onPressed: () {
+                    // Lógica de suporte
+                  },
                   child: Text(
-                    canResend ? "Reenviar código por e-mail" : "Aguarde para reenviar...",
-                    style: TextStyle(color: canResend ? colors.primary : Colors.grey),
+                    'Dúvidas? Contate nosso suporte',
+                    style: TextStyle(
+                      color: colors.primary,
+                      fontSize: 14,
+                      decoration: TextDecoration.underline,
+                    ),
                   ),
                 ),
               ),
