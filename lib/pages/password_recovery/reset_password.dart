@@ -200,6 +200,17 @@ class _ResetPasswordState extends State<ResetPassword> {
                     _clearFields();
                     widget.codeService.createCode();
                     setState(() => canResend = false);
+                    ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                          content: Text('Código reenviado: ${widget.codeService.code}'),
+                          behavior: SnackBarBehavior.floating,
+                          duration: Duration(seconds: 10),
+                          backgroundColor: Colors.blueGrey,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                        ),
+                      );
                     Future.delayed(const Duration(seconds: 30), () => setState(() => canResend = true));
                   } : null,
                   child: Text(
@@ -220,9 +231,35 @@ class _ResetPasswordState extends State<ResetPassword> {
                       _clearFields();
                       widget.codeService.invalidate();
 
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                          content: Text('Senha alterada com sucesso!'),
+                          behavior: SnackBarBehavior.floating,
+                          duration: Duration(seconds: 3),
+                          backgroundColor: Colors.green,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                        ),
+                      );
+
                       Navigator.push(
                         context, 
                         MaterialPageRoute(builder: (context) => Authentication()),
+                      );
+                    }
+                    else{
+                      print('senha não alterada');
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                          content: Text('Não foi possível alterar a senha!'),
+                          behavior: SnackBarBehavior.floating,
+                          duration: Duration(seconds: 3),
+                          backgroundColor: Colors.red,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                        ),
                       );
                     }
                   } : null,
