@@ -1,17 +1,40 @@
-import 'package:flutter/material.dart';
-import 'package:frontend/style/colorScheme.dart';
 
-final inputDecorationStyle = InputDecoration(
-  fillColor: colorScheme.onPrimary,
-  filled: true,
-  labelStyle: TextStyle(color: colorScheme.onSurface),
-  floatingLabelStyle: TextStyle(color: colorScheme.onSurface),
-  enabledBorder: OutlineInputBorder(
-    borderSide: BorderSide(color: colorScheme.secondary),
-    borderRadius: BorderRadius.circular(8.0),
-  ),
-  focusedBorder: OutlineInputBorder(
-    borderSide: BorderSide(color: colorScheme.tertiary),
-    borderRadius: BorderRadius.circular(8.0),
-  ),
-);
+import 'package:flutter/material.dart';
+import 'package:frontend/style/ColorScheme.dart';
+
+InputDecoration customInputDecoration({String? hintText, Widget? prefixIcon, String? prefixText}) {
+  return InputDecoration(
+    hintText: hintText,
+    prefixIcon: prefixIcon,
+    prefixText: prefixText,
+    contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 16),
+    prefixStyle: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+    
+    fillColor: colorScheme.surfaceContainer,
+    filled: true,
+    errorStyle: TextStyle(
+      color: colorScheme.error,
+      fontWeight: FontWeight.bold,
+    ),
+    border: OutlineInputBorder(
+      borderRadius: BorderRadius.circular(14),
+      borderSide: BorderSide(color: colorScheme.surfaceContainerHigh),
+    ),
+    enabledBorder: OutlineInputBorder(
+      borderRadius: BorderRadius.circular(14),
+      borderSide: BorderSide(color: colorScheme.surfaceContainerHigh),
+    ),
+    focusedBorder: OutlineInputBorder(
+      borderRadius: BorderRadius.circular(14),
+      borderSide: BorderSide(color: colorScheme.primary, width: 2),
+    ),
+    errorBorder: OutlineInputBorder(
+      borderRadius: BorderRadius.circular(14),
+      borderSide: BorderSide(color: colorScheme.error, width: 2),
+    ),
+    focusedErrorBorder: OutlineInputBorder(
+      borderRadius: BorderRadius.circular(14),
+      borderSide: BorderSide(color: colorScheme.error, width: 2),
+    ),
+  );
+}

@@ -1,23 +1,26 @@
 import 'package:flutter/material.dart';
-import 'package:frontend/pages/password_recovery/reset_password.dart';
-import 'package:frontend/services/password_recovery/code_service.dart';
-import 'package:frontend/utils/password_recovery/validators.dart';
-import 'package:frontend/widgets/password_recovery/digitation_text_field.dart';
 import 'package:frontend/style/ColorScheme.dart' as custom_colors;
+import 'package:frontend/pages/person_registration/person_registration2.dart';
 import 'package:frontend/style/inputDecorationStyles.dart';
-import 'package:frontend/widgets/password_recovery/modal.dart';
+import 'package:mask_text_input_formatter/mask_text_input_formatter.dart';
 
-class UserInformation extends StatefulWidget {
-  const UserInformation({super.key});
+class PersonRegistration extends StatefulWidget {
+  const PersonRegistration({super.key});
 
   @override
-  State<UserInformation> createState() => _UserInformationState();
+  State<PersonRegistration> createState() => _PersonRegistrationState1();
 }
 
-class _UserInformationState extends State<UserInformation> {
-  final CodeService codeService = CodeService();
+class _PersonRegistrationState1 extends State<PersonRegistration> {
   final _formKey = GlobalKey<FormState>();
+  bool _isPessoaFisica = false;
   final colors = custom_colors.colorScheme;
+
+  final _cpfFormatter = MaskTextInputFormatter(
+      mask: '###.###.###-##', filter: {"#": RegExp(r'[0-9]')});
+
+  final _cnpjFormatter = MaskTextInputFormatter(
+      mask: '##.###.###/####-##', filter: {"#": RegExp(r'[0-9]')});
 
   @override
   Widget build(BuildContext context) {
@@ -31,9 +34,9 @@ class _UserInformationState extends State<UserInformation> {
               constraints: const BoxConstraints(maxWidth: 650),
               child: Column(
                 children: [
-                  _buildHeader(), 
+                  _buildHeader(), // Cabeçalho estilizado (Estilo ProductHeader)
                   const SizedBox(height: 20),
-                  _buildFormCard(), 
+                  _buildFormCard(), // Formulário dentro do Card (Estilo ProductForm)
                 ],
               ),
             ),
@@ -43,6 +46,7 @@ class _UserInformationState extends State<UserInformation> {
     );
   }
 
+  // Cabeçalho com Gradiente baseado no ProductHeader[cite: 14]
   Widget _buildHeader() {
     return Container(
       width: double.infinity,
@@ -69,11 +73,11 @@ class _UserInformationState extends State<UserInformation> {
                   color: Colors.white,
                   borderRadius: BorderRadius.circular(16),
                 ),
-                child: Icon(Icons.lock_reset, color: colors.primary, size: 30),
+                child: Icon(Icons.person_add_alt_1_outlined, color: colors.primary, size: 30),
               ),
               const SizedBox(width: 14),
               const Expanded(
-                child: Text('Recuperar Senha',
+                child: Text('Cadastro de Pessoa',
                     style: TextStyle(color: Colors.white, fontSize: 23, fontWeight: FontWeight.bold)),
               ),
               IconButton(
@@ -88,15 +92,14 @@ class _UserInformationState extends State<UserInformation> {
             ],
           ),
           const SizedBox(height: 16),
-          const Text(
-            'Informe seu nome de usuário e enviaremos um código para redefinir sua senha.',
-            style: TextStyle(color: Colors.white, fontSize: 14, height: 1.4),
-          ),
+          const Text('Preencha os dados de identificação para continuar o cadastro.',
+              style: TextStyle(color: Colors.white, fontSize: 14, height: 1.4)),
         ],
       ),
     );
   }
 
+  // Card de Formulário baseado no ProductForm
   Widget _buildFormCard() {
     return Card(
       color: Colors.white,
@@ -110,26 +113,51 @@ class _UserInformationState extends State<UserInformation> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              _buildSectionTitle("Dados de Acesso", "Identifique sua conta para continuar."),
+              _buildSectionTitle("Informações Pessoais", "Complete os campos de identificação abaixo."),
               const SizedBox(height: 30),
 
-              _buildFieldLabel(Icons.person_outline, "Nome de Usuário"),
+              _buildFieldLabel(Icons.person_outline, "Nome completo *"),
               const SizedBox(height: 10),
-              
               TextFormField(
-                decoration: customInputDecoration(
-                  hintText: 'Digite seu nome de usuário...',
-                ),
-                validator: (value) => (value == null || value.isEmpty) ? 'Informe o usuário' : null,
+                decoration: customInputDecoration(hintText: "Digite o nome aqui"),
+                validator: (value) => (value == null || value.isEmpty) ? 'Informe o nome' : null,
               ),
 
-              const SizedBox(height: 40),
+              const SizedBox(height: 25),
 
-              // Botão Prosseguir padronizado
+              _buildFieldLabel(Icons.badge_outlined, _isPessoaFisica ? "CPF *" : "CNPJ *"),
+              const SizedBox(height: 10),
+              TextFormField(
+                key: ValueKey(_isPessoaFisica),
+               decoration: customInputDecoration(hintText: "000.000.000-00"),
+                keyboardType: TextInputType.number,
+                inputFormatters: [_isPessoaFisica ? _cpfFormatter : _cnpjFormatter],
+                validator: (value) => (value == null || value.isEmpty) ? 'Informe o documento' : null,
+              ),
+
+              const SizedBox(height: 10),
+
+              // Checkbox estilizado como o do ProductForm
+              CheckboxListTile(
+                value: _isPessoaFisica,
+                onChanged: (value) => setState(() => _isPessoaFisica = value ?? false),
+                activeColor: Colors.green,
+                contentPadding: EdgeInsets.zero,
+                controlAffinity: ListTileControlAffinity.leading,
+                title: Text("Pessoa física?", style: TextStyle(color: colors.onSurface, fontWeight: FontWeight.w500)),
+              ),
+
+              const SizedBox(height: 30),
+
+              // Botão Próximo (Estilo botão Salvar do ProductForm)
               SizedBox(
                 width: double.infinity,
                 child: ElevatedButton.icon(
-                  onPressed: _handleProsseguir,
+                  onPressed: () {
+                    if (_formKey.currentState!.validate()) {
+                      Navigator.push(context, MaterialPageRoute(builder: (context) => const PersonRegistration2()));
+                    }
+                  },
                   style: ElevatedButton.styleFrom(
                     elevation: 3,
                     backgroundColor: colors.primary,
@@ -138,25 +166,7 @@ class _UserInformationState extends State<UserInformation> {
                     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
                   ),
                   icon: const Icon(Icons.arrow_forward),
-                  label: const Text("Prosseguir", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
-                ),
-              ),
-
-              const SizedBox(height: 20),
-
-              Center(
-                child: TextButton(
-                  onPressed: () {
-                    // Lógica de suporte
-                  },
-                  child: Text(
-                    'Dúvidas? Contate nosso suporte',
-                    style: TextStyle(
-                      color: colors.primary,
-                      fontSize: 14,
-                      decoration: TextDecoration.underline,
-                    ),
-                  ),
+                  label: const Text("Próximo", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
                 ),
               ),
             ],
@@ -166,32 +176,6 @@ class _UserInformationState extends State<UserInformation> {
     );
   }
 
-  void _handleProsseguir() async {
-    if (_formKey.currentState!.validate()) {
-      final choice = await showGeneralDialog(
-        context: context,
-        barrierDismissible: true,
-        barrierLabel: 'Confirmação de e-mail',
-        pageBuilder: (_, __, ___) {
-          return Modal(
-            titleText: 'Seu e-mail está correto? ',
-            questionText: 'em*****ail@exem****plo.com',
-          );
-        },
-      );
-
-      if (choice == true) {
-        codeService.createCode();
-        if (!mounted) return;
-        Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (_) => ResetPassword(codeService: codeService),
-          ),
-        );
-      }
-    }
-  }
 
   Widget _buildSectionTitle(String title, String subtitle) {
     return Column(

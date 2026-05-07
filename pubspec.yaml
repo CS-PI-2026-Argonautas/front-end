@@ -9,11 +9,16 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
+  mask_text_input_formatter: ^2.9.0
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
   flutter_lints: ^6.0.0
 
+
 flutter:
   uses-material-design: true
+  assets:
+    - lib/assets/icons/
+    - lib/assets/images/LogoEmpresa.png
