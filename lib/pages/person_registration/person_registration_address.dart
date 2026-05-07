@@ -1,16 +1,16 @@
 import 'package:flutter/material.dart';
-import 'package:frontend/pages/person_registration/person_registration3.dart';
+import 'package:frontend/pages/person_registration/person_registration_contact.dart';
 import 'package:frontend/style/ColorScheme.dart' as custom_colors;
 import 'package:frontend/style/inputDecorationStyles.dart';
 
-class PersonRegistration2 extends StatefulWidget {
-  const PersonRegistration2({super.key});
+class PersonRegistrationAddress extends StatefulWidget {
+  const PersonRegistrationAddress({super.key});
 
   @override
-  State<PersonRegistration2> createState() => _PersonRegistration2State();
+  State<PersonRegistrationAddress> createState() => _PersonRegistration2State();
 }
 
-class _PersonRegistration2State extends State<PersonRegistration2> {
+class _PersonRegistration2State extends State<PersonRegistrationAddress> {
   final _formKey = GlobalKey<FormState>();
   final colors = custom_colors.colorScheme;
 
@@ -26,9 +26,9 @@ class _PersonRegistration2State extends State<PersonRegistration2> {
               constraints: const BoxConstraints(maxWidth: 650),
               child: Column(
                 children: [
-                  _buildHeader(), 
+                  _buildHeader(),
                   const SizedBox(height: 20),
-                  _buildFormCard(), 
+                  _buildFormCard(),
                 ],
               ),
             ),
@@ -51,7 +51,11 @@ class _PersonRegistration2State extends State<PersonRegistration2> {
         ),
         borderRadius: BorderRadius.circular(22),
         boxShadow: const [
-          BoxShadow(color: Colors.black26, blurRadius: 12, offset: Offset(0, 6)),
+          BoxShadow(
+            color: Colors.black26,
+            blurRadius: 12,
+            offset: Offset(0, 6),
+          ),
         ],
       ),
       child: Column(
@@ -65,27 +69,41 @@ class _PersonRegistration2State extends State<PersonRegistration2> {
                   color: Colors.white,
                   borderRadius: BorderRadius.circular(16),
                 ),
-                child: Icon(Icons.map_outlined, color: colors.primary, size: 30),
+                child: Icon(
+                  Icons.map_outlined,
+                  color: colors.primary,
+                  size: 30,
+                ),
               ),
               const SizedBox(width: 14),
               const Expanded(
-                child: Text('Endereço',
-                    style: TextStyle(color: Colors.white, fontSize: 23, fontWeight: FontWeight.bold)),
+                child: Text(
+                  'Endereço',
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 23,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
               ),
               IconButton(
                 onPressed: () => Navigator.pop(context),
                 style: IconButton.styleFrom(
                   backgroundColor: Colors.white,
                   foregroundColor: colors.primary,
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(14),
+                  ),
                 ),
                 icon: const Icon(Icons.arrow_back),
               ),
             ],
           ),
           const SizedBox(height: 16),
-          const Text('Informe os dados de localização para entrega ou correspondência.',
-              style: TextStyle(color: Colors.white, fontSize: 14, height: 1.4)),
+          const Text(
+            'Informe os dados de localização para entrega ou correspondência.',
+            style: TextStyle(color: Colors.white, fontSize: 14, height: 1.4),
+          ),
         ],
       ),
     );
@@ -105,26 +123,37 @@ class _PersonRegistration2State extends State<PersonRegistration2> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              _buildSectionTitle("Localização", "Campos obrigatórios estão marcados com *"),
+              _buildSectionTitle(
+                "Localização",
+                "Campos obrigatórios estão marcados com *",
+              ),
               const SizedBox(height: 30),
 
               _buildFieldLabel(Icons.pin_drop_outlined, "CEP"),
               const SizedBox(height: 10),
-              TextFormField(decoration: customInputDecoration(hintText: "12312312")),
+              TextFormField(
+                decoration: customInputDecoration(hintText: "12312312"),
+              ),
 
               const SizedBox(height: 20),
 
               _buildFieldLabel(Icons.home_outlined, "Rua"),
               const SizedBox(height: 10),
-              TextFormField(decoration: customInputDecoration(hintText: "Rua exemplo")),
+              TextFormField(
+                decoration: customInputDecoration(hintText: "Rua exemplo"),
+              ),
 
               const SizedBox(height: 20),
 
               _buildFieldLabel(Icons.location_city, "Cidade *"),
               const SizedBox(height: 10),
               TextFormField(
-                decoration: customInputDecoration(hintText: "Informe sua cidade"),
-                validator: (value) => (value == null || value.isEmpty) ? 'Informe a cidade' : null,
+                decoration: customInputDecoration(
+                  hintText: "Informe sua cidade",
+                ),
+                validator: (value) => (value == null || value.isEmpty)
+                    ? 'Informe a cidade'
+                    : null,
               ),
 
               const SizedBox(height: 20),
@@ -140,7 +169,9 @@ class _PersonRegistration2State extends State<PersonRegistration2> {
                         const SizedBox(height: 10),
                         TextFormField(
                           keyboardType: TextInputType.text,
-                          decoration: customInputDecoration(hintText: "Ex: 123A"),
+                          decoration: customInputDecoration(
+                            hintText: "Ex: 123A",
+                          ),
                         ),
                       ],
                     ),
@@ -154,7 +185,9 @@ class _PersonRegistration2State extends State<PersonRegistration2> {
                         const SizedBox(height: 10),
                         TextFormField(
                           decoration: customInputDecoration(hintText: "PR"),
-                          validator: (value) => (value == null || value.isEmpty) ? 'Informe a UF' : null,
+                          validator: (value) => (value == null || value.isEmpty)
+                              ? 'Informe a UF'
+                              : null,
                         ),
                       ],
                     ),
@@ -169,7 +202,13 @@ class _PersonRegistration2State extends State<PersonRegistration2> {
                 child: ElevatedButton.icon(
                   onPressed: () {
                     if (_formKey.currentState!.validate()) {
-                      Navigator.push(context, MaterialPageRoute(builder: (context) => const PersonRegistration3()));
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) =>
+                              const PersonRegistrationContact(),
+                        ),
+                      );
                     }
                   },
                   style: ElevatedButton.styleFrom(
@@ -177,10 +216,15 @@ class _PersonRegistration2State extends State<PersonRegistration2> {
                     backgroundColor: colors.primary,
                     foregroundColor: colors.onSecondary,
                     padding: const EdgeInsets.symmetric(vertical: 18),
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(14),
+                    ),
                   ),
                   icon: const Icon(Icons.arrow_forward),
-                  label: const Text("Próximo", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+                  label: const Text(
+                    "Próximo",
+                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                  ),
                 ),
               ),
             ],
@@ -194,9 +238,19 @@ class _PersonRegistration2State extends State<PersonRegistration2> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(title, style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: colors.onSurface)),
+        Text(
+          title,
+          style: TextStyle(
+            fontSize: 20,
+            fontWeight: FontWeight.bold,
+            color: colors.onSurface,
+          ),
+        ),
         const SizedBox(height: 6),
-        Text(subtitle, style: TextStyle(fontSize: 14, color: colors.onSurfaceVariant)),
+        Text(
+          subtitle,
+          style: TextStyle(fontSize: 14, color: colors.onSurfaceVariant),
+        ),
       ],
     );
   }
@@ -206,10 +260,15 @@ class _PersonRegistration2State extends State<PersonRegistration2> {
       children: [
         Icon(icon, size: 20, color: colors.primary),
         const SizedBox(width: 8),
-        Text(label, style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16, color: colors.onSurface)),
+        Text(
+          label,
+          style: TextStyle(
+            fontWeight: FontWeight.bold,
+            fontSize: 16,
+            color: colors.onSurface,
+          ),
+        ),
       ],
     );
   }
-
-  
 }
