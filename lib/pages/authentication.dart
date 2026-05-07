@@ -39,26 +39,28 @@ class _AuthenticationState extends State<Authentication> {
               ),
 
               TextField(
-                decoration: customInputDecoration(
+                decoration: InputDecoration(
                   hintText: 'Usuário',
-                  prefixIcon: const Icon(Icons.person_outline),
+                  filled: true,
+                  prefixIcon: Icon(Icons.person),
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(14),
+                  ),
                 ),
               ),
 
-              const SizedBox(height: 20),
-
+              SizedBox(height: 20),
               TextField(
                 obscureText: !_isPasswordVisible,
-                decoration: customInputDecoration(
+                decoration: InputDecoration(
                   hintText: 'Senha',
-                  prefixIcon: const Icon(Icons.lock_outline),
-                ).copyWith( // Usamos copyWith para adicionar o suffixIcon específico de senha
+                  filled: true,
+                  prefixIcon: Icon(Icons.password),
                   suffixIcon: IconButton(
                     icon: Icon(
                       _isPasswordVisible
                           ? Icons.visibility
                           : Icons.visibility_off,
-                      color: colors.primary,
                     ),
                     onPressed: () {
                       setState(() {
@@ -66,11 +68,13 @@ class _AuthenticationState extends State<Authentication> {
                       });
                     },
                   ),
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(14),
+                  ),
                 ),
               ),
-              
               const SizedBox(height: 20),
-              
+
               Align(
                 alignment: Alignment.centerRight,
                 child: GestureDetector(
@@ -84,12 +88,15 @@ class _AuthenticationState extends State<Authentication> {
                   },
                   child: const Text(
                     "Esqueceu senha?",
-                    style: TextStyle(color: Colors.white, fontWeight: FontWeight.w500),
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontWeight: FontWeight.w500,
+                    ),
                   ),
                 ),
               ),
-              
-              const SizedBox(height: 60), 
+
+              const SizedBox(height: 60),
 
               SizedBox(
                 height: 55,
@@ -104,7 +111,10 @@ class _AuthenticationState extends State<Authentication> {
                     );
                   },
                   icon: const Icon(Icons.login),
-                  label: const Text('Entrar', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+                  label: const Text(
+                    'Entrar',
+                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                  ),
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.white,
                     foregroundColor: colors.primary,
@@ -115,9 +125,9 @@ class _AuthenticationState extends State<Authentication> {
                   ),
                 ),
               ),
-              
+
               const SizedBox(height: 30),
-              
+
               GestureDetector(
                 onTap: () {
                   Navigator.push(
@@ -134,7 +144,10 @@ class _AuthenticationState extends State<Authentication> {
                       TextSpan(text: "Não tem uma conta? "),
                       TextSpan(
                         text: "Cadastre-se",
-                        style: TextStyle(fontWeight: FontWeight.bold, decoration: TextDecoration.underline),
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          decoration: TextDecoration.underline,
+                        ),
                       ),
                     ],
                   ),
