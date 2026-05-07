@@ -123,7 +123,6 @@ class _UserInformationState extends State<UserInformation> {
 
               const SizedBox(height: 40),
 
-              // Botão Prosseguir padronizado
               SizedBox(
                 width: double.infinity,
                 child: ElevatedButton.icon(
@@ -145,7 +144,7 @@ class _UserInformationState extends State<UserInformation> {
               Center(
                 child: TextButton(
                   onPressed: () {
-                    // Lógica de suporte
+                    
                   },
                   child: Text(
                     'Dúvidas? Contate nosso suporte',
@@ -185,6 +184,18 @@ class _UserInformationState extends State<UserInformation> {
           context,
           MaterialPageRoute(
             builder: (_) => ResetPassword(codeService: codeService),
+          ),
+        );
+
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Código gerado: ${codeService.code}'),
+            behavior: SnackBarBehavior.floating,
+            duration: Duration(seconds: 10),
+            backgroundColor: Colors.blueGrey,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(12),
+            ),
           ),
         );
       }

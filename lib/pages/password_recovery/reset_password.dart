@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:frontend/pages/authentication.dart';
 import 'package:frontend/services/password_recovery/code_service.dart';
 import 'package:frontend/utils/password_recovery/validators.dart';
-import 'package:frontend/widgets/password_recovery/password_field.dart';
-import 'package:frontend/style/ColorScheme.dart' as custom_colors; // Adicionado
-import 'package:frontend/style/inputDecorationStyles.dart'; // Adicionado
-
+import 'package:frontend/widgets/password_recovery/typing_text_field.dart';
+import 'package:frontend/style/ColorScheme.dart' as custom_colors; 
+import 'package:frontend/style/inputDecorationStyles.dart'; 
 class ResetPassword extends StatefulWidget {
   final CodeService codeService;
 
@@ -24,7 +24,7 @@ class _ResetPasswordState extends State<ResetPassword> {
   final confirmPasswordController = TextEditingController();
 
   final _formKey = GlobalKey<FormState>();
-  final colors = custom_colors.colorScheme; // Adicionado
+  final colors = custom_colors.colorScheme; 
 
   void _clearFields() {
     codeController.clear();
@@ -47,7 +47,7 @@ class _ResetPasswordState extends State<ResetPassword> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: colors.surface, // Padronizado
+      backgroundColor: colors.surface, 
       body: SafeArea(
         child: SingleChildScrollView(
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 18),
@@ -56,9 +56,9 @@ class _ResetPasswordState extends State<ResetPassword> {
               constraints: const BoxConstraints(maxWidth: 650),
               child: Column(
                 children: [
-                  _buildHeader(), // Cabeçalho com gradiente padronizado
+                  _buildHeader(), 
                   const SizedBox(height: 20),
-                  _buildFormCard(), // Card do formulário padronizado
+                  _buildFormCard(), 
                 ],
               ),
             ),
@@ -68,7 +68,7 @@ class _ResetPasswordState extends State<ResetPassword> {
     );
   }
 
-  // Cabeçalho padronizado com UserInformation[cite: 7]
+  
   Widget _buildHeader() {
     return Container(
       width: double.infinity,
@@ -170,29 +170,58 @@ class _ResetPasswordState extends State<ResetPassword> {
 
               _buildFieldLabel(Icons.lock_outline, "Nova Senha"),
               const SizedBox(height: 10),
-              PasswordField(
+              TypingTextField(
                 controller: passwordController,
                 enabled: isCodeValid == true,
                 validator: (value) => passwordValidator(value),
-                hintText: 'Mínimo 8 caracteres...',
+                hintText: 'Mínimo 6 caracteres...',
                 sensitiveContent: true,
+                isPassword: true,
               ),
 
               const SizedBox(height: 25),
 
               _buildFieldLabel(Icons.lock_reset, "Repetir Senha"),
               const SizedBox(height: 10),
-              PasswordField(
+              TypingTextField(
                 controller: confirmPasswordController,
                 enabled: isCodeValid == true,
                 validator: (value) => confirmPassword(value, passwordController.text),
                 hintText: 'Confirme sua senha...',
                 sensitiveContent: true,
+                isPassword: true,
               ),
 
               const SizedBox(height: 40),
 
-              // Botão Alterar Senha
+              Center(
+                child: TextButton(
+                  onPressed: canResend ? () {
+                    _clearFields();
+                    widget.codeService.createCode();
+                    setState(() => canResend = false);
+                    ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                          content: Text('Código reenviado: ${widget.codeService.code}'),
+                          behavior: SnackBarBehavior.floating,
+                          duration: Duration(seconds: 10),
+                          backgroundColor: Colors.blueGrey,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                        ),
+                      );
+                    Future.delayed(const Duration(seconds: 30), () => setState(() => canResend = true));
+                  } : null,
+                  child: Text(
+                    canResend ? "Reenviar código por e-mail" : "Aguarde para reenviar...",
+                    style: TextStyle(color: canResend ? colors.primary : Colors.grey),
+                  ),
+                ),
+              ),
+
+              const SizedBox(height: 16),
+
               SizedBox(
                 width: double.infinity,
                 child: ElevatedButton.icon(
@@ -201,6 +230,37 @@ class _ResetPasswordState extends State<ResetPassword> {
                       print('senha alterada');
                       _clearFields();
                       widget.codeService.invalidate();
+
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                          content: Text('Senha alterada com sucesso!'),
+                          behavior: SnackBarBehavior.floating,
+                          duration: Duration(seconds: 3),
+                          backgroundColor: Colors.green,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                        ),
+                      );
+
+                      Navigator.push(
+                        context, 
+                        MaterialPageRoute(builder: (context) => Authentication()),
+                      );
+                    }
+                    else{
+                      print('senha não alterada');
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                          content: Text('Não foi possível alterar a senha!'),
+                          behavior: SnackBarBehavior.floating,
+                          duration: Duration(seconds: 3),
+                          backgroundColor: Colors.red,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                        ),
+                      );
                     }
                   } : null,
                   style: ElevatedButton.styleFrom(
@@ -216,19 +276,19 @@ class _ResetPasswordState extends State<ResetPassword> {
               ),
 
               const SizedBox(height: 16),
-
-              // Botão Reenviar
+              
               Center(
                 child: TextButton(
-                  onPressed: canResend ? () {
-                    _clearFields();
-                    widget.codeService.createCode();
-                    setState(() => canResend = false);
-                    Future.delayed(const Duration(seconds: 30), () => setState(() => canResend = true));
-                  } : null,
+                  onPressed: () {
+                    // Lógica de suporte
+                  },
                   child: Text(
-                    canResend ? "Reenviar código por e-mail" : "Aguarde para reenviar...",
-                    style: TextStyle(color: canResend ? colors.primary : Colors.grey),
+                    'Dúvidas? Contate nosso suporte',
+                    style: TextStyle(
+                      color: colors.primary,
+                      fontSize: 14,
+                      decoration: TextDecoration.underline,
+                    ),
                   ),
                 ),
               ),
