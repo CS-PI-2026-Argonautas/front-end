@@ -15,6 +15,7 @@ class ProductForm extends StatefulWidget {
 
 class _ProductFormState extends State<ProductForm> {
   bool marcado = false;
+  String? tipoSelecionado;
 
   @override
   Widget build(BuildContext context) {
@@ -51,12 +52,36 @@ class _ProductFormState extends State<ProductForm> {
 
               Row(
                 children: [
+                  Icon(Icons.inventory_2, size: 20, color: colors.primary),
+                  const SizedBox(width: 8),
+                  Text(
+                    "Nome do Produto",
+                    style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 16,
+                      color: colors.onSurface,
+                    ),
+                  ),
+                ],
+              ),
+
+              const SizedBox(height: 10),
+
+              TextFormField(
+                decoration: customInputDecoration(hintText: 'Balança'),
+              ),
+              const SizedBox(height: 10),
+
+              Row(
+                children: [
                   Icon(
                     Icons.description_outlined,
                     size: 20,
                     color: colors.primary,
                   ),
+
                   const SizedBox(width: 8),
+
                   Text(
                     "Descrição do produto",
                     style: TextStyle(
@@ -74,45 +99,10 @@ class _ProductFormState extends State<ProductForm> {
                 maxLines: 4,
                 decoration: customInputDecoration(
                   hintText: 'Ex.: marca, tamanho, peso máximo...',
-
                 ),
               ),
 
               const SizedBox(height: 30),
-
-              Row(
-                children: [
-                  Icon(
-                    Icons.inventory_outlined,
-                    size: 20,
-                    color: colors.primary,
-                  ),
-                  const SizedBox(width: 8),
-                  Text(
-                    "Quantidade em estoque",
-                    style: TextStyle(
-                      fontWeight: FontWeight.bold,
-                      fontSize: 16,
-                      color: colors.onSurface,
-                    ),
-                  ),
-                ],
-              ),
-
-              const SizedBox(height: 10),
-
-              TextFormField(
-                maxLength: 6,
-                
-                keyboardType: TextInputType.number,
-                inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-                decoration: customInputDecoration(
-                  hintText: '10',
-                  prefixIcon: Icon(Icons.numbers, color: colors.primary),
-                ),
-              ),
-
-              const SizedBox(height: 20),
 
               Row(
                 children: [
@@ -123,7 +113,7 @@ class _ProductFormState extends State<ProductForm> {
                   ),
                   const SizedBox(width: 8),
                   Text(
-                    "Preço do produto",
+                    "Valor",
                     style: TextStyle(
                       fontWeight: FontWeight.bold,
                       fontSize: 16,
@@ -136,7 +126,9 @@ class _ProductFormState extends State<ProductForm> {
               const SizedBox(height: 10),
 
               TextFormField(
-               keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                keyboardType: const TextInputType.numberWithOptions(
+                  decimal: true,
+                ),
                 inputFormatters: [
                   FilteringTextInputFormatter.allow(RegExp(r'[0-9,.]')),
                 ],
@@ -175,37 +167,61 @@ class _ProductFormState extends State<ProductForm> {
                 inputFormatters: [FilteringTextInputFormatter.digitsOnly],
                 decoration: customInputDecoration(
                   hintText: '10',
-                  prefixIcon: Icon(Icons.numbers, color: colors.primary),         
-                  
+                  prefixIcon: Icon(Icons.numbers, color: colors.primary),
                 ),
               ),
 
-              const SizedBox(height: 8),
+              const SizedBox(width: 10),
 
-              CheckboxListTile(
-                value: marcado,
-                onChanged: (value) {
-                  setState(() {
-                    marcado = value ?? false;
-                  });
-                },
-                activeColor: Colors.green,
-                checkColor: Colors.white,
-                contentPadding: EdgeInsets.zero,
-                controlAffinity: ListTileControlAffinity.leading,
-                title: Text(
-                  "Este item é uma balança",
-                  style: TextStyle(
-                    color: colors.onSurface,
-                    fontWeight: FontWeight.w500,
+              Row(
+                children: [
+                  Expanded(
+                    child: DropdownButtonFormField<String>(
+                      value: tipoSelecionado,
+                      decoration: customInputDecoration(
+                        hintText: "Selecione o tipo",
+                        prefixIcon: Icon(Icons.category, color: colors.primary),
+                      ),
+                      items: const [
+                        DropdownMenuItem(
+                          value: "pecas",
+                          child: Text("Peças para consertos"),
+                        ),
+                        DropdownMenuItem(
+                          value: "balancas",
+                          child: Text("Balanças"),
+                        ),
+                      ],
+                      onChanged: (value) {
+                        setState(() {
+                          tipoSelecionado = value;
+                        });
+                      },
+                    ),
                   ),
-                ),
+                ],
               ),
 
               const SizedBox(height: 30),
 
               Row(
                 children: [
+                  Expanded(
+                    child: OutlinedButton.icon(
+                      onPressed: widget.onCancel,
+                      style: OutlinedButton.styleFrom(
+                        foregroundColor: colors.onSurface,
+                        side: BorderSide(color: colors.surfaceContainerHigh),
+                        padding: const EdgeInsets.symmetric(vertical: 18),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(14),
+                        ),
+                      ),
+                      icon: const Icon(Icons.cancel_outlined),
+                      label: const Text("Cancelar"),
+                    ),
+                  ),
+                  const SizedBox(width: 14),
                   Expanded(
                     child: ElevatedButton.icon(
                       onPressed: widget.onSave,
@@ -223,24 +239,6 @@ class _ProductFormState extends State<ProductForm> {
                         "Salvar",
                         style: TextStyle(fontWeight: FontWeight.bold),
                       ),
-                    ),
-                  ),
-
-                  const SizedBox(width: 14),
-
-                  Expanded(
-                    child: OutlinedButton.icon(
-                      onPressed: widget.onCancel,
-                      style: OutlinedButton.styleFrom(
-                        foregroundColor: colors.onSurface,
-                        side: BorderSide(color: colors.surfaceContainerHigh),
-                        padding: const EdgeInsets.symmetric(vertical: 18),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(14),
-                        ),
-                      ),
-                      icon: const Icon(Icons.cancel_outlined),
-                      label: const Text("Cancelar"),
                     ),
                   ),
                 ],

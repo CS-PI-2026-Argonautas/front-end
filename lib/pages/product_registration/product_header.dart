@@ -33,6 +33,18 @@ class ProductHeader extends StatelessWidget {
         children: [
           Row(
             children: [
+              IconButton(
+                onPressed: onBack,
+                style: IconButton.styleFrom(
+                  backgroundColor: Colors.white,
+                  foregroundColor: colors.primary,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(14),
+                  ),
+                ),
+                icon: const Icon(Icons.arrow_back),
+              ),
+              const SizedBox(width: 30),
               Container(
                 padding: const EdgeInsets.all(12),
                 decoration: BoxDecoration(
@@ -50,25 +62,13 @@ class ProductHeader extends StatelessWidget {
 
               const Expanded(
                 child: Text(
-                  'Cadastro de produtos',
+                  'Itens',
                   style: TextStyle(
                     color: Colors.white,
                     fontSize: 23,
                     fontWeight: FontWeight.bold,
                   ),
                 ),
-              ),
-
-              IconButton(
-                onPressed: onBack,
-                style: IconButton.styleFrom(
-                  backgroundColor: Colors.white,
-                  foregroundColor: colors.primary,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(14),
-                  ),
-                ),
-                icon: const Icon(Icons.arrow_back),
               ),
             ],
           ),
@@ -77,11 +77,7 @@ class ProductHeader extends StatelessWidget {
 
           const Text(
             'Adicione um novo produto ao estoque preenchendo as informações abaixo.',
-            style: TextStyle(
-              color: Colors.white,
-              fontSize: 14,
-              height: 1.4,
-            ),
+            style: TextStyle(color: Colors.white, fontSize: 14, height: 1.4),
           ),
         ],
       ),
