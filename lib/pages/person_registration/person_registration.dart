@@ -3,6 +3,7 @@ import 'package:frontend/style/ColorScheme.dart' as custom_colors;
 import 'package:frontend/pages/person_registration/person_registration_address.dart';
 import 'package:frontend/style/inputDecorationStyles.dart';
 import 'package:mask_text_input_formatter/mask_text_input_formatter.dart';
+import 'package:frontend/pages/dashboard.dart';
 
 class PersonRegistration extends StatefulWidget {
   const PersonRegistration({super.key});
@@ -26,6 +27,8 @@ class _PersonRegistrationState1 extends State<PersonRegistration> {
     filter: {"#": RegExp(r'[0-9]')},
   );
 
+  final _enderecoController = TextEditingController();
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -38,9 +41,9 @@ class _PersonRegistrationState1 extends State<PersonRegistration> {
               constraints: const BoxConstraints(maxWidth: 650),
               child: Column(
                 children: [
-                  _buildHeader(), // Cabeçalho estilizado (Estilo ProductHeader)
+                  _buildHeader(), 
                   const SizedBox(height: 20),
-                  _buildFormCard(), // Formulário dentro do Card (Estilo ProductForm)
+                  _buildFormCard(),
                 ],
               ),
             ),
@@ -50,7 +53,6 @@ class _PersonRegistrationState1 extends State<PersonRegistration> {
     );
   }
 
-  // Cabeçalho com Gradiente baseado no ProductHeader[cite: 14]
   Widget _buildHeader() {
     return Container(
       width: double.infinity,
@@ -90,7 +92,7 @@ class _PersonRegistrationState1 extends State<PersonRegistration> {
               const SizedBox(width: 14),
               const Expanded(
                 child: Text(
-                  'Cadastro de Pessoa',
+                  'Cadastro de Cliente',
                   style: TextStyle(
                     color: Colors.white,
                     fontSize: 23,
@@ -121,7 +123,6 @@ class _PersonRegistrationState1 extends State<PersonRegistration> {
     );
   }
 
-  // Card de Formulário baseado no ProductForm
   Widget _buildFormCard() {
     return Card(
       color: Colors.white,
@@ -153,6 +154,33 @@ class _PersonRegistrationState1 extends State<PersonRegistration> {
 
               const SizedBox(height: 25),
 
+              //Endereço
+              _buildFieldLabel(Icons.home_outlined, "Endereço"),
+                const SizedBox(height: 10),
+                TextFormField(
+                  controller: _enderecoController,
+                  readOnly: true,
+                  decoration: customInputDecoration(
+                  hintText: "Inserir o endereço",
+                ).copyWith(
+                  suffixIcon: IconButton(
+                    icon: Icon(Icons.add_box_outlined, color: colors.secondary),
+                    onPressed: () => Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => PersonRegistrationAddress(),
+                      ),
+                    ),
+                  ),
+                ),
+                validator: (value) =>
+                    (value == null || value.isEmpty) ? 'Informe o endereço' : null,
+                ),
+                
+              const SizedBox(height: 25),
+
+              const SizedBox(height: 10),
+
               _buildFieldLabel(
                 Icons.badge_outlined,
                 _isPessoaFisica ? "CPF *" : "CNPJ *",
@@ -172,7 +200,6 @@ class _PersonRegistrationState1 extends State<PersonRegistration> {
 
               const SizedBox(height: 10),
 
-              // Checkbox estilizado como o do ProductForm
               CheckboxListTile(
                 value: _isPessoaFisica,
                 onChanged: (value) =>
@@ -191,36 +218,60 @@ class _PersonRegistrationState1 extends State<PersonRegistration> {
 
               const SizedBox(height: 30),
 
-              // Botão Próximo (Estilo botão Salvar do ProductForm)
-              SizedBox(
-                width: double.infinity,
-                child: ElevatedButton.icon(
-                  onPressed: () {
-                    if (_formKey.currentState!.validate()) {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) =>
-                              const PersonRegistrationAddress(),
+              Row(
+                children: [
+                  Expanded(
+                    child: ElevatedButton.icon(
+                      onPressed: () {
+                        if (_formKey.currentState!.validate()) {
+                          Navigator.pushAndRemoveUntil(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => const Dashboard(),
+                            ),
+                            (route) =>
+                                false, 
+                          );
+                        }
+                      },
+                      style: ElevatedButton.styleFrom(
+                        elevation: 3,
+                        backgroundColor: colors.primary,
+                        foregroundColor: colors.onSecondary,
+                        padding: const EdgeInsets.symmetric(vertical: 18),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(14),
                         ),
-                      );
-                    }
-                  },
-                  style: ElevatedButton.styleFrom(
-                    elevation: 3,
-                    backgroundColor: colors.primary,
-                    foregroundColor: colors.onSecondary,
-                    padding: const EdgeInsets.symmetric(vertical: 18),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(14),
+                      ),
+                      icon: const Icon(Icons.check_circle_outline),
+                      label: const Text(
+                        "Cadastrar",
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 16,
+                        ),
+                      ),
                     ),
                   ),
-                  icon: const Icon(Icons.arrow_forward),
-                  label: const Text(
-                    "Próximo",
-                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                  const SizedBox(width: 14),
+                  Expanded(
+                    child: OutlinedButton.icon(
+                      onPressed: () => Navigator.of(
+                        context,
+                      ).popUntil((route) => route.isFirst),
+                      style: OutlinedButton.styleFrom(
+                        foregroundColor: colors.onSurface,
+                        side: BorderSide(color: colors.surfaceContainerHigh),
+                        padding: const EdgeInsets.symmetric(vertical: 18),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(14),
+                        ),
+                      ),
+                      icon: const Icon(Icons.close),
+                      label: const Text("Cancelar"),
+                    ),
                   ),
-                ),
+                ],
               ),
             ],
           ),
