@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:frontend/style/ColorScheme.dart' as custom_colors;
 import 'package:frontend/pages/person_registration/person_registration_address.dart';
 import 'package:frontend/style/inputDecorationStyles.dart';
+import 'package:frontend/widgets/action_buttons.dart';
 import 'package:mask_text_input_formatter/mask_text_input_formatter.dart';
 import 'package:frontend/pages/dashboard.dart';
 
@@ -41,7 +42,7 @@ class _PersonRegistrationState1 extends State<PersonRegistration> {
               constraints: const BoxConstraints(maxWidth: 650),
               child: Column(
                 children: [
-                  _buildHeader(), 
+                  _buildHeader(),
                   const SizedBox(height: 20),
                   _buildFormCard(),
                 ],
@@ -156,27 +157,32 @@ class _PersonRegistrationState1 extends State<PersonRegistration> {
 
               //Endereço
               _buildFieldLabel(Icons.home_outlined, "Endereço"),
-                const SizedBox(height: 10),
-                TextFormField(
-                  controller: _enderecoController,
-                  readOnly: true,
-                  decoration: customInputDecoration(
-                  hintText: "Inserir o endereço",
-                ).copyWith(
-                  suffixIcon: IconButton(
-                    icon: Icon(Icons.add_box_outlined, color: colors.secondary),
-                    onPressed: () => Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => PersonRegistrationAddress(),
+              const SizedBox(height: 10),
+              TextFormField(
+                controller: _enderecoController,
+                readOnly: true,
+                decoration:
+                    customInputDecoration(
+                      hintText: "Inserir o endereço",
+                    ).copyWith(
+                      suffixIcon: IconButton(
+                        icon: Icon(
+                          Icons.add_box_outlined,
+                          color: colors.secondary,
+                        ),
+                        onPressed: () => Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => PersonRegistrationAddress(),
+                          ),
+                        ),
                       ),
                     ),
-                  ),
-                ),
-                validator: (value) =>
-                    (value == null || value.isEmpty) ? 'Informe o endereço' : null,
-                ),
-                
+                validator: (value) => (value == null || value.isEmpty)
+                    ? 'Informe o endereço'
+                    : null,
+              ),
+
               const SizedBox(height: 25),
 
               const SizedBox(height: 10),
@@ -218,60 +224,20 @@ class _PersonRegistrationState1 extends State<PersonRegistration> {
 
               const SizedBox(height: 30),
 
-              Row(
-                children: [
-                  Expanded(
-                    child: ElevatedButton.icon(
-                      onPressed: () {
-                        if (_formKey.currentState!.validate()) {
-                          Navigator.pushAndRemoveUntil(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => const Dashboard(),
-                            ),
-                            (route) =>
-                                false, 
-                          );
-                        }
-                      },
-                      style: ElevatedButton.styleFrom(
-                        elevation: 3,
-                        backgroundColor: colors.primary,
-                        foregroundColor: colors.onSecondary,
-                        padding: const EdgeInsets.symmetric(vertical: 18),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(14),
-                        ),
-                      ),
-                      icon: const Icon(Icons.check_circle_outline),
-                      label: const Text(
-                        "Cadastrar",
-                        style: TextStyle(
-                          fontWeight: FontWeight.bold,
-                          fontSize: 16,
-                        ),
-                      ),
-                    ),
-                  ),
-                  const SizedBox(width: 14),
-                  Expanded(
-                    child: OutlinedButton.icon(
-                      onPressed: () => Navigator.of(
-                        context,
-                      ).popUntil((route) => route.isFirst),
-                      style: OutlinedButton.styleFrom(
-                        foregroundColor: colors.onSurface,
-                        side: BorderSide(color: colors.surfaceContainerHigh),
-                        padding: const EdgeInsets.symmetric(vertical: 18),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(14),
-                        ),
-                      ),
-                      icon: const Icon(Icons.close),
-                      label: const Text("Cancelar"),
-                    ),
-                  ),
-                ],
+              // Botões de ação
+              ActionButtons(
+                formKey: _formKey,
+                colors: colors,
+                onCancel: () {
+                  Navigator.of(context).popUntil((route) => route.isFirst);
+                },
+                onCadastrar: () {
+                  Navigator.pushAndRemoveUntil(
+                    context,
+                    MaterialPageRoute(builder: (context) => const Dashboard()),
+                    (route) => false,
+                  );
+                },
               ),
             ],
           ),
