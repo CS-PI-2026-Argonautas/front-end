@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:frontend/style/ColorScheme.dart' as custom_colors;
 import 'package:frontend/style/inputDecorationStyles.dart';
-import 'package:frontend/Enums/TiposItens.dart' as tipos ;
+import 'package:frontend/Enums/TiposItens.dart' as tipos;
 
 class ProductForm extends StatefulWidget {
   final VoidCallback onSave;
@@ -16,7 +16,7 @@ class ProductForm extends StatefulWidget {
 
 class _ProductFormState extends State<ProductForm> {
   bool marcado = false;
-  String? tipoSelecionado;
+  tipos.TipoProduto? tipoSelecionado;
 
   @override
   Widget build(BuildContext context) {
@@ -177,22 +177,21 @@ class _ProductFormState extends State<ProductForm> {
               Row(
                 children: [
                   Expanded(
-                    child: DropdownButtonFormField<String>(
+                    child: DropdownButtonFormField<tipos.TipoProduto>(
                       value: tipoSelecionado,
+
                       decoration: customInputDecoration(
                         hintText: "Selecione o tipo",
                         prefixIcon: Icon(Icons.category, color: colors.primary),
                       ),
-                      items: const [
-                        DropdownMenuItem(
-                          value: "pecas",
-                          child: Text("Peças para consertos"),
-                        ),
-                        DropdownMenuItem(
-                          value: "balancas",
-                          child: Text("Balanças"),
-                        ),
-                      ],
+
+                      items: tipos.TipoProduto.values.map((tipo) {
+                        return DropdownMenuItem(
+                          value: tipo,
+                          child: Text(tipo.label),
+                        );
+                      }).toList(),
+
                       onChanged: (value) {
                         setState(() {
                           tipoSelecionado = value;
