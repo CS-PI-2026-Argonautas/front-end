@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:frontend/style/ColorScheme.dart' as custom_colors;
 import 'package:frontend/style/inputDecorationStyles.dart';
-import 'package:frontend/Enums/TiposItens.dart' as tipos;
+import 'package:frontend/Enums/TiposItens.dart' as tipos ;
 
 class ProductForm extends StatefulWidget {
   final VoidCallback onSave;

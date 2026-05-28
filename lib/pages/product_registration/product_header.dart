@@ -1,10 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:frontend/style/ColorScheme.dart' as custom_colors;
+class ProductHeader extends StatelessWidget
+    implements PreferredSizeWidget {
 
-class ProductHeader extends StatelessWidget {
   final VoidCallback onBack;
 
-  const ProductHeader({super.key, required this.onBack});
+  const ProductHeader({
+    super.key,
+    required this.onBack,
+  });
+
+  @override
+  Size get preferredSize => const Size.fromHeight(140);
 
   @override
   Widget build(BuildContext context) {
@@ -44,7 +51,9 @@ class ProductHeader extends StatelessWidget {
                 ),
                 icon: const Icon(Icons.arrow_back),
               ),
+
               const SizedBox(width: 30),
+
               Container(
                 padding: const EdgeInsets.all(12),
                 decoration: BoxDecoration(
@@ -77,7 +86,11 @@ class ProductHeader extends StatelessWidget {
 
           const Text(
             'Adicione um novo produto ao estoque preenchendo as informações abaixo.',
-            style: TextStyle(color: Colors.white, fontSize: 14, height: 1.4),
+            style: TextStyle(
+              color: Colors.white,
+              fontSize: 14,
+              height: 1.4,
+            ),
           ),
         ],
       ),

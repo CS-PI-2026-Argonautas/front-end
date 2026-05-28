@@ -12,35 +12,40 @@ class ProductRegistration extends StatelessWidget {
 
     return Scaffold(
       backgroundColor: colors.surface,
+
+      appBar: ProductHeader(
+        onBack: () {
+          Navigator.pop(context);
+        },
+      ),
+
       body: SafeArea(
         child: SingleChildScrollView(
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 18),
+
           child: Center(
             child: ConstrainedBox(
               constraints: const BoxConstraints(maxWidth: 650),
+
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
+
                 children: [
-                  ProductHeader(
-                    onBack: () {
-                      Navigator.pop(context);
-                    },
-                  ),
-
-                  const SizedBox(height: 20),
-
                   ProductForm(
                     onCancel: () {
                       Navigator.pop(context);
                     },
+
                     onSave: () {
                       showDialog(
                         context: context,
+
                         builder: (context) {
                           return AlertDialog(
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(18),
                             ),
+
                             title: const Row(
                               children: [
                                 Icon(
@@ -48,19 +53,24 @@ class ProductRegistration extends StatelessWidget {
                                   color: Colors.green,
                                   size: 28,
                                 ),
+
                                 SizedBox(width: 10),
+
                                 Text("Envio confirmado"),
                               ],
                             ),
+
                             content: const Text(
                               "O produto foi enviado com sucesso.",
                             ),
+
                             actions: [
                               TextButton(
                                 onPressed: () {
                                   Navigator.pop(context);
                                 },
-                                child: Text("OK"),
+
+                                child: const Text("OK"),
                               ),
                             ],
                           );
