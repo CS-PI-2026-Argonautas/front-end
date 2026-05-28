@@ -19,68 +19,74 @@ class ProductRegistration extends StatelessWidget {
         },
       ),
 
-      body: SafeArea(
-        child: SingleChildScrollView(
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 18),
+      body: GestureDetector(
+        onTap: () {
+          FocusScope.of(context).unfocus();
+        },
 
-          child: Center(
-            child: ConstrainedBox(
-              constraints: const BoxConstraints(maxWidth: 650),
+        child: SafeArea(
+          child: SingleChildScrollView(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 18),
 
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
+            child: Center(
+              child: ConstrainedBox(
+                constraints: const BoxConstraints(maxWidth: 650),
 
-                children: [
-                  ProductForm(
-                    onCancel: () {
-                      Navigator.pop(context);
-                    },
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
 
-                    onSave: () {
-                      showDialog(
-                        context: context,
+                  children: [
+                    ProductForm(
+                      onCancel: () {
+                        Navigator.pop(context);
+                      },
 
-                        builder: (context) {
-                          return AlertDialog(
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(18),
-                            ),
+                      onSave: () {
+                        showDialog(
+                          context: context,
 
-                            title: const Row(
-                              children: [
-                                Icon(
-                                  Icons.check_circle,
-                                  color: Colors.green,
-                                  size: 28,
-                                ),
-
-                                SizedBox(width: 10),
-
-                                Text("Envio confirmado"),
-                              ],
-                            ),
-
-                            content: const Text(
-                              "O produto foi enviado com sucesso.",
-                            ),
-
-                            actions: [
-                              TextButton(
-                                onPressed: () {
-                                  Navigator.pop(context);
-                                },
-
-                                child: const Text("OK"),
+                          builder: (context) {
+                            return AlertDialog(
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(18),
                               ),
-                            ],
-                          );
-                        },
-                      );
-                    },
-                  ),
 
-                  const SizedBox(height: 20),
-                ],
+                              title: const Row(
+                                children: [
+                                  Icon(
+                                    Icons.check_circle,
+                                    color: Colors.green,
+                                    size: 28,
+                                  ),
+
+                                  SizedBox(width: 10),
+
+                                  Text("Envio confirmado"),
+                                ],
+                              ),
+
+                              content: const Text(
+                                "O produto foi enviado com sucesso.",
+                              ),
+
+                              actions: [
+                                TextButton(
+                                  onPressed: () {
+                                    Navigator.pop(context);
+                                  },
+
+                                  child: const Text("OK"),
+                                ),
+                              ],
+                            );
+                          },
+                        );
+                      },
+                    ),
+
+                    const SizedBox(height: 20),
+                  ],
+                ),
               ),
             ),
           ),
