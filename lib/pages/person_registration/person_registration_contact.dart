@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:frontend/pages/dashboard.dart';
 import 'package:frontend/style/ColorScheme.dart' as custom_colors;
 import 'package:frontend/style/inputDecorationStyles.dart';
+import 'package:frontend/widgets/action_buttons.dart';
 import 'package:mask_text_input_formatter/mask_text_input_formatter.dart';
 
 class PersonRegistrationContact extends StatefulWidget {
@@ -19,6 +20,11 @@ class _PersonRegistration3State extends State<PersonRegistrationContact> {
     mask: '(##) #####-####',
     filter: {"#": RegExp(r'[0-9]')},
   );
+
+  final _telefoneController = TextEditingController();
+  final _emailController = TextEditingController();
+  final _contatoAdicionalController = TextEditingController();
+  final _observacoesController = TextEditingController();
 
   @override
   Widget build(BuildContext context) {
@@ -115,7 +121,6 @@ class _PersonRegistration3State extends State<PersonRegistrationContact> {
     );
   }
 
-  // Card do formulário baseado no ProductForm
   Widget _buildFormCard() {
     return Card(
       color: Colors.white,
@@ -138,12 +143,12 @@ class _PersonRegistration3State extends State<PersonRegistrationContact> {
               _buildFieldLabel(Icons.phone_outlined, "Telefone principal *"),
               const SizedBox(height: 10),
               TextFormField(
+                controller: _telefoneController, // VINCULADO AQUI
                 decoration: customInputDecoration(hintText: "(44) 98765-4321"),
                 inputFormatters: [_phoneFormatter],
                 keyboardType: TextInputType.phone,
                 validator: (value) {
-                  if (value == null || value.isEmpty)
-                    return 'Informe o telefone';
+                  if (value == null || value.isEmpty) return 'Informe o telefone';
                   if (value.length < 15) return 'Telefone incompleto';
                   return null;
                 },
@@ -154,9 +159,8 @@ class _PersonRegistration3State extends State<PersonRegistrationContact> {
               _buildFieldLabel(Icons.email_outlined, "Email *"),
               const SizedBox(height: 10),
               TextFormField(
-                decoration: customInputDecoration(
-                  hintText: "exemplo@email.com",
-                ),
+                controller: _emailController, // VINCULADO AQUI
+                decoration: customInputDecoration(hintText: "exemplo@email.com"),
                 keyboardType: TextInputType.emailAddress,
                 validator: (value) {
                   if (value == null || value.isEmpty) return 'Informe o email';
@@ -168,14 +172,13 @@ class _PersonRegistration3State extends State<PersonRegistrationContact> {
                 },
               ),
 
-              const SizedBox(height: 20),
-
-              _buildFieldLabel(
+               _buildFieldLabel(
                 Icons.contact_phone_outlined,
                 "Contato adicional",
               ),
               const SizedBox(height: 10),
               TextFormField(
+                controller: _contatoAdicionalController,
                 decoration: customInputDecoration(
                   hintText: "Nome ou telefone extra",
                 ),
@@ -194,7 +197,8 @@ class _PersonRegistration3State extends State<PersonRegistrationContact> {
               _buildFieldLabel(Icons.comment_outlined, "Observações"),
               const SizedBox(height: 10),
               TextFormField(
-                maxLines: 4, // Estilo multiline igual ao de Produtos[cite: 13]
+                controller: _observacoesController,
+                maxLines: 4,
                 maxLength: 255,
                 keyboardType: TextInputType.multiline,
                 decoration: customInputDecoration(
@@ -204,60 +208,23 @@ class _PersonRegistration3State extends State<PersonRegistrationContact> {
 
               const SizedBox(height: 30),
 
-              Row(
-                children: [
-                  Expanded(
-                    child: ElevatedButton.icon(
-                      onPressed: () {
-                        if (_formKey.currentState!.validate()) {
-                          Navigator.pushAndRemoveUntil(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => const Dashboard(),
-                            ),
-                            (route) =>
-                                false, // Limpa a pilha de navegação[cite: 18]
-                          );
-                        }
-                      },
-                      style: ElevatedButton.styleFrom(
-                        elevation: 3,
-                        backgroundColor: colors.primary,
-                        foregroundColor: colors.onSecondary,
-                        padding: const EdgeInsets.symmetric(vertical: 18),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(14),
-                        ),
-                      ),
-                      icon: const Icon(Icons.check_circle_outline),
-                      label: const Text(
-                        "Cadastrar",
-                        style: TextStyle(
-                          fontWeight: FontWeight.bold,
-                          fontSize: 16,
-                        ),
-                      ),
-                    ),
-                  ),
-                  const SizedBox(width: 14),
-                  Expanded(
-                    child: OutlinedButton.icon(
-                      onPressed: () => Navigator.of(
-                        context,
-                      ).popUntil((route) => route.isFirst),
-                      style: OutlinedButton.styleFrom(
-                        foregroundColor: colors.onSurface,
-                        side: BorderSide(color: colors.surfaceContainerHigh),
-                        padding: const EdgeInsets.symmetric(vertical: 18),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(14),
-                        ),
-                      ),
-                      icon: const Icon(Icons.close),
-                      label: const Text("Cancelar"),
-                    ),
-                  ),
-                ],
+              
+              ActionButtons(
+                formKey: _formKey,
+                colors: colors,
+                onCancel: () {
+                  Navigator.pop(context); 
+                },
+                onCadastrar: () {
+                  if (_formKey.currentState!.validate()) {
+                    String telefone = _telefoneController.text.trim();
+                    String email = _emailController.text.trim();
+
+                    String contatoFormatado = "$telefone / $email";
+
+                    Navigator.pop(context, contatoFormatado);
+                  }
+                },
               ),
             ],
           ),

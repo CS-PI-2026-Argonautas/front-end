@@ -1,4 +1,3 @@
-
 import 'package:flutter/material.dart';
 import 'package:frontend/style/ColorScheme.dart';
 
@@ -7,6 +6,7 @@ InputDecoration customInputDecoration({String? hintText, Widget? prefixIcon, Str
     hintText: hintText,
     prefixIcon: prefixIcon,
     prefixText: prefixText,
+    isDense: true, 
     contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 16),
     prefixStyle: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
     
@@ -34,7 +34,7 @@ InputDecoration customInputDecoration({String? hintText, Widget? prefixIcon, Str
     ),
     focusedErrorBorder: OutlineInputBorder(
       borderRadius: BorderRadius.circular(14),
-      borderSide: BorderSide(color: colorScheme.error, width: 2),
+      borderSide: colorScheme.error != null ? BorderSide(color: colorScheme.error, width: 2) : BorderSide.none,
     ),
   );
 }

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:frontend/pages/person_registration/person_registration_contact.dart';
 import 'package:frontend/style/ColorScheme.dart' as custom_colors;
 import 'package:frontend/pages/person_registration/person_registration_address.dart';
 import 'package:frontend/style/inputDecorationStyles.dart';
@@ -29,6 +30,7 @@ class _PersonRegistrationState1 extends State<PersonRegistration> {
   );
 
   final _enderecoController = TextEditingController();
+  final _contatoController = TextEditingController();
 
   @override
   Widget build(BuildContext context) {
@@ -158,42 +160,84 @@ class _PersonRegistrationState1 extends State<PersonRegistration> {
               //Endereço
               _buildFieldLabel(Icons.home_outlined, "Endereço"),
               const SizedBox(height: 10),
-              TextFormField(
-                controller: _enderecoController,
-                readOnly: true,
-                decoration:
-                    customInputDecoration(
-                      hintText: "Inserir o endereço",
-                    ).copyWith(
-                      suffixIcon: IconButton(
-                        icon: Icon(
+              InkWell(
+                onTap: () async {
+                  final resultadoEndereco = await Navigator.push<String>(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => const PersonRegistrationAddress(),
+                    ),
+                  );
+
+                  if (resultadoEndereco != null && mounted) {
+                    setState(() {
+                      _enderecoController.text = resultadoEndereco;
+                    });
+                  }
+                },
+                borderRadius: BorderRadius.circular(14),
+                child: InputDecorator(
+                  decoration:
+                      customInputDecoration(
+                        hintText: "Inserir o endereço",
+                      ).copyWith(
+                        suffixIcon: Icon(
                           Icons.add_box_outlined,
                           color: colors.secondary,
                         ),
-                        onPressed: () async {
-                          final resultadoEndereco =
-                              await Navigator.push<String>(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (context) =>
-                                      const PersonRegistrationAddress(),
-                                ),
-                              );
-
-                          if (resultadoEndereco != null && mounted) {
-                            setState(() {
-                              _enderecoController.text = resultadoEndereco;
-                            });
-                          }
-                        },
                       ),
-                    ),
-                validator: (value) => (value == null || value.isEmpty)
-                    ? 'Informe o endereço'
-                    : null,
+                  isEmpty: _enderecoController.text.isEmpty,
+                  child: Text(
+                    _enderecoController.text,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: TextStyle(fontSize: 16, color: colors.onSurface),
+                  ),
+                ),
               ),
 
               const SizedBox(height: 25),
+
+              //Contato
+              _buildFieldLabel(
+                Icons.phone_android_outlined,
+                "Informações de contato",
+              ),
+              const SizedBox(height: 10),
+              InkWell(
+                onTap: () async {
+                  final resultadoContato = await Navigator.push<String>(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => const PersonRegistrationContact(),
+                    ),
+                  );
+
+                  if (resultadoContato != null && mounted) {
+                    setState(() {
+                      _contatoController.text = resultadoContato;
+                    });
+                  }
+                },
+                borderRadius: BorderRadius.circular(14),
+                child: InputDecorator(
+                  decoration: customInputDecoration(hintText: "Inserir contato")
+                      .copyWith(
+                        suffixIcon: Icon(
+                          Icons.add_box_outlined,
+                          color: colors.secondary,
+                        ),
+                      ),
+                  isEmpty: _contatoController.text.isEmpty,
+                  child: Text(
+                    _contatoController.text,
+                    maxLines: 1,
+                    overflow:
+                        TextOverflow.ellipsis,
+                    style: TextStyle(fontSize: 16, color: colors.onSurface),
+                  ),
+                ),
+              ),
 
               const SizedBox(height: 10),
 
@@ -242,10 +286,15 @@ class _PersonRegistrationState1 extends State<PersonRegistration> {
                   Navigator.of(context).popUntil((route) => route.isFirst);
                 },
                 onCadastrar: () {
-                  Navigator.pop(
-                    context,
-                    MaterialPageRoute(builder: (context) => const Dashboard()),
-                  );
+                  if (_formKey.currentState!.validate()) {
+                    Navigator.pushAndRemoveUntil(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => const Dashboard(),
+                      ),
+                      (route) => false,
+                    );
+                  }
                 },
               ),
             ],
