@@ -170,12 +170,22 @@ class _PersonRegistrationState1 extends State<PersonRegistration> {
                           Icons.add_box_outlined,
                           color: colors.secondary,
                         ),
-                        onPressed: () => Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => PersonRegistrationAddress(),
-                          ),
-                        ),
+                        onPressed: () async {
+                          final resultadoEndereco =
+                              await Navigator.push<String>(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) =>
+                                      const PersonRegistrationAddress(),
+                                ),
+                              );
+
+                          if (resultadoEndereco != null && mounted) {
+                            setState(() {
+                              _enderecoController.text = resultadoEndereco;
+                            });
+                          }
+                        },
                       ),
                     ),
                 validator: (value) => (value == null || value.isEmpty)
@@ -232,10 +242,9 @@ class _PersonRegistrationState1 extends State<PersonRegistration> {
                   Navigator.of(context).popUntil((route) => route.isFirst);
                 },
                 onCadastrar: () {
-                  Navigator.pushAndRemoveUntil(
+                  Navigator.pop(
                     context,
                     MaterialPageRoute(builder: (context) => const Dashboard()),
-                    (route) => false,
                   );
                 },
               ),

@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:frontend/pages/person_registration/person_registration.dart';
 import 'package:frontend/pages/person_registration/person_registration_contact.dart';
 import 'package:frontend/style/ColorScheme.dart' as custom_colors;
 import 'package:frontend/style/inputDecorationStyles.dart';
+import 'package:frontend/pages/dashboard.dart';
+import 'package:frontend/widgets/action_buttons.dart';
 
 class PersonRegistrationAddress extends StatefulWidget {
   const PersonRegistrationAddress({super.key});
@@ -13,6 +16,12 @@ class PersonRegistrationAddress extends StatefulWidget {
 class _PersonRegistration2State extends State<PersonRegistrationAddress> {
   final _formKey = GlobalKey<FormState>();
   final colors = custom_colors.colorScheme;
+
+  final _cepController = TextEditingController();
+  final _ruaController = TextEditingController();
+  final _cidadeController = TextEditingController();
+  final _numeroController = TextEditingController();
+  final _ufController = TextEditingController();
 
   @override
   Widget build(BuildContext context) {
@@ -101,7 +110,7 @@ class _PersonRegistration2State extends State<PersonRegistrationAddress> {
           ),
           const SizedBox(height: 16),
           const Text(
-            'Informe os dados de localização para entrega ou correspondência.',
+            'Informe os dados de localização para entrega ou visita técnica.',
             style: TextStyle(color: Colors.white, fontSize: 14, height: 1.4),
           ),
         ],
@@ -109,7 +118,6 @@ class _PersonRegistration2State extends State<PersonRegistrationAddress> {
     );
   }
 
-  // Formulário dentro do Card baseado no ProductForm
   Widget _buildFormCard() {
     return Card(
       color: Colors.white,
@@ -132,6 +140,7 @@ class _PersonRegistration2State extends State<PersonRegistrationAddress> {
               _buildFieldLabel(Icons.pin_drop_outlined, "CEP"),
               const SizedBox(height: 10),
               TextFormField(
+                controller: _cepController,
                 decoration: customInputDecoration(hintText: "12312312"),
               ),
 
@@ -140,6 +149,7 @@ class _PersonRegistration2State extends State<PersonRegistrationAddress> {
               _buildFieldLabel(Icons.home_outlined, "Rua"),
               const SizedBox(height: 10),
               TextFormField(
+                controller: _ruaController,
                 decoration: customInputDecoration(hintText: "Rua exemplo"),
               ),
 
@@ -148,6 +158,7 @@ class _PersonRegistration2State extends State<PersonRegistrationAddress> {
               _buildFieldLabel(Icons.location_city, "Cidade *"),
               const SizedBox(height: 10),
               TextFormField(
+                controller: _cidadeController,
                 decoration: customInputDecoration(
                   hintText: "Informe sua cidade",
                 ),
@@ -168,6 +179,7 @@ class _PersonRegistration2State extends State<PersonRegistrationAddress> {
                         _buildFieldLabel(Icons.numbers, "Número"),
                         const SizedBox(height: 10),
                         TextFormField(
+                          controller: _numeroController,
                           keyboardType: TextInputType.text,
                           decoration: customInputDecoration(
                             hintText: "Ex: 123A",
@@ -184,6 +196,7 @@ class _PersonRegistration2State extends State<PersonRegistrationAddress> {
                         _buildFieldLabel(Icons.flag_outlined, "UF *"),
                         const SizedBox(height: 10),
                         TextFormField(
+                          controller: _ufController,
                           decoration: customInputDecoration(hintText: "PR"),
                           validator: (value) => (value == null || value.isEmpty)
                               ? 'Informe a UF'
@@ -197,35 +210,26 @@ class _PersonRegistration2State extends State<PersonRegistrationAddress> {
 
               const SizedBox(height: 30),
 
-              SizedBox(
-                width: double.infinity,
-                child: ElevatedButton.icon(
-                  onPressed: () {
-                    if (_formKey.currentState!.validate()) {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) =>
-                              const PersonRegistrationContact(),
-                        ),
-                      );
-                    }
-                  },
-                  style: ElevatedButton.styleFrom(
-                    elevation: 3,
-                    backgroundColor: colors.primary,
-                    foregroundColor: colors.onSecondary,
-                    padding: const EdgeInsets.symmetric(vertical: 18),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(14),
-                    ),
-                  ),
-                  icon: const Icon(Icons.arrow_forward),
-                  label: const Text(
-                    "Próximo",
-                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
-                  ),
-                ),
+              // Botões de ação
+              ActionButtons(
+                formKey: _formKey,
+                colors: colors,
+                onCancel: () {
+                  Navigator.pop(context);
+                },
+                onCadastrar: () {
+                  String rua = _ruaController.text.trim();
+                  String cidade = _cidadeController.text.trim();
+                  String uf = _ufController.text.trim().toUpperCase();
+                  String numero = _numeroController.text.trim();
+                  String enderecoFormatado = "$cidade - $uf, $rua";
+
+                  if (numero.isNotEmpty) {
+                    enderecoFormatado += ", $numero";
+                  }
+
+                  Navigator.pop(context, enderecoFormatado);
+                },
               ),
             ],
           ),
