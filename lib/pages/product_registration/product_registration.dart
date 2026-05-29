@@ -12,65 +12,81 @@ class ProductRegistration extends StatelessWidget {
 
     return Scaffold(
       backgroundColor: colors.surface,
-      body: SafeArea(
-        child: SingleChildScrollView(
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 18),
-          child: Center(
-            child: ConstrainedBox(
-              constraints: const BoxConstraints(maxWidth: 650),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  ProductHeader(
-                    onBack: () {
-                      Navigator.pop(context);
-                    },
-                  ),
 
-                  const SizedBox(height: 20),
+      appBar: ProductHeader(
+        onBack: () {
+          Navigator.pop(context);
+        },
+      ),
 
-                  ProductForm(
-                    onCancel: () {
-                      Navigator.pop(context);
-                    },
-                    onSave: () {
-                      showDialog(
-                        context: context,
-                        builder: (context) {
-                          return AlertDialog(
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(18),
-                            ),
-                            title: const Row(
-                              children: [
-                                Icon(
-                                  Icons.check_circle,
-                                  color: Colors.green,
-                                  size: 28,
-                                ),
-                                SizedBox(width: 10),
-                                Text("Envio confirmado"),
-                              ],
-                            ),
-                            content: const Text(
-                              "O produto foi enviado com sucesso.",
-                            ),
-                            actions: [
-                              TextButton(
-                                onPressed: () {
-                                  Navigator.pop(context);
-                                },
-                                child: Text("OK"),
+      body: GestureDetector(
+        onTap: () {
+          FocusScope.of(context).unfocus();
+        },
+
+        child: SafeArea(
+          child: SingleChildScrollView(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 18),
+
+            child: Center(
+              child: ConstrainedBox(
+                constraints: const BoxConstraints(maxWidth: 650),
+
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+
+                  children: [
+                    ProductForm(
+                      onCancel: () {
+                        Navigator.pop(context);
+                      },
+
+                      onSave: () {
+                        showDialog(
+                          context: context,
+
+                          builder: (context) {
+                            return AlertDialog(
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(18),
                               ),
-                            ],
-                          );
-                        },
-                      );
-                    },
-                  ),
 
-                  const SizedBox(height: 20),
-                ],
+                              title: const Row(
+                                children: [
+                                  Icon(
+                                    Icons.check_circle,
+                                    color: Colors.green,
+                                    size: 28,
+                                  ),
+
+                                  SizedBox(width: 10),
+
+                                  Text("Envio confirmado"),
+                                ],
+                              ),
+
+                              content: const Text(
+                                "O produto foi enviado com sucesso.",
+                              ),
+
+                              actions: [
+                                TextButton(
+                                  onPressed: () {
+                                    Navigator.pop(context);
+                                  },
+
+                                  child: const Text("OK"),
+                                ),
+                              ],
+                            );
+                          },
+                        );
+                      },
+                    ),
+
+                    const SizedBox(height: 20),
+                  ],
+                ),
               ),
             ),
           ),
