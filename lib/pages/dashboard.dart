@@ -20,6 +20,13 @@ class Dashboard extends StatelessWidget {
       );
     }
 
+    void irParaCadastroPessoa() {
+      Navigator.push(
+        context,
+        MaterialPageRoute(builder: (context) => const PersonRegistration()),
+      );
+    }
+
     Widget botaoDashboard({
       required String texto,
       required IconData icone,
@@ -42,7 +49,7 @@ class Dashboard extends StatelessWidget {
       }
 
       return OutlinedButton.icon(
-        onPressed: irParaStandIn,
+        onPressed: irParaCadastroPessoa,
         icon: Icon(icone),
         label: Text(texto),
         style: OutlinedButton.styleFrom(
@@ -135,14 +142,6 @@ class Dashboard extends StatelessWidget {
         currentIndex: 3,
         onTap: (index) {
 
-            if (index == 0) {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => const PersonRegistration(),
-                ),
-              );
-            }
           if (index == 1) {
             Navigator.push(
               context,
@@ -153,7 +152,7 @@ class Dashboard extends StatelessWidget {
           }
 
 
-          if (index == 2 || index == 3) {
+          if (index == 2 || index == 3 || index == 0) {
             irParaStandIn();
           }
         },
