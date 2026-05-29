@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:frontend/style/ColorScheme.dart' as custom_colors;
 
-class ProductHeader extends StatelessWidget implements PreferredSizeWidget {
+class Header extends StatelessWidget implements PreferredSizeWidget {
   final VoidCallback onBack;
   final String title;
 
-  const ProductHeader({super.key, required this.onBack, required this.title});
+  const Header({super.key, required this.onBack, required this.title});
 
   @override
   Size get preferredSize => const Size.fromHeight(90);
