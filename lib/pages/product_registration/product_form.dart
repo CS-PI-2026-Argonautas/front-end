@@ -5,7 +5,7 @@ import 'package:frontend/style/inputDecorationStyles.dart';
 import 'package:frontend/Enums/TiposItens.dart' as tipos;
 
 class ProductForm extends StatefulWidget {
-  final VoidCallback onSave;
+  final ValueChanged<bool> onSave;
   final VoidCallback onCancel;
 
   const ProductForm({super.key, required this.onSave, required this.onCancel});
@@ -17,6 +17,7 @@ class ProductForm extends StatefulWidget {
 class _ProductFormState extends State<ProductForm> {
   tipos.TipoProduto? tipoSelecionado;
   final _formKey = GlobalKey<FormState>();
+
   @override
   Widget build(BuildContext context) {
     final colors = custom_colors.colorScheme;
@@ -33,7 +34,6 @@ class _ProductFormState extends State<ProductForm> {
 
         child: Form(
           key: _formKey,
-
           autovalidateMode: AutovalidateMode.onUserInteraction,
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -266,25 +266,8 @@ class _ProductFormState extends State<ProductForm> {
                   Expanded(
                     child: ElevatedButton.icon(
                       onPressed: () {
-                        if (!_formKey.currentState!.validate()) {
-                          showDialog(
-                            context: context,
-                            builder: (context) => AlertDialog(
-                              title: const Text("Aviso"),
-                              content: const Text(
-                                "Preencha todos os campos obrigatórios",
-                              ),
-                              actions: [
-                                TextButton(
-                                  onPressed: () => Navigator.pop(context),
-                                  child: const Text("OK"),
-                                ),
-                              ],
-                            ),
-                          );
-                        } else {
-                          widget.onSave();
-                        }
+                        bool valido = _formKey.currentState!.validate();
+                        widget.onSave(valido);
                       },
 
                       style: ElevatedButton.styleFrom(

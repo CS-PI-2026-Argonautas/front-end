@@ -14,7 +14,7 @@ class Authentication extends StatefulWidget {
 class _AuthenticationState extends State<Authentication> {
   bool _isPasswordVisible = false;
   final colors = custom_colors.colorScheme;
-  final _formKey = GlobalKey<FormState>(); //chaves para usar no form
+  final _formKey = GlobalKey<FormState>();
 
   @override
   Widget build(BuildContext context) {
