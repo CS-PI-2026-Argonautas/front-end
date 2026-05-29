@@ -16,7 +16,7 @@ class ProductForm extends StatefulWidget {
 
 class _ProductFormState extends State<ProductForm> {
   tipos.TipoProduto? tipoSelecionado;
-
+  final _formKey = GlobalKey<FormState>();
   @override
   Widget build(BuildContext context) {
     final colors = custom_colors.colorScheme;
@@ -32,6 +32,9 @@ class _ProductFormState extends State<ProductForm> {
         padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 28),
 
         child: Form(
+          key: _formKey,
+
+          autovalidateMode: AutovalidateMode.onUserInteraction,
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
 
@@ -77,6 +80,12 @@ class _ProductFormState extends State<ProductForm> {
               const SizedBox(height: 10),
 
               TextFormField(
+                validator: (value) {
+                  if (value == null || value.isEmpty) {
+                    return 'Campo obrigatório';
+                  }
+                  return null;
+                },
                 decoration: customInputDecoration(hintText: 'Balança'),
               ),
 
@@ -108,7 +117,12 @@ class _ProductFormState extends State<ProductForm> {
 
               TextFormField(
                 maxLines: 4,
-
+                validator: (value) {
+                  if (value == null || value.isEmpty) {
+                    return 'Campo obrigatório';
+                  }
+                  return null;
+                },
                 decoration: customInputDecoration(
                   hintText: 'Ex.: marca, tamanho, peso máximo...',
                 ),
@@ -141,6 +155,12 @@ class _ProductFormState extends State<ProductForm> {
               const SizedBox(height: 10),
 
               TextFormField(
+                validator: (value) {
+                  if (value == null || value.isEmpty) {
+                    return 'Campo obrigatório';
+                  }
+                  return null;
+                },
                 keyboardType: const TextInputType.numberWithOptions(
                   decimal: true,
                 ),
@@ -183,6 +203,12 @@ class _ProductFormState extends State<ProductForm> {
               const SizedBox(height: 10),
 
               TextFormField(
+                validator: (value) {
+                  if (value == null || value.isEmpty) {
+                    return 'Campo obrigatório';
+                  }
+                  return null;
+                },
                 maxLength: 2,
                 keyboardType: TextInputType.number,
 
@@ -202,6 +228,13 @@ class _ProductFormState extends State<ProductForm> {
                   Expanded(
                     child: DropdownButtonFormField<tipos.TipoProduto>(
                       value: tipoSelecionado,
+
+                      validator: (value) {
+                        if (value == null) {
+                          return 'Campo obrigatório';
+                        }
+                        return null;
+                      },
 
                       decoration: customInputDecoration(
                         hintText: "Selecione o tipo",
@@ -232,7 +265,27 @@ class _ProductFormState extends State<ProductForm> {
                 children: [
                   Expanded(
                     child: ElevatedButton.icon(
-                      onPressed: widget.onSave,
+                      onPressed: () {
+                        if (!_formKey.currentState!.validate()) {
+                          showDialog(
+                            context: context,
+                            builder: (context) => AlertDialog(
+                              title: const Text("Aviso"),
+                              content: const Text(
+                                "Preencha todos os campos obrigatórios",
+                              ),
+                              actions: [
+                                TextButton(
+                                  onPressed: () => Navigator.pop(context),
+                                  child: const Text("OK"),
+                                ),
+                              ],
+                            ),
+                          );
+                        } else {
+                          widget.onSave();
+                        }
+                      },
 
                       style: ElevatedButton.styleFrom(
                         elevation: 3,

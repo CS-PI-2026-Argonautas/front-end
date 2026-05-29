@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:frontend/pages/dashboard.dart';
 import 'package:frontend/pages/product_registration/product_form.dart';
 import 'package:frontend/pages/product_registration/product_header.dart';
 import 'package:frontend/style/ColorScheme.dart' as custom_colors;
@@ -75,7 +76,19 @@ class ProductRegistration extends StatelessWidget {
                                     Navigator.pop(context);
                                   },
 
-                                  child: const Text("OK"),
+                                  child: const Text("Continuar"),
+                                ),
+                                TextButton(
+                                  onPressed: () {
+                                    Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                        builder: (context) => const Dashboard(),
+                                      ),
+                                    );
+                                  },
+
+                                  child: const Text("Cancelar"),
                                 ),
                               ],
                             );
