@@ -1,89 +1,69 @@
 import 'package:flutter/material.dart';
 import 'package:frontend/style/ColorScheme.dart' as custom_colors;
 
-class ProductHeader extends StatelessWidget {
+class ProductHeader extends StatelessWidget implements PreferredSizeWidget {
   final VoidCallback onBack;
 
   const ProductHeader({super.key, required this.onBack});
 
   @override
+  Size get preferredSize => const Size.fromHeight(90);
+
+  @override
   Widget build(BuildContext context) {
     final colors = custom_colors.colorScheme;
 
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.fromLTRB(20, 20, 20, 22),
-      decoration: BoxDecoration(
-        gradient: LinearGradient(
-          colors: [colors.primary, colors.secondary],
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-        ),
-        borderRadius: BorderRadius.circular(22),
-        boxShadow: const [
-          BoxShadow(
-            color: Colors.black26,
-            blurRadius: 12,
-            offset: Offset(0, 6),
+    return AppBar(
+      toolbarHeight: 90,
+      backgroundColor: Colors.transparent,
+      elevation: 0,
+      automaticallyImplyLeading: false,
+
+      flexibleSpace: Container(
+        padding: const EdgeInsets.all(18),
+
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            colors: [colors.primary, colors.secondary],
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
           ),
-        ],
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
+          boxShadow: const [
+            BoxShadow(
+              color: Colors.black26,
+              blurRadius: 12,
+              offset: Offset(0, 6),
+            ),
+          ],
+        ),
+
+        child: SafeArea(
+          child: Stack(
+            alignment: Alignment.center,
             children: [
-              Container(
-                padding: const EdgeInsets.all(12),
-                decoration: BoxDecoration(
+              Align(
+                alignment: Alignment.centerLeft,
+                child: IconButton(
+                  onPressed: onBack,
+                  icon: const Icon(Icons.arrow_back, size: 20),
+                  style: IconButton.styleFrom(
+                    backgroundColor: Colors.white,
+                    foregroundColor: Colors.blue,
+                  ),
+                ),
+              ),
+
+              const Text(
+                "Cadastro de produtos",
+                style: TextStyle(
                   color: Colors.white,
-                  borderRadius: BorderRadius.circular(16),
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
                 ),
-                child: Icon(
-                  Icons.inventory_2_outlined,
-                  color: colors.primary,
-                  size: 30,
-                ),
-              ),
-
-              const SizedBox(width: 14),
-
-              const Expanded(
-                child: Text(
-                  'Cadastro de produtos',
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 23,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-              ),
-
-              IconButton(
-                onPressed: onBack,
-                style: IconButton.styleFrom(
-                  backgroundColor: Colors.white,
-                  foregroundColor: colors.primary,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(14),
-                  ),
-                ),
-                icon: const Icon(Icons.arrow_back),
               ),
             ],
           ),
-
-          const SizedBox(height: 16),
-
-          const Text(
-            'Adicione um novo produto ao estoque preenchendo as informações abaixo.',
-            style: TextStyle(
-              color: Colors.white,
-              fontSize: 14,
-              height: 1.4,
-            ),
-          ),
-        ],
+        ),
       ),
     );
   }
