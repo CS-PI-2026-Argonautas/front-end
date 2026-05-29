@@ -1,30 +1,18 @@
 import 'package:flutter/material.dart';
+import 'package:frontend/pages/person_registration/person_registration_contact.dart';
 import 'package:frontend/style/ColorScheme.dart' as custom_colors;
-import 'package:frontend/pages/person_registration/person_registration_address.dart';
 import 'package:frontend/style/inputDecorationStyles.dart';
-import 'package:mask_text_input_formatter/mask_text_input_formatter.dart';
 
-class PersonRegistration extends StatefulWidget {
-  const PersonRegistration({super.key});
+class PersonRegistrationAddress extends StatefulWidget {
+  const PersonRegistrationAddress({super.key});
 
   @override
-  State<PersonRegistration> createState() => _PersonRegistrationState1();
+  State<PersonRegistrationAddress> createState() => _PersonRegistration2State();
 }
 
-class _PersonRegistrationState1 extends State<PersonRegistration> {
+class _PersonRegistration2State extends State<PersonRegistrationAddress> {
   final _formKey = GlobalKey<FormState>();
-  bool _isPessoaFisica = false;
   final colors = custom_colors.colorScheme;
-
-  final _cpfFormatter = MaskTextInputFormatter(
-    mask: '###.###.###-##',
-    filter: {"#": RegExp(r'[0-9]')},
-  );
-
-  final _cnpjFormatter = MaskTextInputFormatter(
-    mask: '##.###.###/####-##',
-    filter: {"#": RegExp(r'[0-9]')},
-  );
 
   @override
   Widget build(BuildContext context) {
@@ -38,9 +26,9 @@ class _PersonRegistrationState1 extends State<PersonRegistration> {
               constraints: const BoxConstraints(maxWidth: 650),
               child: Column(
                 children: [
-                  _buildHeader(), // Cabeçalho estilizado (Estilo ProductHeader)
+                  _buildHeader(),
                   const SizedBox(height: 20),
-                  _buildFormCard(), // Formulário dentro do Card (Estilo ProductForm)
+                  _buildFormCard(),
                 ],
               ),
             ),
@@ -50,7 +38,7 @@ class _PersonRegistrationState1 extends State<PersonRegistration> {
     );
   }
 
-  // Cabeçalho com Gradiente baseado no ProductHeader[cite: 14]
+  // Cabeçalho estilizado baseado no ProductHeader[cite: 14]
   Widget _buildHeader() {
     return Container(
       width: double.infinity,
@@ -82,7 +70,7 @@ class _PersonRegistrationState1 extends State<PersonRegistration> {
                   borderRadius: BorderRadius.circular(16),
                 ),
                 child: Icon(
-                  Icons.person_add_alt_1_outlined,
+                  Icons.map_outlined,
                   color: colors.primary,
                   size: 30,
                 ),
@@ -90,7 +78,7 @@ class _PersonRegistrationState1 extends State<PersonRegistration> {
               const SizedBox(width: 14),
               const Expanded(
                 child: Text(
-                  'Cadastro de Pessoa',
+                  'Endereço',
                   style: TextStyle(
                     color: Colors.white,
                     fontSize: 23,
@@ -113,7 +101,7 @@ class _PersonRegistrationState1 extends State<PersonRegistration> {
           ),
           const SizedBox(height: 16),
           const Text(
-            'Preencha os dados de identificação para continuar o cadastro.',
+            'Informe os dados de localização para entrega ou correspondência.',
             style: TextStyle(color: Colors.white, fontSize: 14, height: 1.4),
           ),
         ],
@@ -121,7 +109,7 @@ class _PersonRegistrationState1 extends State<PersonRegistration> {
     );
   }
 
-  // Card de Formulário baseado no ProductForm
+  // Formulário dentro do Card baseado no ProductForm
   Widget _buildFormCard() {
     return Card(
       color: Colors.white,
@@ -136,62 +124,79 @@ class _PersonRegistrationState1 extends State<PersonRegistration> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               _buildSectionTitle(
-                "Informações Pessoais",
-                "Complete os campos de identificação abaixo.",
+                "Localização",
+                "Campos obrigatórios estão marcados com *",
               ),
               const SizedBox(height: 30),
 
-              _buildFieldLabel(Icons.person_outline, "Nome completo *"),
+              _buildFieldLabel(Icons.pin_drop_outlined, "CEP"),
+              const SizedBox(height: 10),
+              TextFormField(
+                decoration: customInputDecoration(hintText: "12312312"),
+              ),
+
+              const SizedBox(height: 20),
+
+              _buildFieldLabel(Icons.home_outlined, "Rua"),
+              const SizedBox(height: 10),
+              TextFormField(
+                decoration: customInputDecoration(hintText: "Rua exemplo"),
+              ),
+
+              const SizedBox(height: 20),
+
+              _buildFieldLabel(Icons.location_city, "Cidade *"),
               const SizedBox(height: 10),
               TextFormField(
                 decoration: customInputDecoration(
-                  hintText: "Digite o nome aqui",
+                  hintText: "Informe sua cidade",
                 ),
-                validator: (value) =>
-                    (value == null || value.isEmpty) ? 'Informe o nome' : null,
-              ),
-
-              const SizedBox(height: 25),
-
-              _buildFieldLabel(
-                Icons.badge_outlined,
-                _isPessoaFisica ? "CPF *" : "CNPJ *",
-              ),
-              const SizedBox(height: 10),
-              TextFormField(
-                key: ValueKey(_isPessoaFisica),
-                decoration: customInputDecoration(hintText: "000.000.000-00"),
-                keyboardType: TextInputType.number,
-                inputFormatters: [
-                  _isPessoaFisica ? _cpfFormatter : _cnpjFormatter,
-                ],
                 validator: (value) => (value == null || value.isEmpty)
-                    ? 'Informe o documento'
+                    ? 'Informe a cidade'
                     : null,
               ),
 
-              const SizedBox(height: 10),
+              const SizedBox(height: 20),
 
-              // Checkbox estilizado como o do ProductForm
-              CheckboxListTile(
-                value: _isPessoaFisica,
-                onChanged: (value) =>
-                    setState(() => _isPessoaFisica = value ?? false),
-                activeColor: Colors.green,
-                contentPadding: EdgeInsets.zero,
-                controlAffinity: ListTileControlAffinity.leading,
-                title: Text(
-                  "Pessoa física?",
-                  style: TextStyle(
-                    color: colors.onSurface,
-                    fontWeight: FontWeight.w500,
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        _buildFieldLabel(Icons.numbers, "Número"),
+                        const SizedBox(height: 10),
+                        TextFormField(
+                          keyboardType: TextInputType.text,
+                          decoration: customInputDecoration(
+                            hintText: "Ex: 123A",
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
-                ),
+                  const SizedBox(width: 14),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        _buildFieldLabel(Icons.flag_outlined, "UF *"),
+                        const SizedBox(height: 10),
+                        TextFormField(
+                          decoration: customInputDecoration(hintText: "PR"),
+                          validator: (value) => (value == null || value.isEmpty)
+                              ? 'Informe a UF'
+                              : null,
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
               ),
 
               const SizedBox(height: 30),
 
-              // Botão Próximo (Estilo botão Salvar do ProductForm)
               SizedBox(
                 width: double.infinity,
                 child: ElevatedButton.icon(
@@ -201,7 +206,7 @@ class _PersonRegistrationState1 extends State<PersonRegistration> {
                         context,
                         MaterialPageRoute(
                           builder: (context) =>
-                              const PersonRegistrationAddress(),
+                              const PersonRegistrationContact(),
                         ),
                       );
                     }
