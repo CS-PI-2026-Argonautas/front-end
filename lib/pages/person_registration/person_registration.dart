@@ -6,6 +6,7 @@ import 'package:frontend/style/inputDecorationStyles.dart';
 import 'package:frontend/widgets/action_buttons.dart';
 import 'package:mask_text_input_formatter/mask_text_input_formatter.dart';
 import 'package:frontend/pages/dashboard.dart';
+import 'package:frontend/widgets/header.dart' as header;
 
 class PersonRegistration extends StatefulWidget {
   const PersonRegistration({super.key});
@@ -36,6 +37,10 @@ class _PersonRegistrationState1 extends State<PersonRegistration> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: colors.surface,
+      appBar: header.Header(
+        onBack: () { Navigator.pop(context);}, 
+        title: 'Cadastro de clientes',
+      ),
       body: SafeArea(
         child: SingleChildScrollView(
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 18),
@@ -44,7 +49,6 @@ class _PersonRegistrationState1 extends State<PersonRegistration> {
               constraints: const BoxConstraints(maxWidth: 650),
               child: Column(
                 children: [
-                  _buildHeader(),
                   const SizedBox(height: 20),
                   _buildFormCard(),
                 ],
