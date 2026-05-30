@@ -4,6 +4,7 @@ import 'package:frontend/style/ColorScheme.dart' as custom_colors;
 import 'package:frontend/pages/person_registration/person_registration_address.dart';
 import 'package:frontend/style/inputDecorationStyles.dart';
 import 'package:frontend/widgets/action_buttons.dart';
+import 'package:frontend/widgets/form_field_label.dart';
 import 'package:mask_text_input_formatter/mask_text_input_formatter.dart';
 import 'package:frontend/pages/dashboard.dart';
 import 'package:frontend/widgets/header.dart' as header;
@@ -82,7 +83,7 @@ class _PersonRegistrationState1 extends State<PersonRegistration> {
               ),
               const SizedBox(height: 30),
 
-              _buildFieldLabel(Icons.person_outline, "Nome completo *"),
+              FormFieldLabel(icon: Icons.person_outline, label: "Nome completo *"),
               const SizedBox(height: 10),
               TextFormField(
                 decoration: customInputDecoration(
@@ -95,7 +96,7 @@ class _PersonRegistrationState1 extends State<PersonRegistration> {
               const SizedBox(height: 25),
 
               //Endereço
-              _buildFieldLabel(Icons.home_outlined, "Endereço"),
+              FormFieldLabel(icon: Icons.home_outlined, label: "Endereço"),
               const SizedBox(height: 10),
               InkWell(
                 onTap: () async {
@@ -136,9 +137,9 @@ class _PersonRegistrationState1 extends State<PersonRegistration> {
               const SizedBox(height: 25),
 
               //Contato
-              _buildFieldLabel(
-                Icons.phone_android_outlined,
-                "Informações de contato",
+              FormFieldLabel(
+                icon: Icons.phone_android_outlined,
+                label: "Informações de contato",
               ),
               const SizedBox(height: 10),
               InkWell(
@@ -178,9 +179,9 @@ class _PersonRegistrationState1 extends State<PersonRegistration> {
 
               const SizedBox(height: 10),
 
-              _buildFieldLabel(
-                Icons.badge_outlined,
-                _isPessoaFisica ? "CPF *" : "CNPJ *",
+              FormFieldLabel(
+                icon: Icons.badge_outlined,
+                label: _isPessoaFisica ? "CPF *" : "CNPJ *",
               ),
               const SizedBox(height: 10),
               TextFormField(
@@ -243,20 +244,5 @@ class _PersonRegistrationState1 extends State<PersonRegistration> {
 
   
 
-  Widget _buildFieldLabel(IconData icon, String label) {
-    return Row(
-      children: [
-        Icon(icon, size: 20, color: colors.primary),
-        const SizedBox(width: 8),
-        Text(
-          label,
-          style: TextStyle(
-            fontWeight: FontWeight.bold,
-            fontSize: 16,
-            color: colors.onSurface,
-          ),
-        ),
-      ],
-    );
-  }
+  
 }

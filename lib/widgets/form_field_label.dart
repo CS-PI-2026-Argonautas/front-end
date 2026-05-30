@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:frontend/style/ColorScheme.dart' as custom_colors;
 
-class BuildFieldLabel extends StatelessWidget {
+class FormFieldLabel extends StatelessWidget {
   final IconData icon;
   final String label;
 
-  const BuildFieldLabel({super.key, required this.icon, required this.label});
+  const FormFieldLabel({super.key, required this.icon, required this.label});
 
   @override
   Widget build(BuildContext context) {
