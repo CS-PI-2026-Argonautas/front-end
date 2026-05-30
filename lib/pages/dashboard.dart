@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:frontend/pages/authentication.dart';
 import 'package:frontend/pages/product_registration/product_registration.dart';
 import 'package:frontend/style/ColorScheme.dart' as custom_Colors;
-import 'package:frontend/widgets/bottom_bar.dart';
+import 'package:frontend/widgets/menu.dart';
 import 'package:frontend/pages/stand_in_page.dart';
 
 class Dashboard extends StatelessWidget {
@@ -60,32 +59,35 @@ class Dashboard extends StatelessWidget {
       backgroundColor: colors.surface,
 
       appBar: AppBar(
-        automaticallyImplyLeading: false,
         backgroundColor: colors.primary,
         foregroundColor: colors.onPrimary,
         title: Row(
           children: [
-            IconButton(
-              onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => const Authentication(),
-                  ),
-                );
-              },
-              style: IconButton.styleFrom(
-                backgroundColor: Colors.white,
-                foregroundColor: colors.primary,
-              ),
-              icon: const Icon(Icons.arrow_back),
-            ),
-
             const SizedBox(width: 12),
 
             Image.asset('lib/assets/icons/LogoEmpresa.png', width: 200),
           ],
         ),
+      ),
+      endDrawer: Menu(
+        currentIndex: 3,
+
+        onTap: (index) {
+          Navigator.pop(context);
+
+          if (index == 1) {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => const ProductRegistration(),
+              ),
+            );
+          }
+
+          if (index == 0 || index == 2) {
+            irParaStandIn();
+          }
+        },
       ),
 
       body: Center(
@@ -128,24 +130,6 @@ class Dashboard extends StatelessWidget {
             ],
           ),
         ),
-      ),
-
-      bottomNavigationBar: AppBottomNavBar(
-        currentIndex: 3,
-        onTap: (index) {
-          if (index == 1) {
-            Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (context) => const ProductRegistration(),
-              ),
-            );
-          }
-
-          if (index == 0 || index == 2) {
-            irParaStandIn();
-          }
-        },
       ),
     );
   }
