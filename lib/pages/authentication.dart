@@ -14,7 +14,7 @@ class Authentication extends StatefulWidget {
 class _AuthenticationState extends State<Authentication> {
   bool _isPasswordVisible = false;
   final colors = custom_colors.colorScheme;
-  final _formKey = GlobalKey<FormState>(); //chaves para usar no form
+  final _formKey = GlobalKey<FormState>();
 
   @override
   Widget build(BuildContext context) {
@@ -158,28 +158,7 @@ class _AuthenticationState extends State<Authentication> {
                   ),
                 ),
                 const SizedBox(height: 30),
-                GestureDetector(
-                  onTap: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => const PersonRegistration(),
-                      ),
-                    );
-                  },
-                  child: const Text.rich(
-                    TextSpan(
-                      style: TextStyle(color: Colors.white, fontSize: 16),
-                      children: [
-                        TextSpan(text: "Não tem uma conta? "),
-                        TextSpan(
-                          text: "Cadastre-se",
-                          style: TextStyle(fontWeight: FontWeight.bold),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
+                
               ],
             ),
           ),
