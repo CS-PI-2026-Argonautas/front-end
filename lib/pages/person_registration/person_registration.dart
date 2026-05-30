@@ -8,8 +8,8 @@ import 'package:frontend/widgets/form_card.dart';
 import 'package:frontend/widgets/form_field_label.dart';
 import 'package:mask_text_input_formatter/mask_text_input_formatter.dart';
 import 'package:frontend/pages/dashboard.dart';
-import 'package:frontend/widgets/header.dart' as header;
-import 'package:frontend/widgets/form_section_tile.dart' as FormSectionTitle;
+import 'package:frontend/widgets/header.dart';
+import 'package:frontend/widgets/form_section_tile.dart';
 
 class PersonRegistration extends StatefulWidget {
   const PersonRegistration({super.key});
@@ -40,9 +40,10 @@ class _PersonRegistrationState1 extends State<PersonRegistration> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: colors.surface,
-      appBar: header.Header(
-        onBack: () { Navigator.pop(context);}, 
-        title: 'Cadastro de clientes',
+      //widget da appbar
+      appBar: Header(
+        onBack: () { Navigator.pop(context);}, //voltar para a tela anterior
+        title: 'Cadastro de clientes', //titulo personalizado
       ),
       body: SafeArea(
         child: SingleChildScrollView(
@@ -71,19 +72,24 @@ class _PersonRegistrationState1 extends State<PersonRegistration> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          FormSectionTitle.FormSectionTile(
-            title: "Informações Pessoais",
-            subtitle: "Complete os campos de identificação abaixo.",
+          FormSectionTile(
+            title: "Informações Pessoais", //titulo do card
+            subtitle: "Complete os campos de identificação abaixo.", //subtitulo do card
           ),
           const SizedBox(height: 30),
 
-          FormFieldLabel(icon: Icons.person_outline, label: "Nome completo *"),
+          FormFieldLabel(
+            icon: Icons.person_outline, //icone do campo do input
+            label: "Nome completo *" //label do campo do input
+            ),
           const SizedBox(height: 10),
           TextFormField(
-            decoration: customInputDecoration(hintText: "Digite o nome aqui"),
+            decoration: customInputDecoration(
+              hintText: "Digite o nome aqui"//placeholder do campo do input
+              ),
             validator: (value) {
               if (value == null || value.isEmpty) {
-                return 'Informe o nome';
+                return 'Informe o nome'; //mensagem de erro
               }
               return null;
             },
@@ -91,8 +97,13 @@ class _PersonRegistrationState1 extends State<PersonRegistration> {
 
           const SizedBox(height: 25),
 
-          FormFieldLabel(icon: Icons.home_outlined, label: "Endereço"),
+          FormFieldLabel(
+            icon: Icons.home_outlined, 
+            label: "Endereço"
+            ),
+
           const SizedBox(height: 10),
+
           InkWell(
             onTap: () async {
               final resultadoEndereco = await Navigator.push<String>(
@@ -110,7 +121,9 @@ class _PersonRegistrationState1 extends State<PersonRegistration> {
             },
             borderRadius: BorderRadius.circular(14),
             child: InputDecorator(
-              decoration: customInputDecoration(hintText: "Nome ou telefone extra").copyWith(
+              decoration: customInputDecoration(
+                hintText: "Nome ou telefone extra"
+                ).copyWith(
                 hintText: "Inserir o endereço",
                 suffixIcon: Icon(
                   Icons.add_box_outlined,
@@ -213,13 +226,14 @@ class _PersonRegistrationState1 extends State<PersonRegistration> {
 
           const SizedBox(height: 30),
 
+          //botões de ação
           ActionButtons(
             formKey: _formKey,
             colors: colors,
-            onCancel: () {
+            onCancel: () { //botão de cancelar
               Navigator.of(context).popUntil((route) => route.isFirst);
             },
-            onCadastrar: () {
+            onCadastrar: () { //botão de cadastrar
               if (_formKey.currentState!.validate()) {
                 Navigator.pushAndRemoveUntil(
                   context,
@@ -235,9 +249,6 @@ class _PersonRegistrationState1 extends State<PersonRegistration> {
       ),
     );
   }
+
 }
-
-  
-
-  
 

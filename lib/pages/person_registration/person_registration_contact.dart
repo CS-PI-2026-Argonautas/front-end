@@ -5,7 +5,7 @@ import 'package:frontend/style/inputDecorationStyles.dart';
 import 'package:frontend/widgets/action_buttons.dart';
 import 'package:frontend/widgets/form_card.dart';
 import 'package:frontend/widgets/form_field_label.dart';
-import 'package:frontend/widgets/form_section_tile.dart' as FormSectionTitle;
+import 'package:frontend/widgets/form_section_tile.dart';
 import 'package:frontend/widgets/header.dart';
 import 'package:mask_text_input_formatter/mask_text_input_formatter.dart';
 
@@ -66,13 +66,16 @@ class _PersonRegistration3State extends State<PersonRegistrationContact> {
     child: Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        FormSectionTitle.FormSectionTile(
+        FormSectionTile(
           title: "Canais de Comunicação",
           subtitle: "Informe pelo menos um contato principal.",
         ),
         const SizedBox(height: 30),
 
-        FormFieldLabel(icon: Icons.phone_outlined, label: "Telefone principal *"),
+        FormFieldLabel(
+          icon: Icons.phone_outlined, 
+          label: "Telefone principal *"
+          ),
         const SizedBox(height: 10),
         TextFormField(
           controller: _telefoneController,
@@ -88,7 +91,10 @@ class _PersonRegistration3State extends State<PersonRegistrationContact> {
 
         const SizedBox(height: 20),
 
-        FormFieldLabel(icon: Icons.email_outlined, label: "Email *"),
+        FormFieldLabel(
+          icon: Icons.email_outlined, 
+          label: "Email *"
+          ),
         const SizedBox(height: 10),
         TextFormField(
           controller: _emailController,
@@ -106,7 +112,10 @@ class _PersonRegistration3State extends State<PersonRegistrationContact> {
 
         const SizedBox(height: 20),
 
-        FormFieldLabel(icon: Icons.contact_phone_outlined, label: "Contato adicional"),
+        FormFieldLabel(
+          icon: Icons.contact_phone_outlined, 
+          label: "Contato adicional"
+          ),
         const SizedBox(height: 10),
         TextFormField(
           controller: _contatoAdicionalController,
@@ -116,7 +125,10 @@ class _PersonRegistration3State extends State<PersonRegistrationContact> {
 
         const SizedBox(height: 20),
 
-        FormFieldLabel(icon: Icons.comment_outlined, label: "Observações"),
+        FormFieldLabel(
+          icon: Icons.comment_outlined, 
+          label: "Observações"
+          ),
         const SizedBox(height: 10),
         TextFormField(
           controller: _observacoesController,

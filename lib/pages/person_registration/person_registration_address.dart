@@ -7,7 +7,7 @@ import 'package:frontend/pages/dashboard.dart';
 import 'package:frontend/widgets/action_buttons.dart';
 import 'package:frontend/widgets/form_card.dart';
 import 'package:frontend/widgets/form_field_label.dart';
-import 'package:frontend/widgets/form_section_tile.dart' as FormSectionTitle;
+import 'package:frontend/widgets/form_section_tile.dart';
 import 'package:frontend/widgets/header.dart';
 
 class PersonRegistrationAddress extends StatefulWidget {
@@ -54,7 +54,6 @@ class _PersonRegistration2State extends State<PersonRegistrationAddress> {
     );
   }
 
-  // Cabeçalho estilizado baseado no ProductHeader[cite: 14]
  
 
   Widget _buildFormCard() {
@@ -63,14 +62,19 @@ class _PersonRegistration2State extends State<PersonRegistrationAddress> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          FormSectionTitle.FormSectionTile(
+          FormSectionTile(
             title: "Localização",
             subtitle: "Campos obrigatórios estão marcados com *",
           ),
           const SizedBox(height: 30),
 
-          FormFieldLabel(icon: Icons.pin_drop_outlined, label: "CEP *"),
+          FormFieldLabel(
+            icon: Icons.pin_drop_outlined,
+            label: "CEP *"
+          ),
+
           const SizedBox(height: 10),
+
           TextFormField(
             controller: _cepController,
             decoration: customInputDecoration(hintText: "12345-678"),
@@ -82,7 +86,10 @@ class _PersonRegistration2State extends State<PersonRegistrationAddress> {
 
           const SizedBox(height: 20),
 
-          FormFieldLabel(icon: Icons.home_outlined, label: "Rua *"),
+          FormFieldLabel(
+            icon: Icons.home_outlined,
+            label: "Rua *"
+          ),
           const SizedBox(height: 10),
           TextFormField(
             controller: _ruaController,
@@ -94,7 +101,10 @@ class _PersonRegistration2State extends State<PersonRegistrationAddress> {
 
           const SizedBox(height: 20),
 
-          FormFieldLabel(icon: Icons.location_city_outlined, label: "Cidade *"),
+          FormFieldLabel(
+            icon: Icons.location_city_outlined,
+            label: "Cidade *"
+          ),
           const SizedBox(height: 10),
           TextFormField(
             controller: _cidadeController,
@@ -114,7 +124,10 @@ class _PersonRegistration2State extends State<PersonRegistrationAddress> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    FormFieldLabel(icon: Icons.numbers_outlined, label: "Número"),
+                    FormFieldLabel(
+                      icon: Icons.numbers_outlined,
+                      label: "Número"
+                    ),
                     const SizedBox(height: 10),
                     TextFormField(
                       controller: _numeroController,
@@ -130,7 +143,10 @@ class _PersonRegistration2State extends State<PersonRegistrationAddress> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    FormFieldLabel(icon: Icons.flag_outlined, label: "UF *"),
+                    FormFieldLabel(
+                      icon: Icons.flag_outlined,
+                      label: "UF *"
+                    ),
                     const SizedBox(height: 10),
                     TextFormField(
                       controller: _ufController,
