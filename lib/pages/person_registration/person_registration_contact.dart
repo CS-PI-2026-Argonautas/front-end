@@ -3,6 +3,7 @@ import 'package:frontend/pages/dashboard.dart';
 import 'package:frontend/style/ColorScheme.dart' as custom_colors;
 import 'package:frontend/style/inputDecorationStyles.dart';
 import 'package:frontend/widgets/action_buttons.dart';
+import 'package:frontend/widgets/form_section_tile.dart' as FormSectionTitle;
 import 'package:frontend/widgets/header.dart';
 import 'package:mask_text_input_formatter/mask_text_input_formatter.dart';
 
@@ -70,9 +71,9 @@ class _PersonRegistration3State extends State<PersonRegistrationContact> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              _buildSectionTitle(
-                "Canais de Comunicação",
-                "Informe pelo menos um contato principal.",
+              FormSectionTitle.FormSectionTile(
+                title: "Canais de Comunicação",
+                subtitle: "Informe pelo menos um contato principal.",
               ),
               const SizedBox(height: 30),
 
@@ -166,27 +167,6 @@ class _PersonRegistration3State extends State<PersonRegistrationContact> {
           ),
         ),
       ),
-    );
-  }
-
-  Widget _buildSectionTitle(String title, String subtitle) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          title,
-          style: TextStyle(
-            fontSize: 20,
-            fontWeight: FontWeight.bold,
-            color: colors.onSurface,
-          ),
-        ),
-        const SizedBox(height: 6),
-        Text(
-          subtitle,
-          style: TextStyle(fontSize: 14, color: colors.onSurfaceVariant),
-        ),
-      ],
     );
   }
 

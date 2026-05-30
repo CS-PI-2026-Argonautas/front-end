@@ -5,6 +5,7 @@ import 'package:frontend/style/ColorScheme.dart' as custom_colors;
 import 'package:frontend/style/inputDecorationStyles.dart';
 import 'package:frontend/pages/dashboard.dart';
 import 'package:frontend/widgets/action_buttons.dart';
+import 'package:frontend/widgets/form_section_tile.dart' as FormSectionTitle;
 import 'package:frontend/widgets/header.dart';
 
 class PersonRegistrationAddress extends StatefulWidget {
@@ -67,9 +68,9 @@ class _PersonRegistration2State extends State<PersonRegistrationAddress> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              _buildSectionTitle(
-                "Localização",
-                "Campos obrigatórios estão marcados com *",
+              FormSectionTitle.FormSectionTile(
+                title: "Localização",
+                subtitle: "Campos obrigatórios estão marcados com *",
               ),
               const SizedBox(height: 30),
 
@@ -174,26 +175,6 @@ class _PersonRegistration2State extends State<PersonRegistrationAddress> {
     );
   }
 
-  Widget _buildSectionTitle(String title, String subtitle) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          title,
-          style: TextStyle(
-            fontSize: 20,
-            fontWeight: FontWeight.bold,
-            color: colors.onSurface,
-          ),
-        ),
-        const SizedBox(height: 6),
-        Text(
-          subtitle,
-          style: TextStyle(fontSize: 14, color: colors.onSurfaceVariant),
-        ),
-      ],
-    );
-  }
 
   Widget _buildFieldLabel(IconData icon, String label) {
     return Row(

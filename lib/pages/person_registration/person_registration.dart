@@ -7,6 +7,7 @@ import 'package:frontend/widgets/action_buttons.dart';
 import 'package:mask_text_input_formatter/mask_text_input_formatter.dart';
 import 'package:frontend/pages/dashboard.dart';
 import 'package:frontend/widgets/header.dart' as header;
+import 'package:frontend/widgets/form_section_tile.dart' as FormSectionTitle;
 
 class PersonRegistration extends StatefulWidget {
   const PersonRegistration({super.key});
@@ -75,9 +76,9 @@ class _PersonRegistrationState1 extends State<PersonRegistration> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              _buildSectionTitle(
-                "Informações Pessoais",
-                "Complete os campos de identificação abaixo.",
+             FormSectionTitle.FormSectionTile(
+                title: "Informações Pessoais",
+                subtitle: "Complete os campos de identificação abaixo.",
               ),
               const SizedBox(height: 30),
 
@@ -240,26 +241,7 @@ class _PersonRegistrationState1 extends State<PersonRegistration> {
     );
   }
 
-  Widget _buildSectionTitle(String title, String subtitle) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          title,
-          style: TextStyle(
-            fontSize: 20,
-            fontWeight: FontWeight.bold,
-            color: colors.onSurface,
-          ),
-        ),
-        const SizedBox(height: 6),
-        Text(
-          subtitle,
-          style: TextStyle(fontSize: 14, color: colors.onSurfaceVariant),
-        ),
-      ],
-    );
-  }
+  
 
   Widget _buildFieldLabel(IconData icon, String label) {
     return Row(
