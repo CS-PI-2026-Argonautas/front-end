@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:frontend/pages/dashboard.dart';
 import 'package:frontend/pages/product_registration/product_form.dart';
-import 'package:frontend/pages/product_registration/product_header.dart';
+import 'package:frontend/widgets/header.dart';
 import 'package:frontend/style/ColorScheme.dart' as custom_colors;
 
 class ProductRegistration extends StatelessWidget {
@@ -14,10 +14,10 @@ class ProductRegistration extends StatelessWidget {
     return Scaffold(
       backgroundColor: colors.surface,
 
-      appBar: ProductHeader(
+      appBar: Header(
         onBack: () {
           Navigator.pop(context);
-        },
+        }, title: 'Cadastro de produtos',
       ),
 
       body: GestureDetector(
