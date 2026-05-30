@@ -5,6 +5,7 @@ import 'package:frontend/style/ColorScheme.dart' as custom_colors;
 import 'package:frontend/style/inputDecorationStyles.dart';
 import 'package:frontend/pages/dashboard.dart';
 import 'package:frontend/widgets/action_buttons.dart';
+import 'package:frontend/widgets/form_field_label.dart';
 import 'package:frontend/widgets/form_section_tile.dart' as FormSectionTitle;
 import 'package:frontend/widgets/header.dart';
 
@@ -74,7 +75,7 @@ class _PersonRegistration2State extends State<PersonRegistrationAddress> {
               ),
               const SizedBox(height: 30),
 
-              _buildFieldLabel(Icons.pin_drop_outlined, "CEP"),
+              FormFieldLabel(icon: Icons.pin_drop_outlined, label: "CEP"),
               const SizedBox(height: 10),
               TextFormField(
                 controller: _cepController,
@@ -83,7 +84,7 @@ class _PersonRegistration2State extends State<PersonRegistrationAddress> {
 
               const SizedBox(height: 20),
 
-              _buildFieldLabel(Icons.home_outlined, "Rua"),
+              FormFieldLabel(icon: Icons.home_outlined, label: "Rua"),
               const SizedBox(height: 10),
               TextFormField(
                 controller: _ruaController,
@@ -92,7 +93,7 @@ class _PersonRegistration2State extends State<PersonRegistrationAddress> {
 
               const SizedBox(height: 20),
 
-              _buildFieldLabel(Icons.location_city, "Cidade *"),
+              FormFieldLabel(icon: Icons.location_city, label: "Cidade *"),
               const SizedBox(height: 10),
               TextFormField(
                 controller: _cidadeController,
@@ -113,7 +114,7 @@ class _PersonRegistration2State extends State<PersonRegistrationAddress> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        _buildFieldLabel(Icons.numbers, "Número"),
+                        FormFieldLabel(icon: Icons.numbers, label: "Número"),
                         const SizedBox(height: 10),
                         TextFormField(
                           controller: _numeroController,
@@ -130,7 +131,7 @@ class _PersonRegistration2State extends State<PersonRegistrationAddress> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        _buildFieldLabel(Icons.flag_outlined, "UF *"),
+                        FormFieldLabel(icon: Icons.flag_outlined, label: "UF *"),
                         const SizedBox(height: 10),
                         TextFormField(
                           controller: _ufController,
@@ -176,20 +177,4 @@ class _PersonRegistration2State extends State<PersonRegistrationAddress> {
   }
 
 
-  Widget _buildFieldLabel(IconData icon, String label) {
-    return Row(
-      children: [
-        Icon(icon, size: 20, color: colors.primary),
-        const SizedBox(width: 8),
-        Text(
-          label,
-          style: TextStyle(
-            fontWeight: FontWeight.bold,
-            fontSize: 16,
-            color: colors.onSurface,
-          ),
-        ),
-      ],
-    );
-  }
 }

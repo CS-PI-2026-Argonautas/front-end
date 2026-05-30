@@ -3,6 +3,7 @@ import 'package:frontend/pages/dashboard.dart';
 import 'package:frontend/style/ColorScheme.dart' as custom_colors;
 import 'package:frontend/style/inputDecorationStyles.dart';
 import 'package:frontend/widgets/action_buttons.dart';
+import 'package:frontend/widgets/form_field_label.dart';
 import 'package:frontend/widgets/form_section_tile.dart' as FormSectionTitle;
 import 'package:frontend/widgets/header.dart';
 import 'package:mask_text_input_formatter/mask_text_input_formatter.dart';
@@ -77,7 +78,7 @@ class _PersonRegistration3State extends State<PersonRegistrationContact> {
               ),
               const SizedBox(height: 30),
 
-              _buildFieldLabel(Icons.phone_outlined, "Telefone principal *"),
+              FormFieldLabel(icon: Icons.phone_outlined, label: "Telefone principal *"),
               const SizedBox(height: 10),
               TextFormField(
                 controller: _telefoneController, // VINCULADO AQUI
@@ -93,7 +94,7 @@ class _PersonRegistration3State extends State<PersonRegistrationContact> {
 
               const SizedBox(height: 20),
 
-              _buildFieldLabel(Icons.email_outlined, "Email *"),
+              FormFieldLabel(icon: Icons.email_outlined, label: "Email *"),
               const SizedBox(height: 10),
               TextFormField(
                 controller: _emailController, // VINCULADO AQUI
@@ -109,9 +110,9 @@ class _PersonRegistration3State extends State<PersonRegistrationContact> {
                 },
               ),
 
-               _buildFieldLabel(
-                Icons.contact_phone_outlined,
-                "Contato adicional",
+               FormFieldLabel(
+                icon: Icons.contact_phone_outlined,
+                label: "Contato adicional",
               ),
               const SizedBox(height: 10),
               TextFormField(
@@ -131,7 +132,7 @@ class _PersonRegistration3State extends State<PersonRegistrationContact> {
 
               const SizedBox(height: 20),
 
-              _buildFieldLabel(Icons.comment_outlined, "Observações"),
+              FormFieldLabel(icon: Icons.comment_outlined, label: "Observações"),
               const SizedBox(height: 10),
               TextFormField(
                 controller: _observacoesController,
@@ -170,20 +171,5 @@ class _PersonRegistration3State extends State<PersonRegistrationContact> {
     );
   }
 
-  Widget _buildFieldLabel(IconData icon, String label) {
-    return Row(
-      children: [
-        Icon(icon, size: 20, color: colors.primary),
-        const SizedBox(width: 8),
-        Text(
-          label,
-          style: TextStyle(
-            fontWeight: FontWeight.bold,
-            fontSize: 16,
-            color: colors.onSurface,
-          ),
-        ),
-      ],
-    );
-  }
+  
 }
