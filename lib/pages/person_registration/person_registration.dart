@@ -4,6 +4,7 @@ import 'package:frontend/style/ColorScheme.dart' as custom_colors;
 import 'package:frontend/pages/person_registration/person_registration_address.dart';
 import 'package:frontend/style/inputDecorationStyles.dart';
 import 'package:frontend/widgets/action_buttons.dart';
+import 'package:frontend/widgets/form_card.dart';
 import 'package:frontend/widgets/form_field_label.dart';
 import 'package:mask_text_input_formatter/mask_text_input_formatter.dart';
 import 'package:frontend/pages/dashboard.dart';
@@ -65,184 +66,178 @@ class _PersonRegistrationState1 extends State<PersonRegistration> {
   
 
   Widget _buildFormCard() {
-    return Card(
-      color: Colors.white,
-      elevation: 8,
-      shadowColor: Colors.black26,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(22)),
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 28),
-        child: Form(
-          key: _formKey,
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-             FormSectionTitle.FormSectionTile(
-                title: "Informações Pessoais",
-                subtitle: "Complete os campos de identificação abaixo.",
-              ),
-              const SizedBox(height: 30),
-
-              FormFieldLabel(icon: Icons.person_outline, label: "Nome completo *"),
-              const SizedBox(height: 10),
-              TextFormField(
-                decoration: customInputDecoration(
-                  hintText: "Digite o nome aqui",
-                ),
-                validator: (value) =>
-                    (value == null || value.isEmpty) ? 'Informe o nome' : null,
-              ),
-
-              const SizedBox(height: 25),
-
-              //Endereço
-              FormFieldLabel(icon: Icons.home_outlined, label: "Endereço"),
-              const SizedBox(height: 10),
-              InkWell(
-                onTap: () async {
-                  final resultadoEndereco = await Navigator.push<String>(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => const PersonRegistrationAddress(),
-                    ),
-                  );
-
-                  if (resultadoEndereco != null && mounted) {
-                    setState(() {
-                      _enderecoController.text = resultadoEndereco;
-                    });
-                  }
-                },
-                borderRadius: BorderRadius.circular(14),
-                child: InputDecorator(
-                  decoration:
-                      customInputDecoration(
-                        hintText: "Inserir o endereço",
-                      ).copyWith(
-                        suffixIcon: Icon(
-                          Icons.add_box_outlined,
-                          color: colors.secondary,
-                        ),
-                      ),
-                  isEmpty: _enderecoController.text.isEmpty,
-                  child: Text(
-                    _enderecoController.text,
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                    style: TextStyle(fontSize: 16, color: colors.onSurface),
-                  ),
-                ),
-              ),
-
-              const SizedBox(height: 25),
-
-              //Contato
-              FormFieldLabel(
-                icon: Icons.phone_android_outlined,
-                label: "Informações de contato",
-              ),
-              const SizedBox(height: 10),
-              InkWell(
-                onTap: () async {
-                  final resultadoContato = await Navigator.push<String>(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => const PersonRegistrationContact(),
-                    ),
-                  );
-
-                  if (resultadoContato != null && mounted) {
-                    setState(() {
-                      _contatoController.text = resultadoContato;
-                    });
-                  }
-                },
-                borderRadius: BorderRadius.circular(14),
-                child: InputDecorator(
-                  decoration: customInputDecoration(hintText: "Inserir contato")
-                      .copyWith(
-                        suffixIcon: Icon(
-                          Icons.add_box_outlined,
-                          color: colors.secondary,
-                        ),
-                      ),
-                  isEmpty: _contatoController.text.isEmpty,
-                  child: Text(
-                    _contatoController.text,
-                    maxLines: 1,
-                    overflow:
-                        TextOverflow.ellipsis,
-                    style: TextStyle(fontSize: 16, color: colors.onSurface),
-                  ),
-                ),
-              ),
-
-              const SizedBox(height: 10),
-
-              FormFieldLabel(
-                icon: Icons.badge_outlined,
-                label: _isPessoaFisica ? "CPF *" : "CNPJ *",
-              ),
-              const SizedBox(height: 10),
-              TextFormField(
-                key: ValueKey(_isPessoaFisica),
-                decoration: customInputDecoration(hintText: "000.000.000-00"),
-                keyboardType: TextInputType.number,
-                inputFormatters: [
-                  _isPessoaFisica ? _cpfFormatter : _cnpjFormatter,
-                ],
-                validator: (value) => (value == null || value.isEmpty)
-                    ? 'Informe o documento'
-                    : null,
-              ),
-
-              const SizedBox(height: 10),
-
-              CheckboxListTile(
-                value: _isPessoaFisica,
-                onChanged: (value) =>
-                    setState(() => _isPessoaFisica = value ?? false),
-                activeColor: Colors.green,
-                contentPadding: EdgeInsets.zero,
-                controlAffinity: ListTileControlAffinity.leading,
-                title: Text(
-                  "Pessoa física?",
-                  style: TextStyle(
-                    color: colors.onSurface,
-                    fontWeight: FontWeight.w500,
-                  ),
-                ),
-              ),
-
-              const SizedBox(height: 30),
-
-              // Botões de ação
-              ActionButtons(
-                formKey: _formKey,
-                colors: colors,
-                onCancel: () {
-                  Navigator.of(context).popUntil((route) => route.isFirst);
-                },
-                onCadastrar: () {
-                  if (_formKey.currentState!.validate()) {
-                    Navigator.pushAndRemoveUntil(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => const Dashboard(),
-                      ),
-                      (route) => false,
-                    );
-                  }
-                },
-              ),
-            ],
+    return FormCard( 
+      formKey: _formKey,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          FormSectionTitle.FormSectionTile(
+            title: "Informações Pessoais",
+            subtitle: "Complete os campos de identificação abaixo.",
           ),
-        ),
+          const SizedBox(height: 30),
+
+          FormFieldLabel(icon: Icons.person_outline, label: "Nome completo *"),
+          const SizedBox(height: 10),
+          TextFormField(
+            decoration: customInputDecoration(hintText: "Digite o nome aqui"),
+            validator: (value) {
+              if (value == null || value.isEmpty) {
+                return 'Informe o nome';
+              }
+              return null;
+            },
+          ),
+
+          const SizedBox(height: 25),
+
+          FormFieldLabel(icon: Icons.home_outlined, label: "Endereço"),
+          const SizedBox(height: 10),
+          InkWell(
+            onTap: () async {
+              final resultadoEndereco = await Navigator.push<String>(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => const PersonRegistrationAddress(),
+                ),
+              );
+
+              if (resultadoEndereco != null && mounted) {
+                setState(() {
+                  _enderecoController.text = resultadoEndereco;
+                });
+              }
+            },
+            borderRadius: BorderRadius.circular(14),
+            child: InputDecorator(
+              decoration: customInputDecoration(hintText: "Nome ou telefone extra").copyWith(
+                hintText: "Inserir o endereço",
+                suffixIcon: Icon(
+                  Icons.add_box_outlined,
+                  color: colors.secondary,
+                ),
+              ),
+              isEmpty: _enderecoController.text.isEmpty,
+              child: Text(
+                _enderecoController.text,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: TextStyle(
+                  fontSize: 16,
+                  color: colors.onSurface,
+                ),
+              ),
+            ),
+          ),
+
+          const SizedBox(height: 25),
+
+          FormFieldLabel(icon: Icons.phone_android_outlined, label: "Informações de contato"),
+          const SizedBox(height: 10),
+          InkWell(
+            onTap: () async {
+              final resultadoContato = await Navigator.push<String>(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => const PersonRegistrationContact(),
+                ),
+              );
+
+              if (resultadoContato != null && mounted) {
+                setState(() {
+                  _contatoController.text = resultadoContato;
+                });
+              }
+            },
+            borderRadius: BorderRadius.circular(14),
+            child: InputDecorator(
+              decoration: customInputDecoration(hintText: "Nome ou telefone extra").copyWith(
+                hintText: "Inserir contato",
+                suffixIcon: Icon(
+                  Icons.add_box_outlined,
+                  color: colors.secondary,
+                ),
+              ),
+              isEmpty: _contatoController.text.isEmpty,
+              child: Text(
+                _contatoController.text,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: TextStyle(
+                  fontSize: 16,
+                  color: colors.onSurface,
+                ),
+              ),
+            ),
+          ),
+
+          const SizedBox(height: 10),
+
+          FormFieldLabel(
+            icon: Icons.badge_outlined,
+            label: _isPessoaFisica ? "CPF *" : "CNPJ *",
+          ),
+          const SizedBox(height: 10),
+          TextFormField(
+            key: ValueKey(_isPessoaFisica),
+            decoration: customInputDecoration(hintText: "000.000.000-00"),
+            keyboardType: TextInputType.number,
+            inputFormatters: [
+              _isPessoaFisica ? _cpfFormatter : _cnpjFormatter,
+            ],
+            validator: (value) {
+              if (value == null || value.isEmpty) {
+                return 'Informe o documento';
+              }
+              return null;
+            },
+          ),
+
+          const SizedBox(height: 10),
+
+          CheckboxListTile(
+            value: _isPessoaFisica,
+            onChanged: (value) =>
+                setState(() => _isPessoaFisica = value ?? false),
+            activeColor: Colors.green,
+            contentPadding: EdgeInsets.zero,
+            controlAffinity: ListTileControlAffinity.leading,
+            title: Text(
+              "Pessoa física?",
+              style: TextStyle(
+                color: colors.onSurface,
+                fontWeight: FontWeight.w500,
+              ),
+            ),
+          ),
+
+          const SizedBox(height: 30),
+
+          ActionButtons(
+            formKey: _formKey,
+            colors: colors,
+            onCancel: () {
+              Navigator.of(context).popUntil((route) => route.isFirst);
+            },
+            onCadastrar: () {
+              if (_formKey.currentState!.validate()) {
+                Navigator.pushAndRemoveUntil(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => const Dashboard(),
+                  ),
+                  (route) => false,
+                );
+              }
+            },
+          ),
+        ],
       ),
     );
   }
-
-  
-
-  
 }
+
+  
+
+  
+
