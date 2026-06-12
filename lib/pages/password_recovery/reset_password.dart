@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:frontend/pages/authentication.dart';
 import 'package:frontend/services/password_recovery/code_service.dart';
 import 'package:frontend/utils/password_recovery/validators.dart';
@@ -142,6 +143,11 @@ class _ResetPasswordState extends State<ResetPassword> {
               _buildFieldLabel(Icons.dialpad, "Código de Verificação"),
               const SizedBox(height: 10),
               TextFormField(
+                keyboardType: TextInputType.number,
+                inputFormatters: [
+                  FilteringTextInputFormatter.digitsOnly,
+                  LengthLimitingTextInputFormatter(6),
+                ],
                 controller: codeController,
                 autovalidateMode: validateCodeField ? AutovalidateMode.onUserInteraction : AutovalidateMode.disabled,
                 validator: (value) {
@@ -174,7 +180,7 @@ class _ResetPasswordState extends State<ResetPassword> {
                 controller: passwordController,
                 enabled: isCodeValid == true,
                 validator: (value) => passwordValidator(value),
-                hintText: 'Mínimo 6 caracteres...',
+                hintText: 'Mínimo 8 caracteres...',
                 sensitiveContent: true,
                 isPassword: true,
               ),
@@ -194,8 +200,9 @@ class _ResetPasswordState extends State<ResetPassword> {
 
               const SizedBox(height: 40),
 
-              Center(
-                child: TextButton(
+              SizedBox(
+                width: double.infinity,
+                child: ElevatedButton.icon(
                   onPressed: canResend ? () {
                     _clearFields();
                     widget.codeService.createCode();
@@ -213,10 +220,15 @@ class _ResetPasswordState extends State<ResetPassword> {
                       );
                     Future.delayed(const Duration(seconds: 30), () => setState(() => canResend = true));
                   } : null,
-                  child: Text(
-                    canResend ? "Reenviar código por e-mail" : "Aguarde para reenviar...",
-                    style: TextStyle(color: canResend ? colors.primary : Colors.grey),
+                  style: ElevatedButton.styleFrom(
+                    elevation: 3,
+                    backgroundColor: colors.primary,
+                    foregroundColor: colors.onSecondary,
+                    padding: const EdgeInsets.symmetric(vertical: 18),
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
                   ),
+                  icon: Icon(canResend ? Icons.refresh : Icons.square),
+                  label: Text(canResend ? "Reenviar código por e-mail" : "Aguarde para reenviar...", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
                 ),
               ),
 
