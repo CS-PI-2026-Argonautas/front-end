@@ -1,5 +1,8 @@
 import 'package:frontend/pages/authentication.dart';
 import 'package:flutter/material.dart';
+import 'package:frontend/pages/dashboard.dart';
+import 'package:frontend/pages/password_recovery/user_information.dart';
+import 'package:frontend/pages/password_setting/password_setting.dart';
 
 void main() {
   runApp(const MyApp());
@@ -14,7 +17,7 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       title: 'Recuperação de Senha',
       debugShowCheckedModeBanner: false,
-      home: const Authentication(),
+      home: UserInformation(),
       theme: ThemeData(
         colorScheme: ColorScheme.fromSeed(
           seedColor: Color.fromARGB(255, 64, 126, 207),

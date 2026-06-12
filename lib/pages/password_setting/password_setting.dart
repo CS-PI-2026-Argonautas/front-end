@@ -29,6 +29,8 @@ class _PasswordSettingState extends State<PasswordSetting>{
               child: _TipText(),
             ),
             SizedBox(),
+
+            
             SizedBox(),
             SizedBox(),
             SizedBox(),
