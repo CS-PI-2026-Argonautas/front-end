@@ -57,14 +57,22 @@ class Dashboard extends StatelessWidget {
 
     return Scaffold(
       backgroundColor: colors.surface,
-
       appBar: AppBar(
         backgroundColor: colors.primary,
         foregroundColor: colors.onPrimary,
+
+        automaticallyImplyLeading: false,
+
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back),
+          onPressed: () {
+            Navigator.pop(context);
+          },
+        ),
+
         title: Row(
           children: [
-            const SizedBox(width: 12),
-
+            const SizedBox(width: 4),
             Image.asset('lib/assets/icons/LogoEmpresa.png', width: 200),
           ],
         ),
