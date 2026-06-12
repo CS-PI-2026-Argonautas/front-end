@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:frontend/pages/authentication.dart';
+import 'package:frontend/pages/person_registration/person_registration.dart';
 import 'package:frontend/pages/product_registration/product_registration.dart';
 import 'package:frontend/style/ColorScheme.dart' as custom_Colors;
 import 'package:frontend/widgets/bottom_bar.dart';
@@ -16,6 +17,13 @@ class Dashboard extends StatelessWidget {
       Navigator.push(
         context,
         MaterialPageRoute(builder: (context) => const StandInPage()),
+      );
+    }
+
+    void irParaCadastroPessoa() {
+      Navigator.push(
+        context,
+        MaterialPageRoute(builder: (context) => const PersonRegistration()),
       );
     }
 
@@ -41,7 +49,7 @@ class Dashboard extends StatelessWidget {
       }
 
       return OutlinedButton.icon(
-        onPressed: irParaStandIn,
+        onPressed: irParaCadastroPessoa,
         icon: Icon(icone),
         label: Text(texto),
         style: OutlinedButton.styleFrom(
@@ -133,6 +141,7 @@ class Dashboard extends StatelessWidget {
       bottomNavigationBar: AppBottomNavBar(
         currentIndex: 3,
         onTap: (index) {
+
           if (index == 1) {
             Navigator.push(
               context,
@@ -142,7 +151,8 @@ class Dashboard extends StatelessWidget {
             );
           }
 
-          if (index == 0 || index == 2) {
+
+          if (index == 2 || index == 3 || index == 0) {
             irParaStandIn();
           }
         },
