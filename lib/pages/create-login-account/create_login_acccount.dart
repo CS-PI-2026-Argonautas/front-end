@@ -11,6 +11,8 @@ class CreateLoginAccount extends StatefulWidget {
 class CreateLoginAccountState extends State<CreateLoginAccount> {
   final colors = custom_colors.colorScheme;
 
+final _formKey = GlobalKey<FormState>();
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -35,6 +37,7 @@ class CreateLoginAccountState extends State<CreateLoginAccount> {
               child: Padding(
                 padding: const EdgeInsets.all(24.0),
                 child: Form(
+                  key: _formKey,
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
@@ -62,6 +65,7 @@ class CreateLoginAccountState extends State<CreateLoginAccount> {
                               color: Colors.grey,
                               width: 1.0,
                             ),
+                            
                           ),
                           fillColor: colors.surface,
                           hintText: 'Nome',
@@ -77,6 +81,12 @@ class CreateLoginAccountState extends State<CreateLoginAccount> {
                             ),
                           ),
                         ),
+                        validator: (value) {
+                          if (value == null || value.trim().isEmpty) {
+                            return 'preencha o campo  ';
+                          }
+                          return null;
+                        },
                       ),
                       SizedBox(height: 40),
 
@@ -118,6 +128,12 @@ class CreateLoginAccountState extends State<CreateLoginAccount> {
                             ),
                           ),
                         ),
+                          validator: (value) {
+                          if (value == null || value.trim().isEmpty) {
+                            return 'preencha o campo';
+                          }
+                          return null;
+                        },
                       ),
                       SizedBox(height: 40),
                       Row(
@@ -132,8 +148,11 @@ class CreateLoginAccountState extends State<CreateLoginAccount> {
                               color: colors.onSurface,
                             ),
                           ),
+                          
+                          
                         ],
                       ),
+                      
                       SizedBox(height: 5),
 
                       TextFormField(
@@ -152,12 +171,19 @@ class CreateLoginAccountState extends State<CreateLoginAccount> {
                               width: 2.0,
                             ),
                           ),
+                          fillColor: colors.surface,
                           hintText: 'nome.sobrenome',
                           filled: true,
                           border: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(14),
                           ),
                         ),
+                        validator: (value) {
+                          if (value == null || value.trim().isEmpty) {
+                            return 'preencha o campo';
+                          }
+                          return null;
+                        },
                       ),
 
                       SizedBox(height: 40),
@@ -199,11 +225,19 @@ class CreateLoginAccountState extends State<CreateLoginAccount> {
                             borderRadius: BorderRadius.circular(14),
                           ),
                         ),
+                        validator: (value) {
+                          if (value == null || value.trim().isEmpty) {
+                            return 'preencha o campo';
+                          }
+                          return null;
+                        },
                       ),
                       SizedBox(height: 40),
                       Center(
                         child: ElevatedButton.icon(
-                          onPressed: () {},
+                          onPressed: () {
+                            if (_formKey.currentState!.validate());
+                          },
                           style: ElevatedButton.styleFrom(
                             elevation: 3,
                             backgroundColor: colors.primary,
