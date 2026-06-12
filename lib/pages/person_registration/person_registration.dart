@@ -97,89 +97,93 @@ class _PersonRegistrationState1 extends State<PersonRegistration> {
 
           const SizedBox(height: 25),
 
-          FormFieldLabel(
-            icon: Icons.home_outlined, 
-            label: "Endereço"
-            ),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              const FormFieldLabel(icon: Icons.home_outlined, label: "Endereço"),
+              const SizedBox(width: 6), 
+              IconButton(
+                padding: EdgeInsets.zero,
+                constraints: const BoxConstraints(),
+                icon: Icon(Icons.add_box_rounded, color: colors.secondary, size: 26),
+                onPressed: () async {
+                  final resultadoEndereco = await Navigator.push<String>(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => const PersonRegistrationAddress(),
+                    ),
+                  );
+
+                  if (resultadoEndereco != null && mounted) {
+                    setState(() {
+                      _enderecoController.text = resultadoEndereco;
+                    });
+                  }
+                },
+              ),
+            ],
+          ),
 
           const SizedBox(height: 10),
 
-          InkWell(
-            onTap: () async {
-              final resultadoEndereco = await Navigator.push<String>(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => const PersonRegistrationAddress(),
-                ),
-              );
-
-              if (resultadoEndereco != null && mounted) {
-                setState(() {
-                  _enderecoController.text = resultadoEndereco;
-                });
-              }
-            },
-            borderRadius: BorderRadius.circular(14),
-            child: InputDecorator(
-              decoration: customInputDecoration(
-                hintText: "Nome ou telefone extra"
-                ).copyWith(
-                hintText: "Inserir o endereço",
-                suffixIcon: Icon(
-                  Icons.add_box_outlined,
-                  color: colors.secondary,
-                ),
-              ),
-              isEmpty: _enderecoController.text.isEmpty,
-              child: Text(
-                _enderecoController.text,
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-                style: TextStyle(
-                  fontSize: 16,
-                  color: colors.onSurface,
-                ),
+          InputDecorator(
+            decoration: customInputDecoration(
+              hintText: _enderecoController.text.isEmpty ? "Cidade Exemplo - PR, Rua Exemplo, 123" : null,
+            ),
+            child: Text(
+              _enderecoController.text.isEmpty ? "Cidade Exemplo - PR, Rua Exemplo, 123" : _enderecoController.text,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: TextStyle(
+                fontSize: 16,
+                color: _enderecoController.text.isEmpty ? colors.onSurfaceVariant.withOpacity(0.6) : colors.onSurface,
               ),
             ),
           ),
 
           const SizedBox(height: 25),
 
-          FormFieldLabel(icon: Icons.phone_android_outlined, label: "Informações de contato"),
-          const SizedBox(height: 10),
-          InkWell(
-            onTap: () async {
-              final resultadoContato = await Navigator.push<String>(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => const PersonRegistrationContact(),
-                ),
-              );
-
-              if (resultadoContato != null && mounted) {
-                setState(() {
-                  _contatoController.text = resultadoContato;
-                });
-              }
-            },
-            borderRadius: BorderRadius.circular(14),
-            child: InputDecorator(
-              decoration: customInputDecoration(hintText: "Nome ou telefone extra").copyWith(
-                hintText: "Inserir contato",
-                suffixIcon: Icon(
-                  Icons.add_box_outlined,
-                  color: colors.secondary,
-                ),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              const FormFieldLabel(
+                icon: Icons.phone_android_outlined,
+                label: "Informações de contato",
               ),
-              isEmpty: _contatoController.text.isEmpty,
-              child: Text(
-                _contatoController.text,
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-                style: TextStyle(
-                  fontSize: 16,
-                  color: colors.onSurface,
-                ),
+              const SizedBox(width: 6), 
+              IconButton(
+                padding: EdgeInsets.zero,
+                constraints: const BoxConstraints(),
+                icon: Icon(Icons.add_box_rounded, color: colors.secondary, size: 26),
+                onPressed: () async {
+                  final resultadoContato = await Navigator.push<String>(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => const PersonRegistrationContact(),
+                    ),
+                  );
+
+                  if (resultadoContato != null && mounted) {
+                    setState(() {
+                      _contatoController.text = resultadoContato;
+                    });
+                  }
+                },
+              ),
+            ],
+          ),
+          const SizedBox(height: 10),
+          InputDecorator(
+            decoration: customInputDecoration(
+              hintText: _contatoController.text.isEmpty ? "(22) 99999-9999 / email@exemplo.com" : null,
+            ),
+            child: Text(
+              _contatoController.text.isEmpty ? "(22) 99999-9999 / email@exemplo.com" : _contatoController.text,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: TextStyle(
+                fontSize: 16,
+                color: _contatoController.text.isEmpty ? colors.onSurfaceVariant.withOpacity(0.6) : colors.onSurface,
               ),
             ),
           ),
@@ -231,7 +235,10 @@ class _PersonRegistrationState1 extends State<PersonRegistration> {
             formKey: _formKey,
             colors: colors,
             onCancel: () { //botão de cancelar
-              Navigator.of(context).popUntil((route) => route.isFirst);
+              MaterialPageRoute(
+                    builder: (context) => const Dashboard(),
+                  );
+                  Navigator.pop(context);
             },
             onCadastrar: () { //botão de cadastrar
               if (_formKey.currentState!.validate()) {
