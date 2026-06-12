@@ -74,7 +74,7 @@ class _PersonAlterationState extends State<PersonAlteration> {
         children: [
           FormSectionTile(
             title: "Informações Pessoais", //titulo do card
-            subtitle: "Complete os campos de identificação abaixo.", //subtitulo do card
+            subtitle: "Complete os campos abaixo.", //subtitulo do card
           ),
           const SizedBox(height: 30),
 
@@ -85,7 +85,7 @@ class _PersonAlterationState extends State<PersonAlteration> {
           const SizedBox(height: 10),
           TextFormField(
             decoration: customInputDecoration(
-              hintText: "Digite o nome aqui"//placeholder do campo do input
+              hintText: "Edite o nome aqui"//placeholder do campo do input
               ),
             validator: (value) {
               if (value == null || value.isEmpty) {
@@ -124,7 +124,7 @@ class _PersonAlterationState extends State<PersonAlteration> {
               decoration: customInputDecoration(
                 hintText: "Nome ou telefone extra"
                 ).copyWith(
-                hintText: "Inserir o endereço",
+                hintText: "Edite o endereço",
                 suffixIcon: Icon(
                   Icons.add_box_outlined,
                   color: colors.secondary,
@@ -165,7 +165,7 @@ class _PersonAlterationState extends State<PersonAlteration> {
             borderRadius: BorderRadius.circular(14),
             child: InputDecorator(
               decoration: customInputDecoration(hintText: "Nome ou telefone extra").copyWith(
-                hintText: "Inserir contato",
+                hintText: "Edite o contato",
                 suffixIcon: Icon(
                   Icons.add_box_outlined,
                   color: colors.secondary,
