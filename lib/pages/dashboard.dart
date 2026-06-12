@@ -63,13 +63,6 @@ class Dashboard extends StatelessWidget {
 
         automaticallyImplyLeading: false,
 
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back),
-          onPressed: () {
-            Navigator.pop(context);
-          },
-        ),
-
         title: Row(
           children: [
             const SizedBox(width: 4),

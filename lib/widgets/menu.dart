@@ -1,5 +1,7 @@
+import 'dart:io';
+import 'package:frontend/pages/authentication.dart';
 import 'package:flutter/material.dart';
-import 'package:frontend/style/ColorScheme.dart' as custom_Colors;
+import 'package:frontend/style/ColorScheme.dart' as custom_colors;
 
 class Menu extends StatelessWidget {
   final int currentIndex;
@@ -9,7 +11,7 @@ class Menu extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final colors = custom_Colors.colorScheme;
+    final colors = custom_colors.colorScheme;
 
     return Drawer(
       width: 200,
@@ -22,49 +24,80 @@ class Menu extends StatelessWidget {
           ),
         ),
         child: SafeArea(
-          child: ListView(
-            padding: EdgeInsets.zero,
+          child: Column(
             children: [
-              Padding(
-                padding: const EdgeInsets.all(16.0),
-                child: Text(
-                  "Menu",
+              Expanded(
+                child: ListView(
+                  padding: EdgeInsets.zero,
+                  children: [
+                    Padding(
+                      padding: const EdgeInsets.all(16.0),
+                      child: Text(
+                        "Menu",
+                        style: TextStyle(
+                          color: colors.onTertiary,
+                          fontSize: 24,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ),
+
+                    const Divider(color: Colors.white24),
+
+                    _buildDrawerItem(
+                      icon: Icons.person_outline,
+                      label: "Clientes",
+                      index: 0,
+                      colors: colors,
+                    ),
+
+                    _buildDrawerItem(
+                      icon: Icons.scale_outlined,
+                      label: "Peças",
+                      index: 1,
+                      colors: colors,
+                    ),
+
+                    _buildDrawerItem(
+                      icon: Icons.assignment_outlined,
+                      label: "Ordens",
+                      index: 2,
+                      colors: colors,
+                    ),
+
+                    _buildDrawerItem(
+                      icon: Icons.home_outlined,
+                      label: "Início",
+                      index: 3,
+                      colors: colors,
+                    ),
+                  ],
+                ),
+              ),
+
+              const Divider(color: Colors.white24),
+
+              ListTile(
+                leading: Icon(Icons.logout, color: colors.onTertiary),
+                title: Text(
+                  "Sair",
                   style: TextStyle(
                     color: colors.onTertiary,
-                    fontSize: 24,
                     fontWeight: FontWeight.bold,
                   ),
                 ),
-              ),
-              const Divider(color: Colors.white24),
-
-              _buildDrawerItem(
-                icon: Icons.person_outline,
-                label: "Clientes",
-                index: 0,
-                colors: colors,
-              ),
-
-              _buildDrawerItem(
-                icon: Icons.scale_outlined,
-                label: "Peças",
-                index: 1,
-                colors: colors,
+                onTap: () {
+                  Navigator.pushAndRemoveUntil(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => const Authentication(),
+                    ),
+                    (route) => false,
+                  );
+                },
               ),
 
-              _buildDrawerItem(
-                icon: Icons.assignment_outlined,
-                label: "Ordens",
-                index: 2,
-                colors: colors,
-              ),
-
-              _buildDrawerItem(
-                icon: Icons.home_outlined,
-                label: "Início",
-                index: 3,
-                colors: colors,
-              ),
+              const SizedBox(height: 10),
             ],
           ),
         ),
@@ -76,19 +109,23 @@ class Menu extends StatelessWidget {
     required IconData icon,
     required String label,
     required int index,
-    required dynamic colors,
+    required ColorScheme colors,
   }) {
     final isSelected = currentIndex == index;
 
     return ListTile(
       leading: Icon(
         icon,
-        color: isSelected ? colors.onTertiary : Colors.white.withOpacity(0.8),
+        color: isSelected
+            ? colors.onTertiary
+            : Colors.white.withValues(alpha: 0.8),
       ),
       title: Text(
         label,
         style: TextStyle(
-          color: isSelected ? colors.onTertiary : Colors.white.withOpacity(0.8),
+          color: isSelected
+              ? colors.onTertiary
+              : Colors.white.withValues(alpha: 0.8),
           fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
         ),
       ),
