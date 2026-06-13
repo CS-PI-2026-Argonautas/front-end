@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:frontend/style/ColorScheme.dart' as custom_colors;
+import 'package:frontend/widgets/form_section_tile.dart';
 import 'package:frontend/widgets/header.dart';
 
 class CreateLoginAccount extends StatefulWidget {
@@ -24,6 +25,7 @@ final _formKey = GlobalKey<FormState>();
         title: 'Cadastrar Usuário',
       ),
       body: SafeArea(
+        
         child: Center(
           child: SingleChildScrollView(
           child: Padding(
@@ -40,8 +42,15 @@ final _formKey = GlobalKey<FormState>();
                 child: Form(
                   key: _formKey,
                   child: Column(
+
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
+                      FormSectionTile(
+                        title: "Cadastro do seu Usuário",
+                        subtitle: "Informe seus dados pessoais.",
+                      ),
+                      
+                      const SizedBox(height: 30),
                       Row(
                         children: [
                           Icon(Icons.badge, size: 20, color: colors.primary),
