@@ -13,6 +13,7 @@ import 'package:frontend/widgets/form_section_tile.dart';
 
 class PersonRegistration extends StatefulWidget {
   const PersonRegistration({super.key});
+  
 
   @override
   State<PersonRegistration> createState() => _PersonRegistrationState1();
@@ -35,6 +36,9 @@ class _PersonRegistrationState1 extends State<PersonRegistration> {
 
   final _enderecoController = TextEditingController();
   final _contatoController = TextEditingController();
+
+  String? _erroEndereco;
+  String? _erroContato;
 
   @override
   Widget build(BuildContext context) {
@@ -97,94 +101,142 @@ class _PersonRegistrationState1 extends State<PersonRegistration> {
 
           const SizedBox(height: 25),
 
-          FormFieldLabel(
-            icon: Icons.home_outlined, 
-            label: "Endereço"
-            ),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      const FormFieldLabel(
+                        icon: Icons.home_outlined,
+                        label: "Endereço",
+                      ),
+                      const SizedBox(width: 6),
+                      IconButton(
+                        padding: EdgeInsets.zero,
+                        constraints: const BoxConstraints(),
+                        icon: Icon(Icons.add_box_rounded,
+                            color: colors.secondary, size: 26),
+                        onPressed: () async {
+                          final resultadoEndereco = await Navigator.push<String>(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) =>
+                                  const PersonRegistrationAddress(),
+                            ),
+                          );
 
-          const SizedBox(height: 10),
+                          if (resultadoEndereco != null && mounted) {
+                            setState(() {
+                              _enderecoController.text = resultadoEndereco;
+                            });
+                          }
+                        },
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 10),
+                  FormField<String>(
+                    key: ValueKey('endereco_${_enderecoController.text}'), // Prefixo exclusivo
+                    initialValue: _enderecoController.text,
+                    validator: (value) {
+                      if (_enderecoController.text.isEmpty) {
+                        return 'Informe o endereço';
+                      }
+                      return null;
+                    },
+                    builder: (FormFieldState<String> state) {
+                      return InputDecorator(
+                        decoration: customInputDecoration(
+                          hintText: _enderecoController.text.isEmpty
+                              ? "Inserir o endereço"
+                              : null,
+                        ).copyWith(
+                          errorText: state.errorText,
+                        ),
+                        child: Text(
+                          _enderecoController.text.isEmpty
+                              ? "Inserir o endereço"
+                              : _enderecoController.text,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: TextStyle(
+                            fontSize: 16,
+                            color: _enderecoController.text.isEmpty
+                                ? colors.onSurfaceVariant.withOpacity(0.6)
+                                : colors.onSurface,
+                          ),
+                        ),
+                      );
+                    },
+                  ),
+                  const SizedBox(height: 20),
 
-          InkWell(
-            onTap: () async {
-              final resultadoEndereco = await Navigator.push<String>(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => const PersonRegistrationAddress(),
-                ),
-              );
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      const FormFieldLabel(
+                        icon: Icons.phone_android_outlined,
+                        label: "Informações de contato",
+                      ),
+                      const SizedBox(width: 6),
+                      IconButton(
+                        padding: EdgeInsets.zero,
+                        constraints: const BoxConstraints(),
+                        icon: Icon(Icons.add_box_rounded,
+                            color: colors.secondary, size: 26),
+                        onPressed: () async {
+                          final resultadoContato = await Navigator.push<String>(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) =>
+                                  const PersonRegistrationContact(),
+                            ),
+                          );
 
-              if (resultadoEndereco != null && mounted) {
-                setState(() {
-                  _enderecoController.text = resultadoEndereco;
-                });
-              }
-            },
-            borderRadius: BorderRadius.circular(14),
-            child: InputDecorator(
-              decoration: customInputDecoration(
-                hintText: "Nome ou telefone extra"
-                ).copyWith(
-                hintText: "Inserir o endereço",
-                suffixIcon: Icon(
-                  Icons.add_box_outlined,
-                  color: colors.secondary,
-                ),
-              ),
-              isEmpty: _enderecoController.text.isEmpty,
-              child: Text(
-                _enderecoController.text,
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-                style: TextStyle(
-                  fontSize: 16,
-                  color: colors.onSurface,
-                ),
-              ),
-            ),
-          ),
+                          if (resultadoContato != null && mounted) {
+                            setState(() {
+                              _contatoController.text = resultadoContato;
+                            });
+                          }
+                        },
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 10),
+                  FormField<String>(
+                    key: ValueKey('contato_${_contatoController.text}'),
+                    initialValue: _contatoController.text,
+                    validator: (value) {
+                      if (_contatoController.text.isEmpty) {
+                        return 'Informe as informações de contato';
+                      }
+                      return null;
+                    },
+                    builder: (FormFieldState<String> state) {
+                      return InputDecorator(
+                        decoration: customInputDecoration(
+                          hintText: _contatoController.text.isEmpty
+                              ? "Inserir contato"
+                              : null,
+                        ).copyWith(
+                          errorText: state.errorText,
+                        ),
+                        child: Text(
+                          _contatoController.text.isEmpty
+                              ? "Inserir contato"
+                              : _contatoController.text,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: TextStyle(
+                            fontSize: 16,
+                            color: _contatoController.text.isEmpty
+                                ? colors.onSurfaceVariant.withOpacity(0.6)
+                                : colors.onSurface,
+                          ),
+                        ),
+                      );
+                    },
+                  ),
 
-          const SizedBox(height: 25),
-
-          FormFieldLabel(icon: Icons.phone_android_outlined, label: "Informações de contato"),
-          const SizedBox(height: 10),
-          InkWell(
-            onTap: () async {
-              final resultadoContato = await Navigator.push<String>(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => const PersonRegistrationContact(),
-                ),
-              );
-
-              if (resultadoContato != null && mounted) {
-                setState(() {
-                  _contatoController.text = resultadoContato;
-                });
-              }
-            },
-            borderRadius: BorderRadius.circular(14),
-            child: InputDecorator(
-              decoration: customInputDecoration(hintText: "Nome ou telefone extra").copyWith(
-                hintText: "Inserir contato",
-                suffixIcon: Icon(
-                  Icons.add_box_outlined,
-                  color: colors.secondary,
-                ),
-              ),
-              isEmpty: _contatoController.text.isEmpty,
-              child: Text(
-                _contatoController.text,
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-                style: TextStyle(
-                  fontSize: 16,
-                  color: colors.onSurface,
-                ),
-              ),
-            ),
-          ),
-
-          const SizedBox(height: 10),
+           const SizedBox(height: 10),
 
           FormFieldLabel(
             icon: Icons.badge_outlined,
@@ -206,8 +258,6 @@ class _PersonRegistrationState1 extends State<PersonRegistration> {
             },
           ),
 
-          const SizedBox(height: 10),
-
           CheckboxListTile(
             value: _isPessoaFisica,
             onChanged: (value) =>
@@ -224,6 +274,7 @@ class _PersonRegistrationState1 extends State<PersonRegistration> {
             ),
           ),
 
+
           const SizedBox(height: 30),
 
           //botões de ação
@@ -231,9 +282,13 @@ class _PersonRegistrationState1 extends State<PersonRegistration> {
             formKey: _formKey,
             colors: colors,
             onCancel: () { //botão de cancelar
-              Navigator.of(context).popUntil((route) => route.isFirst);
+              MaterialPageRoute(
+                    builder: (context) => const Dashboard(),
+                  );
+                  Navigator.pop(context);
             },
-            onCadastrar: () { //botão de cadastrar
+            onCadastrar: () { // botão de cadastrar
+              // Agora o validate() cuida de todos os TextFormFields e dos novos FormFields de uma vez só!
               if (_formKey.currentState!.validate()) {
                 Navigator.pushAndRemoveUntil(
                   context,
