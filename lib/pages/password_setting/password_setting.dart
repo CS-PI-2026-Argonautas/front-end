@@ -70,7 +70,7 @@ class _PasswordSettingState extends State<PasswordSetting>{
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              _buildSectionTitle("Cadastrar Senha", "${tip.tipText} \n \n ${tip.exampleText}"),
+              _buildSectionTitle("Cadastrar Senha", "${tip.tip}${tip.tipText} \n \n ${tip.example}${tip.exampleText}"),
 
               const SizedBox(height: 30),
 
@@ -79,7 +79,19 @@ class _PasswordSettingState extends State<PasswordSetting>{
               TypingTextField(
                 controller: passwordController,
                 enabled: true,
-                validator: (value) => passwordValidator(value),
+                validator: (value) {
+                  final error  = passwordValidator(value);
+
+                  if(error != null){
+                    return error;
+                  }
+
+                  if(value == tip.exampleText){
+                    return "A senha não pode ser igual à frase-passe de exemplo";
+                  }
+
+                  return null;
+                },
                 hintText: 'Mínimo 8 caracteres...',
                 sensitiveContent: true,
                 isPassword: true,
@@ -92,7 +104,19 @@ class _PasswordSettingState extends State<PasswordSetting>{
               TypingTextField(
                 controller: confirmPasswordController,
                 enabled: true,
-                validator: (value) => confirmPassword(value, passwordController.text),
+                validator: (value) {
+                  final error  = passwordValidator(value);
+
+                  if(error != null){
+                    return error;
+                  }
+
+                  if(value == tip.exampleText){
+                    return "A senha não pode ser igual à frase-passe de exemplo";
+                  }
+
+                  return null;
+                },
                 hintText: 'Confirme sua senha...',
                 sensitiveContent: true,
                 isPassword: true,
@@ -122,7 +146,7 @@ class _PasswordSettingState extends State<PasswordSetting>{
                 width: double.infinity,
                 child: ElevatedButton.icon(
                   onPressed: () {
-                    if (_formKey.currentState!.validate()) {
+                    if (_formKey.currentState!.validate() && passwordController != tip.exampleText) {
                       print('senha cadastrada');
                       
                       ScaffoldMessenger.of(context).showSnackBar(
@@ -217,8 +241,10 @@ class _PasswordSettingState extends State<PasswordSetting>{
 
 class _TipText extends StatelessWidget{
 
-  String tipText = 'Dica: use frases-passe ao invés de senhas padrões para criar credenciais mais longas, seguras e fáceis de memorizar.';
-  String exampleText = 'Exemplo: cachorro#morde#pelucia@23';
+  String tip = "Dica: ";
+  String example = "Exemplo: ";
+  String tipText = 'use frases-passe ao invés de senhas padrões para criar credenciais mais longas, seguras e fáceis de memorizar.';
+  String exampleText = 'teste123';
   @override
   Widget build(BuildContext context) {
     return _TipText();
