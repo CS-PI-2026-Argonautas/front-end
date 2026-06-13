@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:frontend/style/ColorScheme.dart' as custom_colors;
 
-class ProductHeader extends StatelessWidget implements PreferredSizeWidget {
+class Header extends StatelessWidget implements PreferredSizeWidget {
   final VoidCallback onBack;
+  final String title;
 
-  const ProductHeader({super.key, required this.onBack});
+  const Header({super.key, required this.onBack, required this.title});
 
   @override
   Size get preferredSize => const Size.fromHeight(90);
@@ -18,6 +19,16 @@ class ProductHeader extends StatelessWidget implements PreferredSizeWidget {
       backgroundColor: Colors.transparent,
       elevation: 0,
       automaticallyImplyLeading: false,
+      title: Center(
+        child: Text(
+            title,
+                style: const TextStyle(
+                  color: Colors.white,
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+      ),
 
       flexibleSpace: Container(
         padding: const EdgeInsets.all(18),
@@ -53,14 +64,7 @@ class ProductHeader extends StatelessWidget implements PreferredSizeWidget {
                 ),
               ),
 
-              const Text(
-                "Cadastro de produtos",
-                style: TextStyle(
-                  color: Colors.white,
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
+              
             ],
           ),
         ),

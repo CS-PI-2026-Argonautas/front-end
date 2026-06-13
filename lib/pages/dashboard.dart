@@ -3,6 +3,7 @@ import 'package:frontend/pages/product_registration/product_registration.dart';
 import 'package:frontend/style/ColorScheme.dart' as custom_Colors;
 import 'package:frontend/widgets/menu.dart';
 import 'package:frontend/pages/stand_in_page.dart';
+import 'package:frontend/pages/person_registration/person_registration.dart';
 
 class Dashboard extends StatelessWidget {
   const Dashboard({super.key});
@@ -15,6 +16,13 @@ class Dashboard extends StatelessWidget {
       Navigator.push(
         context,
         MaterialPageRoute(builder: (context) => const StandInPage()),
+      );
+    }
+
+    void irParaCadastroPessoa() {
+      Navigator.push(
+        context,
+        MaterialPageRoute(builder: (context) => const PersonRegistration()),
       );
     }
 
@@ -40,7 +48,7 @@ class Dashboard extends StatelessWidget {
       }
 
       return OutlinedButton.icon(
-        onPressed: irParaStandIn,
+        onPressed: irParaCadastroPessoa,
         icon: Icon(icone),
         label: Text(texto),
         style: OutlinedButton.styleFrom(
