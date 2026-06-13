@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:frontend/pages/create-login-account/create_login_acccount.dart';
+import 'package:frontend/pages/authentication.dart';
 
 void main() {
   runApp(MyApp());
@@ -11,7 +11,7 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       home: Scaffold(
-        body: CreateLoginAccount(),
+        body: Authentication(),
       ),
     );
   }
