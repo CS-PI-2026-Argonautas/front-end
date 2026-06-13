@@ -16,7 +16,7 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       title: 'Recuperação de Senha',
       debugShowCheckedModeBanner: false,
-      home: UserInformation(),
+      home: PasswordSetting(),
       theme: ThemeData(
         colorScheme: ColorScheme.fromSeed(
           seedColor: Color.fromARGB(255, 64, 126, 207),
