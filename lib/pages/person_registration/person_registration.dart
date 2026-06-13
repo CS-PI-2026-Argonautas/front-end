@@ -102,6 +102,7 @@ class _PersonRegistrationState1 extends State<PersonRegistration> {
           const SizedBox(height: 25),
 
                   Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       const FormFieldLabel(
                         icon: Icons.home_outlined,
@@ -111,8 +112,8 @@ class _PersonRegistrationState1 extends State<PersonRegistration> {
                       IconButton(
                         padding: EdgeInsets.zero,
                         constraints: const BoxConstraints(),
-                        icon: Icon(Icons.add_box_outlined,
-                            color: colors.secondary, size: 22),
+                        icon: Icon(Icons.add_box_rounded,
+                            color: colors.secondary, size: 26),
                         onPressed: () async {
                           final resultadoEndereco = await Navigator.push<String>(
                             context,
@@ -169,6 +170,7 @@ class _PersonRegistrationState1 extends State<PersonRegistration> {
                   const SizedBox(height: 20),
 
                   Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       const FormFieldLabel(
                         icon: Icons.phone_android_outlined,
@@ -178,8 +180,8 @@ class _PersonRegistrationState1 extends State<PersonRegistration> {
                       IconButton(
                         padding: EdgeInsets.zero,
                         constraints: const BoxConstraints(),
-                        icon: Icon(Icons.add_box_outlined,
-                            color: colors.secondary, size: 22),
+                        icon: Icon(Icons.add_box_rounded,
+                            color: colors.secondary, size: 26),
                         onPressed: () async {
                           final resultadoContato = await Navigator.push<String>(
                             context,
