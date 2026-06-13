@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:frontend/pages/authentication.dart';
+import 'package:frontend/pages/password_recovery/user_information.dart';
 import 'package:frontend/services/password_recovery/code_service.dart';
 import 'package:frontend/utils/password_recovery/validators.dart';
+import 'package:frontend/widgets/header.dart';
 import 'package:frontend/widgets/password_recovery/typing_text_field.dart';
 import 'package:frontend/style/ColorScheme.dart' as custom_colors; 
 import 'package:frontend/style/inputDecorationStyles.dart'; 
@@ -48,6 +50,9 @@ class _ResetPasswordState extends State<ResetPassword> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      appBar: Header(
+        onBack: () => Navigator.pop(context),
+        title: 'Redefinição de Senha'),
       backgroundColor: colors.surface, 
       body: SafeArea(
         child: SingleChildScrollView(
@@ -57,7 +62,7 @@ class _ResetPasswordState extends State<ResetPassword> {
               constraints: const BoxConstraints(maxWidth: 650),
               child: Column(
                 children: [
-                  _buildHeader(), 
+                  // _buildHeader(), 
                   const SizedBox(height: 20),
                   _buildFormCard(), 
                 ],
@@ -65,61 +70,6 @@ class _ResetPasswordState extends State<ResetPassword> {
             ),
           ),
         ),
-      ),
-    );
-  }
-
-  
-  Widget _buildHeader() {
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.fromLTRB(20, 20, 20, 22),
-      decoration: BoxDecoration(
-        gradient: LinearGradient(
-          colors: [colors.primary, colors.secondary],
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-        ),
-        borderRadius: BorderRadius.circular(22),
-        boxShadow: const [
-          BoxShadow(color: Colors.black26, blurRadius: 12, offset: Offset(0, 6)),
-        ],
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              Container(
-                padding: const EdgeInsets.all(12),
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(16),
-                ),
-                child: Icon(Icons.security, color: colors.primary, size: 30),
-              ),
-              const SizedBox(width: 14),
-              const Expanded(
-                child: Text('Nova Senha',
-                    style: TextStyle(color: Colors.white, fontSize: 23, fontWeight: FontWeight.bold)),
-              ),
-              IconButton(
-                onPressed: () => Navigator.pop(context),
-                style: IconButton.styleFrom(
-                  backgroundColor: Colors.white,
-                  foregroundColor: colors.primary,
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
-                ),
-                icon: const Icon(Icons.arrow_back),
-              ),
-            ],
-          ),
-          const SizedBox(height: 16),
-          const Text(
-            'Um e-mail com o código foi enviado. Verifique sua caixa de entrada e defina sua nova senha abaixo.',
-            style: TextStyle(color: Colors.white, fontSize: 14, height: 1.4),
-          ),
-        ],
       ),
     );
   }
@@ -137,7 +87,7 @@ class _ResetPasswordState extends State<ResetPassword> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              _buildSectionTitle("Segurança", "Insira o código e sua nova senha."),
+              _buildSectionTitle("Nova Senha", "Um e-mail com o código foi enviado. Verifique sua caixa de entrada, insira o código enviado e defina sua nova senha abaixo."),
               const SizedBox(height: 30),
 
               _buildFieldLabel(Icons.dialpad, "Código de Verificação"),
@@ -299,7 +249,7 @@ class _ResetPasswordState extends State<ResetPassword> {
                     style: TextStyle(
                       color: colors.primary,
                       fontSize: 14,
-                      decoration: TextDecoration.underline,
+                      decoration: TextDecoration.none,
                     ),
                   ),
                 ),
@@ -332,3 +282,62 @@ class _ResetPasswordState extends State<ResetPassword> {
     );
   }
 }
+
+
+
+
+
+  
+  // Widget _buildHeader() {
+  //   return Container(
+  //     width: double.infinity,
+  //     padding: const EdgeInsets.fromLTRB(20, 20, 20, 22),
+  //     decoration: BoxDecoration(
+  //       gradient: LinearGradient(
+  //         colors: [colors.primary, colors.secondary],
+  //         begin: Alignment.topLeft,
+  //         end: Alignment.bottomRight,
+  //       ),
+  //       borderRadius: BorderRadius.circular(22),
+  //       boxShadow: const [
+  //         BoxShadow(color: Colors.black26, blurRadius: 12, offset: Offset(0, 6)),
+  //       ],
+  //     ),
+  //     child: Column(
+  //       crossAxisAlignment: CrossAxisAlignment.start,
+  //       children: [
+  //         Row(
+  //           children: [
+  //             Container(
+  //               padding: const EdgeInsets.all(12),
+  //               decoration: BoxDecoration(
+  //                 color: Colors.white,
+  //                 borderRadius: BorderRadius.circular(16),
+  //               ),
+  //               child: Icon(Icons.security, color: colors.primary, size: 30),
+  //             ),
+  //             const SizedBox(width: 14),
+  //             const Expanded(
+  //               child: Text('Nova Senha',
+  //                   style: TextStyle(color: Colors.white, fontSize: 23, fontWeight: FontWeight.bold)),
+  //             ),
+  //             IconButton(
+  //               onPressed: () => Navigator.pop(context),
+  //               style: IconButton.styleFrom(
+  //                 backgroundColor: Colors.white,
+  //                 foregroundColor: colors.primary,
+  //                 shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+  //               ),
+  //               icon: const Icon(Icons.arrow_back),
+  //             ),
+  //           ],
+  //         ),
+  //         const SizedBox(height: 16),
+  //         const Text(
+  //           'Um e-mail com o código foi enviado. Verifique sua caixa de entrada e defina sua nova senha abaixo.',
+  //           style: TextStyle(color: Colors.white, fontSize: 14, height: 1.4),
+  //         ),
+  //       ],
+  //     ),
+  //   );
+  // }

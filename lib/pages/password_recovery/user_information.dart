@@ -3,6 +3,7 @@ import 'package:frontend/pages/password_recovery/reset_password.dart';
 import 'package:frontend/services/password_recovery/code_service.dart';
 import 'package:frontend/style/ColorScheme.dart' as custom_colors;
 import 'package:frontend/style/inputDecorationStyles.dart';
+import 'package:frontend/widgets/header.dart';
 import 'package:frontend/widgets/password_recovery/modal.dart';
 
 class UserInformation extends StatefulWidget {
@@ -20,6 +21,9 @@ class _UserInformationState extends State<UserInformation> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      appBar: Header(
+        onBack: () => Navigator.pop(context), 
+        title: 'Redefinição de Senha'),
       backgroundColor: colors.surface,
       body: SafeArea(
         child: SingleChildScrollView(
@@ -29,7 +33,7 @@ class _UserInformationState extends State<UserInformation> {
               constraints: const BoxConstraints(maxWidth: 650),
               child: Column(
                 children: [
-                  _buildHeader(), 
+                  // _buildHeader(), 
                   const SizedBox(height: 20),
                   _buildFormCard(), 
                 ],
@@ -41,59 +45,6 @@ class _UserInformationState extends State<UserInformation> {
     );
   }
 
-  Widget _buildHeader() {
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.fromLTRB(20, 20, 20, 22),
-      decoration: BoxDecoration(
-        gradient: LinearGradient(
-          colors: [colors.primary, colors.secondary],
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-        ),
-        borderRadius: BorderRadius.circular(22),
-        boxShadow: const [
-          BoxShadow(color: Colors.black26, blurRadius: 12, offset: Offset(0, 6)),
-        ],
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              Container(
-                padding: const EdgeInsets.all(12),
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(16),
-                ),
-                child: Icon(Icons.lock_reset, color: colors.primary, size: 30),
-              ),
-              const SizedBox(width: 14),
-              const Expanded(
-                child: Text('Recuperar Senha',
-                    style: TextStyle(color: Colors.white, fontSize: 23, fontWeight: FontWeight.bold)),
-              ),
-              IconButton(
-                onPressed: () => Navigator.pop(context),
-                style: IconButton.styleFrom(
-                  backgroundColor: Colors.white,
-                  foregroundColor: colors.primary,
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
-                ),
-                icon: const Icon(Icons.arrow_back),
-              ),
-            ],
-          ),
-          const SizedBox(height: 16),
-          const Text(
-            'Informe seu nome de usuário e enviaremos um código para redefinir sua senha.',
-            style: TextStyle(color: Colors.white, fontSize: 14, height: 1.4),
-          ),
-        ],
-      ),
-    );
-  }
 
   Widget _buildFormCard() {
     return Card(
@@ -108,7 +59,7 @@ class _UserInformationState extends State<UserInformation> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              _buildSectionTitle("Dados de Acesso", "Identifique sua conta para continuar."),
+              _buildSectionTitle("Dados de Acesso","Informe seu nome de usuário para que o código de redefinição de senha seja enviado para seu e-mail."),
               const SizedBox(height: 30),
 
               _buildFieldLabel(Icons.person_outline, "Nome de Usuário"),
@@ -151,7 +102,7 @@ class _UserInformationState extends State<UserInformation> {
                     style: TextStyle(
                       color: colors.primary,
                       fontSize: 14,
-                      decoration: TextDecoration.underline,
+                      decoration: TextDecoration.none,
                     ),
                   ),
                 ),
@@ -223,3 +174,58 @@ class _UserInformationState extends State<UserInformation> {
     );
   }
 }
+
+
+// Widget _buildHeader() {
+  //   return Container(
+  //     width: double.infinity,
+  //     padding: const EdgeInsets.fromLTRB(20, 20, 20, 22),
+  //     decoration: BoxDecoration(
+  //       gradient: LinearGradient(
+  //         colors: [colors.primary, colors.secondary],
+  //         begin: Alignment.topLeft,
+  //         end: Alignment.bottomRight,
+  //       ),
+  //       borderRadius: BorderRadius.circular(22),
+  //       boxShadow: const [
+  //         BoxShadow(color: Colors.black26, blurRadius: 12, offset: Offset(0, 6)),
+  //       ],
+  //     ),
+  //     child: Column(
+  //       crossAxisAlignment: CrossAxisAlignment.start,
+  //       children: [
+  //         Row(
+  //           children: [
+  //             Container(
+  //               padding: const EdgeInsets.all(12),
+  //               decoration: BoxDecoration(
+  //                 color: Colors.white,
+  //                 borderRadius: BorderRadius.circular(16),
+  //               ),
+  //               child: Icon(Icons.lock_reset, color: colors.primary, size: 30),
+  //             ),
+  //             const SizedBox(width: 14),
+  //             const Expanded(
+  //               child: Text('Recuperar Senha',
+  //                   style: TextStyle(color: Colors.white, fontSize: 23, fontWeight: FontWeight.bold)),
+  //             ),
+  //             IconButton(
+  //               onPressed: () => Navigator.pop(context),
+  //               style: IconButton.styleFrom(
+  //                 backgroundColor: Colors.white,
+  //                 foregroundColor: colors.primary,
+  //                 shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+  //               ),
+  //               icon: const Icon(Icons.arrow_back),
+  //             ),
+  //           ],
+  //         ),
+  //         const SizedBox(height: 16),
+  //         const Text(
+  //           'Informe seu nome de usuário e enviaremos um código para redefinir sua senha.',
+  //           style: TextStyle(color: Colors.white, fontSize: 14, height: 1.4),
+  //         ),
+  //       ],
+  //     ),
+  //   );
+  // }
