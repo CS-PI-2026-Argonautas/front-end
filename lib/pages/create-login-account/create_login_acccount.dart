@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:frontend/style/ColorScheme.dart' as custom_colors;
+import 'package:frontend/widgets/header.dart';
 
 class CreateLoginAccount extends StatefulWidget {
   const CreateLoginAccount({super.key});
@@ -16,15 +18,14 @@ final _formKey = GlobalKey<FormState>();
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Container(
-        decoration: BoxDecoration(
-          gradient: LinearGradient(
-            colors: [colors.primary, Color.fromARGB(255, 0, 59, 86)],
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
-          ),
-        ),
+      backgroundColor: colors.surface,
+      appBar : Header(
+        onBack: () { Navigator.pop(context);},
+        title: 'Cadastrar Usuário',
+      ),
+      body: SafeArea(
         child: Center(
+          child: SingleChildScrollView(
           child: Padding(
             padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 50),
             child: Card(
@@ -146,6 +147,7 @@ final _formKey = GlobalKey<FormState>();
                               fontWeight: FontWeight.bold,
                               fontSize: 16,
                               color: colors.onSurface,
+                              
                             ),
                           ),
                           
@@ -156,12 +158,29 @@ final _formKey = GlobalKey<FormState>();
                       SizedBox(height: 5),
 
                       TextFormField(
+                        inputFormatters: [
+                          FilteringTextInputFormatter.allow(RegExp(r'[a-zA-Z0-9._\-]')), //caracteres especiais
+                                    FilteringTextInputFormatter.deny(RegExp(r'\s')), //nao deixa o usuario usar o espaço
+                                  ],
+                        maxLength: 25,
+                        validator: (value) {
+
+                        if (value == null || value.trim().isEmpty) {
+                          return 'Preencha o campo';
+                        }
+                        
+                        if (value.length < 3) {
+                          return 'mínimo 3 caracteres';
+                        }
+                        return null;
+                      },
                         decoration: InputDecoration(
                           enabledBorder: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(14),
                             borderSide: const BorderSide(
                               color: Colors.grey,
                               width: 1.0,
+                              
                             ),
                           ),
                           focusedBorder: OutlineInputBorder(
@@ -178,15 +197,8 @@ final _formKey = GlobalKey<FormState>();
                             borderRadius: BorderRadius.circular(14),
                           ),
                         ),
-                        validator: (value) {
-                          if (value == null || value.trim().isEmpty) {
-                            return 'preencha o campo';
-                          }
-                          return null;
-                        },
                       ),
-
-                      SizedBox(height: 40),
+                      SizedBox(height: 20),
                       Row(
                         children: [
                           Icon(Icons.email, size: 20, color: colors.primary),
@@ -221,6 +233,7 @@ final _formKey = GlobalKey<FormState>();
                           fillColor: colors.surface,
                           hintText: 'nome@exemplo.com',
                           filled: true,
+                          
                           border: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(14),
                           ),
@@ -229,6 +242,15 @@ final _formKey = GlobalKey<FormState>();
                           if (value == null || value.trim().isEmpty) {
                             return 'preencha o campo';
                           }
+                          
+                          final bool emailValido = RegExp(
+                            r"^[a-zA-Z0-9.a-zA-Z0-9.!#$%&'*+-/=?^_`{|}~]+@[a-zA-Z0-9]+\.[a-zA-Z]+"
+                          ).hasMatch(value);
+
+                          if (!emailValido) {
+                            return 'Insira um formato de email válido';
+                          }
+                          
                           return null;
                         },
                       ),
@@ -261,6 +283,7 @@ final _formKey = GlobalKey<FormState>();
           ),
         ),
       ),
+    ),
     );
   }
 }
