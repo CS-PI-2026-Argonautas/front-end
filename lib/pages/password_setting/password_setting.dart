@@ -1,4 +1,5 @@
 import "package:flutter/material.dart";
+import "package:zxcvbn/zxcvbn.dart";
 import 'package:frontend/pages/authentication.dart';
 import 'package:frontend/style/ColorScheme.dart' as custom_colors;
 import 'package:frontend/utils/password_recovery/validators.dart';
@@ -16,6 +17,8 @@ class PasswordSetting extends StatefulWidget{
 class _PasswordSettingState extends State<PasswordSetting>{
 
   _TipText tip = _TipText();
+
+  final zxcvbn = Zxcvbn();
 
   final passwordController = TextEditingController();
   final confirmPasswordController = TextEditingController();
@@ -95,6 +98,43 @@ class _PasswordSettingState extends State<PasswordSetting>{
                 hintText: 'Mínimo 8 caracteres...',
                 sensitiveContent: true,
                 isPassword: true,
+              ),
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const SizedBox(height: 8,),
+
+                  const Text(
+                    "Segurança da Senha",
+                    style: TextStyle(fontSize: 14),
+                  ),
+
+                  const SizedBox(height: 4,),
+
+                  Row(
+                    children: [
+                      Expanded(
+                        child: LinearProgressIndicator(
+                          value: 1.0,
+                          minHeight: 6,
+                          color: Colors.green,
+                          backgroundColor: Colors.grey,
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                      ),
+
+                      const SizedBox(width: 8,),
+
+                      Text(
+                        "Forte",
+                        style: TextStyle(
+                          color: Colors.green,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      )
+                    ],
+                  ),
+                ],
               ),
 
               const SizedBox(height: 25),
