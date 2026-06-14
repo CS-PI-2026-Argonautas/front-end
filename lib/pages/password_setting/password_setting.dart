@@ -90,7 +90,7 @@ class _PasswordSettingState extends State<PasswordSetting>{
 
               const SizedBox(height: 30),
 
-              _buildFieldLabel(Icons.lock_outline, "Nova Senha"),
+              _buildFieldLabel(Icons.lock_outline, "Nova Senha *"),
               const SizedBox(height: 10),
               TypingTextField(
                 controller: passwordController,
@@ -166,7 +166,7 @@ class _PasswordSettingState extends State<PasswordSetting>{
 
               const SizedBox(height: 25),
 
-              _buildFieldLabel(Icons.lock_reset, "Repetir Senha"),
+              _buildFieldLabel(Icons.lock_reset, "Repetir Senha *"),
               const SizedBox(height: 10),
               TypingTextField(
                 controller: confirmPasswordController,
@@ -306,14 +306,9 @@ class _PasswordSettingState extends State<PasswordSetting>{
   }
 }
 
-class _TipText extends StatelessWidget{
-
+class _TipText {
   String tip = "Dica: ";
-  String example = "Exemplo: ";
   String tipText = 'use frases-passe ao invés de senhas padrões para criar credenciais mais longas, seguras e fáceis de memorizar.';
+  String example = "Exemplo: ";
   String exampleText = 'teste123';
-  @override
-  Widget build(BuildContext context) {
-    return _TipText();
-  }
 }
