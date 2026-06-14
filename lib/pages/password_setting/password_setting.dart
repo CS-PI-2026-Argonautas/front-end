@@ -19,6 +19,7 @@ class _PasswordSettingState extends State<PasswordSetting>{
   _TipText tip = _TipText();
 
   final zxcvbn = Zxcvbn();
+  int passwordScore = 0;
 
   final passwordController = TextEditingController();
   final confirmPasswordController = TextEditingController();
@@ -26,11 +27,23 @@ class _PasswordSettingState extends State<PasswordSetting>{
   final _formKey = GlobalKey<FormState>();
   final colors = custom_colors.colorScheme;
 
+  String passwordStrenghtText(int passwordScore){
+    if(passwordScore <= 1) return "Fraca";
+    if(passwordScore <= 3) return "Média";
+    return "Forte";
+  }
+
+  Color passwordStrenghtColor(int passwordScore){
+    if(passwordScore <= 1) return Colors.red;
+    if(passwordScore <= 2) return Colors.amber;
+    return Colors.green;
+  }
+
   @override
   void dispose(){
-    super.dispose();
     passwordController.dispose();
     confirmPasswordController.dispose();
+    super.dispose();
   }
 
   @override
@@ -88,16 +101,24 @@ class _PasswordSettingState extends State<PasswordSetting>{
                   if(error != null){
                     return error;
                   }
-
                   if(value == tip.exampleText){
                     return "A senha não pode ser igual à frase-passe de exemplo";
                   }
-
                   return null;
                 },
                 hintText: 'Mínimo 8 caracteres...',
                 sensitiveContent: true,
                 isPassword: true,
+                onChanged: (value) {
+                  setState(() {
+                    if(value.isEmpty){
+                      passwordScore = 0;
+                      return;
+                    }
+                    final result = zxcvbn.evaluate(value);
+                    passwordScore = result.score!.toInt();
+                  });
+                },
               ),
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -115,9 +136,11 @@ class _PasswordSettingState extends State<PasswordSetting>{
                     children: [
                       Expanded(
                         child: LinearProgressIndicator(
-                          value: 1.0,
+                          value: passwordController.text.isEmpty
+                          ? 0
+                          : (passwordScore + 1) / 5,
                           minHeight: 6,
-                          color: Colors.green,
+                          color: passwordStrenghtColor(passwordScore),
                           backgroundColor: Colors.grey,
                           borderRadius: BorderRadius.circular(8),
                         ),
@@ -126,9 +149,13 @@ class _PasswordSettingState extends State<PasswordSetting>{
                       const SizedBox(width: 8,),
 
                       Text(
-                        "Forte",
+                        passwordController.text.isEmpty
+                        ? "Digite uma senha"
+                        : "${passwordStrenghtText(passwordScore)}",
                         style: TextStyle(
-                          color: Colors.green,
+                          color: passwordController.text.isEmpty
+                          ? Colors.grey 
+                          : passwordStrenghtColor(passwordScore),
                           fontWeight: FontWeight.bold,
                         ),
                       )
@@ -145,7 +172,7 @@ class _PasswordSettingState extends State<PasswordSetting>{
                 controller: confirmPasswordController,
                 enabled: true,
                 validator: (value) {
-                  final error  = passwordValidator(value);
+                  final error  = confirmPassword(value, passwordController.text);
 
                   if(error != null){
                     return error;
@@ -186,7 +213,7 @@ class _PasswordSettingState extends State<PasswordSetting>{
                 width: double.infinity,
                 child: ElevatedButton.icon(
                   onPressed: () {
-                    if (_formKey.currentState!.validate() && passwordController != tip.exampleText) {
+                    if (_formKey.currentState!.validate() && passwordController.text != tip.exampleText) {
                       print('senha cadastrada');
                       
                       ScaffoldMessenger.of(context).showSnackBar(
