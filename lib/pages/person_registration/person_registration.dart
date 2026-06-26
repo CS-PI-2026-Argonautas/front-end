@@ -262,7 +262,7 @@ class _PersonRegistrationState1 extends State<PersonRegistration> {
             value: _isPessoaFisica,
             onChanged: (value) =>
                 setState(() => _isPessoaFisica = value ?? false),
-            activeColor: Colors.green,
+            activeColor: colors.secondary,
             contentPadding: EdgeInsets.zero,
             controlAffinity: ListTileControlAffinity.leading,
             title: Text(
@@ -288,7 +288,6 @@ class _PersonRegistrationState1 extends State<PersonRegistration> {
                   Navigator.pop(context);
             },
             onCadastrar: () { // botão de cadastrar
-              // Agora o validate() cuida de todos os TextFormFields e dos novos FormFields de uma vez só!
               if (_formKey.currentState!.validate()) {
                 Navigator.pushAndRemoveUntil(
                   context,
