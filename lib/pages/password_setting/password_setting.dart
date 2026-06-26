@@ -202,7 +202,7 @@ class _PasswordSettingState extends State<PasswordSetting>{
                     padding: const EdgeInsets.symmetric(vertical: 18),
                     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
                   ),
-                  icon: Icon(Icons.refresh),
+                  icon: Icon(Icons.arrow_back),
                   label: Text("Voltar", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
                 ),
               ),
@@ -310,5 +310,5 @@ class _TipText {
   String tip = "Dica: ";
   String tipText = 'use frases-passe ao invés de senhas padrões para criar credenciais mais longas, seguras e fáceis de memorizar.';
   String example = "Exemplo: ";
-  String exampleText = 'teste123';
+  String exampleText = 'cachorro#passeia@parque23';
 }
