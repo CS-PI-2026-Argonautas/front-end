@@ -1,5 +1,15 @@
 import 'package:flutter/material.dart';
+import 'package:frontend/pages/person_alteration/person_alteration_address.dart';
+import 'package:frontend/pages/person_alteration/person_alteration_contact.dart';
 import 'package:frontend/style/ColorScheme.dart' as custom_colors;
+import 'package:frontend/style/inputDecorationStyles.dart';
+import 'package:frontend/widgets/action_buttons.dart';
+import 'package:frontend/widgets/form_card.dart';
+import 'package:frontend/widgets/form_field_label.dart';
+import 'package:mask_text_input_formatter/mask_text_input_formatter.dart';
+import 'package:frontend/pages/dashboard.dart';
+import 'package:frontend/widgets/header.dart';
+import 'package:frontend/widgets/form_section_tile.dart';
 
 class PersonAlteration extends StatefulWidget {
   const PersonAlteration({super.key});
@@ -10,69 +20,235 @@ class PersonAlteration extends StatefulWidget {
 
 class _PersonAlterationState extends State<PersonAlteration> {
   final _formKey = GlobalKey<FormState>();
+  bool _isPessoaFisica = false;
+  final colors = custom_colors.colorScheme;
+
+  final _cpfFormatter = MaskTextInputFormatter(
+    mask: '###.###.###-##',
+    filter: {"#": RegExp(r'[0-9]')},
+  );
+
+  final _cnpjFormatter = MaskTextInputFormatter(
+    mask: '##.###.###/####-##',
+    filter: {"#": RegExp(r'[0-9]')},
+  );
+
+  final _enderecoController = TextEditingController();
+  final _contatoController = TextEditingController();
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: custom_colors.colorScheme.surface,
+      backgroundColor: colors.surface,
+      //widget da appbar
+      appBar: Header(
+        onBack: () { Navigator.pop(context);}, //voltar para a tela anterior
+        title: 'Edição de clientes', //titulo personalizado
+      ),
       body: SafeArea(
         child: SingleChildScrollView(
-          padding: const EdgeInsets.all(20),
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 18),
           child: Center(
             child: ConstrainedBox(
               constraints: const BoxConstraints(maxWidth: 650),
-              child: Form(
-                key: _formKey,
               child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                   const SizedBox(height: 24),
-                  _buildFieldLabel(Icons.person_outline, "Nome *"),
-                  TextFormField(decoration: inputStyle("Exemplo"),
-                    validator: (value) {
-                      if (value == null || value.isEmpty) {
-                        return 'Por favor, informe o nome';
-                        }
-                       return null;
-                      },
-                  ),
+                  const SizedBox(height: 20),
+                  _buildFormCard(),
                 ],
-              )
               ),
             ),
           ),
         ),
       ),
     );
-    }
-}
+  }
 
- Widget _buildFieldLabel(IconData icon, String label) {
-    return Row(
-      children: [
-        Icon(icon, size: 20, color: custom_colors.colorScheme.primary),
-        const SizedBox(width: 8),
-        Text(label, style: const TextStyle(fontWeight: FontWeight.bold)),
-      ],
+  
+
+  Widget _buildFormCard() {
+    return FormCard( 
+      formKey: _formKey,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          FormSectionTile(
+            title: "Informações Pessoais", //titulo do card
+            subtitle: "Complete os campos abaixo.", //subtitulo do card
+          ),
+          const SizedBox(height: 30),
+
+          FormFieldLabel(
+            icon: Icons.person_outline, //icone do campo do input
+            label: "Nome completo *" //label do campo do input
+            ),
+          const SizedBox(height: 10),
+          TextFormField(
+            decoration: customInputDecoration(
+              hintText: "Edite o nome aqui"//placeholder do campo do input
+              ),
+            validator: (value) {
+              if (value == null || value.isEmpty) {
+                return 'Informe o nome'; //mensagem de erro
+              }
+              return null;
+            },
+          ),
+
+          const SizedBox(height: 25),
+
+          FormFieldLabel(
+            icon: Icons.home_outlined, 
+            label: "Endereço"
+            ),
+
+          const SizedBox(height: 10),
+
+          InkWell(
+            onTap: () async {
+              final resultadoEndereco = await Navigator.push<String>(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => const PersonAlterationAddress(),
+                ),
+              );
+
+              if (resultadoEndereco != null && mounted) {
+                setState(() {
+                  _enderecoController.text = resultadoEndereco;
+                });
+              }
+            },
+            borderRadius: BorderRadius.circular(14),
+            child: InputDecorator(
+              decoration: customInputDecoration(
+                hintText: "Nome ou telefone extra"
+                ).copyWith(
+                hintText: "Edite o endereço",
+                suffixIcon: Icon(
+                  Icons.add_box_outlined,
+                  color: colors.secondary,
+                ),
+              ),
+              isEmpty: _enderecoController.text.isEmpty,
+              child: Text(
+                _enderecoController.text,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: TextStyle(
+                  fontSize: 16,
+                  color: colors.onSurface,
+                ),
+              ),
+            ),
+          ),
+
+          const SizedBox(height: 25),
+
+          FormFieldLabel(icon: Icons.phone_android_outlined, label: "Informações de contato"),
+          const SizedBox(height: 10),
+          InkWell(
+            onTap: () async {
+              final resultadoContato = await Navigator.push<String>(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => const PersonAlterationContact(),
+                ),
+              );
+
+              if (resultadoContato != null && mounted) {
+                setState(() {
+                  _contatoController.text = resultadoContato;
+                });
+              }
+            },
+            borderRadius: BorderRadius.circular(14),
+            child: InputDecorator(
+              decoration: customInputDecoration(hintText: "Nome ou telefone extra").copyWith(
+                hintText: "Edite o contato",
+                suffixIcon: Icon(
+                  Icons.add_box_outlined,
+                  color: colors.secondary,
+                ),
+              ),
+              isEmpty: _contatoController.text.isEmpty,
+              child: Text(
+                _contatoController.text,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: TextStyle(
+                  fontSize: 16,
+                  color: colors.onSurface,
+                ),
+              ),
+            ),
+          ),
+
+          const SizedBox(height: 10),
+
+          FormFieldLabel(
+            icon: Icons.badge_outlined,
+            label: _isPessoaFisica ? "CPF *" : "CNPJ *",
+          ),
+          const SizedBox(height: 10),
+          TextFormField(
+            key: ValueKey(_isPessoaFisica),
+            decoration: customInputDecoration(hintText: "000.000.000-00"),
+            keyboardType: TextInputType.number,
+            inputFormatters: [
+              _isPessoaFisica ? _cpfFormatter : _cnpjFormatter,
+            ],
+            validator: (value) {
+              if (value == null || value.isEmpty) {
+                return 'Informe o documento';
+              }
+              return null;
+            },
+          ),
+
+          const SizedBox(height: 10),
+
+          CheckboxListTile(
+            value: _isPessoaFisica,
+            onChanged: (value) =>
+                setState(() => _isPessoaFisica = value ?? false),
+            activeColor: Colors.green,
+            contentPadding: EdgeInsets.zero,
+            controlAffinity: ListTileControlAffinity.leading,
+            title: Text(
+              "Pessoa física?",
+              style: TextStyle(
+                color: colors.onSurface,
+                fontWeight: FontWeight.w500,
+              ),
+            ),
+          ),
+
+          const SizedBox(height: 30),
+
+          //botões de ação
+          ActionButtons(
+            formKey: _formKey,
+            colors: colors,
+            onCancel: () { //botão de cancelar
+              Navigator.of(context).popUntil((route) => route.isFirst);
+            },
+            onCadastrar: () { //botão de cadastrar
+              if (_formKey.currentState!.validate()) {
+                Navigator.pushAndRemoveUntil(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => const Dashboard(),
+                  ),
+                  (route) => false,
+                );
+              }
+            },
+          ),
+        ],
+      ),
     );
   }
 
-  InputDecoration inputStyle(String hint) {
-  return InputDecoration(
-    hintText: hint,
-    filled: true,
-    fillColor: custom_colors.colorScheme.surfaceContainer,
-    errorStyle: TextStyle(
-      color: custom_colors.colorScheme.error,
-      fontWeight: FontWeight.bold,
-    ),
-    border: OutlineInputBorder(
-      borderRadius: BorderRadius.circular(14),
-      borderSide: BorderSide.none,
-    ),
-    // Borda vermelha quando houver erro
-    errorBorder: OutlineInputBorder(
-      borderRadius: BorderRadius.circular(14),
-      borderSide: BorderSide(color: custom_colors.colorScheme.error, width: 2),
-    ),
-  );
 }
+

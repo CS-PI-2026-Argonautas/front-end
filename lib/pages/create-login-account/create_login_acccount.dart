@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:frontend/pages/password_setting/password_setting.dart';
 import 'package:frontend/style/ColorScheme.dart' as custom_colors;
 import 'package:frontend/widgets/form_section_tile.dart';
 import 'package:frontend/widgets/header.dart';
@@ -267,6 +268,13 @@ final _formKey = GlobalKey<FormState>();
                       Center(
                         child: ElevatedButton.icon(
                           onPressed: () {
+                            Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => const PasswordSetting(),
+                                ),
+                            );
+                              
                             if (_formKey.currentState!.validate());
                           },
                           style: ElevatedButton.styleFrom(
