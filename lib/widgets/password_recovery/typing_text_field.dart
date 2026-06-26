@@ -8,6 +8,7 @@ class TypingTextField extends StatefulWidget {
   final String? Function(String?)? validator;
   final bool sensitiveContent;
   final bool isPassword;
+  final ValueChanged<String>? onChanged;
 
   TypingTextField({
     super.key,
@@ -17,6 +18,7 @@ class TypingTextField extends StatefulWidget {
     required this.sensitiveContent,
     required this.isPassword,
     this.validator,
+    this.onChanged,
   });
 
   @override
@@ -65,6 +67,7 @@ class _TypingTextFieldState extends State<TypingTextField> {
           borderRadius: BorderRadius.circular(12),
         ),
       ),
+      onChanged: widget.onChanged,
     );
   }
 }

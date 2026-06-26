@@ -6,7 +6,7 @@ String? requiredField(String? value) {
 String? passwordValidator(String? value){
   if(value == null || value.trim().isEmpty) return 'Campo obrigatório';
   
-  if(value.length < 6) return 'A senha deve ter no mínimo 6 caracteres';
+  if(value.length < 8) return 'A senha deve ter no mínimo 8 caracteres';
 
   return null;
 }
