@@ -288,7 +288,6 @@ class _PersonRegistrationState1 extends State<PersonRegistration> {
                   Navigator.pop(context);
             },
             onCadastrar: () { // botão de cadastrar
-              // Agora o validate() cuida de todos os TextFormFields e dos novos FormFields de uma vez só!
               if (_formKey.currentState!.validate()) {
                 Navigator.pushAndRemoveUntil(
                   context,
