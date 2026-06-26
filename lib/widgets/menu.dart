@@ -7,7 +7,7 @@ class Menu extends StatelessWidget {
   final int currentIndex;
   final ValueChanged<int> onTap;
 
-  const Menu({super.key, required this.currentIndex, required this.onTap});
+  const Menu({superkey, required this.currentIndex, required this.onTap});
 
   @override
   Widget build(BuildContext context) {
