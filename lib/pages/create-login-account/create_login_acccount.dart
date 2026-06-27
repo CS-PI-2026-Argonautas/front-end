@@ -25,8 +25,7 @@ final _formKey = GlobalKey<FormState>();
         onBack: () { Navigator.pop(context);},
         title: 'Cadastrar Usuário',
       ),
-      body: SafeArea(
-        
+      body: SafeArea(    
         child: Center(
           child: SingleChildScrollView(
           child: Padding(
@@ -43,19 +42,17 @@ final _formKey = GlobalKey<FormState>();
                 child: Form(
                   key: _formKey,
                   child: Column(
-
+                    spacing: 10,
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       FormSectionTile(
                         title: "Cadastro do seu Usuário",
                         subtitle: "Informe seus dados pessoais.",
-                      ),
-                      
-                      const SizedBox(height: 30),
+                      ),                      
                       Row(
+                        spacing: 8,
                         children: [
                           Icon(Icons.badge, size: 20, color: colors.primary),
-                          const SizedBox(width: 8),
                           Text(
                             "Nome *",
                             style: TextStyle(
@@ -66,8 +63,6 @@ final _formKey = GlobalKey<FormState>();
                           ),
                         ],
                       ),
-                      SizedBox(height: 5),
-
                       TextFormField(
                         decoration: InputDecoration(
                           enabledBorder: OutlineInputBorder(
@@ -99,12 +94,10 @@ final _formKey = GlobalKey<FormState>();
                           return null;
                         },
                       ),
-                      SizedBox(height: 40),
-
                       Row(
+                        spacing: 8,
                         children: [
                           Icon(Icons.badge, size: 20, color: colors.primary),
-                          const SizedBox(width: 8),
                           Text(
                             "Sobrenome *",
                             style: TextStyle(
@@ -115,7 +108,6 @@ final _formKey = GlobalKey<FormState>();
                           ),
                         ],
                       ),
-                      SizedBox(height: 5),
                       TextFormField(
                         decoration: InputDecoration(
                           enabledBorder: OutlineInputBorder(
@@ -146,11 +138,10 @@ final _formKey = GlobalKey<FormState>();
                           return null;
                         },
                       ),
-                      SizedBox(height: 40),
                       Row(
+                        spacing: 8,
                         children: [
                           Icon(Icons.person_3, size: 20, color: colors.primary),
-                          const SizedBox(width: 8),
                           Text(
                             "Nome usuário *",
                             style: TextStyle(
@@ -160,13 +151,8 @@ final _formKey = GlobalKey<FormState>();
                               
                             ),
                           ),
-                          
-                          
                         ],
-                      ),
-                      
-                      SizedBox(height: 5),
-
+                      ),           
                       TextFormField(
                         inputFormatters: [
                           FilteringTextInputFormatter.allow(RegExp(r'[a-zA-Z0-9._\-]')), //caracteres especiais
@@ -185,6 +171,7 @@ final _formKey = GlobalKey<FormState>();
                         return null;
                       },
                         decoration: InputDecoration(
+                          counterText: '',
                           enabledBorder: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(14),
                             borderSide: const BorderSide(
@@ -208,11 +195,10 @@ final _formKey = GlobalKey<FormState>();
                           ),
                         ),
                       ),
-                      SizedBox(height: 20),
                       Row(
+                        spacing: 8,
                         children: [
                           Icon(Icons.email, size: 20, color: colors.primary),
-                          const SizedBox(width: 8),
                           Text(
                             "Email *",
                             style: TextStyle(
@@ -223,7 +209,6 @@ final _formKey = GlobalKey<FormState>();
                           ),
                         ],
                       ),
-                      SizedBox(height: 5),
                       TextFormField(
                         decoration: InputDecoration(
                           enabledBorder: OutlineInputBorder(
@@ -264,7 +249,6 @@ final _formKey = GlobalKey<FormState>();
                           return null;
                         },
                       ),
-                      SizedBox(height: 40),
                       Center(
                         child: ElevatedButton.icon(
                           onPressed: () {
