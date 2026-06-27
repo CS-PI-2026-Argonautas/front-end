@@ -94,8 +94,19 @@ class _PersonRegistration2State extends State<PersonRegistrationAddress> {
             controller: _cepController,
             decoration: customInputDecoration(hintText: "12345-678"),
             keyboardType: TextInputType.number,
-            validator: (value) =>
-                (value == null || value.isEmpty) ? 'Informe o CEP' : null,
+            inputFormatters: [
+              FilteringTextInputFormatter.digitsOnly,
+              CepInputFormatter(),
+            ],
+            validator: (value) {
+              if (value == null || value.isEmpty) {
+                return 'Informe o CEP';
+              }
+              if (value.length != 9) {
+                return 'CEP inválido';
+              }
+              return null;
+            },
           ),
 
           const SizedBox(height: 20),

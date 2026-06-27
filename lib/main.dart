@@ -1,7 +1,4 @@
-import 'package:frontend/pages/authentication.dart';
 import 'package:flutter/material.dart';
-import 'package:frontend/pages/dashboard.dart';
-import 'package:frontend/pages/password_recovery/user_information.dart';
 import 'package:frontend/pages/password_setting/password_setting.dart';
 
 void main() {
