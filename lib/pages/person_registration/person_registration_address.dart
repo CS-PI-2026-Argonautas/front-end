@@ -165,9 +165,20 @@ class _PersonRegistration2State extends State<PersonRegistrationAddress> {
                     TextFormField(
                       controller: _ufController,
                       decoration: customInputDecoration(hintText: "PR"),
-                      validator: (value) => (value == null || value.isEmpty)
-                          ? 'Informe a UF'
-                          : null,
+                      textCapitalization: TextCapitalization.characters,
+                      inputFormatters: [
+                        FilteringTextInputFormatter.allow(RegExp(r'[a-zA-Z]')),
+                        LengthLimitingTextInputFormatter(2),
+                      ],
+                      validator: (value) {
+                        if (value == null || value.isEmpty) {
+                          return 'Informe a UF';
+                        }
+                        if (value.length != 2) {
+                          return 'UF inválida';
+                        }
+                        return null;
+                      },
                     ),
                   ],
                 ),
