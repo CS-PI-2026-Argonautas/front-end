@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:frontend/pages/create-login-account/create_login_acccount.dart';
 import 'package:frontend/pages/dashboard.dart';
 import 'package:frontend/pages/password_recovery/user_information.dart';
-import 'package:frontend/pages/person_registration/person_registration.dart';
 import 'package:frontend/style/ColorScheme.dart' as custom_colors;
 
 class Authentication extends StatefulWidget {
@@ -180,7 +180,7 @@ class _AuthenticationState extends State<Authentication> {
                           Navigator.push(
                             context,
                             MaterialPageRoute(
-                              builder: (context) => const PersonRegistration(),
+                              builder: (context) => const CreateLoginAccount(),
                             ),
                           );
                         },

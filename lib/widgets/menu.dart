@@ -7,7 +7,7 @@ class Menu extends StatelessWidget {
   final int currentIndex;
   final ValueChanged<int> onTap;
 
-  const Menu({super.key, required this.currentIndex, required this.onTap});
+  const Menu({superkey, required this.currentIndex, required this.onTap});
 
   @override
   Widget build(BuildContext context) {
@@ -64,11 +64,17 @@ class Menu extends StatelessWidget {
                       index: 2,
                       colors: colors,
                     ),
+                    _buildDrawerItem(
+                      icon: Icons.edit,
+                      label: "Editar peças",
+                      index: 3,
+                      colors: colors,
+                    ),
 
                     _buildDrawerItem(
                       icon: Icons.home_outlined,
                       label: "Início",
-                      index: 3,
+                      index: 4,
                       colors: colors,
                     ),
                   ],
