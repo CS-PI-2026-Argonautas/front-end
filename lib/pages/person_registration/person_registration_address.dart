@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:frontend/services/person_registration/uppercaser.dart';
 import 'package:frontend/style/ColorScheme.dart' as custom_colors;
 import 'package:frontend/style/inputDecorationStyles.dart';
 import 'package:frontend/widgets/action_buttons.dart';
@@ -164,12 +165,14 @@ class _PersonRegistration2State extends State<PersonRegistrationAddress> {
                     const SizedBox(height: 10),
                     TextFormField(
                       controller: _ufController,
-                      decoration: customInputDecoration(hintText: "PR"),
-                      textCapitalization: TextCapitalization.characters,
                       inputFormatters: [
+                        UpperCaseTextFormatter(),
                         FilteringTextInputFormatter.allow(RegExp(r'[a-zA-Z]')),
                         LengthLimitingTextInputFormatter(2),
                       ],
+                      decoration: customInputDecoration(hintText: "PR"),
+                      textCapitalization: TextCapitalization.characters,
+                    
                       validator: (value) {
                         if (value == null || value.isEmpty) {
                           return 'Informe a UF';
