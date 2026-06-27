@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:frontend/pages/person_registration/person_registration.dart';
 import 'package:frontend/pages/person_registration/person_registration_contact.dart';
-import 'package:frontend/services/password_recovery/uppercaser.dart';
+import 'package:frontend/services/person_registration/uppercaser.dart';
 import 'package:frontend/style/ColorScheme.dart' as custom_colors;
 import 'package:frontend/style/inputDecorationStyles.dart';
 import 'package:frontend/pages/dashboard.dart';
