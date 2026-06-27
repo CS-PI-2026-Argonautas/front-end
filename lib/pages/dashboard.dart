@@ -4,6 +4,7 @@ import 'package:frontend/style/ColorScheme.dart' as custom_Colors;
 import 'package:frontend/widgets/menu.dart';
 import 'package:frontend/pages/stand_in_page.dart';
 import 'package:frontend/pages/person_registration/person_registration.dart';
+import 'package:frontend/pages/edit_item/item_edition.dart';
 
 class Dashboard extends StatelessWidget {
   const Dashboard({super.key});
@@ -79,7 +80,7 @@ class Dashboard extends StatelessWidget {
         ),
       ),
       endDrawer: Menu(
-        currentIndex: 3,
+        currentIndex: 4,
 
         onTap: (index) {
           Navigator.pop(context);
@@ -95,6 +96,12 @@ class Dashboard extends StatelessWidget {
 
           if (index == 0 || index == 2) {
             irParaStandIn();
+          }
+          if (index == 3) {
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => const ItemEdition()),
+            );
           }
         },
       ),
