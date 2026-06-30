@@ -1,5 +1,5 @@
 import "package:flutter/material.dart";
-import "package:zxcvbn/zxcvbn.dart";
+import 'package:frontend/utils/password_strength/password_strength.dart';
 import 'package:frontend/pages/authentication.dart';
 import 'package:frontend/style/ColorScheme.dart' as custom_colors;
 import 'package:frontend/utils/password_recovery/validators.dart';
@@ -18,7 +18,8 @@ class _PasswordSettingState extends State<PasswordSetting>{
 
   _TipText tip = _TipText();
 
-  final zxcvbn = Zxcvbn();
+  final passwordStrength = PasswordStrength();
+  final zxcvbn = PasswordStrength().zxcvbn;
   int passwordScore = 0;
 
   final passwordController = TextEditingController();
@@ -26,18 +27,6 @@ class _PasswordSettingState extends State<PasswordSetting>{
 
   final _formKey = GlobalKey<FormState>();
   final colors = custom_colors.colorScheme;
-
-  String passwordStrenghtText(int passwordScore){
-    if(passwordScore <= 1) return "Fraca";
-    if(passwordScore <= 3) return "Média";
-    return "Forte";
-  }
-
-  Color passwordStrenghtColor(int passwordScore){
-    if(passwordScore <= 1) return Colors.red;
-    if(passwordScore <= 2) return Colors.amber;
-    return Colors.green;
-  }
 
   @override
   void dispose(){
@@ -96,14 +85,12 @@ class _PasswordSettingState extends State<PasswordSetting>{
                 controller: passwordController,
                 enabled: true,
                 validator: (value) {
-                  final error  = passwordValidator(value);
+                  final error  = passwordValidator(value, comparisonValue: tip.exampleText, nameComparisonValue: "à frase-passe de exemplo");
 
                   if(error != null){
                     return error;
                   }
-                  if(value == tip.exampleText){
-                    return "A senha não pode ser igual à frase-passe de exemplo";
-                  }
+                  
                   return null;
                 },
                 hintText: 'Mínimo 8 caracteres...',
@@ -140,7 +127,7 @@ class _PasswordSettingState extends State<PasswordSetting>{
                           ? 0
                           : (passwordScore + 1) / 5,
                           minHeight: 6,
-                          color: passwordStrenghtColor(passwordScore),
+                          color: passwordStrength.passwordStrengthColor(passwordScore),
                           backgroundColor: Colors.grey,
                           borderRadius: BorderRadius.circular(8),
                         ),
@@ -151,11 +138,11 @@ class _PasswordSettingState extends State<PasswordSetting>{
                       Text(
                         passwordController.text.isEmpty
                         ? "Digite uma senha"
-                        : "${passwordStrenghtText(passwordScore)}",
+                        : "${passwordStrength.passwordStrengthText(passwordScore)}",
                         style: TextStyle(
                           color: passwordController.text.isEmpty
                           ? Colors.grey 
-                          : passwordStrenghtColor(passwordScore),
+                          : passwordStrength.passwordStrengthColor(passwordScore),
                           fontWeight: FontWeight.bold,
                         ),
                       )
@@ -172,16 +159,12 @@ class _PasswordSettingState extends State<PasswordSetting>{
                 controller: confirmPasswordController,
                 enabled: true,
                 validator: (value) {
-                  final error  = confirmPassword(value, passwordController.text);
+                  final error  = confirmPassword(value, passwordController.text, comparisonValue: tip.exampleText, nameComparisonValue: 'à frase-passe de exemplo');
 
                   if(error != null){
                     return error;
                   }
-
-                  if(value == tip.exampleText){
-                    return "A senha não pode ser igual à frase-passe de exemplo";
-                  }
-
+                  
                   return null;
                 },
                 hintText: 'Confirme sua senha...',
