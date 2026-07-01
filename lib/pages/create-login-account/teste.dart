@@ -2,22 +2,16 @@ import 'package:flutter/material.dart';
 import 'package:frontend/pages/authentication.dart';
 
 void main() {
-  runApp(const MyApp());
+  runApp(MyApp());
 }
 
 class MyApp extends StatelessWidget {
-  const MyApp({super.key});
-
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Bernadelli Balanças',
       debugShowCheckedModeBanner: false,
-      home: Authentication(),
-      theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(
-          seedColor: Color.fromARGB(255, 64, 126, 207),
-        ),
+      home: Scaffold(
+        body: Authentication(),
       ),
     );
   }

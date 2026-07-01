@@ -1,14 +1,36 @@
 import 'package:flutter/material.dart';
-import 'package:frontend/pages/person_registration/person_registration.dart';
-import 'package:frontend/pages/person_registration/person_registration_contact.dart';
+import 'package:frontend/services/person_registration/uppercaser.dart';
 import 'package:frontend/style/ColorScheme.dart' as custom_colors;
 import 'package:frontend/style/inputDecorationStyles.dart';
-import 'package:frontend/pages/dashboard.dart';
 import 'package:frontend/widgets/action_buttons.dart';
 import 'package:frontend/widgets/form_card.dart';
 import 'package:frontend/widgets/form_field_label.dart';
 import 'package:frontend/widgets/form_section_tile.dart';
 import 'package:frontend/widgets/header.dart';
+import 'package:flutter/services.dart';
+
+class CepInputFormatter extends TextInputFormatter {
+  @override
+  TextEditingValue formatEditUpdate(
+    TextEditingValue oldValue,
+    TextEditingValue newValue,
+  ) {
+    String text = newValue.text.replaceAll(RegExp(r'[^0-9]'), '');
+
+    if (text.length > 8) {
+      text = text.substring(0, 8);
+    }
+
+    if (text.length > 5) {
+      text = '${text.substring(0, 5)}-${text.substring(5)}';
+    }
+
+    return TextEditingValue(
+      text: text,
+      selection: TextSelection.collapsed(offset: text.length),
+    );
+  }
+}
 
 class PersonRegistrationAddress extends StatefulWidget {
   const PersonRegistrationAddress({super.key});
@@ -32,7 +54,9 @@ class _PersonRegistration2State extends State<PersonRegistrationAddress> {
     return Scaffold(
       backgroundColor: colors.surface,
       appBar: Header(
-        onBack: () { Navigator.pop(context);}, 
+        onBack: () {
+          Navigator.pop(context);
+        },
         title: 'Endereço',
       ),
       body: SafeArea(
@@ -42,10 +66,7 @@ class _PersonRegistration2State extends State<PersonRegistrationAddress> {
             child: ConstrainedBox(
               constraints: const BoxConstraints(maxWidth: 650),
               child: Column(
-                children: [
-                  const SizedBox(height: 20),
-                  _buildFormCard(),
-                ],
+                children: [const SizedBox(height: 20), _buildFormCard()],
               ),
             ),
           ),
@@ -53,8 +74,6 @@ class _PersonRegistration2State extends State<PersonRegistrationAddress> {
       ),
     );
   }
-
- 
 
   Widget _buildFormCard() {
     return FormCard(
@@ -68,10 +87,7 @@ class _PersonRegistration2State extends State<PersonRegistrationAddress> {
           ),
           const SizedBox(height: 30),
 
-          FormFieldLabel(
-            icon: Icons.pin_drop_outlined,
-            label: "CEP *"
-          ),
+          FormFieldLabel(icon: Icons.pin_drop_outlined, label: "CEP *"),
 
           const SizedBox(height: 10),
 
@@ -79,39 +95,41 @@ class _PersonRegistration2State extends State<PersonRegistrationAddress> {
             controller: _cepController,
             decoration: customInputDecoration(hintText: "12345-678"),
             keyboardType: TextInputType.number,
-            validator: (value) => (value == null || value.isEmpty)
-                ? 'Informe o CEP'
-                : null,
+            inputFormatters: [
+              FilteringTextInputFormatter.digitsOnly,
+              CepInputFormatter(),
+            ],
+            validator: (value) {
+              if (value == null || value.isEmpty) {
+                return 'Informe o CEP';
+              }
+              if (value.length != 9) {
+                return 'CEP inválido';
+              }
+              return null;
+            },
           ),
 
           const SizedBox(height: 20),
 
-          FormFieldLabel(
-            icon: Icons.home_outlined,
-            label: "Rua *"
-          ),
+          FormFieldLabel(icon: Icons.home_outlined, label: "Rua *"),
           const SizedBox(height: 10),
           TextFormField(
             controller: _ruaController,
             decoration: customInputDecoration(hintText: "Av. Brasil"),
-            validator: (value) => (value == null || value.isEmpty)
-                ? 'Informe a rua'
-                : null,
+            validator: (value) =>
+                (value == null || value.isEmpty) ? 'Informe a rua' : null,
           ),
 
           const SizedBox(height: 20),
 
-          FormFieldLabel(
-            icon: Icons.location_city_outlined,
-            label: "Cidade *"
-          ),
+          FormFieldLabel(icon: Icons.location_city_outlined, label: "Cidade *"),
           const SizedBox(height: 10),
           TextFormField(
             controller: _cidadeController,
             decoration: customInputDecoration(hintText: "Paranavaí"),
-            validator: (value) => (value == null || value.isEmpty)
-                ? 'Informe a cidade'
-                : null,
+            validator: (value) =>
+                (value == null || value.isEmpty) ? 'Informe a cidade' : null,
           ),
 
           const SizedBox(height: 20),
@@ -126,7 +144,7 @@ class _PersonRegistration2State extends State<PersonRegistrationAddress> {
                   children: [
                     FormFieldLabel(
                       icon: Icons.numbers_outlined,
-                      label: "Número"
+                      label: "Número",
                     ),
                     const SizedBox(height: 10),
                     TextFormField(
@@ -143,17 +161,27 @@ class _PersonRegistration2State extends State<PersonRegistrationAddress> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    FormFieldLabel(
-                      icon: Icons.flag_outlined,
-                      label: "UF *"
-                    ),
+                    FormFieldLabel(icon: Icons.flag_outlined, label: "UF *"),
                     const SizedBox(height: 10),
                     TextFormField(
                       controller: _ufController,
+                      inputFormatters: [
+                        UpperCaseTextFormatter(),
+                        FilteringTextInputFormatter.allow(RegExp(r'[a-zA-Z]')),
+                        LengthLimitingTextInputFormatter(2),
+                      ],
                       decoration: customInputDecoration(hintText: "PR"),
-                      validator: (value) => (value == null || value.isEmpty)
-                          ? 'Informe a UF'
-                          : null,
+                      textCapitalization: TextCapitalization.characters,
+                    
+                      validator: (value) {
+                        if (value == null || value.isEmpty) {
+                          return 'Informe a UF';
+                        }
+                        if (value.length != 2) {
+                          return 'UF inválida';
+                        }
+                        return null;
+                      },
                     ),
                   ],
                 ),
@@ -190,6 +218,3 @@ class _PersonRegistration2State extends State<PersonRegistrationAddress> {
     );
   }
 }
-
-
-

@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:frontend/pages/authentication.dart';
 import 'package:frontend/services/password_recovery/code_service.dart';
 import 'package:frontend/utils/password_recovery/validators.dart';
+import 'package:frontend/utils/password_strength/password_strength.dart';
 import 'package:frontend/widgets/header.dart';
 import 'package:frontend/widgets/password_recovery/typing_text_field.dart';
 import 'package:frontend/style/ColorScheme.dart' as custom_colors; 
@@ -27,6 +28,10 @@ class _ResetPasswordState extends State<ResetPassword> {
 
   final _formKey = GlobalKey<FormState>();
   final colors = custom_colors.colorScheme; 
+
+  final passwordStrength = PasswordStrength();
+  final zxcvbn = PasswordStrength().zxcvbn;
+  int passwordScore = 0;
 
   void _clearFields() {
     codeController.clear();
@@ -132,7 +137,66 @@ class _ResetPasswordState extends State<ResetPassword> {
                 hintText: 'Mínimo 8 caracteres...',
                 sensitiveContent: true,
                 isPassword: true,
+                onChanged: (value) {
+                  setState(() {
+                    if(value.isEmpty){
+                      passwordScore = 0;
+                      return;
+                    }
+                    final result = zxcvbn.evaluate(value);
+                    passwordScore = result.score!.toInt();
+                  });
+                },
               ),
+              Opacity(
+                opacity: isCodeValid == true
+                ? 1
+                : 0.4,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const SizedBox(height: 8,),
+
+                    const Text(
+                      "Segurança da Senha",
+                      style: TextStyle(fontSize: 14),
+                    ),
+
+                    const SizedBox(height: 4,),
+
+                    Row(
+                      children: [
+                        Expanded(
+                          child: LinearProgressIndicator(
+                            value: passwordController.text.isEmpty
+                            ? 0
+                            : (passwordScore + 1) / 5,
+                            minHeight: 6,
+                            color: passwordStrength.passwordStrengthColor(passwordScore),
+                            backgroundColor: Colors.grey,
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                        ),
+
+                        const SizedBox(width: 8,),
+
+                        Text(
+                          passwordController.text.isEmpty
+                          ? "Digite uma senha"
+                          : "${passwordStrength.passwordStrengthText(passwordScore)}",
+                          style: TextStyle(
+                            color: passwordController.text.isEmpty
+                            ? Colors.grey 
+                            : passwordStrength.passwordStrengthColor(passwordScore),
+                            fontWeight: FontWeight.bold,
+                          ),
+                        )
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+              
 
               const SizedBox(height: 25),
 
