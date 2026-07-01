@@ -36,7 +36,6 @@ class _ClientListState extends State<ClientList> {
         child: SingleChildScrollView(
           child: Padding(
             padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 50),
-            // Substituímos o child direto por uma Column!
             child: Column(
               children: [
                 TextFormField(
@@ -82,26 +81,90 @@ class _ClientListState extends State<ClientList> {
                   ),
                 ),
                 Padding(
-                  // Coloquei um padding aqui só para ele não ficar colado nos botões de cima
                   padding: const EdgeInsets.only(top: 10.0, bottom: 10.0),
                   child: Align(
-                    alignment:
-                        Alignment.centerLeft, // Empurra para a extrema esquerda
+                    alignment: Alignment.centerLeft,
                     child: Text(
                       'Recentes',
                       style: TextStyle(
                         color: colors.onSurface,
-                        fontSize: 18, // Tamanho da fonte (opcional)
-                        fontWeight: FontWeight
-                            .bold, // Deixa o texto em negrito (opcional)
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
                       ),
                     ),
                   ),
+                ),
+                //aqui faço meu "for" e adiciono um
+                FutureBuilder<List<Cliente>>(
+                  future: _futureClientes,
+                  builder: (context, snapshot) {
+                    if (snapshot.connectionState == ConnectionState.waiting) {
+                      return const Padding(
+                        padding: EdgeInsets.only(top: 20.0),
+                        child: Center(child: CircularProgressIndicator()),
+                      );
+                    } else if (snapshot.hasError) {
+                      return const Center(
+                        child: Text('Erro ao carregar clientes.'),
+                      );
+                    } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
+                      return const Center(
+                        child: Text('Nenhum cliente encontrado.'),
+                      );
+                    }
+
+                    final clientes = snapshot.data!;
+
+                    return ListView.builder(
+                      shrinkWrap: true,
+                      physics: const NeverScrollableScrollPhysics(),
+                      itemCount: clientes.length,
+                      itemBuilder: (context, index) {
+                        return _buildClientCard(clientes[index]);
+                      },
+                    );
+                  },
                 ),
               ],
             ),
           ),
         ),
+      ),
+    );
+  }
+
+  // construo meus cards
+  Widget _buildClientCard(Cliente cliente) {
+    return Container(
+      margin: const EdgeInsets.only(bottom: 16.0),
+      padding: const EdgeInsets.all(16.0),
+      decoration: BoxDecoration(
+        color: colors.surfaceContainer,
+        border: Border.all(color: colors.primary, width: 1.5),
+        borderRadius: BorderRadius.circular(16),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            cliente.nome,
+            style: TextStyle(
+              color: colors.onSurface,
+              fontSize: 18,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+          const SizedBox(height: 6),
+          Text(
+            cliente.endereco,
+            style: TextStyle(color: colors.onSurfaceVariant, fontSize: 14),
+          ),
+          const SizedBox(height: 4),
+          Text(
+            cliente.info_contato,
+            style: TextStyle(color: colors.onSurfaceVariant, fontSize: 14),
+          ),
+        ],
       ),
     );
   }

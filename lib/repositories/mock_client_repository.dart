@@ -1,10 +1,10 @@
 import 'package:frontend/models/cliente.dart';
 import 'package:frontend/repositories/client_repository.dart';
 
-class MockClientRepository implements ClientRepository{
-
+class MockClientRepository implements ClientRepository {
   //instancia interna  (precisa pro front funcionar)
-  static final MockClientRepository _instance = MockClientRepository._internal();
+  static final MockClientRepository _instance =
+      MockClientRepository._internal();
 
   MockClientRepository._internal();
 
@@ -12,13 +12,13 @@ class MockClientRepository implements ClientRepository{
 
   final List<Cliente> _bd = [
     Cliente(nome: 'Giovanna', endereco: 'Rua x', info_contato: '999198999'),
+    Cliente(nome: 'Murilo', endereco: 'Rua y', info_contato: '111111111'),
   ];
 
   @override
-  Future <List<Cliente>> listarTodos () async {
+  Future<List<Cliente>> listarTodos() async {
     await Future.delayed(const Duration(milliseconds: 300));
     return List.unmodifiable(_bd);
-  
   }
 
   @override
@@ -28,8 +28,8 @@ class MockClientRepository implements ClientRepository{
     _bd.add(cliente);
   }
 
-    @override
-    Future<void> deletar(int id) async {
+  @override
+  Future<void> deletar(int id) async {
     await Future.delayed(const Duration(milliseconds: 300));
     _bd.remove(id);
   }
