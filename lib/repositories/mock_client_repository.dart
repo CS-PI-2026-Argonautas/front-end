@@ -3,6 +3,13 @@ import 'package:frontend/repositories/client_repository.dart';
 
 class MockClientRepository implements ClientRepository{
 
+  //instancia interna  (precisa pro front funcionar)
+  static final MockClientRepository _instance = MockClientRepository._internal();
+
+  MockClientRepository._internal();
+
+  factory MockClientRepository() => _instance;
+
   final List<Cliente> _bd = [
     Cliente(nome: 'Giovanna', endereco: 'Rua x', info_contato: '999198999'),
   ];
@@ -26,6 +33,4 @@ class MockClientRepository implements ClientRepository{
     await Future.delayed(const Duration(milliseconds: 300));
     _bd.remove(id);
   }
-
-
 }
