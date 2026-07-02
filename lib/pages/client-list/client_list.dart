@@ -1,9 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:frontend/models/cliente.dart';
+import 'package:frontend/pages/dashboard.dart';
+import 'package:frontend/pages/edit_item/item_edition.dart';
+import 'package:frontend/pages/product_registration/product_registration.dart';
+import 'package:frontend/pages/stand_in_page.dart';
 import 'package:frontend/repositories/mock_client_repository.dart';
 import 'package:frontend/style/ColorScheme.dart' as custom_colors;
-import 'package:frontend/widgets/header.dart';
-
+import 'package:frontend/widgets/menu.dart';
 class ClientList extends StatefulWidget {
   const ClientList({super.key});
 
@@ -24,13 +27,54 @@ class _ClientListState extends State<ClientList> {
 
   @override
   Widget build(BuildContext context) {
+    
     return Scaffold(
       backgroundColor: colors.surface,
-      appBar: Header(
-        onBack: () {
+      appBar: AppBar(
+      backgroundColor: colors.primary,
+      foregroundColor: colors.onPrimary,
+      centerTitle: true,
+      title: const Text(
+        'Listar Clientes',
+        style: TextStyle(
+          color: Colors.white,
+          fontWeight: FontWeight.bold,
+          fontSize: 20,
+        ),
+      ),
+    ),
+        endDrawer: Menu(
+
+        currentIndex: 0,
+
+        onTap: (index) {
           Navigator.pop(context);
+
+          if (index == 1) {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => const ProductRegistration(),
+              ),
+            );
+          }
+
+          if (index == 0 || index == 2) {
+            StandInPage();
+          }
+          if (index == 3) {
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => const ItemEdition()),
+            );
+          }
+          if(index == 4){
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => const Dashboard()),
+            );
+          }
         },
-        title: 'Listar Usuario',
       ),
       body: SafeArea(
         child: SingleChildScrollView(
@@ -130,6 +174,7 @@ class _ClientListState extends State<ClientList> {
           ),
         ),
       ),
+      
     );
   }
 

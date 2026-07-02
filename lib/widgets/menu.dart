@@ -1,6 +1,5 @@
-import 'dart:io';
-import 'package:frontend/pages/authentication.dart';
 import 'package:flutter/material.dart';
+import 'package:frontend/pages/authentication.dart';
 import 'package:frontend/style/ColorScheme.dart' as custom_colors;
 
 class Menu extends StatelessWidget {
@@ -15,6 +14,7 @@ class Menu extends StatelessWidget {
 
     return Drawer(
       width: 200,
+      
       child: Container(
         decoration: BoxDecoration(
           gradient: LinearGradient(
@@ -70,7 +70,7 @@ class Menu extends StatelessWidget {
                       index: 3,
                       colors: colors,
                     ),
-
+  
                     _buildDrawerItem(
                       icon: Icons.home_outlined,
                       label: "Início",

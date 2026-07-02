@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:frontend/pages/authentication.dart';
-
+import 'package:frontend/pages/client-list/client_list.dart';
 void main() {
   runApp(MyApp());
 }
@@ -11,7 +10,7 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       home: Scaffold(
-        body: Authentication(),
+        body: ClientList(),
       ),
     );
   }
