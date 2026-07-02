@@ -13,6 +13,7 @@ class MockClientRepository implements ClientRepository {
   final List<Cliente> _bd = [
     Cliente(nome: 'Giovanna', endereco: 'Rua x', info_contato: '999198999'),
     Cliente(nome: 'Murilo', endereco: 'Rua y', info_contato: '111111111'),
+    
   ];
 
   @override

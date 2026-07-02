@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:frontend/models/cliente.dart';
 import 'package:frontend/pages/dashboard.dart';
 import 'package:frontend/pages/edit_item/item_edition.dart';
+import 'package:frontend/pages/person_registration/person_registration.dart';
 import 'package:frontend/pages/product_registration/product_registration.dart';
 import 'package:frontend/pages/stand_in_page.dart';
 import 'package:frontend/repositories/mock_client_repository.dart';
@@ -105,7 +106,7 @@ class _ClientListState extends State<ClientList> {
                         icon: const Icon(Icons.tune),
                         label: const Text('FILTRAR'),
                         style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.blue,
+                          backgroundColor: colors.primary,
                           foregroundColor: Colors.white,
                         ),
                       ),
@@ -116,7 +117,7 @@ class _ClientListState extends State<ClientList> {
                           icon: const Icon(Icons.swap_vert),
                           label: const Text('ORDENAR'),
                           style: ElevatedButton.styleFrom(
-                            backgroundColor: Colors.blue,
+                            backgroundColor: colors.primary,
                             foregroundColor: Colors.white,
                           ),
                         ),
@@ -174,6 +175,20 @@ class _ClientListState extends State<ClientList> {
           ),
         ),
       ),
+        floatingActionButton: FloatingActionButton(
+    onPressed: () {
+      Navigator.push(
+        context,
+        MaterialPageRoute(builder: (context) => const PersonRegistration()),
+      );
+    },
+    backgroundColor: colors.primary,
+    foregroundColor: colors.onPrimary,
+    shape: RoundedRectangleBorder(
+      borderRadius: BorderRadius.circular(8),
+    ),
+    child: const Icon(Icons.add),
+  ),
       
     );
   }
@@ -182,35 +197,48 @@ class _ClientListState extends State<ClientList> {
   Widget _buildClientCard(Cliente cliente) {
     return Container(
       margin: const EdgeInsets.only(bottom: 16.0),
-      padding: const EdgeInsets.all(16.0),
+      padding: const EdgeInsets.all(10.0),
       decoration: BoxDecoration(
         color: colors.surfaceContainer,
         border: Border.all(color: colors.primary, width: 1.5),
         borderRadius: BorderRadius.circular(16),
       ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            cliente.nome,
-            style: TextStyle(
-              color: colors.onSurface,
-              fontSize: 18,
-              fontWeight: FontWeight.bold,
-            ),
+       child: Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                cliente.nome,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: TextStyle(
+                  color: colors.onSurface,
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              Text(
+                cliente.endereco,
+                style: TextStyle(color: colors.onSurfaceVariant, fontSize: 14),
+              ),
+              Text(
+                cliente.info_contato,
+                style: TextStyle(color: colors.onSurfaceVariant, fontSize: 14),
+              ),
+            ],
           ),
-          const SizedBox(height: 6),
-          Text(
-            cliente.endereco,
-            style: TextStyle(color: colors.onSurfaceVariant, fontSize: 14),
-          ),
-          const SizedBox(height: 4),
-          Text(
-            cliente.info_contato,
-            style: TextStyle(color: colors.onSurfaceVariant, fontSize: 14),
-          ),
-        ],
-      ),
+        ),
+        IconButton(
+          icon: Icon(Icons.edit, color: colors.primary),
+          onPressed: () {
+            
+          },
+        ),
+      ],
+    ),
     );
   }
 }
