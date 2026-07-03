@@ -8,8 +8,9 @@ import 'package:frontend/pages/product_registration/product_registration.dart';
 import 'package:frontend/pages/stand_in_page.dart';
 import 'package:frontend/repositories/mock_client_repository.dart';
 import 'package:frontend/style/ColorScheme.dart' as custom_colors;
+import 'package:frontend/widgets/show_dialog/show_delete_client_dialog.dart';
+import 'package:frontend/widgets/slidable/slidable_delete_card.dart';
 import 'package:frontend/widgets/menu.dart';
-import 'package:flutter_slidable/flutter_slidable.dart';
 
 class ClientList extends StatefulWidget {
   const ClientList({super.key});
@@ -35,6 +36,13 @@ class _ClientListState extends State<ClientList> {
     setState(() {
       _futureClientes = clientes;
     });
+  }
+
+  // este metodo é ilustrativo, quando houver backend será realmente deletado
+  Future<void> _deletarCliente(Cliente cliente) async {
+    cliente.removido = true;
+
+    _carregarClientes();
   }
 
   @override
@@ -205,22 +213,19 @@ class _ClientListState extends State<ClientList> {
       padding: const EdgeInsets.only(bottom: 16),
       child: ClipRRect(
         borderRadius: BorderRadius.circular(16),
-        child: Slidable(
-          key: ValueKey(cliente.id),
-          endActionPane: ActionPane(
-            motion: const StretchMotion(),
-            extentRatio: 0.18,
-            children: [
-              SlidableAction(
-                onPressed: (_) {},
-                backgroundColor: Colors.red,
-                foregroundColor: Colors.white,
-                icon: Icons.delete,
-                borderRadius: BorderRadius.circular(16),
-                // label: 'Remover',
-              ),
-            ],
-          ),
+        child: SlidableDeleteCard(
+          slidableKey: ValueKey(cliente.id),
+          onDelete: () async {
+            final confimarExclusao =
+                await showDialog(
+                  context: context,
+                  builder: (_) => ShowDeleteClientDialog(nome: cliente.nome),
+                ) ??
+                false;
+
+            if (confimarExclusao) _deletarCliente(cliente);
+          },
+          extentRatio: 0.18,
           child: Container(
             padding: const EdgeInsets.all(10.0),
             decoration: BoxDecoration(
