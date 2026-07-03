@@ -16,7 +16,14 @@ class ShowDeleteClientDialog extends StatelessWidget {
             backgroundColor: Colors.grey,
             foregroundColor: Colors.black,
           ),
-          child: const Text('Cancelar'),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            spacing: 2,
+            children: [
+              Icon(Icons.cancel_outlined, color: Colors.black),
+              Text('Cancelar'),
+            ],
+          ),
         ),
         FilledButton(
           onPressed: () => Navigator.pop(context, true),
@@ -24,7 +31,14 @@ class ShowDeleteClientDialog extends StatelessWidget {
             backgroundColor: Colors.red,
             foregroundColor: Colors.white,
           ),
-          child: const Text('Remover'),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            spacing: 2,
+            children: [
+              Icon(Icons.delete, color: Colors.white),
+              Text('Remover'),
+            ],
+          ),
         ),
       ],
     );
