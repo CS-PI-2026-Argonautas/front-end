@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:frontend/pages/create-login-account/create_login_acccount.dart';
+import 'package:frontend/pages/create_login_account/create_login_acccount.dart';
 import 'package:frontend/pages/dashboard.dart';
 import 'package:frontend/pages/password_recovery/user_information.dart';
 import 'package:frontend/style/ColorScheme.dart' as custom_colors;

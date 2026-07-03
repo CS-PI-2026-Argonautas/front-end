@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:frontend/pages/client-list/client_list.dart';
+import 'package:frontend/pages/client_list/client_list.dart';
 import 'package:frontend/pages/edit_item/item_edition.dart';
 import 'package:frontend/pages/person_registration/person_registration.dart';
 import 'package:frontend/pages/product_registration/product_registration.dart';

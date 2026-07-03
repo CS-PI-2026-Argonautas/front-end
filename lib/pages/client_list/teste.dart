@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:frontend/pages/client-list/client_list.dart';
+import 'package:frontend/pages/client_list/client_list.dart';
 
 void main() {
   runApp(const MyApp());
