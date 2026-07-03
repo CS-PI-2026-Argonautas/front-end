@@ -13,29 +13,36 @@ class StandInPage extends StatelessWidget {
       backgroundColor: colors.surface,
       body: Center(
         child: Column(
+          spacing: 24,
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Text(
               "Em construção",
-              style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: colors.onSurface),
+              style: TextStyle(
+                fontSize: 24,
+                fontWeight: FontWeight.bold,
+                color: colors.onSurface,
+              ),
             ),
-            SizedBox(height: 20),
+
             ElevatedButton(
               onPressed: () {
                 Navigator.pushAndRemoveUntil(
-            context,
-            MaterialPageRoute(builder: (context) => const Dashboard()),
-            (route) => false,
-          );
+                  context,
+                  MaterialPageRoute(builder: (context) => const Dashboard()),
+                  (route) => false,
+                );
               },
               child: const Text("Voltar"),
-               style: ElevatedButton.styleFrom(
-                        elevation: 3,
-                        backgroundColor: colors.primary,
-                        foregroundColor: colors.onSecondary,
-                        padding: const EdgeInsets.symmetric(vertical: 18),
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
-                      ),
+              style: ElevatedButton.styleFrom(
+                elevation: 3,
+                backgroundColor: colors.primary,
+                foregroundColor: colors.onSecondary,
+                padding: const EdgeInsets.symmetric(vertical: 18),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(14),
+                ),
+              ),
             ),
           ],
         ),

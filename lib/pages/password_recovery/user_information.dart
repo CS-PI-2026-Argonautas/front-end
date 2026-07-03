@@ -22,8 +22,9 @@ class _UserInformationState extends State<UserInformation> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: Header(
-        onBack: () => Navigator.pop(context), 
-        title: 'Redefinição de Senha'),
+        onBack: () => Navigator.pop(context),
+        title: 'Redefinição de Senha',
+      ),
       backgroundColor: colors.surface,
       body: SafeArea(
         child: SingleChildScrollView(
@@ -32,10 +33,10 @@ class _UserInformationState extends State<UserInformation> {
             child: ConstrainedBox(
               constraints: const BoxConstraints(maxWidth: 650),
               child: Column(
+                spacing: 24,
                 children: [
-                  // _buildHeader(), 
-                  const SizedBox(height: 20),
-                  _buildFormCard(), 
+                  // _buildHeader(),
+                  _buildFormCard(),
                 ],
               ),
             ),
@@ -44,7 +45,6 @@ class _UserInformationState extends State<UserInformation> {
       ),
     );
   }
-
 
   Widget _buildFormCard() {
     return Card(
@@ -57,22 +57,24 @@ class _UserInformationState extends State<UserInformation> {
         child: Form(
           key: _formKey,
           child: Column(
+            spacing: 18,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              _buildSectionTitle("Dados de Acesso","Informe seu nome de usuário para que o código de redefinição de senha seja enviado para seu e-mail."),
-              const SizedBox(height: 30),
+              _buildSectionTitle(
+                "Dados de Acesso",
+                "Informe seu nome de usuário para que o código de redefinição de senha seja enviado para seu e-mail.",
+              ),
 
               _buildFieldLabel(Icons.person_outline, "Nome de Usuário"),
-              const SizedBox(height: 10),
-              
+
               TextFormField(
                 decoration: customInputDecoration(
                   hintText: 'Digite seu nome de usuário...',
                 ),
-                validator: (value) => (value == null || value.isEmpty) ? 'Informe o usuário' : null,
+                validator: (value) => (value == null || value.isEmpty)
+                    ? 'Informe o usuário'
+                    : null,
               ),
-
-              const SizedBox(height: 40),
 
               SizedBox(
                 width: double.infinity,
@@ -83,20 +85,21 @@ class _UserInformationState extends State<UserInformation> {
                     backgroundColor: colors.primary,
                     foregroundColor: colors.onSecondary,
                     padding: const EdgeInsets.symmetric(vertical: 18),
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(14),
+                    ),
                   ),
                   icon: const Icon(Icons.arrow_forward),
-                  label: const Text("Prosseguir", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+                  label: const Text(
+                    "Prosseguir",
+                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                  ),
                 ),
               ),
 
-              const SizedBox(height: 20),
-
               Center(
                 child: TextButton(
-                  onPressed: () {
-                    
-                  },
+                  onPressed: () {},
                   child: Text(
                     'Dúvidas? Contate nosso suporte',
                     style: TextStyle(
@@ -155,77 +158,39 @@ class _UserInformationState extends State<UserInformation> {
 
   Widget _buildSectionTitle(String title, String subtitle) {
     return Column(
+      spacing: 6,
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(title, style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: colors.onSurface)),
-        const SizedBox(height: 6),
-        Text(subtitle, style: TextStyle(fontSize: 14, color: colors.onSurfaceVariant)),
+        Text(
+          title,
+          style: TextStyle(
+            fontSize: 20,
+            fontWeight: FontWeight.bold,
+            color: colors.onSurface,
+          ),
+        ),
+        Text(
+          subtitle,
+          style: TextStyle(fontSize: 14, color: colors.onSurfaceVariant),
+        ),
       ],
     );
   }
 
   Widget _buildFieldLabel(IconData icon, String label) {
     return Row(
+      spacing: 6,
       children: [
         Icon(icon, size: 20, color: colors.primary),
-        const SizedBox(width: 8),
-        Text(label, style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16, color: colors.onSurface)),
+        Text(
+          label,
+          style: TextStyle(
+            fontWeight: FontWeight.bold,
+            fontSize: 16,
+            color: colors.onSurface,
+          ),
+        ),
       ],
     );
   }
 }
-
-
-// Widget _buildHeader() {
-  //   return Container(
-  //     width: double.infinity,
-  //     padding: const EdgeInsets.fromLTRB(20, 20, 20, 22),
-  //     decoration: BoxDecoration(
-  //       gradient: LinearGradient(
-  //         colors: [colors.primary, colors.secondary],
-  //         begin: Alignment.topLeft,
-  //         end: Alignment.bottomRight,
-  //       ),
-  //       borderRadius: BorderRadius.circular(22),
-  //       boxShadow: const [
-  //         BoxShadow(color: Colors.black26, blurRadius: 12, offset: Offset(0, 6)),
-  //       ],
-  //     ),
-  //     child: Column(
-  //       crossAxisAlignment: CrossAxisAlignment.start,
-  //       children: [
-  //         Row(
-  //           children: [
-  //             Container(
-  //               padding: const EdgeInsets.all(12),
-  //               decoration: BoxDecoration(
-  //                 color: Colors.white,
-  //                 borderRadius: BorderRadius.circular(16),
-  //               ),
-  //               child: Icon(Icons.lock_reset, color: colors.primary, size: 30),
-  //             ),
-  //             const SizedBox(width: 14),
-  //             const Expanded(
-  //               child: Text('Recuperar Senha',
-  //                   style: TextStyle(color: Colors.white, fontSize: 23, fontWeight: FontWeight.bold)),
-  //             ),
-  //             IconButton(
-  //               onPressed: () => Navigator.pop(context),
-  //               style: IconButton.styleFrom(
-  //                 backgroundColor: Colors.white,
-  //                 foregroundColor: colors.primary,
-  //                 shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
-  //               ),
-  //               icon: const Icon(Icons.arrow_back),
-  //             ),
-  //           ],
-  //         ),
-  //         const SizedBox(height: 16),
-  //         const Text(
-  //           'Informe seu nome de usuário e enviaremos um código para redefinir sua senha.',
-  //           style: TextStyle(color: Colors.white, fontSize: 14, height: 1.4),
-  //         ),
-  //       ],
-  //     ),
-  //   );
-  // }

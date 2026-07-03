@@ -44,7 +44,7 @@ class CreateLoginAccountState extends State<CreateLoginAccount> {
                   child: Form(
                     key: _formKey,
                     child: Column(
-                      spacing: 10,
+                      spacing: 24,
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         FormSectionTile(
@@ -52,7 +52,7 @@ class CreateLoginAccountState extends State<CreateLoginAccount> {
                           subtitle: "Informe seus dados pessoais.",
                         ),
                         Row(
-                          spacing: 8,
+                          spacing: 6,
                           children: [
                             Icon(Icons.badge, size: 20, color: colors.primary),
                             Text(
@@ -65,6 +65,7 @@ class CreateLoginAccountState extends State<CreateLoginAccount> {
                             ),
                           ],
                         ),
+
                         TextFormField(
                           decoration: InputDecoration(
                             enabledBorder: OutlineInputBorder(
@@ -95,8 +96,9 @@ class CreateLoginAccountState extends State<CreateLoginAccount> {
                             return null;
                           },
                         ),
+
                         Row(
-                          spacing: 8,
+                          spacing: 6,
                           children: [
                             Icon(Icons.badge, size: 20, color: colors.primary),
                             Text(
@@ -109,6 +111,7 @@ class CreateLoginAccountState extends State<CreateLoginAccount> {
                             ),
                           ],
                         ),
+
                         TextFormField(
                           decoration: InputDecoration(
                             enabledBorder: OutlineInputBorder(
@@ -139,8 +142,9 @@ class CreateLoginAccountState extends State<CreateLoginAccount> {
                             return null;
                           },
                         ),
+
                         Row(
-                          spacing: 8,
+                          spacing: 6,
                           children: [
                             Icon(
                               Icons.person_3,
@@ -157,6 +161,7 @@ class CreateLoginAccountState extends State<CreateLoginAccount> {
                             ),
                           ],
                         ),
+
                         TextFormField(
                           inputFormatters: [
                             FilteringTextInputFormatter.allow(
@@ -201,8 +206,9 @@ class CreateLoginAccountState extends State<CreateLoginAccount> {
                             ),
                           ),
                         ),
+
                         Row(
-                          spacing: 8,
+                          spacing: 6,
                           children: [
                             Icon(Icons.email, size: 20, color: colors.primary),
                             Text(
@@ -215,6 +221,7 @@ class CreateLoginAccountState extends State<CreateLoginAccount> {
                             ),
                           ],
                         ),
+
                         TextFormField(
                           decoration: InputDecoration(
                             enabledBorder: OutlineInputBorder(
@@ -255,6 +262,7 @@ class CreateLoginAccountState extends State<CreateLoginAccount> {
                             return null;
                           },
                         ),
+
                         Center(
                           child: ElevatedButton.icon(
                             onPressed: () {
