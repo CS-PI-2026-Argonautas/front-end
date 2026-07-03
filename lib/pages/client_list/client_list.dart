@@ -8,7 +8,11 @@ import 'package:frontend/pages/product_registration/product_registration.dart';
 import 'package:frontend/pages/stand_in_page.dart';
 import 'package:frontend/repositories/mock_client_repository.dart';
 import 'package:frontend/style/ColorScheme.dart' as custom_colors;
+import 'package:frontend/widgets/show_dialog/show_delete_client_dialog.dart';
+import 'package:frontend/widgets/show_snackbar/show_delete_client_snackbar.dart';
+import 'package:frontend/widgets/slidable/slidable_delete_card.dart';
 import 'package:frontend/widgets/menu.dart';
+
 class ClientList extends StatefulWidget {
   const ClientList({super.key});
 
@@ -24,29 +28,40 @@ class _ClientListState extends State<ClientList> {
   @override
   void initState() {
     super.initState();
-    _futureClientes = _repository.listarTodos();
+    _carregarClientes();
+  }
+
+  void _carregarClientes() {
+    final Future<List<Cliente>> clientes = _repository.listarTodos();
+
+    setState(() {
+      _futureClientes = clientes;
+    });
+  }
+
+  // este metodo é ilustrativo, quando houver backend será realmente deletado
+  Future<void> _deletarCliente(Cliente cliente) async {
+    cliente.removido = true;
   }
 
   @override
   Widget build(BuildContext context) {
-    
     return Scaffold(
       backgroundColor: colors.surface,
       appBar: AppBar(
-      backgroundColor: colors.primary,
-      foregroundColor: colors.onPrimary,
-      centerTitle: true,
-      title: const Text(
-        'Listar Clientes',
-        style: TextStyle(
-          color: Colors.white,
-          fontWeight: FontWeight.bold,
-          fontSize: 20,
+        backgroundColor: colors.primary,
+        foregroundColor: colors.onPrimary,
+        centerTitle: true,
+        title: const Text(
+          'Listar Clientes',
+          style: TextStyle(
+            color: Colors.white,
+            fontWeight: FontWeight.bold,
+            fontSize: 20,
+          ),
         ),
       ),
-    ),
-        endDrawer: Menu(
-
+      endDrawer: Menu(
         currentIndex: 0,
 
         onTap: (index) {
@@ -70,7 +85,7 @@ class _ClientListState extends State<ClientList> {
               MaterialPageRoute(builder: (context) => const ItemEdition()),
             );
           }
-          if(index == 4){
+          if (index == 4) {
             Navigator.push(
               context,
               MaterialPageRoute(builder: (context) => const Dashboard()),
@@ -176,75 +191,121 @@ class _ClientListState extends State<ClientList> {
           ),
         ),
       ),
-        floatingActionButton: FloatingActionButton(
-    onPressed: () {
-      Navigator.push(
-        context,
-        MaterialPageRoute(builder: (context) => const PersonRegistration()),
-      );
-    },
-    backgroundColor: colors.primary,
-    foregroundColor: colors.onPrimary,
-    shape: RoundedRectangleBorder(
-      borderRadius: BorderRadius.circular(8),
-    ),
-    child: const Icon(Icons.add),
-  ),
-      
+      floatingActionButton: FloatingActionButton(
+        onPressed: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => const PersonRegistration()),
+          );
+        },
+        backgroundColor: colors.primary,
+        foregroundColor: colors.onPrimary,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+        child: const Icon(Icons.add),
+      ),
     );
   }
 
   // construo meus cards
   Widget _buildClientCard(Cliente cliente) {
-    return Container(
-      margin: const EdgeInsets.only(bottom: 16.0),
-      padding: const EdgeInsets.all(10.0),
-      decoration: BoxDecoration(
-        color: colors.surfaceContainer,
-        border: Border.all(color: colors.primary, width: 1.5),
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 16),
+      child: ClipRRect(
         borderRadius: BorderRadius.circular(16),
-      ),
-       child: Row(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Expanded(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                cliente.nome,
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-                style: TextStyle(
-                  color: colors.onSurface,
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-              Text(
-                cliente.endereco,
-                style: TextStyle(color: colors.onSurfaceVariant, fontSize: 14),
-              ),
-              Text(
-                cliente.info_contato,
-                style: TextStyle(color: colors.onSurfaceVariant, fontSize: 14),
-              ),
-            ],
-          ),
-        ),
-        IconButton(
-          icon: Icon(Icons.edit, color: colors.primary),
-          onPressed: () {
-            Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (context) => const PersonAlteration(),
+        child: SlidableDeleteCard(
+          slidableKey: ValueKey(cliente.id),
+          onDelete: () async {
+            final confimarExclusao =
+                await showDialog(
+                  context: context,
+                  builder: (_) => ShowDeleteClientDialog(nome: cliente.nome),
+                ) ??
+                false;
+
+            if (!confimarExclusao) return;
+
+            await _deletarCliente(cliente);
+
+            _carregarClientes();
+
+            if (!mounted) return;
+
+            final messenger = ScaffoldMessenger.of(context);
+
+            messenger.hideCurrentSnackBar();
+
+            messenger.showSnackBar(
+              ShowDeleteClientSnackbar(
+                color: colors.primary,
+                onPressed: () {
+                  cliente.removido = false;
+
+                  _carregarClientes();
+
+                  messenger.hideCurrentSnackBar();
+                },
+                duration: Duration(seconds: 5),
               ),
             );
           },
+          extentRatio: 0.20,
+          child: Container(
+            padding: const EdgeInsets.all(10.0),
+            decoration: BoxDecoration(
+              color: colors.surfaceContainer,
+              border: Border.all(color: colors.primary, width: 1.5),
+              borderRadius: BorderRadius.circular(16),
+            ),
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        cliente.nome,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: TextStyle(
+                          color: colors.onSurface,
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      Text(
+                        cliente.endereco,
+                        style: TextStyle(
+                          color: colors.onSurfaceVariant,
+                          fontSize: 14,
+                        ),
+                      ),
+                      Text(
+                        cliente.info_contato,
+                        style: TextStyle(
+                          color: colors.onSurfaceVariant,
+                          fontSize: 14,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                IconButton(
+                  icon: Icon(Icons.edit, color: colors.primary),
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => const PersonAlteration(),
+                      ),
+                    );
+                  },
+                ),
+              ],
+            ),
+          ),
         ),
-      ],
-    ),
+      ),
     );
   }
 }
