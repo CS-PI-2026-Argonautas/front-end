@@ -17,7 +17,8 @@ class ProductRegistration extends StatelessWidget {
       appBar: Header(
         onBack: () {
           Navigator.pop(context);
-        }, title: 'Cadastro de produtos',
+        },
+        title: 'Cadastro de produtos',
       ),
 
       body: GestureDetector(
@@ -34,6 +35,7 @@ class ProductRegistration extends StatelessWidget {
                 constraints: const BoxConstraints(maxWidth: 650),
 
                 child: Column(
+                  spacing: 24,
                   crossAxisAlignment: CrossAxisAlignment.start,
 
                   children: [
@@ -70,14 +72,13 @@ class ProductRegistration extends StatelessWidget {
                                 ),
 
                                 title: const Row(
+                                  spacing: 6,
                                   children: [
                                     Icon(
                                       Icons.check_circle,
                                       color: Colors.green,
                                       size: 28,
                                     ),
-
-                                    SizedBox(width: 10),
 
                                     Text("Envio confirmado"),
                                   ],
@@ -115,8 +116,6 @@ class ProductRegistration extends StatelessWidget {
                         }
                       },
                     ),
-
-                    const SizedBox(height: 20),
                   ],
                 ),
               ),

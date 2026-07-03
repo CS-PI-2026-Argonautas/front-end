@@ -13,6 +13,7 @@ class ItemEdition extends StatelessWidget {
       backgroundColor: colors.surface,
       body: Center(
         child: Column(
+          spacing: 24,
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Text(
@@ -23,7 +24,6 @@ class ItemEdition extends StatelessWidget {
                 color: colors.onSurface,
               ),
             ),
-            SizedBox(height: 20),
             ElevatedButton(
               onPressed: () {
                 Navigator.pushAndRemoveUntil(

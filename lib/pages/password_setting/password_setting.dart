@@ -4,18 +4,16 @@ import 'package:frontend/pages/authentication.dart';
 import 'package:frontend/style/ColorScheme.dart' as custom_colors;
 import 'package:frontend/utils/password_recovery/validators.dart';
 import 'package:frontend/widgets/header.dart';
-import 'package:frontend/widgets/password_recovery/typing_text_field.dart'; 
+import 'package:frontend/widgets/password_recovery/typing_text_field.dart';
 
-class PasswordSetting extends StatefulWidget{
-
+class PasswordSetting extends StatefulWidget {
   const PasswordSetting({super.key});
 
   @override
   State<PasswordSetting> createState() => _PasswordSettingState();
 }
 
-class _PasswordSettingState extends State<PasswordSetting>{
-
+class _PasswordSettingState extends State<PasswordSetting> {
   _TipText tip = _TipText();
 
   final passwordStrength = PasswordStrength();
@@ -29,7 +27,7 @@ class _PasswordSettingState extends State<PasswordSetting>{
   final colors = custom_colors.colorScheme;
 
   @override
-  void dispose(){
+  void dispose() {
     passwordController.dispose();
     confirmPasswordController.dispose();
     super.dispose();
@@ -40,8 +38,9 @@ class _PasswordSettingState extends State<PasswordSetting>{
     return Scaffold(
       appBar: Header(
         onBack: () => Navigator.pop(context),
-        title: 'Cadastro de Senha'),
-      backgroundColor: colors.surface, 
+        title: 'Cadastro de Senha',
+      ),
+      backgroundColor: colors.surface,
       body: SafeArea(
         child: SingleChildScrollView(
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 18),
@@ -49,10 +48,10 @@ class _PasswordSettingState extends State<PasswordSetting>{
             child: ConstrainedBox(
               constraints: const BoxConstraints(maxWidth: 650),
               child: Column(
+                spacing: 24,
                 children: [
-                  // _buildHeader(), 
-                  const SizedBox(height: 20),
-                  _buildFormCard(), 
+                  // _buildHeader(),
+                  _buildFormCard(),
                 ],
               ),
             ),
@@ -73,24 +72,29 @@ class _PasswordSettingState extends State<PasswordSetting>{
         child: Form(
           key: _formKey,
           child: Column(
+            spacing: 18,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              _buildSectionTitle("Cadastrar Senha", "${tip.tip}${tip.tipText} \n \n ${tip.example}${tip.exampleText}"),
-
-              const SizedBox(height: 30),
+              _buildSectionTitle(
+                "Cadastrar Senha",
+                "${tip.tip}${tip.tipText} \n \n ${tip.example}${tip.exampleText}",
+              ),
 
               _buildFieldLabel(Icons.lock_outline, "Nova Senha *"),
-              const SizedBox(height: 10),
               TypingTextField(
                 controller: passwordController,
                 enabled: true,
                 validator: (value) {
-                  final error  = passwordValidator(value, comparisonValue: tip.exampleText, nameComparisonValue: "à frase-passe de exemplo");
+                  final error = passwordValidator(
+                    value,
+                    comparisonValue: tip.exampleText,
+                    nameComparisonValue: "à frase-passe de exemplo",
+                  );
 
-                  if(error != null){
+                  if (error != null) {
                     return error;
                   }
-                  
+
                   return null;
                 },
                 hintText: 'Mínimo 8 caracteres...',
@@ -98,7 +102,7 @@ class _PasswordSettingState extends State<PasswordSetting>{
                 isPassword: true,
                 onChanged: (value) {
                   setState(() {
-                    if(value.isEmpty){
+                    if (value.isEmpty) {
                       passwordScore = 0;
                       return;
                     }
@@ -108,71 +112,71 @@ class _PasswordSettingState extends State<PasswordSetting>{
                 },
               ),
               Column(
+                spacing: 2,
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const SizedBox(height: 8,),
-
                   const Text(
                     "Segurança da Senha",
                     style: TextStyle(fontSize: 14),
                   ),
 
-                  const SizedBox(height: 4,),
-
                   Row(
+                    spacing: 6,
                     children: [
                       Expanded(
                         child: LinearProgressIndicator(
                           value: passwordController.text.isEmpty
-                          ? 0
-                          : (passwordScore + 1) / 5,
+                              ? 0
+                              : (passwordScore + 1) / 5,
                           minHeight: 6,
-                          color: passwordStrength.passwordStrengthColor(passwordScore),
+                          color: passwordStrength.passwordStrengthColor(
+                            passwordScore,
+                          ),
                           backgroundColor: Colors.grey,
                           borderRadius: BorderRadius.circular(8),
                         ),
                       ),
 
-                      const SizedBox(width: 8,),
-
                       Text(
                         passwordController.text.isEmpty
-                        ? "Digite uma senha"
-                        : "${passwordStrength.passwordStrengthText(passwordScore)}",
+                            ? "Digite uma senha"
+                            : "${passwordStrength.passwordStrengthText(passwordScore)}",
                         style: TextStyle(
                           color: passwordController.text.isEmpty
-                          ? Colors.grey 
-                          : passwordStrength.passwordStrengthColor(passwordScore),
+                              ? Colors.grey
+                              : passwordStrength.passwordStrengthColor(
+                                  passwordScore,
+                                ),
                           fontWeight: FontWeight.bold,
                         ),
-                      )
+                      ),
                     ],
                   ),
                 ],
               ),
 
-              const SizedBox(height: 25),
-
               _buildFieldLabel(Icons.lock_reset, "Repetir Senha *"),
-              const SizedBox(height: 10),
               TypingTextField(
                 controller: confirmPasswordController,
                 enabled: true,
                 validator: (value) {
-                  final error  = confirmPassword(value, passwordController.text, comparisonValue: tip.exampleText, nameComparisonValue: 'à frase-passe de exemplo');
+                  final error = confirmPassword(
+                    value,
+                    passwordController.text,
+                    comparisonValue: tip.exampleText,
+                    nameComparisonValue: 'à frase-passe de exemplo',
+                  );
 
-                  if(error != null){
+                  if (error != null) {
                     return error;
                   }
-                  
+
                   return null;
                 },
                 hintText: 'Confirme sua senha...',
                 sensitiveContent: true,
                 isPassword: true,
               ),
-
-              const SizedBox(height: 40),
 
               SizedBox(
                 width: double.infinity,
@@ -183,22 +187,26 @@ class _PasswordSettingState extends State<PasswordSetting>{
                     backgroundColor: colors.primary,
                     foregroundColor: colors.onSecondary,
                     padding: const EdgeInsets.symmetric(vertical: 18),
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(14),
+                    ),
                   ),
                   icon: Icon(Icons.arrow_back),
-                  label: Text("Voltar", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+                  label: Text(
+                    "Voltar",
+                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                  ),
                 ),
               ),
-
-              const SizedBox(height: 16),
 
               SizedBox(
                 width: double.infinity,
                 child: ElevatedButton.icon(
                   onPressed: () {
-                    if (_formKey.currentState!.validate() && passwordController.text != tip.exampleText) {
+                    if (_formKey.currentState!.validate() &&
+                        passwordController.text != tip.exampleText) {
                       print('senha cadastrada');
-                      
+
                       ScaffoldMessenger.of(context).showSnackBar(
                         SnackBar(
                           content: Text('Senha cadastrada com sucesso!'),
@@ -212,11 +220,12 @@ class _PasswordSettingState extends State<PasswordSetting>{
                       );
 
                       Navigator.push(
-                        context, 
-                        MaterialPageRoute(builder: (context) => Authentication()),
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => Authentication(),
+                        ),
                       );
-                    }
-                    else{
+                    } else {
                       print('senha não cadastrada');
                       ScaffoldMessenger.of(context).showSnackBar(
                         SnackBar(
@@ -236,15 +245,18 @@ class _PasswordSettingState extends State<PasswordSetting>{
                     backgroundColor: colors.primary,
                     foregroundColor: colors.onSecondary,
                     padding: const EdgeInsets.symmetric(vertical: 18),
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(14),
+                    ),
                   ),
                   icon: const Icon(Icons.check),
-                  label: const Text("Cadastrar Senha", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+                  label: const Text(
+                    "Cadastrar Senha",
+                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                  ),
                 ),
               ),
 
-              const SizedBox(height: 16),
-              
               Center(
                 child: TextButton(
                   onPressed: () {
@@ -269,21 +281,38 @@ class _PasswordSettingState extends State<PasswordSetting>{
 
   Widget _buildSectionTitle(String title, String subtitle) {
     return Column(
+      spacing: 20,
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(title, style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: colors.onSurface)),
-        const SizedBox(height: 6),
-        Text(subtitle, style: TextStyle(fontSize: 14, color: colors.onSurfaceVariant)),
+        Text(
+          title,
+          style: TextStyle(
+            fontSize: 20,
+            fontWeight: FontWeight.bold,
+            color: colors.onSurface,
+          ),
+        ),
+        Text(
+          subtitle,
+          style: TextStyle(fontSize: 14, color: colors.onSurfaceVariant),
+        ),
       ],
     );
   }
 
   Widget _buildFieldLabel(IconData icon, String label) {
     return Row(
+      spacing: 6,
       children: [
         Icon(icon, size: 20, color: colors.primary),
-        const SizedBox(width: 8),
-        Text(label, style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16, color: colors.onSurface)),
+        Text(
+          label,
+          style: TextStyle(
+            fontWeight: FontWeight.bold,
+            fontSize: 16,
+            color: colors.onSurface,
+          ),
+        ),
       ],
     );
   }
@@ -291,7 +320,8 @@ class _PasswordSettingState extends State<PasswordSetting>{
 
 class _TipText {
   String tip = "Dica: ";
-  String tipText = 'use frases-passe ao invés de senhas padrões para criar credenciais mais longas, seguras e fáceis de memorizar.';
+  String tipText =
+      'use frases-passe ao invés de senhas padrões para criar credenciais mais longas, seguras e fáceis de memorizar.';
   String example = "Exemplo: ";
   String exampleText = 'cachorro#passeia@parque23';
 }

@@ -9,6 +9,7 @@ import 'package:frontend/pages/stand_in_page.dart';
 import 'package:frontend/repositories/mock_client_repository.dart';
 import 'package:frontend/style/ColorScheme.dart' as custom_colors;
 import 'package:frontend/widgets/menu.dart';
+
 class ClientList extends StatefulWidget {
   const ClientList({super.key});
 
@@ -29,24 +30,22 @@ class _ClientListState extends State<ClientList> {
 
   @override
   Widget build(BuildContext context) {
-    
     return Scaffold(
       backgroundColor: colors.surface,
       appBar: AppBar(
-      backgroundColor: colors.primary,
-      foregroundColor: colors.onPrimary,
-      centerTitle: true,
-      title: const Text(
-        'Listar Clientes',
-        style: TextStyle(
-          color: Colors.white,
-          fontWeight: FontWeight.bold,
-          fontSize: 20,
+        backgroundColor: colors.primary,
+        foregroundColor: colors.onPrimary,
+        centerTitle: true,
+        title: const Text(
+          'Listar Clientes',
+          style: TextStyle(
+            color: Colors.white,
+            fontWeight: FontWeight.bold,
+            fontSize: 20,
+          ),
         ),
       ),
-    ),
-        endDrawer: Menu(
-
+      endDrawer: Menu(
         currentIndex: 0,
 
         onTap: (index) {
@@ -70,7 +69,7 @@ class _ClientListState extends State<ClientList> {
               MaterialPageRoute(builder: (context) => const ItemEdition()),
             );
           }
-          if(index == 4){
+          if (index == 4) {
             Navigator.push(
               context,
               MaterialPageRoute(builder: (context) => const Dashboard()),
@@ -176,21 +175,18 @@ class _ClientListState extends State<ClientList> {
           ),
         ),
       ),
-        floatingActionButton: FloatingActionButton(
-    onPressed: () {
-      Navigator.push(
-        context,
-        MaterialPageRoute(builder: (context) => const PersonRegistration()),
-      );
-    },
-    backgroundColor: colors.primary,
-    foregroundColor: colors.onPrimary,
-    shape: RoundedRectangleBorder(
-      borderRadius: BorderRadius.circular(8),
-    ),
-    child: const Icon(Icons.add),
-  ),
-      
+      floatingActionButton: FloatingActionButton(
+        onPressed: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => const PersonRegistration()),
+          );
+        },
+        backgroundColor: colors.primary,
+        foregroundColor: colors.onPrimary,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+        child: const Icon(Icons.add),
+      ),
     );
   }
 
@@ -204,47 +200,53 @@ class _ClientListState extends State<ClientList> {
         border: Border.all(color: colors.primary, width: 1.5),
         borderRadius: BorderRadius.circular(16),
       ),
-       child: Row(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Expanded(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                cliente.nome,
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-                style: TextStyle(
-                  color: colors.onSurface,
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  cliente.nome,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: TextStyle(
+                    color: colors.onSurface,
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                  ),
                 ),
-              ),
-              Text(
-                cliente.endereco,
-                style: TextStyle(color: colors.onSurfaceVariant, fontSize: 14),
-              ),
-              Text(
-                cliente.info_contato,
-                style: TextStyle(color: colors.onSurfaceVariant, fontSize: 14),
-              ),
-            ],
+                Text(
+                  cliente.endereco,
+                  style: TextStyle(
+                    color: colors.onSurfaceVariant,
+                    fontSize: 14,
+                  ),
+                ),
+                Text(
+                  cliente.info_contato,
+                  style: TextStyle(
+                    color: colors.onSurfaceVariant,
+                    fontSize: 14,
+                  ),
+                ),
+              ],
+            ),
           ),
-        ),
-        IconButton(
-          icon: Icon(Icons.edit, color: colors.primary),
-          onPressed: () {
-            Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (context) => const PersonAlteration(),
-              ),
-            );
-          },
-        ),
-      ],
-    ),
+          IconButton(
+            icon: Icon(Icons.edit, color: colors.primary),
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => const PersonAlteration(),
+                ),
+              );
+            },
+          ),
+        ],
+      ),
     );
   }
 }

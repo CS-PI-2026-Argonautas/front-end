@@ -65,9 +65,7 @@ class _PersonRegistration2State extends State<PersonRegistrationAddress> {
           child: Center(
             child: ConstrainedBox(
               constraints: const BoxConstraints(maxWidth: 650),
-              child: Column(
-                children: [const SizedBox(height: 20), _buildFormCard()],
-              ),
+              child: Column(spacing: 24, children: [_buildFormCard()]),
             ),
           ),
         ),
@@ -79,17 +77,15 @@ class _PersonRegistration2State extends State<PersonRegistrationAddress> {
     return FormCard(
       formKey: _formKey,
       child: Column(
+        spacing: 18,
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           FormSectionTile(
             title: "Localização",
             subtitle: "Campos obrigatórios estão marcados com *",
           ),
-          const SizedBox(height: 30),
 
           FormFieldLabel(icon: Icons.pin_drop_outlined, label: "CEP *"),
-
-          const SizedBox(height: 10),
 
           TextFormField(
             controller: _cepController,
@@ -110,10 +106,8 @@ class _PersonRegistration2State extends State<PersonRegistrationAddress> {
             },
           ),
 
-          const SizedBox(height: 20),
-
           FormFieldLabel(icon: Icons.home_outlined, label: "Rua *"),
-          const SizedBox(height: 10),
+
           TextFormField(
             controller: _ruaController,
             decoration: customInputDecoration(hintText: "Av. Brasil"),
@@ -121,10 +115,8 @@ class _PersonRegistration2State extends State<PersonRegistrationAddress> {
                 (value == null || value.isEmpty) ? 'Informe a rua' : null,
           ),
 
-          const SizedBox(height: 20),
-
           FormFieldLabel(icon: Icons.location_city_outlined, label: "Cidade *"),
-          const SizedBox(height: 10),
+
           TextFormField(
             controller: _cidadeController,
             decoration: customInputDecoration(hintText: "Paranavaí"),
@@ -132,21 +124,21 @@ class _PersonRegistration2State extends State<PersonRegistrationAddress> {
                 (value == null || value.isEmpty) ? 'Informe a cidade' : null,
           ),
 
-          const SizedBox(height: 20),
-
           Row(
+            spacing: 18,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Expanded(
                 flex: 2,
                 child: Column(
+                  spacing: 18,
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     FormFieldLabel(
                       icon: Icons.numbers_outlined,
                       label: "Número",
                     ),
-                    const SizedBox(height: 10),
+
                     TextFormField(
                       controller: _numeroController,
                       decoration: customInputDecoration(hintText: "123"),
@@ -155,14 +147,15 @@ class _PersonRegistration2State extends State<PersonRegistrationAddress> {
                   ],
                 ),
               ),
-              const SizedBox(width: 16),
+
               Expanded(
                 flex: 1,
                 child: Column(
+                  spacing: 18,
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     FormFieldLabel(icon: Icons.flag_outlined, label: "UF *"),
-                    const SizedBox(height: 10),
+
                     TextFormField(
                       controller: _ufController,
                       inputFormatters: [
@@ -172,7 +165,7 @@ class _PersonRegistration2State extends State<PersonRegistrationAddress> {
                       ],
                       decoration: customInputDecoration(hintText: "PR"),
                       textCapitalization: TextCapitalization.characters,
-                    
+
                       validator: (value) {
                         if (value == null || value.isEmpty) {
                           return 'Informe a UF';
@@ -188,8 +181,6 @@ class _PersonRegistration2State extends State<PersonRegistrationAddress> {
               ),
             ],
           ),
-
-          const SizedBox(height: 30),
 
           ActionButtons(
             formKey: _formKey,

@@ -11,7 +11,8 @@ class PersonAlterationAddress extends StatefulWidget {
   const PersonAlterationAddress({super.key});
 
   @override
-  State<PersonAlterationAddress> createState() => _PersonAlterationAddressState();
+  State<PersonAlterationAddress> createState() =>
+      _PersonAlterationAddressState();
 }
 
 class _PersonAlterationAddressState extends State<PersonAlterationAddress> {
@@ -29,7 +30,9 @@ class _PersonAlterationAddressState extends State<PersonAlterationAddress> {
     return Scaffold(
       backgroundColor: colors.surface,
       appBar: Header(
-        onBack: () { Navigator.pop(context);}, 
+        onBack: () {
+          Navigator.pop(context);
+        },
         title: 'Edição de Endereço',
       ),
       body: SafeArea(
@@ -38,12 +41,7 @@ class _PersonAlterationAddressState extends State<PersonAlterationAddress> {
           child: Center(
             child: ConstrainedBox(
               constraints: const BoxConstraints(maxWidth: 650),
-              child: Column(
-                children: [
-                  const SizedBox(height: 20),
-                  _buildFormCard(),
-                ],
-              ),
+              child: Column(spacing: 24, children: [_buildFormCard()]),
             ),
           ),
         ),
@@ -51,81 +49,60 @@ class _PersonAlterationAddressState extends State<PersonAlterationAddress> {
     );
   }
 
- 
-
   Widget _buildFormCard() {
     return FormCard(
       formKey: _formKey,
       child: Column(
+        spacing: 18,
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           FormSectionTile(
             title: "Localização",
             subtitle: "Campos obrigatórios estão marcados com *",
           ),
-          const SizedBox(height: 30),
 
-          FormFieldLabel(
-            icon: Icons.pin_drop_outlined,
-            label: "CEP *"
-          ),
-
-          const SizedBox(height: 10),
+          FormFieldLabel(icon: Icons.pin_drop_outlined, label: "CEP *"),
 
           TextFormField(
             controller: _cepController,
             decoration: customInputDecoration(hintText: "12345-678"),
             keyboardType: TextInputType.number,
-            validator: (value) => (value == null || value.isEmpty)
-                ? 'Informe o CEP'
-                : null,
+            validator: (value) =>
+                (value == null || value.isEmpty) ? 'Informe o CEP' : null,
           ),
 
-          const SizedBox(height: 20),
+          FormFieldLabel(icon: Icons.home_outlined, label: "Rua *"),
 
-          FormFieldLabel(
-            icon: Icons.home_outlined,
-            label: "Rua *"
-          ),
-          const SizedBox(height: 10),
           TextFormField(
             controller: _ruaController,
             decoration: customInputDecoration(hintText: "Av. Brasil"),
-            validator: (value) => (value == null || value.isEmpty)
-                ? 'Informe a rua'
-                : null,
+            validator: (value) =>
+                (value == null || value.isEmpty) ? 'Informe a rua' : null,
           ),
 
-          const SizedBox(height: 20),
+          FormFieldLabel(icon: Icons.location_city_outlined, label: "Cidade *"),
 
-          FormFieldLabel(
-            icon: Icons.location_city_outlined,
-            label: "Cidade *"
-          ),
-          const SizedBox(height: 10),
           TextFormField(
             controller: _cidadeController,
             decoration: customInputDecoration(hintText: "Paranavaí"),
-            validator: (value) => (value == null || value.isEmpty)
-                ? 'Informe a cidade'
-                : null,
+            validator: (value) =>
+                (value == null || value.isEmpty) ? 'Informe a cidade' : null,
           ),
 
-          const SizedBox(height: 20),
-
           Row(
+            spacing: 18,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Expanded(
                 flex: 2,
                 child: Column(
+                  spacing: 18,
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     FormFieldLabel(
                       icon: Icons.numbers_outlined,
-                      label: "Número"
+                      label: "Número",
                     ),
-                    const SizedBox(height: 10),
                     TextFormField(
                       controller: _numeroController,
                       decoration: customInputDecoration(hintText: "123"),
@@ -134,17 +111,13 @@ class _PersonAlterationAddressState extends State<PersonAlterationAddress> {
                   ],
                 ),
               ),
-              const SizedBox(width: 16),
               Expanded(
                 flex: 1,
                 child: Column(
+                  spacing: 18,
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    FormFieldLabel(
-                      icon: Icons.flag_outlined,
-                      label: "UF *"
-                    ),
-                    const SizedBox(height: 10),
+                    FormFieldLabel(icon: Icons.flag_outlined, label: "UF *"),
                     TextFormField(
                       controller: _ufController,
                       decoration: customInputDecoration(hintText: "PR"),
@@ -157,8 +130,6 @@ class _PersonAlterationAddressState extends State<PersonAlterationAddress> {
               ),
             ],
           ),
-
-          const SizedBox(height: 30),
 
           ActionButtons(
             formKey: _formKey,
@@ -187,6 +158,3 @@ class _PersonAlterationAddressState extends State<PersonAlterationAddress> {
     );
   }
 }
-
-
-

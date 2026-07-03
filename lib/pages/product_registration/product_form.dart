@@ -36,6 +36,7 @@ class _ProductFormState extends State<ProductForm> {
           key: _formKey,
           autovalidateMode: AutovalidateMode.onUserInteraction,
           child: Column(
+            spacing: 24,
             crossAxisAlignment: CrossAxisAlignment.start,
 
             children: [
@@ -49,21 +50,16 @@ class _ProductFormState extends State<ProductForm> {
                 ),
               ),
 
-              const SizedBox(height: 6),
-
               Text(
                 "Complete os campos abaixo com os dados necessários.",
 
                 style: TextStyle(fontSize: 14, color: colors.onSurfaceVariant),
               ),
 
-              const SizedBox(height: 30),
-
               Row(
+                spacing: 6,
                 children: [
                   Icon(Icons.inventory_2, size: 20, color: colors.primary),
-
-                  const SizedBox(width: 8),
 
                   Text(
                     "Nome do Produto",
@@ -77,8 +73,6 @@ class _ProductFormState extends State<ProductForm> {
                 ],
               ),
 
-              const SizedBox(height: 10),
-
               TextFormField(
                 validator: (value) {
                   if (value == null || value.isEmpty) {
@@ -89,17 +83,14 @@ class _ProductFormState extends State<ProductForm> {
                 decoration: customInputDecoration(hintText: 'Balança'),
               ),
 
-              const SizedBox(height: 30),
-
               Row(
+                spacing: 6,
                 children: [
                   Icon(
                     Icons.description_outlined,
                     size: 20,
                     color: colors.primary,
                   ),
-
-                  const SizedBox(width: 8),
 
                   Text(
                     "Descrição do produto",
@@ -112,8 +103,6 @@ class _ProductFormState extends State<ProductForm> {
                   ),
                 ],
               ),
-
-              const SizedBox(height: 10),
 
               TextFormField(
                 maxLines: 4,
@@ -128,17 +117,14 @@ class _ProductFormState extends State<ProductForm> {
                 ),
               ),
 
-              const SizedBox(height: 30),
-
               Row(
+                spacing: 6,
                 children: [
                   Icon(
                     Icons.payments_outlined,
                     size: 20,
                     color: colors.primary,
                   ),
-
-                  const SizedBox(width: 8),
 
                   Text(
                     "Valor",
@@ -151,8 +137,6 @@ class _ProductFormState extends State<ProductForm> {
                   ),
                 ],
               ),
-
-              const SizedBox(height: 10),
 
               TextFormField(
                 validator: (value) {
@@ -176,17 +160,14 @@ class _ProductFormState extends State<ProductForm> {
                 ),
               ),
 
-              const SizedBox(height: 30),
-
               Row(
+                spacing: 6,
                 children: [
                   Icon(
                     Icons.warning_amber_rounded,
                     size: 20,
                     color: colors.primary,
                   ),
-
-                  const SizedBox(width: 8),
 
                   Text(
                     "Quantidade mínima",
@@ -199,8 +180,6 @@ class _ProductFormState extends State<ProductForm> {
                   ),
                 ],
               ),
-
-              const SizedBox(height: 10),
 
               TextFormField(
                 validator: (value) {
@@ -221,9 +200,8 @@ class _ProductFormState extends State<ProductForm> {
                 ),
               ),
 
-              const SizedBox(height: 30),
-
               Row(
+                spacing: 6,
                 children: [
                   Expanded(
                     child: DropdownButtonFormField<tipos.TipoProduto>(
@@ -259,9 +237,8 @@ class _ProductFormState extends State<ProductForm> {
                 ],
               ),
 
-              const SizedBox(height: 30),
-
               Row(
+                spacing: 6,
                 children: [
                   Expanded(
                     child: ElevatedButton.icon(
@@ -291,8 +268,6 @@ class _ProductFormState extends State<ProductForm> {
                       ),
                     ),
                   ),
-
-                  const SizedBox(width: 14),
 
                   Expanded(
                     child: OutlinedButton.icon(

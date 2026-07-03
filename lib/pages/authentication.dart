@@ -38,6 +38,7 @@ class _AuthenticationState extends State<Authentication> {
                   key: _formKey,
                   autovalidateMode: AutovalidateMode.onUserInteraction,
                   child: Column(
+                    spacing: 24,
                     mainAxisSize: MainAxisSize.min,
                     children: [
                       Image.asset(
@@ -46,8 +47,6 @@ class _AuthenticationState extends State<Authentication> {
                         height: 180,
                         fit: BoxFit.contain,
                       ),
-
-                      const SizedBox(height: 30),
 
                       TextFormField(
                         validator: (value) {
@@ -67,8 +66,6 @@ class _AuthenticationState extends State<Authentication> {
                           ),
                         ),
                       ),
-
-                      const SizedBox(height: 20),
 
                       TextFormField(
                         validator: (value) {
@@ -102,8 +99,6 @@ class _AuthenticationState extends State<Authentication> {
                         ),
                       ),
 
-                      const SizedBox(height: 15),
-
                       Align(
                         alignment: Alignment.centerRight,
                         child: GestureDetector(
@@ -121,8 +116,6 @@ class _AuthenticationState extends State<Authentication> {
                           ),
                         ),
                       ),
-
-                      const SizedBox(height: 40),
 
                       SizedBox(
                         width: double.infinity,
@@ -172,8 +165,6 @@ class _AuthenticationState extends State<Authentication> {
                           ),
                         ),
                       ),
-
-                      const SizedBox(height: 25),
 
                       GestureDetector(
                         onTap: () {

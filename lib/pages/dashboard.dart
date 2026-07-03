@@ -74,8 +74,8 @@ class Dashboard extends StatelessWidget {
         automaticallyImplyLeading: false,
 
         title: Row(
+          spacing: 6,
           children: [
-            const SizedBox(width: 4),
             Image.asset('lib/assets/icons/LogoEmpresa.png', width: 200),
           ],
         ),
@@ -86,12 +86,10 @@ class Dashboard extends StatelessWidget {
         onTap: (index) {
           Navigator.pop(context);
 
-            if (index == 0) {
+          if (index == 0) {
             Navigator.push(
               context,
-              MaterialPageRoute(
-                builder: (context) => const ClientList(),
-              ),
+              MaterialPageRoute(builder: (context) => const ClientList()),
             );
           }
           if (index == 1) {
@@ -103,7 +101,7 @@ class Dashboard extends StatelessWidget {
             );
           }
 
-          if ( index == 2) {
+          if (index == 2) {
             irParaStandIn();
           }
           if (index == 3) {
@@ -112,7 +110,7 @@ class Dashboard extends StatelessWidget {
               MaterialPageRoute(builder: (context) => const ItemEdition()),
             );
           }
-          if(index == 5){
+          if (index == 5) {
             Navigator.push(
               context,
               MaterialPageRoute(builder: (context) => const ClientList()),
@@ -125,6 +123,7 @@ class Dashboard extends StatelessWidget {
         child: Padding(
           padding: const EdgeInsets.all(24),
           child: Column(
+            spacing: 18,
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               Text(
@@ -137,8 +136,6 @@ class Dashboard extends StatelessWidget {
                 ),
               ),
 
-              const SizedBox(height: 28),
-
               SizedBox(
                 width: double.infinity,
                 child: botaoDashboard(
@@ -147,8 +144,6 @@ class Dashboard extends StatelessWidget {
                   preenchido: true,
                 ),
               ),
-
-              const SizedBox(height: 14),
 
               SizedBox(
                 width: double.infinity,
