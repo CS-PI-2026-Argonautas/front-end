@@ -9,6 +9,7 @@ import 'package:frontend/pages/stand_in_page.dart';
 import 'package:frontend/repositories/mock_client_repository.dart';
 import 'package:frontend/style/ColorScheme.dart' as custom_colors;
 import 'package:frontend/widgets/show_dialog/show_delete_client_dialog.dart';
+import 'package:frontend/widgets/show_snackbar/show_delete_client_snackbar.dart';
 import 'package:frontend/widgets/slidable/slidable_delete_card.dart';
 import 'package:frontend/widgets/menu.dart';
 
@@ -41,8 +42,6 @@ class _ClientListState extends State<ClientList> {
   // este metodo é ilustrativo, quando houver backend será realmente deletado
   Future<void> _deletarCliente(Cliente cliente) async {
     cliente.removido = true;
-
-    _carregarClientes();
   }
 
   @override
@@ -223,9 +222,33 @@ class _ClientListState extends State<ClientList> {
                 ) ??
                 false;
 
-            if (confimarExclusao) _deletarCliente(cliente);
+            if (!confimarExclusao) return;
+
+            await _deletarCliente(cliente);
+
+            _carregarClientes();
+
+            if (!mounted) return;
+
+            final messenger = ScaffoldMessenger.of(context);
+
+            messenger.hideCurrentSnackBar();
+
+            messenger.showSnackBar(
+              ShowDeleteClientSnackbar(
+                color: colors.primary,
+                onPressed: () {
+                  cliente.removido = false;
+
+                  _carregarClientes();
+
+                  messenger.hideCurrentSnackBar();
+                },
+                duration: Duration(seconds: 5),
+              ),
+            );
           },
-          extentRatio: 0.18,
+          extentRatio: 0.20,
           child: Container(
             padding: const EdgeInsets.all(10.0),
             decoration: BoxDecoration(
