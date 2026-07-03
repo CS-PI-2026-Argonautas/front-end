@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:frontend/pages/client-list/client_list.dart';
+import 'package:frontend/pages/client_list/client_list.dart';
 import 'package:frontend/pages/edit_item/item_edition.dart';
 import 'package:frontend/pages/person_registration/person_registration.dart';
 import 'package:frontend/pages/product_registration/product_registration.dart';
@@ -86,12 +86,10 @@ class Dashboard extends StatelessWidget {
         onTap: (index) {
           Navigator.pop(context);
 
-            if (index == 0) {
+          if (index == 0) {
             Navigator.push(
               context,
-              MaterialPageRoute(
-                builder: (context) => const ClientList(),
-              ),
+              MaterialPageRoute(builder: (context) => const ClientList()),
             );
           }
           if (index == 1) {
@@ -103,7 +101,7 @@ class Dashboard extends StatelessWidget {
             );
           }
 
-          if ( index == 2) {
+          if (index == 2) {
             irParaStandIn();
           }
           if (index == 3) {
@@ -112,7 +110,7 @@ class Dashboard extends StatelessWidget {
               MaterialPageRoute(builder: (context) => const ItemEdition()),
             );
           }
-          if(index == 5){
+          if (index == 5) {
             Navigator.push(
               context,
               MaterialPageRoute(builder: (context) => const ClientList()),
