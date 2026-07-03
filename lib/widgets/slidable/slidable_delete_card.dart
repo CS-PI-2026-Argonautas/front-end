@@ -18,12 +18,15 @@ class SlidableDeleteCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Slidable(
+      key: slidableKey,
       endActionPane: ActionPane(
         motion: const StretchMotion(),
         extentRatio: extentRatio,
         children: [
           SlidableAction(
-            onPressed: (_) => onDelete,
+            onPressed: (_) {
+              onDelete?.call();
+            },
             backgroundColor: Colors.red,
             foregroundColor: Colors.white,
             icon: Icons.delete,
