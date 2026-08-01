@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:frontend/widgets/header.dart';
 
 class Tabbar extends StatefulWidget{
 
@@ -15,9 +16,7 @@ class _TabbarState extends State<Tabbar>{
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text('OS nº ${widget.serviceOrderNumber}'),
-      ),
-    );
+      appBar: Header(onBack: () =>  Navigator.pop(context), title: Text('OS nº ${widget.serviceOrderNumber}')),
+      );
   }
 }
