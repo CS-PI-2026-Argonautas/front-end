@@ -17,24 +17,24 @@ class _OrderService extends State<OrderService> {
       backgroundColor: colors.surface,
 
       appBar: AppBar(
-        backgroundColor: colors.surface,
+        backgroundColor: colors.primary,
+        foregroundColor: colors.onPrimary,
         elevation: 0,
         centerTitle: true,
-        title: const Text(
+        title: Text(
           "Ordens e Serviços",
-          style: TextStyle(fontWeight: FontWeight.bold, color: Colors.black),
+          style: TextStyle(
+            color: colors.onPrimary,
+            fontWeight: FontWeight.bold,
+          ),
         ),
         leading: IconButton(
-          onPressed: () {
-            Navigator.pop(context);
-          },
+          onPressed: () => Navigator.pop(context),
           icon: const Icon(Icons.arrow_back_ios_new),
         ),
         actions: [
           IconButton(
-            onPressed: () {
-              Navigator.pop(context);
-            },
+            onPressed: () => Navigator.pop(context),
             icon: const Icon(Icons.close),
           ),
         ],
@@ -42,24 +42,44 @@ class _OrderService extends State<OrderService> {
 
       body: SafeArea(
         child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 20),
+          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
           child: Column(
             children: [
-              const SizedBox(
+              Container(
                 height: 60,
-                child: Center(child: Text("placeholder do menu")),
+                decoration: BoxDecoration(
+                  color: colors.surfaceContainer,
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: Center(
+                  child: Text(
+                    "Placeholder do menu",
+                    style: TextStyle(color: colors.onSurfaceVariant),
+                  ),
+                ),
               ),
 
-              const SizedBox(height: 20),
+              const SizedBox(height: 24),
 
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: const [
+                children: [
                   Text(
                     "Subtotal de peças",
-                    style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                    style: TextStyle(
+                      color: colors.onSurface,
+                      fontSize: 20,
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
-                  Text("R\$0,00", style: TextStyle(fontSize: 18)),
+                  Text(
+                    "R\$0,00",
+                    style: TextStyle(
+                      color: colors.onSurface,
+                      fontSize: 18,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
                 ],
               ),
 
@@ -82,6 +102,8 @@ class _OrderService extends State<OrderService> {
       ),
 
       floatingActionButton: FloatingActionButton(
+        backgroundColor: colors.primary,
+        foregroundColor: colors.onPrimary,
         onPressed: () {},
         child: const Icon(Icons.add),
       ),
@@ -89,53 +111,77 @@ class _OrderService extends State<OrderService> {
   }
 
   Widget _buildPieceCard() {
-    return Card(
-      elevation: 2,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18)),
-      child: Padding(
-        padding: const EdgeInsets.all(14),
-        child: Row(
-          children: [
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: const [
-                  Text(
-                    "Nome da peça",
-                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
-                  ),
-
-                  SizedBox(height: 6),
-
-                  Text("1 un x R\$0,00/un"),
-
-                  SizedBox(height: 2),
-
-                  Text(
-                    "R\$0,00",
-                    style: TextStyle(fontWeight: FontWeight.bold),
-                  ),
-                ],
-              ),
-            ),
-
-            Row(
+    return Container(
+      padding: const EdgeInsets.all(14),
+      decoration: BoxDecoration(
+        color: colors.surfaceContainer,
+        border: Border.all(color: colors.primary, width: 1.5),
+        borderRadius: BorderRadius.circular(18),
+      ),
+      child: Row(
+        children: [
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                IconButton(
-                  onPressed: () {},
-                  icon: const Icon(Icons.add_box_outlined),
+                Text(
+                  "Nome da peça",
+                  style: TextStyle(
+                    color: colors.onSurface,
+                    fontWeight: FontWeight.bold,
+                    fontSize: 18,
+                  ),
                 ),
 
-                const Text("1"),
+                const SizedBox(height: 6),
 
-                IconButton(
-                  onPressed: () {},
-                  icon: const Icon(Icons.indeterminate_check_box_outlined),
+                Text(
+                  "1 un x R\$0,00/un",
+                  style: TextStyle(
+                    color: colors.onSurfaceVariant,
+                    fontSize: 13,
+                  ),
+                ),
+
+                const SizedBox(height: 2),
+
+                Text(
+                  "R\$0,00",
+                  style: TextStyle(
+                    color: colors.onSurface,
+                    fontWeight: FontWeight.bold,
+                    fontSize: 17,
+                  ),
                 ),
               ],
             ),
-          ],
-        ),
+          ),
+
+          Row(
+            children: [
+              IconButton(
+                onPressed: () {},
+                icon: Icon(Icons.add_box_outlined, color: colors.primary),
+              ),
+
+              Text(
+                "1",
+                style: TextStyle(
+                  color: colors.onSurface,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+
+              IconButton(
+                onPressed: () {},
+                icon: Icon(
+                  Icons.indeterminate_check_box_outlined,
+                  color: colors.primary,
+                ),
+              ),
+            ],
+          ),
+        ],
       ),
     );
   }
