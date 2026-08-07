@@ -18,6 +18,18 @@ class _TabbarState extends State<Tabbar> with TickerProviderStateMixin{
 
   final colors = custom_colors.colorScheme;
 
+  void goToNextTab() {
+    if(_tabController.index < _tabController.length -1){
+      _tabController.animateTo(_tabController.index +1,);
+    }
+  }
+
+  void goToPreviousTab() {
+    if(_tabController.index > 0){
+      _tabController.animateTo(_tabController.index -1,);
+    }
+  }
+
   @override
   void dispose() {
     super.dispose();
@@ -27,18 +39,17 @@ class _TabbarState extends State<Tabbar> with TickerProviderStateMixin{
   @override
   void initState() {
     super.initState();
-    _tabController = TabController(length: 1, vsync: this);
+    _tabController = TabController(length: 4, vsync: this);
   }
 
   @override
   Widget build(BuildContext context) {
-    return DefaultTabController(
-      length: 4, 
-      child: Scaffold(
+    return Scaffold(
         appBar: AppBar(
           // backgroundColor: colors.surface,
           title: Text('OS nº ${widget.serviceOrderNumber}'),
           bottom: TabBar(
+            controller: _tabController,
             tabs: <Widget> [
               Tab(icon: Icon(Icons.description), text: 'Dados',),
               Tab(icon: Icon(Icons.build), text: 'Peças',),
@@ -48,13 +59,89 @@ class _TabbarState extends State<Tabbar> with TickerProviderStateMixin{
           ),
         ),
         body: TabBarView(
+          controller: _tabController,
           children: <Widget>[
-            Center(child: Text('aqui serao os dados'),),
-            Center(child: Text('aqui serao as peças'),),
-            Center(child: Text('aqui serao os servicos'),),
-            Center(child: Text('aqui serao os valores'),),
+            Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: [
+                  Text('aqui serao os dados'),
+                  ElevatedButton(
+                    onPressed: () {
+                      goToNextTab();
+                    },
+                    child: Text('avançar'),
+                  ),
+                  ElevatedButton(
+                    onPressed: () {
+                      goToPreviousTab();
+                    },
+                    child: Text('voltar'),
+                  ),
+                ],
+              ),
+            ),
+            Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: [
+                  Text('aqui serao as pecas'),
+                  ElevatedButton(
+                    onPressed: () {
+                      goToNextTab();
+                    },
+                    child: Text('avançar'),
+                  ),
+                  ElevatedButton(
+                    onPressed: () {
+                      goToPreviousTab();
+                    },
+                    child: Text('voltar'),
+                  ),
+                ],
+              ),
+            ),
+            Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: [
+                  Text('aqui serao os servicos'),
+                  ElevatedButton(
+                    onPressed: () {
+                      goToNextTab();
+                    },
+                    child: Text('avançar'),
+                  ),
+                  ElevatedButton(
+                    onPressed: () {
+                      goToPreviousTab();
+                    },
+                    child: Text('voltar'),
+                  ),
+                ],
+              ),
+            ),
+            Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: [
+                  Text('aqui serao os valores'),
+                  ElevatedButton(
+                    onPressed: () {
+                      goToNextTab();
+                    },
+                    child: Text('avançar'),
+                  ),
+                  ElevatedButton(
+                    onPressed: () {
+                      goToPreviousTab();
+                    },
+                    child: Text('voltar'),
+                  ),
+                ],
+              ),
+            ),
           ]),
-      ),
     );
   }
 }
