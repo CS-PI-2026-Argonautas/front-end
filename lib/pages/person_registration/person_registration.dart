@@ -11,6 +11,11 @@ import 'package:frontend/pages/dashboard.dart';
 import 'package:frontend/widgets/header.dart';
 import 'package:frontend/widgets/form_section_tile.dart';
 
+import 'package:frontend/widgets/slidable/slidable_delete_card.dart';
+import 'package:frontend/widgets/show_dialog/show_delete_client_dialog.dart';
+import 'package:frontend/widgets/show_snackbar/show_delete_client_snackbar.dart';
+
+
 class PersonRegistration extends StatefulWidget {
   const PersonRegistration({super.key});
 
@@ -151,32 +156,70 @@ class _PersonRegistrationState1 extends State<PersonRegistration> {
               itemCount: _enderecos.length,
               itemBuilder: (context, index) {
                 final endereco = _enderecos[index];
+
                 return Padding(
                   padding: const EdgeInsets.only(bottom: 8.0),
-                  child: Container(
-                    decoration: BoxDecoration(
-                      color: colors.surfaceContainer,
-                      border: Border.all(color: colors.primary.withOpacity(0.5), width: 1),
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    child: ListTile(
-                      dense: true,
-                      leading: Icon(Icons.location_on, color: colors.primary),
-                      title: Text(
-                        endereco,
-                        style: TextStyle(
-                          color: colors.onSurface,
-                          fontSize: 14,
-                          fontWeight: FontWeight.w500,
+                  child: ClipRRect(
+                    borderRadius: BorderRadius.circular(12),
+                    child: SlidableDeleteCard(
+                      slidableKey: ValueKey('$endereco-$index'),
+                      extentRatio: 0.20,
+                      onDelete: () async {
+                        // Exibe o dialog de confirmação igual ao ClientList
+                        final confirmarExclusao = await showDialog<bool>(
+                              context: context,
+                              builder: (_) => ShowDeleteClientDialog(nome: endereco),
+                            ) ??
+                            false;
+
+                        if (!confirmarExclusao) return;
+
+                        // Remove da lista se confirmado
+                        setState(() {
+                          _enderecos.removeAt(index);
+                        });
+
+                        if (!mounted) return;
+
+                        // Exibe o SnackBar com opção de desfazer
+                        final messenger = ScaffoldMessenger.of(context);
+                        messenger.hideCurrentSnackBar();
+                        messenger.showSnackBar(
+                          ShowDeleteClientSnackbar(
+                            color: colors.primary,
+                            onPressed: () {
+                              setState(() {
+                                _enderecos.insert(index, endereco);
+                              });
+                              messenger.hideCurrentSnackBar();
+                            },
+                            duration: const Duration(seconds: 5),
+                          ),
+                        );
+                      },
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                        decoration: BoxDecoration(
+                          color: colors.surfaceContainer,
+                          border: Border.all(color: colors.primary.withOpacity(0.5), width: 1),
+                          borderRadius: BorderRadius.circular(12),
                         ),
-                      ),
-                      trailing: IconButton(
-                        icon: const Icon(Icons.delete_outline, color: Colors.redAccent),
-                        onPressed: () {
-                          setState(() {
-                            _enderecos.removeAt(index);
-                          });
-                        },
+                        child: Row(
+                          children: [
+                            Icon(Icons.location_on, color: colors.primary),
+                            const SizedBox(width: 12),
+                            Expanded(
+                              child: Text(
+                                endereco,
+                                style: TextStyle(
+                                  color: colors.onSurface,
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.w500,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
                       ),
                     ),
                   ),
