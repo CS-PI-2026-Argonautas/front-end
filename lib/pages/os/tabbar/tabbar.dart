@@ -33,20 +33,26 @@ class _TabbarState extends State<Tabbar> with TickerProviderStateMixin{
   @override
   Widget build(BuildContext context) {
     return DefaultTabController(
-      length: 1, 
+      length: 4, 
       child: Scaffold(
         appBar: AppBar(
           // backgroundColor: colors.surface,
           title: Text('OS nº ${widget.serviceOrderNumber}'),
           bottom: TabBar(
             tabs: <Widget> [
-              Tab(icon: Icon(Icons.note_add_outlined), text: 'Dados',)
+              Tab(icon: Icon(Icons.description), text: 'Dados',),
+              Tab(icon: Icon(Icons.build), text: 'Peças',),
+              Tab(icon: Icon(Icons.handyman), text: 'Serviços',),
+              Tab(icon: Icon(Icons.attach_money), text: 'Valores',),
             ]
           ),
         ),
         body: TabBarView(
           children: <Widget>[
-            Center(child: Text('aqui serao os dados'),)
+            Center(child: Text('aqui serao os dados'),),
+            Center(child: Text('aqui serao as peças'),),
+            Center(child: Text('aqui serao os servicos'),),
+            Center(child: Text('aqui serao os valores'),),
           ]),
       ),
     );
