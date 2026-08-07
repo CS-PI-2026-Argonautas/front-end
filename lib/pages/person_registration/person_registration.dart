@@ -22,6 +22,10 @@ class _PersonRegistrationState1 extends State<PersonRegistration> {
   final _formKey = GlobalKey<FormState>();
   bool _isPessoaFisica = false;
   final colors = custom_colors.colorScheme;
+  final List<String> _enderecos = [
+  'Paranavaí - PR, Av. Brasil, 123',
+  'Maringá - PR, Rua Santos Dumont, 456',
+];
 
   final _cpfFormatter = MaskTextInputFormatter(
     mask: '###.###.###-##',
@@ -129,40 +133,56 @@ class _PersonRegistrationState1 extends State<PersonRegistration> {
             ],
           ),
 
-          FormField<String>(
-            key: ValueKey(
-              'endereco_${_enderecoController.text}',
-            ), // Prefixo exclusivo
-            initialValue: _enderecoController.text,
-            validator: (value) {
-              if (_enderecoController.text.isEmpty) {
-                return 'Informe o endereço';
-              }
-              return null;
-            },
-            builder: (FormFieldState<String> state) {
-              return InputDecorator(
-                decoration: customInputDecoration(
-                  hintText: _enderecoController.text.isEmpty
-                      ? "Inserir o endereço"
-                      : null,
-                ).copyWith(errorText: state.errorText),
-                child: Text(
-                  _enderecoController.text.isEmpty
-                      ? "Inserir o endereço"
-                      : _enderecoController.text,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: TextStyle(
-                    fontSize: 16,
-                    color: _enderecoController.text.isEmpty
-                        ? colors.onSurfaceVariant.withOpacity(0.6)
-                        : colors.onSurface,
-                  ),
+          if (_enderecos.isEmpty)
+            Padding(
+              padding: const EdgeInsets.symmetric(vertical: 8.0),
+              child: Text(
+                "Nenhum endereço adicionado.",
+                style: TextStyle(
+                  color: colors.onSurfaceVariant.withOpacity(0.6),
+                  fontSize: 14,
                 ),
-              );
-            },
-          ),
+              ),
+            )
+          else
+            ListView.builder(
+              shrinkWrap: true,
+              physics: const NeverScrollableScrollPhysics(),
+              itemCount: _enderecos.length,
+              itemBuilder: (context, index) {
+                final endereco = _enderecos[index];
+                return Padding(
+                  padding: const EdgeInsets.only(bottom: 8.0),
+                  child: Container(
+                    decoration: BoxDecoration(
+                      color: colors.surfaceContainer,
+                      border: Border.all(color: colors.primary.withOpacity(0.5), width: 1),
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: ListTile(
+                      dense: true,
+                      leading: Icon(Icons.location_on, color: colors.primary),
+                      title: Text(
+                        endereco,
+                        style: TextStyle(
+                          color: colors.onSurface,
+                          fontSize: 14,
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                      trailing: IconButton(
+                        icon: const Icon(Icons.delete_outline, color: Colors.redAccent),
+                        onPressed: () {
+                          setState(() {
+                            _enderecos.removeAt(index);
+                          });
+                        },
+                      ),
+                    ),
+                  ),
+                );
+              },
+            ),
 
           Row(
             spacing: 6,
