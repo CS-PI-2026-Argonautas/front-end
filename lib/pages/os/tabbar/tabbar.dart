@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:frontend/widgets/header.dart';
 import 'package:frontend/style/ColorScheme.dart' as custom_colors;
 
 class Tabbar extends StatefulWidget{
@@ -46,10 +45,13 @@ class _TabbarState extends State<Tabbar> with TickerProviderStateMixin{
   Widget build(BuildContext context) {
     return Scaffold(
         appBar: AppBar(
-          // backgroundColor: colors.surface,
           title: Text('OS nº ${widget.serviceOrderNumber}'),
+          backgroundColor: colors.primary,
+          foregroundColor: colors.onSecondary,
+          leading: _onBackAppbar,
           bottom: TabBar(
             controller: _tabController,
+            labelColor: colors.onSecondary,
             tabs: <Widget> [
               Tab(icon: Icon(Icons.description), text: 'Dados',),
               Tab(icon: Icon(Icons.build), text: 'Peças',),
@@ -142,6 +144,20 @@ class _TabbarState extends State<Tabbar> with TickerProviderStateMixin{
               ),
             ),
           ]),
+    );
+  }
+
+  Widget get _onBackAppbar{
+    return IconButton(
+      onPressed: () => Navigator.pop(context), 
+      icon: const Icon(
+        Icons.arrow_back, 
+        size: 20
+      ),
+      style: IconButton.styleFrom(
+        backgroundColor: Colors.white,
+        foregroundColor: Colors.blue,
+      ),
     );
   }
 }
