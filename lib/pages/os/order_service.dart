@@ -11,6 +11,14 @@ class OrderService extends StatefulWidget {
 class _OrderService extends State<OrderService> {
   final colors = custom_colors.colorScheme;
 
+  final List<String> pecas = [
+    "Pastilha de freio",
+    "Filtro de óleo",
+    "Filtro de ar",
+    "Correia dentada",
+    "Vela de ignição",
+  ];
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -104,9 +112,88 @@ class _OrderService extends State<OrderService> {
       floatingActionButton: FloatingActionButton(
         backgroundColor: colors.primary,
         foregroundColor: colors.onPrimary,
-        onPressed: () {},
+        onPressed: _abrirListaPecas,
         child: const Icon(Icons.add),
       ),
+    );
+  }
+
+  void _abrirListaPecas() {
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: colors.surface,
+      isScrollControlled: true,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+      ),
+      builder: (context) {
+        return SafeArea(
+          child: Padding(
+            padding: const EdgeInsets.all(20),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Center(
+                  child: Container(
+                    width: 40,
+                    height: 5,
+                    decoration: BoxDecoration(
+                      color: colors.onSurfaceVariant,
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                  ),
+                ),
+
+                const SizedBox(height: 20),
+
+                Text(
+                  "Selecionar peça",
+                  style: TextStyle(
+                    color: colors.onSurface,
+                    fontSize: 22,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+
+                const SizedBox(height: 16),
+
+                Flexible(
+                  child: ListView.builder(
+                    shrinkWrap: true,
+                    itemCount: pecas.length,
+                    itemBuilder: (context, index) {
+                      final peca = pecas[index];
+
+                      return ListTile(
+                        contentPadding: EdgeInsets.zero,
+                        leading: Icon(
+                          Icons.build_outlined,
+                          color: colors.primary,
+                        ),
+                        title: Text(
+                          peca,
+                          style: TextStyle(
+                            color: colors.onSurface,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                        trailing: Icon(
+                          Icons.chevron_right,
+                          color: colors.onSurfaceVariant,
+                        ),
+                        onTap: () {
+                          Navigator.pop(context);
+                        },
+                      );
+                    },
+                  ),
+                ),
+              ],
+            ),
+          ),
+        );
+      },
     );
   }
 
