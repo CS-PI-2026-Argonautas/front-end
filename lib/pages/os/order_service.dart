@@ -25,7 +25,6 @@ class _OrderService extends State<OrderService> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: colors.surface,
-
       appBar: AppBar(
         backgroundColor: colors.primary,
         foregroundColor: colors.onPrimary,
@@ -42,14 +41,7 @@ class _OrderService extends State<OrderService> {
           onPressed: () => Navigator.pop(context),
           icon: const Icon(Icons.arrow_back_ios_new),
         ),
-        actions: [
-          IconButton(
-            onPressed: () => Navigator.pop(context),
-            icon: const Icon(Icons.close),
-          ),
-        ],
       ),
-
       body: SafeArea(
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
@@ -68,9 +60,7 @@ class _OrderService extends State<OrderService> {
                   ),
                 ),
               ),
-
               const SizedBox(height: 24),
-
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
@@ -92,9 +82,7 @@ class _OrderService extends State<OrderService> {
                   ),
                 ],
               ),
-
               const SizedBox(height: 20),
-
               Expanded(
                 child: pecasDaOrdem.isEmpty
                     ? Center(
@@ -112,7 +100,7 @@ class _OrderService extends State<OrderService> {
                           return const SizedBox(height: 12);
                         },
                         itemBuilder: (context, index) {
-                          return _buildPieceCard(pecasDaOrdem[index]);
+                          return _buildPieceCard(pecasDaOrdem[index], index);
                         },
                       ),
               ),
@@ -120,7 +108,6 @@ class _OrderService extends State<OrderService> {
           ),
         ),
       ),
-
       floatingActionButton: FloatingActionButton(
         backgroundColor: colors.primary,
         foregroundColor: colors.onPrimary,
@@ -156,9 +143,7 @@ class _OrderService extends State<OrderService> {
                     ),
                   ),
                 ),
-
                 const SizedBox(height: 20),
-
                 Text(
                   "Selecionar peça",
                   style: TextStyle(
@@ -167,9 +152,7 @@ class _OrderService extends State<OrderService> {
                     fontWeight: FontWeight.bold,
                   ),
                 ),
-
                 const SizedBox(height: 16),
-
                 Flexible(
                   child: ListView.builder(
                     shrinkWrap: true,
@@ -225,7 +208,26 @@ class _OrderService extends State<OrderService> {
     });
   }
 
-  Widget _buildPieceCard(Map<String, dynamic> peca) {
+  void _aumentarQuantidade(int index) {
+    setState(() {
+      pecasDaOrdem[index]["quantidade"]++;
+    });
+  }
+
+  void _diminuirQuantidade(int index) {
+    if (pecasDaOrdem[index]["quantidade"] <= 1) {
+      return;
+    }
+
+    setState(() {
+      pecasDaOrdem[index]["quantidade"]--;
+    });
+  }
+
+  Widget _buildPieceCard(Map<String, dynamic> peca, int index) {
+    final int quantidade = peca["quantidade"];
+    final double preco = peca["preco"];
+
     return Container(
       padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
@@ -247,21 +249,17 @@ class _OrderService extends State<OrderService> {
                     fontSize: 18,
                   ),
                 ),
-
                 const SizedBox(height: 6),
-
                 Text(
-                  "1 un x R\$${peca["preco"].toStringAsFixed(2)}/un",
+                  "$quantidade un x R\$${preco.toStringAsFixed(2)}/un",
                   style: TextStyle(
                     color: colors.onSurfaceVariant,
                     fontSize: 13,
                   ),
                 ),
-
                 const SizedBox(height: 2),
-
                 Text(
-                  "R\$${peca["preco"].toStringAsFixed(2)}",
+                  "R\$${(quantidade * preco).toStringAsFixed(2)}",
                   style: TextStyle(
                     color: colors.onSurface,
                     fontWeight: FontWeight.bold,
@@ -271,27 +269,28 @@ class _OrderService extends State<OrderService> {
               ],
             ),
           ),
-
           Row(
             children: [
               IconButton(
-                onPressed: () {},
+                onPressed: () => _aumentarQuantidade(index),
                 icon: Icon(Icons.add_box_outlined, color: colors.primary),
               ),
-
               Text(
-                "${peca["quantidade"]}",
+                "$quantidade",
                 style: TextStyle(
                   color: colors.onSurface,
                   fontWeight: FontWeight.bold,
                 ),
               ),
-
               IconButton(
-                onPressed: () {},
+                onPressed: quantidade > 1
+                    ? () => _diminuirQuantidade(index)
+                    : null,
                 icon: Icon(
                   Icons.indeterminate_check_box_outlined,
-                  color: colors.primary,
+                  color: quantidade > 1
+                      ? colors.primary
+                      : colors.onSurfaceVariant,
                 ),
               ),
             ],
