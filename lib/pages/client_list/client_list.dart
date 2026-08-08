@@ -8,10 +8,10 @@ import 'package:frontend/pages/product_registration/product_registration.dart';
 import 'package:frontend/pages/stand_in_page.dart';
 import 'package:frontend/repositories/mock_client_repository.dart';
 import 'package:frontend/style/ColorScheme.dart' as custom_colors;
+import 'package:frontend/widgets/menu.dart';
 import 'package:frontend/widgets/show_dialog/show_delete_client_dialog.dart';
 import 'package:frontend/widgets/show_snackbar/show_delete_client_snackbar.dart';
 import 'package:frontend/widgets/slidable/slidable_delete_card.dart';
-import 'package:frontend/widgets/menu.dart';
 
 class ClientList extends StatefulWidget {
   const ClientList({super.key});
