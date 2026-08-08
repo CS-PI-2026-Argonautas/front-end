@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:frontend/style/ColorScheme.dart' as custom_colors;
-
 class OrderService extends StatefulWidget {
   const OrderService({super.key});
 
@@ -12,17 +11,52 @@ class _OrderService extends State<OrderService> {
   final colors = custom_colors.colorScheme;
 
   final List<Map<String, dynamic>> pecasDisponiveis = [
-    {"id": 1, "nome": "Pastilha de freio", "preco": 120.00},
-    {"id": 2, "nome": "Filtro de óleo", "preco": 35.90},
-    {"id": 3, "nome": "Filtro de ar", "preco": 48.50},
-    {"id": 4, "nome": "Correia dentada", "preco": 180.00},
-    {"id": 5, "nome": "Vela de ignição", "preco": 25.00},
+    {
+      "id": 1,
+      "nome": "Pastilha de freio",
+      "preco": 120.00,
+    },
+    {
+      "id": 2,
+      "nome": "Filtro de óleo",
+      "preco": 35.90,
+    },
+    {
+      "id": 3,
+      "nome": "Filtro de ar",
+      "preco": 48.50,
+    },
+    {
+      "id": 4,
+      "nome": "Correia dentada",
+      "preco": 180.00,
+    },
+    {
+      "id": 5,
+      "nome": "Vela de ignição",
+      "preco": 25.00,
+    },
   ];
 
   final List<Map<String, dynamic>> pecasDaOrdem = [];
 
+  double _calcularSubtotal() {
+    double subtotal = 0;
+
+    for (final peca in pecasDaOrdem) {
+      final int quantidade = peca["quantidade"];
+      final double preco = peca["preco"];
+
+      subtotal += quantidade * preco;
+    }
+
+    return subtotal;
+  }
+
   @override
   Widget build(BuildContext context) {
+    final double subtotal = _calcularSubtotal();
+
     return Scaffold(
       backgroundColor: colors.surface,
       appBar: AppBar(
@@ -41,10 +75,19 @@ class _OrderService extends State<OrderService> {
           onPressed: () => Navigator.pop(context),
           icon: const Icon(Icons.arrow_back_ios_new),
         ),
+        actions: [
+          IconButton(
+            onPressed: () => Navigator.pop(context),
+            icon: const Icon(Icons.close),
+          ),
+        ],
       ),
       body: SafeArea(
         child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+          padding: const EdgeInsets.symmetric(
+            horizontal: 20,
+            vertical: 16,
+          ),
           child: Column(
             children: [
               Container(
@@ -56,11 +99,15 @@ class _OrderService extends State<OrderService> {
                 child: Center(
                   child: Text(
                     "Placeholder do menu",
-                    style: TextStyle(color: colors.onSurfaceVariant),
+                    style: TextStyle(
+                      color: colors.onSurfaceVariant,
+                    ),
                   ),
                 ),
               ),
+
               const SizedBox(height: 24),
+
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
@@ -73,7 +120,7 @@ class _OrderService extends State<OrderService> {
                     ),
                   ),
                   Text(
-                    "R\$0,00",
+                    "R\$${subtotal.toStringAsFixed(2)}",
                     style: TextStyle(
                       color: colors.onSurface,
                       fontSize: 18,
@@ -82,7 +129,9 @@ class _OrderService extends State<OrderService> {
                   ),
                 ],
               ),
+
               const SizedBox(height: 20),
+
               Expanded(
                 child: pecasDaOrdem.isEmpty
                     ? Center(
@@ -100,7 +149,10 @@ class _OrderService extends State<OrderService> {
                           return const SizedBox(height: 12);
                         },
                         itemBuilder: (context, index) {
-                          return _buildPieceCard(pecasDaOrdem[index], index);
+                          return _buildPieceCard(
+                            pecasDaOrdem[index],
+                            index,
+                          );
                         },
                       ),
               ),
@@ -123,7 +175,9 @@ class _OrderService extends State<OrderService> {
       backgroundColor: colors.surface,
       isScrollControlled: true,
       shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+        borderRadius: BorderRadius.vertical(
+          top: Radius.circular(24),
+        ),
       ),
       builder: (context) {
         return SafeArea(
@@ -143,7 +197,9 @@ class _OrderService extends State<OrderService> {
                     ),
                   ),
                 ),
+
                 const SizedBox(height: 20),
+
                 Text(
                   "Selecionar peça",
                   style: TextStyle(
@@ -152,7 +208,9 @@ class _OrderService extends State<OrderService> {
                     fontWeight: FontWeight.bold,
                   ),
                 ),
+
                 const SizedBox(height: 16),
+
                 Flexible(
                   child: ListView.builder(
                     shrinkWrap: true,
@@ -175,7 +233,9 @@ class _OrderService extends State<OrderService> {
                         ),
                         subtitle: Text(
                           "R\$${peca["preco"].toStringAsFixed(2)}",
-                          style: TextStyle(color: colors.onSurfaceVariant),
+                          style: TextStyle(
+                            color: colors.onSurfaceVariant,
+                          ),
                         ),
                         trailing: Icon(
                           Icons.chevron_right,
@@ -224,15 +284,22 @@ class _OrderService extends State<OrderService> {
     });
   }
 
-  Widget _buildPieceCard(Map<String, dynamic> peca, int index) {
+  Widget _buildPieceCard(
+    Map<String, dynamic> peca,
+    int index,
+  ) {
     final int quantidade = peca["quantidade"];
     final double preco = peca["preco"];
+    final double totalItem = quantidade * preco;
 
     return Container(
       padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
         color: colors.surfaceContainer,
-        border: Border.all(color: colors.primary, width: 1.5),
+        border: Border.all(
+          color: colors.primary,
+          width: 1.5,
+        ),
         borderRadius: BorderRadius.circular(18),
       ),
       child: Row(
@@ -249,7 +316,9 @@ class _OrderService extends State<OrderService> {
                     fontSize: 18,
                   ),
                 ),
+
                 const SizedBox(height: 6),
+
                 Text(
                   "$quantidade un x R\$${preco.toStringAsFixed(2)}/un",
                   style: TextStyle(
@@ -257,9 +326,11 @@ class _OrderService extends State<OrderService> {
                     fontSize: 13,
                   ),
                 ),
+
                 const SizedBox(height: 2),
+
                 Text(
-                  "R\$${(quantidade * preco).toStringAsFixed(2)}",
+                  "R\$${totalItem.toStringAsFixed(2)}",
                   style: TextStyle(
                     color: colors.onSurface,
                     fontWeight: FontWeight.bold,
@@ -269,12 +340,17 @@ class _OrderService extends State<OrderService> {
               ],
             ),
           ),
+
           Row(
             children: [
               IconButton(
                 onPressed: () => _aumentarQuantidade(index),
-                icon: Icon(Icons.add_box_outlined, color: colors.primary),
+                icon: Icon(
+                  Icons.add_box_outlined,
+                  color: colors.primary,
+                ),
               ),
+
               Text(
                 "$quantidade",
                 style: TextStyle(
@@ -282,6 +358,7 @@ class _OrderService extends State<OrderService> {
                   fontWeight: FontWeight.bold,
                 ),
               ),
+
               IconButton(
                 onPressed: quantidade > 1
                     ? () => _diminuirQuantidade(index)
@@ -300,3 +377,4 @@ class _OrderService extends State<OrderService> {
     );
   }
 }
+
