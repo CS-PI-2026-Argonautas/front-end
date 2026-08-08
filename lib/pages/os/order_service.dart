@@ -11,13 +11,15 @@ class OrderService extends StatefulWidget {
 class _OrderService extends State<OrderService> {
   final colors = custom_colors.colorScheme;
 
-  final List<String> pecas = [
-    "Pastilha de freio",
-    "Filtro de óleo",
-    "Filtro de ar",
-    "Correia dentada",
-    "Vela de ignição",
+  final List<Map<String, dynamic>> pecasDisponiveis = [
+    {"id": 1, "nome": "Pastilha de freio", "preco": 120.00},
+    {"id": 2, "nome": "Filtro de óleo", "preco": 35.90},
+    {"id": 3, "nome": "Filtro de ar", "preco": 48.50},
+    {"id": 4, "nome": "Correia dentada", "preco": 180.00},
+    {"id": 5, "nome": "Vela de ignição", "preco": 25.00},
   ];
+
+  final List<Map<String, dynamic>> pecasDaOrdem = [];
 
   @override
   Widget build(BuildContext context) {
@@ -94,15 +96,25 @@ class _OrderService extends State<OrderService> {
               const SizedBox(height: 20),
 
               Expanded(
-                child: ListView(
-                  children: [
-                    _buildPieceCard(),
-                    const SizedBox(height: 12),
-                    _buildPieceCard(),
-                    const SizedBox(height: 12),
-                    _buildPieceCard(),
-                  ],
-                ),
+                child: pecasDaOrdem.isEmpty
+                    ? Center(
+                        child: Text(
+                          "Nenhuma peça adicionada",
+                          style: TextStyle(
+                            color: colors.onSurfaceVariant,
+                            fontSize: 16,
+                          ),
+                        ),
+                      )
+                    : ListView.separated(
+                        itemCount: pecasDaOrdem.length,
+                        separatorBuilder: (context, index) {
+                          return const SizedBox(height: 12);
+                        },
+                        itemBuilder: (context, index) {
+                          return _buildPieceCard(pecasDaOrdem[index]);
+                        },
+                      ),
               ),
             ],
           ),
@@ -161,9 +173,9 @@ class _OrderService extends State<OrderService> {
                 Flexible(
                   child: ListView.builder(
                     shrinkWrap: true,
-                    itemCount: pecas.length,
+                    itemCount: pecasDisponiveis.length,
                     itemBuilder: (context, index) {
-                      final peca = pecas[index];
+                      final peca = pecasDisponiveis[index];
 
                       return ListTile(
                         contentPadding: EdgeInsets.zero,
@@ -172,17 +184,22 @@ class _OrderService extends State<OrderService> {
                           color: colors.primary,
                         ),
                         title: Text(
-                          peca,
+                          peca["nome"],
                           style: TextStyle(
                             color: colors.onSurface,
                             fontWeight: FontWeight.w600,
                           ),
+                        ),
+                        subtitle: Text(
+                          "R\$${peca["preco"].toStringAsFixed(2)}",
+                          style: TextStyle(color: colors.onSurfaceVariant),
                         ),
                         trailing: Icon(
                           Icons.chevron_right,
                           color: colors.onSurfaceVariant,
                         ),
                         onTap: () {
+                          _adicionarPeca(peca);
                           Navigator.pop(context);
                         },
                       );
@@ -197,7 +214,18 @@ class _OrderService extends State<OrderService> {
     );
   }
 
-  Widget _buildPieceCard() {
+  void _adicionarPeca(Map<String, dynamic> peca) {
+    setState(() {
+      pecasDaOrdem.add({
+        "id": peca["id"],
+        "nome": peca["nome"],
+        "preco": peca["preco"],
+        "quantidade": 1,
+      });
+    });
+  }
+
+  Widget _buildPieceCard(Map<String, dynamic> peca) {
     return Container(
       padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
@@ -212,7 +240,7 @@ class _OrderService extends State<OrderService> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  "Nome da peça",
+                  peca["nome"],
                   style: TextStyle(
                     color: colors.onSurface,
                     fontWeight: FontWeight.bold,
@@ -223,7 +251,7 @@ class _OrderService extends State<OrderService> {
                 const SizedBox(height: 6),
 
                 Text(
-                  "1 un x R\$0,00/un",
+                  "1 un x R\$${peca["preco"].toStringAsFixed(2)}/un",
                   style: TextStyle(
                     color: colors.onSurfaceVariant,
                     fontSize: 13,
@@ -233,7 +261,7 @@ class _OrderService extends State<OrderService> {
                 const SizedBox(height: 2),
 
                 Text(
-                  "R\$0,00",
+                  "R\$${peca["preco"].toStringAsFixed(2)}",
                   style: TextStyle(
                     color: colors.onSurface,
                     fontWeight: FontWeight.bold,
@@ -252,7 +280,7 @@ class _OrderService extends State<OrderService> {
               ),
 
               Text(
-                "1",
+                "${peca["quantidade"]}",
                 style: TextStyle(
                   color: colors.onSurface,
                   fontWeight: FontWeight.bold,
