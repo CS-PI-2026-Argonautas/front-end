@@ -43,6 +43,7 @@ class _TabbarState extends State<Tabbar> with TickerProviderStateMixin{
 
   @override
   Widget build(BuildContext context) {
+    // CONFORME FOREM FAZENDO AS ABAS, ATUALIZAR AQUI
     return Scaffold(
         appBar: AppBar(
           title: Text('OS nº ${widget.serviceOrderNumber}'),
