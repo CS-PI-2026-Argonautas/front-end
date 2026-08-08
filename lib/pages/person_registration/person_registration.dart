@@ -126,10 +126,11 @@ class _PersonRegistrationState1 extends State<PersonRegistration> {
                       builder: (context) => const PersonRegistrationAddress(),
                     ),
                   );
-
-                  if (resultadoEndereco != null && mounted) {
+                  if (resultadoEndereco != null &&
+                      resultadoEndereco.trim().isNotEmpty &&
+                      mounted) {
                     setState(() {
-                      _enderecoController.text = resultadoEndereco;
+                      _enderecos.add(resultadoEndereco);
                     });
                   }
                 },
