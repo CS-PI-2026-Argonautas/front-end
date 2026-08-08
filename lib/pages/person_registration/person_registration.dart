@@ -15,7 +15,6 @@ import 'package:frontend/widgets/slidable/slidable_delete_card.dart';
 import 'package:frontend/widgets/show_dialog/show_delete_client_dialog.dart';
 import 'package:frontend/widgets/show_snackbar/show_delete_client_snackbar.dart';
 
-
 class PersonRegistration extends StatefulWidget {
   const PersonRegistration({super.key});
 
@@ -28,9 +27,9 @@ class _PersonRegistrationState1 extends State<PersonRegistration> {
   bool _isPessoaFisica = false;
   final colors = custom_colors.colorScheme;
   final List<String> _enderecos = [
-  'Paranavaí - PR, Av. Brasil, 123',
-  'Maringá - PR, Rua Santos Dumont, 456',
-];
+    'Paranavaí - PR, Av. Brasil, 123',
+    'Maringá - PR, Rua Santos Dumont, 456',
+  ];
 
   final _cpfFormatter = MaskTextInputFormatter(
     mask: '###.###.###-##',
@@ -165,23 +164,22 @@ class _PersonRegistrationState1 extends State<PersonRegistration> {
                       slidableKey: ValueKey('$endereco-$index'),
                       extentRatio: 0.20,
                       onDelete: () async {
-                        // Exibe o dialog de confirmação igual ao ClientList
-                        final confirmarExclusao = await showDialog<bool>(
+                        final confirmarExclusao =
+                            await showDialog<bool>(
                               context: context,
-                              builder: (_) => ShowDeleteClientDialog(nome: endereco),
+                              builder: (_) =>
+                                  ShowDeleteClientDialog(nome: endereco),
                             ) ??
                             false;
 
                         if (!confirmarExclusao) return;
 
-                        // Remove da lista se confirmado
                         setState(() {
                           _enderecos.removeAt(index);
                         });
 
                         if (!mounted) return;
 
-                        // Exibe o SnackBar com opção de desfazer
                         final messenger = ScaffoldMessenger.of(context);
                         messenger.hideCurrentSnackBar();
                         messenger.showSnackBar(
@@ -198,10 +196,16 @@ class _PersonRegistrationState1 extends State<PersonRegistration> {
                         );
                       },
                       child: Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 16,
+                          vertical: 8,
+                        ),
                         decoration: BoxDecoration(
                           color: colors.surfaceContainer,
-                          border: Border.all(color: colors.primary.withOpacity(0.5), width: 1),
+                          border: Border.all(
+                            color: colors.primary.withOpacity(0.5),
+                            width: 1,
+                          ),
                           borderRadius: BorderRadius.circular(12),
                         ),
                         child: Row(
@@ -217,6 +221,30 @@ class _PersonRegistrationState1 extends State<PersonRegistration> {
                                   fontWeight: FontWeight.w500,
                                 ),
                               ),
+                            ),
+                            // --- BOTÃO DE EDIÇÃO ---
+                            IconButton(
+                              icon: Icon(Icons.edit, color: colors.primary),
+                              onPressed: () async {
+                                final enderecoEditado =
+                                    await Navigator.push<String>(
+                                      context,
+                                      MaterialPageRoute(
+                                        builder: (context) =>
+                                            PersonRegistrationAddress(
+                                              enderecoInicial: endereco,
+                                            ),
+                                      ),
+                                    );
+
+                                if (enderecoEditado != null &&
+                                    enderecoEditado.isNotEmpty &&
+                                    mounted) {
+                                  setState(() {
+                                    _enderecos[index] = enderecoEditado;
+                                  });
+                                }
+                              },
                             ),
                           ],
                         ),
