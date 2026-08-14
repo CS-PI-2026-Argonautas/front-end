@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:frontend/pages/stand_in_page.dart';
 import 'package:frontend/style/ColorScheme.dart' as custom_colors;
 import 'package:frontend/widgets/slidable/slidable_delete_card.dart';
 
@@ -15,11 +16,29 @@ class _OsServicosTabState extends State<OsServicosTab> {
   final colors = custom_colors.colorScheme;
   final TextEditingController _searchController = TextEditingController();
 
-  // Dados mockados de serviços (sem utilizar Model)
+  // Dados mockados incluindo a descrição do serviço
   final List<Map<String, dynamic>> _servicosMock = [
-    {'id': '1', 'nome': 'Troca de sensor', 'preco': 74.00, 'removido': false},
-    {'id': '2', 'nome': 'Orçamento', 'preco': 74.00, 'removido': false},
-    {'id': '3', 'nome': 'Deslocamento', 'preco': 74.00, 'removido': false},
+    {
+      'id': '1',
+      'nome': 'Troca de sensor',
+      'descricao': 'Substituição do sensor óptico danificado',
+      'preco': 74.00,
+      'removido': false,
+    },
+    {
+      'id': '2',
+      'nome': 'Orçamento',
+      'descricao': 'Análise técnica preventiva e diagnósticos',
+      'preco': 74.00,
+      'removido': false,
+    },
+    {
+      'id': '3',
+      'nome': 'Deslocamento',
+      'descricao': 'Taxa de visita técnica residencial',
+      'preco': 74.00,
+      'removido': false,
+    },
   ];
 
   @override
@@ -28,18 +47,17 @@ class _OsServicosTabState extends State<OsServicosTab> {
     super.dispose();
   }
 
-  // Filtra serviços não removidos e que atendem à pesquisa
   List<Map<String, dynamic>> get _servicosExibidos {
     final query = _searchController.text.toLowerCase();
     return _servicosMock.where((servico) {
       final bool naoRemovido = servico['removido'] == false;
       final bool atendeFiltro =
-          servico['nome'].toString().toLowerCase().contains(query);
+          servico['nome'].toString().toLowerCase().contains(query) ||
+          servico['descricao'].toString().toLowerCase().contains(query);
       return naoRemovido && atendeFiltro;
     }).toList();
   }
 
-  // Cálculo dinâmico do Subtotal
   double get _subtotal {
     return _servicosExibidos.fold(
       0.0,
@@ -47,35 +65,17 @@ class _OsServicosTabState extends State<OsServicosTab> {
     );
   }
 
-  void _deletarServico(Map<String, dynamic> servico) {
+  Future<void> _deletarServico(Map<String, dynamic> servico) async {
     setState(() {
       servico['removido'] = true;
     });
-
-    final messenger = ScaffoldMessenger.of(context);
-    messenger.hideCurrentSnackBar();
-    messenger.showSnackBar(
-      SnackBar(
-        content: Text('${servico['nome']} removido.'),
-        backgroundColor: colors.primary,
-        action: SnackBarAction(
-          label: 'DESFAZER',
-          textColor: Colors.white,
-          onPressed: () {
-            setState(() {
-              servico['removido'] = false;
-            });
-          },
-        ),
-      ),
-    );
   }
 
   @override
   Widget build(BuildContext context) {
     return DefaultTabController(
       length: 4,
-      initialIndex: 2, // Começa na 3ª aba (Serviços)
+      initialIndex: 2, // Inicia na 3ª aba (Serviços)
       child: Scaffold(
         backgroundColor: colors.surface,
         appBar: AppBar(
@@ -117,11 +117,24 @@ class _OsServicosTabState extends State<OsServicosTab> {
             const Center(child: Text('Aba de Valores')),
           ],
         ),
+        floatingActionButton: FloatingActionButton(
+          onPressed: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => const StandInPage()),
+            );
+          },
+          backgroundColor: colors.primary,
+          foregroundColor: colors.onPrimary,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12),
+          ),
+          child: const Icon(Icons.add, size: 28),
+        ),
       ),
     );
   }
 
-  // Conteúdo principal da aba Serviços
   Widget _buildServicosContent() {
     final listaAtual = _servicosExibidos;
 
@@ -150,7 +163,7 @@ class _OsServicosTabState extends State<OsServicosTab> {
               ),
               const SizedBox(height: 20),
 
-              // Cabeçalho de Subtotal
+              // Subtotal
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
@@ -198,9 +211,10 @@ class _OsServicosTabState extends State<OsServicosTab> {
     );
   }
 
-  // Card do Serviço com Slidable
+  // Card do Serviço com padrão idêntico ao _buildClientCard (Slidable, SnackBar e confirmação)
   Widget _buildServiceCard(Map<String, dynamic> servico) {
     final double preco = servico['preco'];
+    final String descricao = servico['descricao'] ?? '';
 
     return Padding(
       padding: const EdgeInsets.only(bottom: 12),
@@ -208,7 +222,57 @@ class _OsServicosTabState extends State<OsServicosTab> {
         borderRadius: BorderRadius.circular(16),
         child: SlidableDeleteCard(
           slidableKey: ValueKey(servico['id']),
-          onDelete: () async => _deletarServico(servico),
+          onDelete: () async {
+            // Modal de confirmação simples de remoção
+            final confirmarExclusao = await showDialog<bool>(
+                  context: context,
+                  builder: (context) => AlertDialog(
+                    title: const Text('Remover Serviço'),
+                    content: Text('Deseja remover "${servico['nome']}" da OS?'),
+                    actions: [
+                      TextButton(
+                        onPressed: () => Navigator.pop(context, false),
+                        child: const Text('CANCELAR'),
+                      ),
+                      TextButton(
+                        onPressed: () => Navigator.pop(context, true),
+                        child: Text(
+                          'REMOVER',
+                          style: TextStyle(color: colors.error),
+                        ),
+                      ),
+                    ],
+                  ),
+                ) ??
+                false;
+
+            if (!confirmarExclusao) return;
+
+            await _deletarServico(servico);
+
+            if (!mounted) return;
+
+            final messenger = ScaffoldMessenger.of(context);
+            messenger.hideCurrentSnackBar();
+
+            messenger.showSnackBar(
+              SnackBar(
+                content: Text('${servico['nome']} removido.'),
+                backgroundColor: colors.primary,
+                duration: const Duration(seconds: 5),
+                action: SnackBarAction(
+                  label: 'DESFAZER',
+                  textColor: Colors.white,
+                  onPressed: () {
+                    setState(() {
+                      servico['removido'] = false;
+                    });
+                    messenger.hideCurrentSnackBar();
+                  },
+                ),
+              ),
+            );
+          },
           extentRatio: 0.20,
           child: Container(
             width: double.infinity,
@@ -226,15 +290,26 @@ class _OsServicosTabState extends State<OsServicosTab> {
                   style: TextStyle(
                     color: colors.onSurface,
                     fontSize: 18,
-                    fontWeight: FontWeight.w600,
+                    fontWeight: FontWeight.bold,
                   ),
                 ),
-                const SizedBox(height: 6),
+                if (descricao.isNotEmpty) ...[
+                  const SizedBox(height: 4),
+                  Text(
+                    descricao,
+                    style: TextStyle(
+                      color: colors.onSurfaceVariant,
+                      fontSize: 14,
+                    ),
+                  ),
+                ],
+                const SizedBox(height: 8),
                 Text(
                   'R\$ ${preco.toStringAsFixed(2).replaceAll('.', ',')}',
                   style: TextStyle(
-                    color: colors.onSurfaceVariant,
+                    color: colors.primary,
                     fontSize: 15,
+                    fontWeight: FontWeight.w600,
                   ),
                 ),
               ],
