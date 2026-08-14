@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:frontend/models/os.dart';
 import 'package:frontend/pages/dashboard.dart';
 import 'package:frontend/pages/edit_item/item_edition.dart';
-import 'package:frontend/pages/person_registration/person_registration.dart';
 import 'package:frontend/pages/product_registration/product_registration.dart';
 import 'package:frontend/pages/stand_in_page.dart';
 import 'package:frontend/repositories/mock_os_repository.dart';
@@ -228,12 +227,7 @@ class _OsListPageState extends State<OsListPage> {
 
       floatingActionButton: FloatingActionButton(
         onPressed: () {
-          Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (context) => const PersonRegistration(),
-            ),
-          );
+          Navigator.pop(context);
         },
         backgroundColor: colors.primary,
         foregroundColor: colors.onPrimary,

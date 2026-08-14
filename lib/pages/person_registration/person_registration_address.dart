@@ -33,7 +33,9 @@ class CepInputFormatter extends TextInputFormatter {
 }
 
 class PersonRegistrationAddress extends StatefulWidget {
-  const PersonRegistrationAddress({super.key});
+  final String? enderecoInicial;
+
+  const PersonRegistrationAddress({super.key, this.enderecoInicial});
 
   @override
   State<PersonRegistrationAddress> createState() => _PersonRegistration2State();
@@ -48,6 +50,31 @@ class _PersonRegistration2State extends State<PersonRegistrationAddress> {
   final _cidadeController = TextEditingController();
   final _numeroController = TextEditingController();
   final _ufController = TextEditingController();
+
+  @override
+  void initState() {
+    super.initState();
+    _preencherCamposSeEdicao();
+  }
+
+  void _preencherCamposSeEdicao() {
+    if (widget.enderecoInicial != null && widget.enderecoInicial!.isNotEmpty) {
+      final partes = widget.enderecoInicial!.split(', ');
+      if (partes.isNotEmpty) {
+        final cidadeUf = partes[0].split(' - ');
+        if (cidadeUf.length == 2) {
+          _cidadeController.text = cidadeUf[0];
+          _ufController.text = cidadeUf[1];
+        }
+      }
+      if (partes.length > 1) {
+        _ruaController.text = partes[1];
+      }
+      if (partes.length > 2) {
+        _numeroController.text = partes[2];
+      }
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
