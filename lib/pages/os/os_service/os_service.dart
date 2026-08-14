@@ -1,3 +1,4 @@
+import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:frontend/pages/stand_in_page.dart';
 import 'package:frontend/style/ColorScheme.dart' as custom_colors;
@@ -16,7 +17,7 @@ class _OsServicosTabState extends State<OsServicosTab> {
   final colors = custom_colors.colorScheme;
   final TextEditingController _searchController = TextEditingController();
 
-  // Dados mockados incluindo a descrição do serviço
+  // Dados mockados de serviços
   final List<Map<String, dynamic>> _servicosMock = [
     {
       'id': '1',
@@ -58,11 +59,16 @@ class _OsServicosTabState extends State<OsServicosTab> {
     }).toList();
   }
 
+  // Subtotal dinâmico com garantia de valor não negativo (>= 0)
   double get _subtotal {
-    return _servicosExibidos.fold(
+    final total = _servicosExibidos.fold(
       0.0,
-      (sum, item) => sum + (item['preco'] as double),
+      (sum, item) {
+        final double precoItem = (item['preco'] as double? ?? 0.0);
+        return sum + max(0.0, precoItem);
+      },
     );
+    return max(0.0, total);
   }
 
   Future<void> _deletarServico(Map<String, dynamic> servico) async {
@@ -163,7 +169,7 @@ class _OsServicosTabState extends State<OsServicosTab> {
               ),
               const SizedBox(height: 20),
 
-              // Subtotal
+              // Cabeçalho com Subtotal Não-Editável e Garantido >= 0
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
@@ -211,9 +217,10 @@ class _OsServicosTabState extends State<OsServicosTab> {
     );
   }
 
-  // Card do Serviço com padrão idêntico ao _buildClientCard (Slidable, SnackBar e confirmação)
   Widget _buildServiceCard(Map<String, dynamic> servico) {
-    final double preco = servico['preco'];
+    // Garante que o preço unitário do item não seja exibido negativo
+    final double precoCru = (servico['preco'] as double? ?? 0.0);
+    final double preco = max(0.0, precoCru);
     final String descricao = servico['descricao'] ?? '';
 
     return Padding(
@@ -223,7 +230,6 @@ class _OsServicosTabState extends State<OsServicosTab> {
         child: SlidableDeleteCard(
           slidableKey: ValueKey(servico['id']),
           onDelete: () async {
-            // Modal de confirmação simples de remoção
             final confirmarExclusao = await showDialog<bool>(
                   context: context,
                   builder: (context) => AlertDialog(
