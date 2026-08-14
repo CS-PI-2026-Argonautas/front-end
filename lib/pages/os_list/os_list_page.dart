@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:frontend/models/os.dart';
 import 'package:frontend/pages/dashboard.dart';
 import 'package:frontend/pages/edit_item/item_edition.dart';
-import 'package:frontend/pages/person_alteration/person_alteration.dart';
 import 'package:frontend/pages/person_registration/person_registration.dart';
 import 'package:frontend/pages/product_registration/product_registration.dart';
 import 'package:frontend/pages/stand_in_page.dart';
@@ -367,7 +366,7 @@ class _OsListPageState extends State<OsListPage> {
                       context,
                       MaterialPageRoute(
                         builder: (context) =>
-                            const PersonAlteration(),
+                            const StandInPage(),
                       ),
                     );
                   },

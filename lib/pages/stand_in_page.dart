@@ -1,6 +1,5 @@
-import 'package:frontend/pages/dashboard.dart';
-import 'package:frontend/style/ColorScheme.dart' as custom_colors;
 import 'package:flutter/material.dart';
+import 'package:frontend/style/ColorScheme.dart' as custom_colors;
 
 class StandInPage extends StatelessWidget {
   const StandInPage({super.key});
@@ -27,11 +26,7 @@ class StandInPage extends StatelessWidget {
 
             ElevatedButton(
               onPressed: () {
-                Navigator.pushAndRemoveUntil(
-                  context,
-                  MaterialPageRoute(builder: (context) => const Dashboard()),
-                  (route) => false,
-                );
+                Navigator.pop(context);
               },
               child: const Text("Voltar"),
               style: ElevatedButton.styleFrom(
