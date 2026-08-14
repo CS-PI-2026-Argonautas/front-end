@@ -1,0 +1,247 @@
+import 'package:flutter/material.dart';
+import 'package:frontend/style/ColorScheme.dart' as custom_colors;
+import 'package:frontend/widgets/slidable/slidable_delete_card.dart';
+
+class OsServicosTab extends StatefulWidget {
+  final dynamic serviceOrderNumber;
+
+  const OsServicosTab({super.key, required this.serviceOrderNumber});
+
+  @override
+  State<OsServicosTab> createState() => _OsServicosTabState();
+}
+
+class _OsServicosTabState extends State<OsServicosTab> {
+  final colors = custom_colors.colorScheme;
+  final TextEditingController _searchController = TextEditingController();
+
+  // Dados mockados de serviços (sem utilizar Model)
+  final List<Map<String, dynamic>> _servicosMock = [
+    {'id': '1', 'nome': 'Troca de sensor', 'preco': 74.00, 'removido': false},
+    {'id': '2', 'nome': 'Orçamento', 'preco': 74.00, 'removido': false},
+    {'id': '3', 'nome': 'Deslocamento', 'preco': 74.00, 'removido': false},
+  ];
+
+  @override
+  void dispose() {
+    _searchController.dispose();
+    super.dispose();
+  }
+
+  // Filtra serviços não removidos e que atendem à pesquisa
+  List<Map<String, dynamic>> get _servicosExibidos {
+    final query = _searchController.text.toLowerCase();
+    return _servicosMock.where((servico) {
+      final bool naoRemovido = servico['removido'] == false;
+      final bool atendeFiltro =
+          servico['nome'].toString().toLowerCase().contains(query);
+      return naoRemovido && atendeFiltro;
+    }).toList();
+  }
+
+  // Cálculo dinâmico do Subtotal
+  double get _subtotal {
+    return _servicosExibidos.fold(
+      0.0,
+      (sum, item) => sum + (item['preco'] as double),
+    );
+  }
+
+  void _deletarServico(Map<String, dynamic> servico) {
+    setState(() {
+      servico['removido'] = true;
+    });
+
+    final messenger = ScaffoldMessenger.of(context);
+    messenger.hideCurrentSnackBar();
+    messenger.showSnackBar(
+      SnackBar(
+        content: Text('${servico['nome']} removido.'),
+        backgroundColor: colors.primary,
+        action: SnackBarAction(
+          label: 'DESFAZER',
+          textColor: Colors.white,
+          onPressed: () {
+            setState(() {
+              servico['removido'] = false;
+            });
+          },
+        ),
+      ),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return DefaultTabController(
+      length: 4,
+      initialIndex: 2, // Começa na 3ª aba (Serviços)
+      child: Scaffold(
+        backgroundColor: colors.surface,
+        appBar: AppBar(
+          centerTitle: true,
+          title: Text(
+            'OS Nº ${widget.serviceOrderNumber}',
+            style: const TextStyle(fontWeight: FontWeight.bold),
+          ),
+          backgroundColor: colors.primary,
+          foregroundColor: colors.onSecondary,
+          leading: IconButton(
+            icon: const Icon(Icons.arrow_back),
+            onPressed: () => Navigator.pop(context),
+          ),
+          actions: [
+            IconButton(
+              icon: const Icon(Icons.close),
+              onPressed: () => Navigator.pop(context),
+            ),
+          ],
+          bottom: TabBar(
+            indicatorColor: colors.onSecondary,
+            indicatorWeight: 3,
+            labelColor: colors.onSecondary,
+            unselectedLabelColor: colors.onSecondary.withOpacity(0.6),
+            tabs: const <Widget>[
+              Tab(icon: Icon(Icons.note_add_outlined)), // Dados
+              Tab(icon: Icon(Icons.settings)),          // Peças
+              Tab(icon: Icon(Icons.handyman)),          // Serviços
+              Tab(icon: Icon(Icons.attach_money)),      // Valores
+            ],
+          ),
+        ),
+        body: TabBarView(
+          children: <Widget>[
+            const Center(child: Text('Aba de Dados')),
+            const Center(child: Text('Aba de Peças')),
+            _buildServicosContent(),
+            const Center(child: Text('Aba de Valores')),
+          ],
+        ),
+      ),
+    );
+  }
+
+  // Conteúdo principal da aba Serviços
+  Widget _buildServicosContent() {
+    final listaAtual = _servicosExibidos;
+
+    return SafeArea(
+      child: SingleChildScrollView(
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 20),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // Campo de Busca
+              TextFormField(
+                controller: _searchController,
+                onChanged: (_) => setState(() {}),
+                decoration: InputDecoration(
+                  hintText: 'Procurar serviço',
+                  filled: true,
+                  fillColor: Colors.white,
+                  hintStyle: TextStyle(color: colors.onSurface),
+                  prefixIcon: const Icon(Icons.search),
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(14),
+                    borderSide: BorderSide.none,
+                  ),
+                ),
+              ),
+              const SizedBox(height: 20),
+
+              // Cabeçalho de Subtotal
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(
+                    'Subtotal de serviços',
+                    style: TextStyle(
+                      color: colors.onSurface,
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  Text(
+                    'R\$ ${_subtotal.toStringAsFixed(2).replaceAll('.', ',')}',
+                    style: TextStyle(
+                      color: colors.onSurface,
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 16),
+
+              // Listagem de Cards
+              if (listaAtual.isEmpty)
+                const Padding(
+                  padding: EdgeInsets.symmetric(vertical: 40),
+                  child: Center(
+                    child: Text('Nenhum serviço encontrado.'),
+                  ),
+                )
+              else
+                ListView.builder(
+                  shrinkWrap: true,
+                  physics: const NeverScrollableScrollPhysics(),
+                  itemCount: listaAtual.length,
+                  itemBuilder: (context, index) {
+                    return _buildServiceCard(listaAtual[index]);
+                  },
+                ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  // Card do Serviço com Slidable
+  Widget _buildServiceCard(Map<String, dynamic> servico) {
+    final double preco = servico['preco'];
+
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 12),
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(16),
+        child: SlidableDeleteCard(
+          slidableKey: ValueKey(servico['id']),
+          onDelete: () async => _deletarServico(servico),
+          extentRatio: 0.20,
+          child: Container(
+            width: double.infinity,
+            padding: const EdgeInsets.all(16.0),
+            decoration: BoxDecoration(
+              color: colors.surfaceContainer,
+              border: Border.all(color: colors.primary, width: 1.5),
+              borderRadius: BorderRadius.circular(16),
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  servico['nome'],
+                  style: TextStyle(
+                    color: colors.onSurface,
+                    fontSize: 18,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+                const SizedBox(height: 6),
+                Text(
+                  'R\$ ${preco.toStringAsFixed(2).replaceAll('.', ',')}',
+                  style: TextStyle(
+                    color: colors.onSurfaceVariant,
+                    fontSize: 15,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}

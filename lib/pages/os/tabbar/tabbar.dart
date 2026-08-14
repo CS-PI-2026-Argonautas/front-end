@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:frontend/pages/os/os_service/os_service.dart';
 import 'package:frontend/style/ColorScheme.dart' as custom_colors;
 
 class Tabbar extends StatefulWidget{
@@ -108,7 +109,7 @@ class _TabbarState extends State<Tabbar> with TickerProviderStateMixin{
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 children: [
-                  Text('aqui serao os servicos'),
+                  OsServicosTab(serviceOrderNumber: widget.serviceOrderNumber),
                   ElevatedButton(
                     onPressed: () {
                       goToNextTab();
