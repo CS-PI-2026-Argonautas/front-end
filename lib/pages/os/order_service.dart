@@ -259,7 +259,7 @@ class _OrderService extends State<OrderService> {
     final double preco = peca["preco"];
     final double totalItem = quantidade * preco;
 
-   return Slidable(
+  return Slidable(
   key: ValueKey(peca["id"]),
 
   startActionPane: ActionPane(
