@@ -36,7 +36,22 @@ class _OsListPageState extends State<OsListPage> {
 
     setState(() {
       _futureOrdemServicos = os;
-    });
+    });   
+  }
+
+  Color _obterCorDoStatus(String status) {
+    switch (status) {
+      case 'Concluída':
+        return Colors.green;
+      case 'Pendente':
+      case 'Em Andamento':
+        return Colors.orange; 
+      case 'Fechada':
+      case 'Cancelada':
+        return Colors.red;
+      default:
+        return colors.onSurfaceVariant;
+    }
   }
 
   Future<void> _deletarOrdemServicos(OrdemServicos os) async {
@@ -306,9 +321,9 @@ class _OsListPageState extends State<OsListPage> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        os.nome,
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
+                      '#${os.id} - ${os.nome}', 
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
                         style: TextStyle(
                           color: colors.onSurface,
                           fontSize: 18,
@@ -316,35 +331,21 @@ class _OsListPageState extends State<OsListPage> {
                         ),
                       ),
 
-                      Text.rich(
-                      TextSpan(
+                      Text(
+                        os.cidade,
                         style: TextStyle(
                           color: colors.onSurfaceVariant,
                           fontSize: 14,
                         ),
-                        children: [
-                          const TextSpan(
-                            text: 'Cliente: ',
-                            style: TextStyle(fontWeight: FontWeight.bold),
-                          ),
-                          TextSpan(text: os.cliente),
-                        ],
                       ),
-                    ),
-                    Text.rich(
-                      TextSpan(
+                    
+                    Text(
+                        os.statusOdemDeServico,
                         style: TextStyle(
-                          color: colors.onSurfaceVariant,
+                          color: _obterCorDoStatus(os.statusOdemDeServico),
                           fontSize: 14,
                         ),
-                        children: [
-                          const TextSpan(
-                            text: 'Peça: ',
-                            style: TextStyle(fontWeight: FontWeight.bold),
-                          ),
-                          TextSpan(text: os.peca),
-                        ],
-                      ),
+                        
                     ),
                     ],
                   ),

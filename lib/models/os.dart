@@ -9,11 +9,13 @@ class OrdemServicos {
   final DateTime data;
   final String statusOdemDeServico;
   final String relatorio;
-
+  final DateTime criadoEm;
+  final String cidade;
   // usado para o soft delete
   bool removido;
 
   OrdemServicos({
+    required this.id,
     required this.nome,
     required this.peca,
     required this.equipamento,
@@ -22,6 +24,8 @@ class OrdemServicos {
     required this.data,
     required this.statusOdemDeServico,
     required this.relatorio,
+    required this.cidade,
+    DateTime? criadoEm,
     this.removido = false,
-  });
+  }) : criadoEm = criadoEm ?? DateTime.now();
 }
