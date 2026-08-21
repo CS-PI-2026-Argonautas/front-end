@@ -1,4 +1,4 @@
-// ESTUDAR ChangeNotifier
+// ESTUDAR ChangeNotifier E Provider
 
 // class OrdemServicoController extends ChangeNotifier {
 //   final OrdemServico os;
@@ -54,5 +54,31 @@
 //   void concluir() {
 //     os.status = StatusOS.concluida;
 //     notifyListeners();
+//   }
+// }
+
+
+
+
+
+
+
+
+// class ValoresTab extends StatelessWidget {
+//   const ValoresTab({super.key});
+
+//   @override
+//   Widget build(BuildContext context) {
+//     final os = context.watch<OrdemServicoController>();
+
+//     return Column(
+//       children: [
+//         Text('Peças: R\$ ${os.totalPecas}'),
+
+//         Text('Serviços: R\$ ${os.totalServicos}'),
+
+//         Text('Total: R\$ ${os.total}'),
+//       ],
+//     );
 //   }
 // }
