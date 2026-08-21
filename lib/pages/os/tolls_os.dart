@@ -1,15 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:frontend/style/ColorScheme.dart' as custom_colors;
 import 'package:flutter_slidable/flutter_slidable.dart';
+import 'package:frontend/pages/product_registration/product_registration.dart';
 
-class OrderService extends StatefulWidget {
-  const OrderService({super.key});
+class TollsOs extends StatefulWidget {
+  const TollsOs({super.key});
 
   @override
-  State<OrderService> createState() => _OrderService();
+  State<TollsOs> createState() => OrderServiceState();
 }
 
-class _OrderService extends State<OrderService> {
+class OrderServiceState extends State<TollsOs> {
   final colors = custom_colors.colorScheme;
 
   final List<Map<String, dynamic>> pecasDisponiveis = [
@@ -41,50 +42,11 @@ class _OrderService extends State<OrderService> {
 
     return Scaffold(
       backgroundColor: colors.surface,
-      appBar: AppBar(
-        backgroundColor: colors.primary,
-        foregroundColor: colors.onPrimary,
-        elevation: 0,
-        centerTitle: true,
-        title: Text(
-          "Ordens e Serviços",
-          style: TextStyle(
-            color: colors.onPrimary,
-            fontWeight: FontWeight.bold,
-          ),
-        ),
-        leading: IconButton(
-          onPressed: () => Navigator.pop(context),
-          icon: const Icon(Icons.arrow_back_ios_new),
-        ),
-        actions: [
-          IconButton(
-            onPressed: () => Navigator.pop(context),
-            icon: const Icon(Icons.close),
-          ),
-        ],
-      ),
       body: SafeArea(
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
           child: Column(
             children: [
-              Container(
-                height: 60,
-                decoration: BoxDecoration(
-                  color: colors.surfaceContainer,
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                child: Center(
-                  child: Text(
-                    "Placeholder do menu",
-                    style: TextStyle(color: colors.onSurfaceVariant),
-                  ),
-                ),
-              ),
-
-              const SizedBox(height: 24),
-
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
@@ -135,15 +97,15 @@ class _OrderService extends State<OrderService> {
         ),
       ),
       floatingActionButton: FloatingActionButton(
-        backgroundColor: colors.primary,
-        foregroundColor: colors.onPrimary,
-        onPressed: _abrirListaPecas,
-        child: const Icon(Icons.add),
+        onPressed: abrirListaPecas,
+        backgroundColor: Colors.white,
+        elevation: 3,
+        child: Icon(Icons.add, color: colors.primary, size: 28),
       ),
     );
   }
 
-  void _abrirListaPecas() {
+  void abrirListaPecas() {
     showModalBottomSheet(
       context: context,
       backgroundColor: colors.surface,
@@ -170,15 +132,31 @@ class _OrderService extends State<OrderService> {
                   ),
                 ),
 
-                const SizedBox(height: 20),
+                const SizedBox(height: 12),
 
-                Text(
-                  "Selecionar peça",
-                  style: TextStyle(
-                    color: colors.onSurface,
-                    fontSize: 22,
-                    fontWeight: FontWeight.bold,
-                  ),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
+                      "Selecionar peça",
+                      style: TextStyle(
+                        color: colors.onSurface,
+                        fontSize: 22,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    IconButton(
+                      icon: Icon(Icons.add, color: colors.primary, size: 26),
+                      onPressed: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => ProductRegistration(),
+                          ),
+                        );
+                      },
+                    ),
+                  ],
                 ),
 
                 const SizedBox(height: 16),
@@ -259,27 +237,26 @@ class _OrderService extends State<OrderService> {
     final double preco = peca["preco"];
     final double totalItem = quantidade * preco;
 
-  return Slidable(
-  key: ValueKey(peca["id"]),
+    return Slidable(
+      key: ValueKey(peca["id"]),
 
-  startActionPane: ActionPane(
-    motion: const DrawerMotion(),
-    extentRatio: 0.25,
-    children: [
-      SlidableAction(
-        onPressed: (context) {
-          setState(() {
-            pecasDaOrdem.removeAt(index);
-          });
-        },
-        backgroundColor: Colors.red,
-        foregroundColor: Colors.white,
-        icon: Icons.delete,
-        label: 'Excluir',
-        borderRadius: BorderRadius.circular(18),
+      endActionPane: ActionPane(
+        motion: const DrawerMotion(),
+        extentRatio: 0.22,
+        children: [
+          SlidableAction(
+            onPressed: (context) {
+              setState(() {
+                pecasDaOrdem.removeAt(index);
+              });
+            },
+            backgroundColor: Colors.red.shade600,
+            foregroundColor: Colors.white,
+            icon: Icons.delete_outline,
+            borderRadius: BorderRadius.circular(18),
+          ),
+        ],
       ),
-    ],
-  ),
 
       child: Container(
         padding: const EdgeInsets.all(14),
