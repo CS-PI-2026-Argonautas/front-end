@@ -5,9 +5,7 @@ import 'package:frontend/style/ColorScheme.dart' as custom_colors;
 import 'package:frontend/widgets/slidable/slidable_delete_card.dart';
 
 class OsServicosTab extends StatefulWidget {
-  final dynamic serviceOrderNumber;
-
-  const OsServicosTab({super.key, required this.serviceOrderNumber});
+  const OsServicosTab({super.key});
 
   @override
   State<OsServicosTab> createState() => _OsServicosTabState();
@@ -59,7 +57,7 @@ class _OsServicosTabState extends State<OsServicosTab> {
     }).toList();
   }
 
-  // Subtotal dinâmico com garantia de valor não negativo (>= 0)
+  // Subtotal garantido >= 0
   double get _subtotal {
     final total = _servicosExibidos.fold(
       0.0,
@@ -79,146 +77,106 @@ class _OsServicosTabState extends State<OsServicosTab> {
 
   @override
   Widget build(BuildContext context) {
-    return DefaultTabController(
-      length: 4,
-      initialIndex: 2, // Inicia na 3ª aba (Serviços)
-      child: Scaffold(
-        backgroundColor: colors.surface,
-        appBar: AppBar(
-          centerTitle: true,
-          title: Text(
-            'OS Nº ${widget.serviceOrderNumber}',
-            style: const TextStyle(fontWeight: FontWeight.bold),
-          ),
-          backgroundColor: colors.primary,
-          foregroundColor: colors.onSecondary,
-          leading: IconButton(
-            icon: const Icon(Icons.arrow_back),
-            onPressed: () => Navigator.pop(context),
-          ),
-          actions: [
-            IconButton(
-              icon: const Icon(Icons.close),
-              onPressed: () => Navigator.pop(context),
-            ),
-          ],
-          bottom: TabBar(
-            indicatorColor: colors.onSecondary,
-            indicatorWeight: 3,
-            labelColor: colors.onSecondary,
-            unselectedLabelColor: colors.onSecondary.withOpacity(0.6),
-            tabs: const <Widget>[
-              Tab(icon: Icon(Icons.note_add_outlined)), // Dados
-              Tab(icon: Icon(Icons.settings)),          // Peças
-              Tab(icon: Icon(Icons.handyman)),          // Serviços
-              Tab(icon: Icon(Icons.attach_money)),      // Valores
-            ],
-          ),
-        ),
-        body: TabBarView(
-          children: <Widget>[
-            const Center(child: Text('Aba de Dados')),
-            const Center(child: Text('Aba de Peças')),
-            _buildServicosContent(),
-            const Center(child: Text('Aba de Valores')),
-          ],
-        ),
-        floatingActionButton: FloatingActionButton(
-          onPressed: () {
-            Navigator.push(
-              context,
-              MaterialPageRoute(builder: (context) => const StandInPage()),
-            );
-          },
-          backgroundColor: colors.primary,
-          foregroundColor: colors.onPrimary,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(12),
-          ),
-          child: const Icon(Icons.add, size: 28),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildServicosContent() {
     final listaAtual = _servicosExibidos;
 
-    return SafeArea(
-      child: SingleChildScrollView(
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 20),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              // Campo de Busca
-              TextFormField(
-                controller: _searchController,
-                onChanged: (_) => setState(() {}),
-                decoration: InputDecoration(
-                  hintText: 'Procurar serviço',
-                  filled: true,
-                  fillColor: Colors.white,
-                  hintStyle: TextStyle(color: colors.onSurface),
-                  prefixIcon: const Icon(Icons.search),
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(14),
-                    borderSide: BorderSide.none,
-                  ),
-                ),
-              ),
-              const SizedBox(height: 20),
-
-              // Cabeçalho com Subtotal Não-Editável e Garantido >= 0
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+    return Stack(
+      children: [
+        SafeArea(
+          child: SingleChildScrollView(
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 20),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(
-                    'Subtotal de serviços',
-                    style: TextStyle(
-                      color: colors.onSurface,
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
+                  // Campo de Busca
+                  TextFormField(
+                    controller: _searchController,
+                    onChanged: (_) => setState(() {}),
+                    decoration: InputDecoration(
+                      hintText: 'Procurar serviço',
+                      filled: true,
+                      fillColor: Colors.white,
+                      hintStyle: TextStyle(color: colors.onSurface),
+                      prefixIcon: const Icon(Icons.search),
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(14),
+                        borderSide: BorderSide.none,
+                      ),
                     ),
                   ),
-                  Text(
-                    'R\$ ${_subtotal.toStringAsFixed(2).replaceAll('.', ',')}',
-                    style: TextStyle(
-                      color: colors.onSurface,
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
-                    ),
+                  const SizedBox(height: 20),
+
+                  // Cabeçalho de Subtotal
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(
+                        'Subtotal de serviços',
+                        style: TextStyle(
+                          color: colors.onSurface,
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      Text(
+                        'R\$ ${_subtotal.toStringAsFixed(2).replaceAll('.', ',')}',
+                        style: TextStyle(
+                          color: colors.onSurface,
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ],
                   ),
+                  const SizedBox(height: 16),
+
+                  // Listagem de Cards
+                  if (listaAtual.isEmpty)
+                    const Padding(
+                      padding: EdgeInsets.symmetric(vertical: 40),
+                      child: Center(
+                        child: Text('Nenhum serviço encontrado.'),
+                      ),
+                    )
+                  else
+                    ListView.builder(
+                      shrinkWrap: true,
+                      physics: const NeverScrollableScrollPhysics(),
+                      itemCount: listaAtual.length,
+                      itemBuilder: (context, index) {
+                        return _buildServiceCard(listaAtual[index]);
+                      },
+                    ),
                 ],
               ),
-              const SizedBox(height: 16),
-
-              // Listagem de Cards
-              if (listaAtual.isEmpty)
-                const Padding(
-                  padding: EdgeInsets.symmetric(vertical: 40),
-                  child: Center(
-                    child: Text('Nenhum serviço encontrado.'),
-                  ),
-                )
-              else
-                ListView.builder(
-                  shrinkWrap: true,
-                  physics: const NeverScrollableScrollPhysics(),
-                  itemCount: listaAtual.length,
-                  itemBuilder: (context, index) {
-                    return _buildServiceCard(listaAtual[index]);
-                  },
-                ),
-            ],
+            ),
           ),
         ),
-      ),
+
+        // Botão [+] flutuante
+        Positioned(
+          bottom: 16,
+          right: 16,
+          child: FloatingActionButton(
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => const StandInPage()),
+              );
+            },
+            backgroundColor: colors.primary,
+            foregroundColor: colors.onPrimary,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(12),
+            ),
+            child: const Icon(Icons.add, size: 28),
+          ),
+        ),
+      ],
     );
   }
 
   Widget _buildServiceCard(Map<String, dynamic> servico) {
-    // Garante que o preço unitário do item não seja exibido negativo
     final double precoCru = (servico['preco'] as double? ?? 0.0);
     final double preco = max(0.0, precoCru);
     final String descricao = servico['descricao'] ?? '';
