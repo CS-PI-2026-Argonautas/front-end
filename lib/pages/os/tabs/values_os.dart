@@ -24,7 +24,9 @@ class _ValuesOsState extends State<ValuesOs> {
 
     final double total = subtotalPecas + subtotalServicos + taxas - desconto;
 
-    return SafeArea(
+    return Container(
+      color: colors.surface,
+      child: SafeArea(
       child: Padding(
         padding: const EdgeInsets.symmetric(
           horizontal: 32,
@@ -162,7 +164,10 @@ class _ValuesOsState extends State<ValuesOs> {
           ],
         ),
       ),
+    ),
     );
+    
+    
   }
 
   // ------------------------------------------------------------
