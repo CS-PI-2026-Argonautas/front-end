@@ -15,30 +15,42 @@ class _OsServicosTabState extends State<OsServicosTab> {
   final colors = custom_colors.colorScheme;
   final TextEditingController _searchController = TextEditingController();
 
-  // Dados mockados de serviços
-  final List<Map<String, dynamic>> _servicosMock = [
+  // Catálogo de serviços disponíveis para seleção no Bottom Sheet
+  final List<Map<String, dynamic>> _servicosDisponiveis = [
     {
       'id': '1',
       'nome': 'Troca de sensor',
       'descricao': 'Substituição do sensor óptico danificado',
       'preco': 74.00,
-      'removido': false,
     },
     {
       'id': '2',
       'nome': 'Orçamento',
       'descricao': 'Análise técnica preventiva e diagnósticos',
       'preco': 74.00,
-      'removido': false,
     },
     {
       'id': '3',
       'nome': 'Deslocamento',
       'descricao': 'Taxa de visita técnica residencial',
       'preco': 74.00,
-      'removido': false,
+    },
+    {
+      'id': '4',
+      'nome': 'Manutenção Preventiva',
+      'descricao': 'Limpeza e regulagem geral de componentes',
+      'preco': 150.00,
+    },
+    {
+      'id': '5',
+      'nome': 'Formatação e Reinstalação',
+      'descricao': 'Restauração do sistema operacional',
+      'preco': 120.00,
     },
   ];
+
+  // Serviços adicionados à Ordem de Serviço
+  final List<Map<String, dynamic>> _servicosNaOrdem = [];
 
   @override
   void dispose() {
@@ -48,7 +60,7 @@ class _OsServicosTabState extends State<OsServicosTab> {
 
   List<Map<String, dynamic>> get _servicosExibidos {
     final query = _searchController.text.toLowerCase();
-    return _servicosMock.where((servico) {
+    return _servicosNaOrdem.where((servico) {
       final bool naoRemovido = servico['removido'] == false;
       final bool atendeFiltro =
           servico['nome'].toString().toLowerCase().contains(query) ||
@@ -57,7 +69,6 @@ class _OsServicosTabState extends State<OsServicosTab> {
     }).toList();
   }
 
-  // Subtotal garantido >= 0
   double get _subtotal {
     final total = _servicosExibidos.fold(
       0.0,
@@ -69,10 +80,118 @@ class _OsServicosTabState extends State<OsServicosTab> {
     return max(0.0, total);
   }
 
+  void _adicionarServico(Map<String, dynamic> servico) {
+    setState(() {
+      _servicosNaOrdem.add({
+        'id': '${servico['id']}_${DateTime.now().millisecondsSinceEpoch}',
+        'nome': servico['nome'],
+        'descricao': servico['descricao'],
+        'preco': servico['preco'],
+        'removido': false,
+      });
+    });
+  }
+
   Future<void> _deletarServico(Map<String, dynamic> servico) async {
     setState(() {
       servico['removido'] = true;
     });
+  }
+
+  void _abrirListaServicos() {
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: colors.surface,
+      isScrollControlled: true,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+      ),
+      builder: (context) {
+        return SafeArea(
+          child: Padding(
+            padding: const EdgeInsets.all(20),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Center(
+                  child: Container(
+                    width: 40,
+                    height: 5,
+                    decoration: BoxDecoration(
+                      color: colors.onSurfaceVariant,
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 12),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
+                      'Selecionar serviço',
+                      style: TextStyle(
+                        color: colors.onSurface,
+                        fontSize: 22,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    IconButton(
+                      icon: Icon(Icons.add, color: colors.primary, size: 26),
+                      onPressed: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => const StandInPage(),
+                          ),
+                        );
+                      },
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 16),
+                Flexible(
+                  child: ListView.builder(
+                    shrinkWrap: true,
+                    itemCount: _servicosDisponiveis.length,
+                    itemBuilder: (context, index) {
+                      final servico = _servicosDisponiveis[index];
+
+                      return ListTile(
+                        contentPadding: EdgeInsets.zero,
+                        leading: Icon(
+                          Icons.build_outlined,
+                          color: colors.primary,
+                        ),
+                        title: Text(
+                          servico['nome'],
+                          style: TextStyle(
+                            color: colors.onSurface,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                        subtitle: Text(
+                          'R\$ ${(servico['preco'] as double).toStringAsFixed(2).replaceAll('.', ',')}',
+                          style: TextStyle(color: colors.onSurfaceVariant),
+                        ),
+                        trailing: Icon(
+                          Icons.chevron_right,
+                          color: colors.onSurfaceVariant,
+                        ),
+                        onTap: () {
+                          _adicionarServico(servico);
+                          Navigator.pop(context);
+                        },
+                      );
+                    },
+                  ),
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+    );
   }
 
   @override
@@ -135,7 +254,7 @@ class _OsServicosTabState extends State<OsServicosTab> {
                     const Padding(
                       padding: EdgeInsets.symmetric(vertical: 40),
                       child: Center(
-                        child: Text('Nenhum serviço encontrado.'),
+                        child: Text('Nenhum serviço adicionado.'),
                       ),
                     )
                   else
@@ -158,12 +277,7 @@ class _OsServicosTabState extends State<OsServicosTab> {
           bottom: 16,
           right: 16,
           child: FloatingActionButton(
-            onPressed: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (context) => const StandInPage()),
-              );
-            },
+            onPressed: _abrirListaServicos,
             backgroundColor: colors.primary,
             foregroundColor: colors.onPrimary,
             shape: RoundedRectangleBorder(
