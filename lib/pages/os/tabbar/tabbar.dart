@@ -79,47 +79,7 @@ class _TabbarState extends State<Tabbar> with TickerProviderStateMixin {
           ),
           TollsOs(),
           OsServicosTab(),
-          Center(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              children: [
-                Text('aqui serao os valores'),
-                ElevatedButton(
-                  onPressed: () {
-                    goToNextTab();
-                  },
-                  child: Text('avançar'),
-                ),
-                ElevatedButton(
-                  onPressed: () {
-                    goToPreviousTab();
-                  },
-                  child: Text('voltar'),
-                ),
-              ],
-            ),
-          ),
           ValuesOs(),
-          // Center(
-          //   child: Column(
-          //     mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-          //     children: [
-          //       Text('aqui serao os valores'),
-          //       ElevatedButton(
-          //         onPressed: () {
-          //           goToNextTab();
-          //         },
-          //         child: Text('avançar'),
-          //       ),
-          //       ElevatedButton(
-          //         onPressed: () {
-          //           goToPreviousTab();
-          //         },
-          //         child: Text('voltar'),
-          //       ),
-          //     ],
-          //   ),
-          // ),
         ],
       ),
     );
