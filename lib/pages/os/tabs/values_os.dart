@@ -15,8 +15,7 @@ class _ValuesOsState extends State<ValuesOs> {
   Widget build(BuildContext context) {
     final colors = custom_colors.colorScheme;
 
-    // Valores temporários para montar a estrutura da tela.
-    // Depois você pode substituir pelos valores da OS.
+
     const double subtotalPecas = 100.00;
     const double subtotalServicos = 100.00;
     const double desconto = 0.00;
@@ -35,7 +34,6 @@ class _ValuesOsState extends State<ValuesOs> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Título
             Text(
               'Resumo:',
               style: TextStyle(
@@ -47,7 +45,6 @@ class _ValuesOsState extends State<ValuesOs> {
 
             const SizedBox(height: 24),
 
-            // PEÇAS
             _buildSectionHeader(
               title: 'Peças',
               value: subtotalPecas,
@@ -70,7 +67,6 @@ class _ValuesOsState extends State<ValuesOs> {
 
             const SizedBox(height: 24),
 
-            // SERVIÇOS
             _buildSectionHeader(
               title: 'Serviços',
               value: subtotalServicos,
@@ -93,7 +89,6 @@ class _ValuesOsState extends State<ValuesOs> {
 
             const SizedBox(height: 24),
 
-            // DESCONTO
             _buildValueRow(
               title: 'Descontos',
               value: desconto,
@@ -103,7 +98,6 @@ class _ValuesOsState extends State<ValuesOs> {
 
             const SizedBox(height: 14),
 
-            // TAXAS
             _buildValueRow(
               title: 'Taxas',
               value: taxas,
@@ -113,7 +107,6 @@ class _ValuesOsState extends State<ValuesOs> {
 
             const SizedBox(height: 12),
 
-            // DIVISÓRIA
             Divider(
               color: colors.outline,
               thickness: 1.5,
@@ -122,21 +115,16 @@ class _ValuesOsState extends State<ValuesOs> {
 
             const SizedBox(height: 12),
 
-            // TOTAL
             _buildTotalRow(
               total: total,
               colors: colors,
             ),
 
-            // Empurra o botão para baixo
             const Spacer(),
 
-            // BOTÃO
             Center(
               child: ElevatedButton(
                 onPressed: () {
-                  // Aqui você poderá concluir a OS
-                  // e voltar para a tela anterior.
                 },
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Colors.black,
@@ -170,9 +158,6 @@ class _ValuesOsState extends State<ValuesOs> {
     
   }
 
-  // ------------------------------------------------------------
-  // Cabeçalho de uma seção: Peças / Serviços
-  // ------------------------------------------------------------
 
   Widget _buildSectionHeader({
     required String title,
@@ -202,10 +187,6 @@ class _ValuesOsState extends State<ValuesOs> {
       ],
     );
   }
-
-  // ------------------------------------------------------------
-  // Item da lista
-  // ------------------------------------------------------------
 
   Widget _buildItem({
     required String name,
@@ -241,10 +222,6 @@ class _ValuesOsState extends State<ValuesOs> {
     );
   }
 
-  // ------------------------------------------------------------
-  // Desconto / Taxas
-  // ------------------------------------------------------------
-
   Widget _buildValueRow({
     required String title,
     required double value,
@@ -275,10 +252,6 @@ class _ValuesOsState extends State<ValuesOs> {
     );
   }
 
-  // ------------------------------------------------------------
-  // Total
-  // ------------------------------------------------------------
-
   Widget _buildTotalRow({
     required double total,
     required dynamic colors,
@@ -306,10 +279,6 @@ class _ValuesOsState extends State<ValuesOs> {
       ],
     );
   }
-
-  // ------------------------------------------------------------
-  // Formatação monetária
-  // ------------------------------------------------------------
 
   String _formatMoney(double value) {
     return 'R\$${value.toStringAsFixed(2).replaceAll('.', ',')}';
