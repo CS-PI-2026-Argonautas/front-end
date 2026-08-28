@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:frontend/pages/os/tabs/values_os.dart';
+import 'package:frontend/pages/os/os_service/os_service.dart';
 import 'package:frontend/pages/os/tolls_os.dart';
 import 'package:frontend/style/ColorScheme.dart' as custom_colors;
 
@@ -77,11 +78,12 @@ class _TabbarState extends State<Tabbar> with TickerProviderStateMixin {
             ),
           ),
           TollsOs(),
+          OsServicosTab(),
           Center(
             child: Column(
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: [
-                Text('aqui serao os servicos'),
+                Text('aqui serao os valores'),
                 ElevatedButton(
                   onPressed: () {
                     goToNextTab();
