@@ -2,7 +2,8 @@ import 'package:drift/drift.dart';
 import 'package:frontend/Enums/StatusOrdemServico.dart';
 import 'package:frontend/Enums/TiposItens.dart';
 import 'package:frontend/Enums/Turno.dart';
-
+import 'package:drift_flutter/drift_flutter.dart';
+import 'package:path_provider/path_provider.dart';
 part 'database.g.dart';
 
 class Endereco extends Table {
@@ -116,3 +117,37 @@ class OrdemServicos extends Table {
   IntColumn get equipamentoId => integer().references(Equipamento, #id)();
   IntColumn get clienteId => integer().references(Cliente, #pessoaId)();
 }
+
+@DriftDatabase(
+  tables: [
+    Endereco,
+    Pessoa,
+    Funcionario,
+    Cargo,
+    PessoaJuridica,
+    PessoaFisica,
+    Cliente,
+    Peca,
+    Servico,
+    Equipamento,
+    OrdemServicoServico,
+    OrdemServicos,
+  ],
+)
+class AppDatabase extends _$AppDatabase {
+  AppDatabase([QueryExecutor? executor]) : super(executor ?? _openConnection());
+
+  @override
+  int get schemaVersion => 1;
+
+  static QueryExecutor _openConnection() {
+    return driftDatabase(
+      name: 'argonautas_database',
+      native: const DriftNativeOptions(
+        databaseDirectory: getApplicationSupportDirectory,
+      ),
+    );
+  }
+}
+
+//sempre que houver alguma mudança nessa tabela rodar o comando: dart run build_runner build
