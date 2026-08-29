@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:frontend/models/os.dart';
 import 'package:frontend/pages/dashboard.dart';
 import 'package:frontend/pages/edit_item/item_edition.dart';
+import 'package:frontend/pages/os/tabbar/tabbar.dart';
 import 'package:frontend/pages/product_registration/product_registration.dart';
 import 'package:frontend/pages/stand_in_page.dart';
 import 'package:frontend/repositories/mock_os_repository.dart';
@@ -242,7 +243,12 @@ class _OsListPageState extends State<OsListPage> {
 
       floatingActionButton: FloatingActionButton(
         onPressed: () {
-          Navigator.pop(context);
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => Tabbar(serviceOrderNumber: -0001),
+            ),
+          );
         },
         backgroundColor: colors.primary,
         foregroundColor: colors.onPrimary,
