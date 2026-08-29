@@ -3,6 +3,10 @@ import 'package:flutter/services.dart';
 import 'package:frontend/style/ColorScheme.dart' as custom_colors;
 import 'package:frontend/style/inputDecorationStyles.dart';
 import 'package:frontend/Enums/TiposItens.dart' as tipos;
+import 'package:frontend/widgets/form/validator.dart';
+import 'package:frontend/widgets/form/form_card.dart';
+import 'package:frontend/widgets/form/form_action_button.dart';
+import 'package:frontend/widgets/form/labeled_form.dart';
 
 class ProductForm extends StatefulWidget {
   final ValueChanged<bool> onSave;
@@ -22,280 +26,93 @@ class _ProductFormState extends State<ProductForm> {
   Widget build(BuildContext context) {
     final colors = custom_colors.colorScheme;
 
-    return Card(
-      color: Colors.white,
-      elevation: 8,
-      shadowColor: Colors.black26,
-
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(22)),
-
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 28),
-
-        child: Form(
-          key: _formKey,
-          autovalidateMode: AutovalidateMode.onUserInteraction,
-          child: Column(
-            spacing: 24,
-            crossAxisAlignment: CrossAxisAlignment.start,
-
-            children: [
-              Text(
-                "Informações do produto",
-
-                style: TextStyle(
-                  fontSize: 20,
-                  fontWeight: FontWeight.bold,
-                  color: colors.onSurface,
-                ),
-              ),
-
-              Text(
-                "Complete os campos abaixo com os dados necessários.",
-
-                style: TextStyle(fontSize: 14, color: colors.onSurfaceVariant),
-              ),
-
-              Row(
-                spacing: 6,
-                children: [
-                  Icon(Icons.inventory_2, size: 20, color: colors.primary),
-
-                  Text(
-                    "Nome do Produto",
-
-                    style: TextStyle(
-                      fontWeight: FontWeight.bold,
-                      fontSize: 16,
-                      color: colors.onSurface,
-                    ),
-                  ),
-                ],
-              ),
-
-              TextFormField(
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Campo obrigatório';
-                  }
-                  return null;
-                },
-                decoration: customInputDecoration(hintText: 'Balança'),
-              ),
-
-              Row(
-                spacing: 6,
-                children: [
-                  Icon(
-                    Icons.description_outlined,
-                    size: 20,
-                    color: colors.primary,
-                  ),
-
-                  Text(
-                    "Descrição do produto",
-
-                    style: TextStyle(
-                      fontWeight: FontWeight.bold,
-                      fontSize: 16,
-                      color: colors.onSurface,
-                    ),
-                  ),
-                ],
-              ),
-
-              TextFormField(
-                maxLines: 4,
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Campo obrigatório';
-                  }
-                  return null;
-                },
-                decoration: customInputDecoration(
-                  hintText: 'Ex.: marca, tamanho, peso máximo...',
-                ),
-              ),
-
-              Row(
-                spacing: 6,
-                children: [
-                  Icon(
-                    Icons.payments_outlined,
-                    size: 20,
-                    color: colors.primary,
-                  ),
-
-                  Text(
-                    "Valor",
-
-                    style: TextStyle(
-                      fontWeight: FontWeight.bold,
-                      fontSize: 16,
-                      color: colors.onSurface,
-                    ),
-                  ),
-                ],
-              ),
-
-              TextFormField(
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Campo obrigatório';
-                  }
-                  return null;
-                },
-                keyboardType: const TextInputType.numberWithOptions(
-                  decimal: true,
-                ),
-
-                inputFormatters: [
-                  FilteringTextInputFormatter.allow(RegExp(r'[0-9,.]')),
-                ],
-
-                decoration: customInputDecoration(
-                  hintText: '0,00',
-
-                  prefixIcon: Icon(Icons.attach_money, color: colors.primary),
-                ),
-              ),
-
-              Row(
-                spacing: 6,
-                children: [
-                  Icon(
-                    Icons.warning_amber_rounded,
-                    size: 20,
-                    color: colors.primary,
-                  ),
-
-                  Text(
-                    "Quantidade mínima",
-
-                    style: TextStyle(
-                      fontWeight: FontWeight.bold,
-                      fontSize: 16,
-                      color: colors.onSurface,
-                    ),
-                  ),
-                ],
-              ),
-
-              TextFormField(
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Campo obrigatório';
-                  }
-                  return null;
-                },
-                maxLength: 2,
-                keyboardType: TextInputType.number,
-
-                inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-
-                decoration: customInputDecoration(
-                  hintText: '10',
-
-                  prefixIcon: Icon(Icons.numbers, color: colors.primary),
-                ),
-              ),
-
-              Row(
-                spacing: 6,
-                children: [
-                  Expanded(
-                    child: DropdownButtonFormField<tipos.TipoProduto>(
-                      value: tipoSelecionado,
-
-                      validator: (value) {
-                        if (value == null) {
-                          return 'Campo obrigatório';
-                        }
-                        return null;
-                      },
-
-                      decoration: customInputDecoration(
-                        hintText: "Selecione o tipo",
-
-                        prefixIcon: Icon(Icons.category, color: colors.primary),
-                      ),
-
-                      items: tipos.TipoProduto.values.map((tipo) {
-                        return DropdownMenuItem(
-                          value: tipo,
-                          child: Text(tipo.label),
-                        );
-                      }).toList(),
-
-                      onChanged: (value) {
-                        setState(() {
-                          tipoSelecionado = value;
-                        });
-                      },
-                    ),
-                  ),
-                ],
-              ),
-
-              Row(
-                spacing: 6,
-                children: [
-                  Expanded(
-                    child: ElevatedButton.icon(
-                      onPressed: () {
-                        bool valido = _formKey.currentState!.validate();
-                        widget.onSave(valido);
-                      },
-
-                      style: ElevatedButton.styleFrom(
-                        elevation: 3,
-                        backgroundColor: colors.primary,
-                        foregroundColor: colors.onSecondary,
-
-                        padding: const EdgeInsets.symmetric(vertical: 18),
-
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(14),
-                        ),
-                      ),
-
-                      icon: const Icon(Icons.save_outlined),
-
-                      label: const Text(
-                        "Salvar",
-
-                        style: TextStyle(fontWeight: FontWeight.bold),
-                      ),
-                    ),
-                  ),
-
-                  Expanded(
-                    child: OutlinedButton.icon(
-                      onPressed: widget.onCancel,
-
-                      style: OutlinedButton.styleFrom(
-                        foregroundColor: colors.onSurface,
-
-                        side: BorderSide(color: colors.surfaceContainerHigh),
-
-                        padding: const EdgeInsets.symmetric(vertical: 18),
-
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(14),
-                        ),
-                      ),
-
-                      icon: const Icon(Icons.cancel_outlined),
-
-                      label: const Text("Cancelar"),
-                    ),
-                  ),
-                ],
-              ),
-            ],
+    return FormCard(
+      formKey: _formKey,
+      title: "Informações do produto",
+      subtitle: "Complete os campos abaixo com os dados necessários.",
+      children: [
+        LabeledFormField(
+          icon: Icons.inventory_2,
+          label: "Nome do Produto",
+          field: TextFormField(
+            validator: requiredValidator,
+            decoration: customInputDecoration(hintText: 'Balança'),
           ),
         ),
-      ),
+
+        LabeledFormField(
+          icon: Icons.description_outlined,
+          label: "Descrição do produto",
+          field: TextFormField(
+            maxLines: 4,
+            validator: requiredValidator,
+            decoration: customInputDecoration(
+              hintText: 'Ex.: marca, tamanho, peso máximo...',
+            ),
+          ),
+        ),
+
+        LabeledFormField(
+          icon: Icons.payments_outlined,
+          label: "Valor",
+          field: TextFormField(
+            validator: requiredValidator,
+            keyboardType: const TextInputType.numberWithOptions(decimal: true),
+            inputFormatters: [
+              FilteringTextInputFormatter.allow(RegExp(r'[0-9,.]')),
+            ],
+            decoration: customInputDecoration(
+              hintText: '0,00',
+              prefixIcon: Icon(Icons.attach_money, color: colors.primary),
+            ),
+          ),
+        ),
+
+        LabeledFormField(
+          icon: Icons.warning_amber_rounded,
+          label: "Quantidade mínima",
+          field: TextFormField(
+            validator: requiredValidator,
+            maxLength: 2,
+            keyboardType: TextInputType.number,
+            inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+            decoration: customInputDecoration(
+              hintText: '10',
+              prefixIcon: Icon(Icons.numbers, color: colors.primary),
+            ),
+          ),
+        ),
+
+        DropdownButtonFormField<tipos.TipoProduto>(
+          value: tipoSelecionado,
+          validator: (value) {
+            if (value == null) {
+              return 'Campo obrigatório';
+            }
+            return null;
+          },
+          decoration: customInputDecoration(
+            hintText: "Selecione o tipo",
+            prefixIcon: Icon(Icons.category, color: colors.primary),
+          ),
+          items: tipos.TipoProduto.values.map((tipo) {
+            return DropdownMenuItem(value: tipo, child: Text(tipo.label));
+          }).toList(),
+          onChanged: (value) {
+            setState(() {
+              tipoSelecionado = value;
+            });
+          },
+        ),
+
+        FormActionButtons(
+          onSave: () {
+            bool valido = _formKey.currentState!.validate();
+            widget.onSave(valido);
+          },
+          onCancel: widget.onCancel,
+        ),
+      ],
     );
   }
 }
