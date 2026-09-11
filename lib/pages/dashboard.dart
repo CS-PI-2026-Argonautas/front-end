@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:frontend/pages/client_list/client_list.dart';
 import 'package:frontend/pages/edit_item/item_edition.dart';
+import 'package:frontend/pages/os_list/os_list_page.dart';
 import 'package:frontend/pages/person_registration/person_registration.dart';
 import 'package:frontend/pages/product_registration/product_registration.dart';
 import 'package:frontend/pages/stand_in_page.dart';
@@ -102,7 +103,12 @@ class Dashboard extends StatelessWidget {
           }
 
           if (index == 2) {
-            irParaStandIn();
+            Navigator.push(
+              context, 
+              MaterialPageRoute(
+                builder: (context) => const OsListPage()
+              )
+            );
           }
           if (index == 3) {
             Navigator.push(
