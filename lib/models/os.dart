@@ -1,3 +1,5 @@
+import 'package:frontend/enums/status_ordem_servico.dart';
+
 class OrdemServicos {
 
   int? id;
@@ -8,8 +10,8 @@ class OrdemServicos {
   final String cidade;
   final String responsavel;
   final String relatorio;
-  final String statusOdemDeServico;
-  
+  final StatusOrdemServico statusOrdemServico;
+
   final DateTime criadoEm;
   final DateTime dataEntrada;
   final DateTime? dataSaida;
@@ -23,7 +25,7 @@ class OrdemServicos {
     required this.equipamento,
     required this.cliente,
     required this.responsavel,
-    required this.statusOdemDeServico,
+    required this.statusOrdemServico,
     required this.relatorio,
     required this.cidade,
     required this.dataEntrada,

@@ -112,7 +112,7 @@ class OrdemServicos extends Table {
   IntColumn get id => integer().autoIncrement()();
   DateTimeColumn get data => dateTime()();
   TextColumn get relatorio => text()();
-  TextColumn get status => textEnum<Statusordemservico>()();
+  TextColumn get status => textEnum<StatusOrdemServico>()();
   IntColumn get responsavelId => integer().references(Funcionario, #pessoaId)();
   IntColumn get equipamentoId => integer().references(Equipamento, #id)();
   IntColumn get clienteId => integer().references(Cliente, #pessoaId)();

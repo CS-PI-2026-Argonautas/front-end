@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:frontend/enums/status_ordem_servico.dart';
 import 'package:frontend/models/os.dart';
 import 'package:frontend/pages/dashboard.dart';
 import 'package:frontend/pages/edit_item/item_edition.dart';
@@ -40,15 +41,15 @@ class _OsListPageState extends State<OsListPage> {
     });   
   }
 
-  Color _obterCorDoStatus(String status) {
+  Color _obterCorDoStatus(StatusOrdemServico status) {
     switch (status) {
-      case 'Concluída':
+      case StatusOrdemServico.CONCLUIDA:
         return Colors.green;
-      case 'Pendente':
-      case 'Em Andamento':
+      case StatusOrdemServico.EM_CONSERTO:
+      case StatusOrdemServico.EM_ORCAMENTO:
         return Colors.orange; 
-      case 'Fechada':
-      case 'Cancelada':
+      // case 'Fechada':
+      case StatusOrdemServico.CANCELADA:
         return Colors.red;
       default:
         return colors.onSurfaceVariant;
@@ -346,9 +347,9 @@ class _OsListPageState extends State<OsListPage> {
                       ),
                     
                     Text(
-                        os.statusOdemDeServico,
+                        os.statusOrdemServico.name,
                         style: TextStyle(
-                          color: _obterCorDoStatus(os.statusOdemDeServico),
+                          color: _obterCorDoStatus(os.statusOrdemServico),
                           fontSize: 14,
                         ),
                         

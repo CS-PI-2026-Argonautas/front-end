@@ -135,7 +135,7 @@ Future<void> inserirDadosMock(AppDatabase db) async {
       OrdemServicosCompanion.insert(
         data: DateTime(2026, 8, 28),
         relatorio: 'Balança necessita de calibração.',
-        status: Statusordemservico.EM_ORCAMENTO,
+        status: StatusOrdemServico.EM_ORCAMENTO,
         responsavelId: pessoa1,
         equipamentoId: equipamento1,
         clienteId: pessoa2,
@@ -146,7 +146,7 @@ Future<void> inserirDadosMock(AppDatabase db) async {
       OrdemServicosCompanion.insert(
         data: DateTime(2026, 8, 27),
         relatorio: 'Realizada manutenção preventiva.',
-        status: Statusordemservico.CONCLUIDA,
+        status: StatusOrdemServico.CONCLUIDA,
         responsavelId: pessoa1,
         equipamentoId: equipamento2,
         clienteId: pessoa2,

@@ -2712,14 +2712,14 @@ class $OrdemServicosTable extends OrdemServicos
     requiredDuringInsert: true,
   );
   @override
-  late final GeneratedColumnWithTypeConverter<Statusordemservico, String>
+  late final GeneratedColumnWithTypeConverter<StatusOrdemServico, String>
   status = GeneratedColumn<String>(
     'status',
     aliasedName,
     false,
     type: DriftSqlType.string,
     requiredDuringInsert: true,
-  ).withConverter<Statusordemservico>($OrdemServicosTable.$converterstatus);
+  ).withConverter<StatusOrdemServico>($OrdemServicosTable.$converterstatus);
   static const VerificationMeta _responsavelIdMeta = const VerificationMeta(
     'responsavelId',
   );
@@ -2880,9 +2880,9 @@ class $OrdemServicosTable extends OrdemServicos
     return $OrdemServicosTable(attachedDatabase, alias);
   }
 
-  static JsonTypeConverter2<Statusordemservico, String, String>
-  $converterstatus = const EnumNameConverter<Statusordemservico>(
-    Statusordemservico.values,
+  static JsonTypeConverter2<StatusOrdemServico, String, String>
+  $converterstatus = const EnumNameConverter<StatusOrdemServico>(
+    StatusOrdemServico.values,
   );
 }
 
@@ -2890,7 +2890,7 @@ class OrdemServico extends DataClass implements Insertable<OrdemServico> {
   final int id;
   final DateTime data;
   final String relatorio;
-  final Statusordemservico status;
+  final StatusOrdemServico status;
   final int responsavelId;
   final int equipamentoId;
   final int clienteId;
@@ -2969,7 +2969,7 @@ class OrdemServico extends DataClass implements Insertable<OrdemServico> {
     int? id,
     DateTime? data,
     String? relatorio,
-    Statusordemservico? status,
+    StatusOrdemServico? status,
     int? responsavelId,
     int? equipamentoId,
     int? clienteId,
@@ -3039,7 +3039,7 @@ class OrdemServicosCompanion extends UpdateCompanion<OrdemServico> {
   final Value<int> id;
   final Value<DateTime> data;
   final Value<String> relatorio;
-  final Value<Statusordemservico> status;
+  final Value<StatusOrdemServico> status;
   final Value<int> responsavelId;
   final Value<int> equipamentoId;
   final Value<int> clienteId;
@@ -3056,7 +3056,7 @@ class OrdemServicosCompanion extends UpdateCompanion<OrdemServico> {
     this.id = const Value.absent(),
     required DateTime data,
     required String relatorio,
-    required Statusordemservico status,
+    required StatusOrdemServico status,
     required int responsavelId,
     required int equipamentoId,
     required int clienteId,
@@ -3090,7 +3090,7 @@ class OrdemServicosCompanion extends UpdateCompanion<OrdemServico> {
     Value<int>? id,
     Value<DateTime>? data,
     Value<String>? relatorio,
-    Value<Statusordemservico>? status,
+    Value<StatusOrdemServico>? status,
     Value<int>? responsavelId,
     Value<int>? equipamentoId,
     Value<int>? clienteId,
@@ -6525,7 +6525,7 @@ typedef $$OrdemServicosTableCreateCompanionBuilder =
       Value<int> id,
       required DateTime data,
       required String relatorio,
-      required Statusordemservico status,
+      required StatusOrdemServico status,
       required int responsavelId,
       required int equipamentoId,
       required int clienteId,
@@ -6535,7 +6535,7 @@ typedef $$OrdemServicosTableUpdateCompanionBuilder =
       Value<int> id,
       Value<DateTime> data,
       Value<String> relatorio,
-      Value<Statusordemservico> status,
+      Value<StatusOrdemServico> status,
       Value<int> responsavelId,
       Value<int> equipamentoId,
       Value<int> clienteId,
@@ -6636,7 +6636,7 @@ class $$OrdemServicosTableFilterComposer
     builder: (column) => ColumnFilters(column),
   );
 
-  ColumnWithTypeConverterFilters<Statusordemservico, Statusordemservico, String>
+  ColumnWithTypeConverterFilters<StatusOrdemServico, StatusOrdemServico, String>
   get status => $composableBuilder(
     column: $table.status,
     builder: (column) => ColumnWithTypeConverterFilters(column),
@@ -6787,7 +6787,7 @@ class $$OrdemServicosTableAnnotationComposer
   GeneratedColumn<String> get relatorio =>
       $composableBuilder(column: $table.relatorio, builder: (column) => column);
 
-  GeneratedColumnWithTypeConverter<Statusordemservico, String> get status =>
+  GeneratedColumnWithTypeConverter<StatusOrdemServico, String> get status =>
       $composableBuilder(column: $table.status, builder: (column) => column);
 
   $$EquipamentoTableAnnotationComposer get equipamentoId {
@@ -6900,7 +6900,7 @@ class $$OrdemServicosTableTableManager
                 Value<int> id = const Value.absent(),
                 Value<DateTime> data = const Value.absent(),
                 Value<String> relatorio = const Value.absent(),
-                Value<Statusordemservico> status = const Value.absent(),
+                Value<StatusOrdemServico> status = const Value.absent(),
                 Value<int> responsavelId = const Value.absent(),
                 Value<int> equipamentoId = const Value.absent(),
                 Value<int> clienteId = const Value.absent(),
@@ -6918,7 +6918,7 @@ class $$OrdemServicosTableTableManager
                 Value<int> id = const Value.absent(),
                 required DateTime data,
                 required String relatorio,
-                required Statusordemservico status,
+                required StatusOrdemServico status,
                 required int responsavelId,
                 required int equipamentoId,
                 required int clienteId,
