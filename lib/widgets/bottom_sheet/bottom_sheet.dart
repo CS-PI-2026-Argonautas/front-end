@@ -83,13 +83,15 @@ class _SelectionBottomSheetState<T>
 
   @override
   Widget build(BuildContext context) {
-    return SafeArea(
-      child: Padding(
-        padding: const EdgeInsets.fromLTRB(26, 20, 26, 20),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
+   return SafeArea(
+  child: SizedBox(
+    height: MediaQuery.of(context).size.height * 0.7,
+    child: Padding(
+      padding: const EdgeInsets.fromLTRB(26, 20, 26, 20),
+      child: Column(
+        mainAxisSize: MainAxisSize.max,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
 
             Center(
               child: Container(
@@ -218,6 +220,7 @@ class _SelectionBottomSheetState<T>
           ],
         ),
       ),
-    );
+    ),
+   );
   }
 }
