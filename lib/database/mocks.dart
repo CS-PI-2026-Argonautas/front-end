@@ -1,8 +1,8 @@
 import 'package:drift/drift.dart';
 import 'package:frontend/database/database.dart';
-import 'package:frontend/Enums/StatusOrdemServico.dart';
-import 'package:frontend/Enums/TiposItens.dart';
-import 'package:frontend/Enums/Turno.dart';
+import 'package:frontend/enums/status_ordem_servico.dart';
+import 'package:frontend/enums/TiposItens.dart';
+import 'package:frontend/enums/Turno.dart';
 
 Future<void> inserirDadosMock(AppDatabase db) async {
   await db.transaction(() async {

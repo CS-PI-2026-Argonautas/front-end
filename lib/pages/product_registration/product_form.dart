@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:frontend/style/ColorScheme.dart' as custom_colors;
 import 'package:frontend/style/inputDecorationStyles.dart';
-import 'package:frontend/Enums/TiposItens.dart' as tipos;
+import 'package:frontend/enums/TiposItens.dart' as tipos;
 import 'package:frontend/widgets/form/validator.dart';
 import 'package:frontend/widgets/form/form_card.dart';
 import 'package:frontend/widgets/form/form_action_button.dart';

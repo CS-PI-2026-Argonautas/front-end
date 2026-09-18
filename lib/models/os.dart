@@ -5,12 +5,14 @@ class OrdemServicos {
   final String peca;
   final String equipamento;
   final String cliente;
-  final String responsavel;
-  final DateTime data;
-  final String statusOdemDeServico;
-  final String relatorio;
-  final DateTime criadoEm;
   final String cidade;
+  final String responsavel;
+  final String relatorio;
+  final String statusOdemDeServico;
+  
+  final DateTime criadoEm;
+  final DateTime dataEntrada;
+  final DateTime? dataSaida;
   // usado para o soft delete
   bool removido;
 
@@ -21,10 +23,11 @@ class OrdemServicos {
     required this.equipamento,
     required this.cliente,
     required this.responsavel,
-    required this.data,
     required this.statusOdemDeServico,
     required this.relatorio,
     required this.cidade,
+    required this.dataEntrada,
+    this.dataSaida,
     DateTime? criadoEm,
     this.removido = false,
   }) : criadoEm = criadoEm ?? DateTime.now();
