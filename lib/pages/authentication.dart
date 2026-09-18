@@ -59,7 +59,10 @@ class _AuthenticationState extends State<Authentication> {
                           hintText: 'Usuário',
                           filled: true,
                           fillColor: Colors.white,
-                          prefixIcon: const Icon(Icons.person),
+                          prefixIcon: Icon(
+                            Icons.person, 
+                            color: colors.primary,
+                            ),
                           border: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(14),
                             borderSide: BorderSide.none,
@@ -79,12 +82,18 @@ class _AuthenticationState extends State<Authentication> {
                           hintText: 'Senha',
                           filled: true,
                           fillColor: Colors.white,
-                          prefixIcon: const Icon(Icons.password),
+                          prefixIcon: Icon(
+                            Icons.password,
+                            color: colors.primary,
+                          ),
                           suffixIcon: IconButton(
                             icon: Icon(
                               _isPasswordVisible
                                   ? Icons.visibility
                                   : Icons.visibility_off,
+                                  color: _isPasswordVisible 
+                                  ? colors.secondary
+                                  :Colors.grey,
                             ),
                             onPressed: () {
                               setState(() {
