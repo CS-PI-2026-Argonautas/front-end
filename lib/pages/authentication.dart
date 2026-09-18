@@ -34,7 +34,15 @@ class _AuthenticationState extends State<Authentication> {
               padding: const EdgeInsets.all(30),
               child: ConstrainedBox(
                 constraints: const BoxConstraints(maxWidth: 500),
-                child: Form(
+                child: Card( 
+                  color: colors.surfaceContainer,
+                  elevation: 8,
+                  shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(16),
+                  ),
+                  child: Padding(
+                    padding: const EdgeInsets.all(24.0),
+                    child: Form(
                   key: _formKey,
                   autovalidateMode: AutovalidateMode.onUserInteraction,
                   child: Column(
@@ -58,7 +66,7 @@ class _AuthenticationState extends State<Authentication> {
                         decoration: InputDecoration(
                           hintText: 'Usuário',
                           filled: true,
-                          fillColor: Colors.white,
+                          fillColor: colors.surfaceContainerHigh,
                           prefixIcon: Icon(
                             Icons.person, 
                             color: colors.primary,
@@ -81,7 +89,7 @@ class _AuthenticationState extends State<Authentication> {
                         decoration: InputDecoration(
                           hintText: 'Senha',
                           filled: true,
-                          fillColor: Colors.white,
+                          fillColor: colors.surfaceContainerHigh,
                           prefixIcon: Icon(
                             Icons.password,
                             color: colors.primary,
@@ -200,6 +208,8 @@ class _AuthenticationState extends State<Authentication> {
                       ),
                     ],
                   ),
+                ),
+                ),
                 ),
               ),
             ),
