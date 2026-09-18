@@ -17,6 +17,6 @@ final colorScheme = ColorScheme(
   surfaceContainerHigh: const Color(
     0xFFcfdde5,
   ), //cor de fundo de componentes em destaque
-  onSurface: Colors.blueGrey.shade900, //textos
-  onSurfaceVariant: Colors.blueGrey.shade400, //textos secundários
+  onSurface: Colors.blueGrey.shade800, //textos
+  onSurfaceVariant: Colors.blueGrey.shade500, //textos secundários
 );

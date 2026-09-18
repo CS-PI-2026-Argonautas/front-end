@@ -65,6 +65,9 @@ class _AuthenticationState extends State<Authentication> {
                         },
                         decoration: InputDecoration(
                           hintText: 'Usuário',
+                          hintStyle: TextStyle(
+                            color: colors.onSurface, // Defina a cor desejada aqui
+                          ),
                           filled: true,
                           fillColor: colors.surfaceContainerHigh,
                           prefixIcon: Icon(
@@ -88,6 +91,9 @@ class _AuthenticationState extends State<Authentication> {
                         obscureText: !_isPasswordVisible,
                         decoration: InputDecoration(
                           hintText: 'Senha',
+                          hintStyle: TextStyle(
+                            color: colors.onSurface, // Defina a cor desejada aqui
+                          ),
                           filled: true,
                           fillColor: colors.surfaceContainerHigh,
                           prefixIcon: Icon(
@@ -101,7 +107,7 @@ class _AuthenticationState extends State<Authentication> {
                                   : Icons.visibility_off,
                                   color: _isPasswordVisible 
                                   ? colors.secondary
-                                  :Colors.grey,
+                                  :colors.onSurfaceVariant,
                             ),
                             onPressed: () {
                               setState(() {
@@ -117,22 +123,38 @@ class _AuthenticationState extends State<Authentication> {
                       ),
 
                       Align(
-                        alignment: Alignment.centerRight,
-                        child: GestureDetector(
-                          onTap: () {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) => const UserInformation(),
-                              ),
-                            );
-                          },
-                          child: const Text(
-                            "Esqueceu senha?",
-                            style: TextStyle(color: Colors.white, fontSize: 15),
-                          ),
-                        ),
-                      ),
+  alignment: Alignment.centerRight,
+  child: TextButton(
+    onPressed: () {
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => const UserInformation(),
+        ),
+      );
+    },
+    style: ButtonStyle(
+      padding: WidgetStateProperty.all(EdgeInsets.zero),
+      // Remove a cor de fundo cinza ao passar o mouse ou clicar
+      overlayColor: WidgetStateProperty.all(Colors.transparent),
+      // Remove o efeito visual de clique do Material
+      splashFactory: NoSplash.splashFactory,
+      foregroundColor: WidgetStateProperty.resolveWith<Color>((states) {
+        if (states.contains(WidgetState.pressed)) {
+          return colors.primary; // Cor ao CLICAR
+        }
+        if (states.contains(WidgetState.hovered)) {
+          return colors.secondary; // Cor ao PASSAR O MOUSE
+        }
+        return colors.onSurfaceVariant; // Cor PADRÃO
+      }),
+    ),
+    child: const Text(
+      "Esqueceu a senha?",
+      style: TextStyle(fontSize: 15),
+    ),
+  ),
+),
 
                       SizedBox(
                         width: double.infinity,
@@ -173,8 +195,8 @@ class _AuthenticationState extends State<Authentication> {
                             ),
                           ),
                           style: ElevatedButton.styleFrom(
-                            backgroundColor: Colors.white,
-                            foregroundColor: colors.primary,
+                            backgroundColor: colors.secondary,
+                            foregroundColor: colors.onSecondary,
                             elevation: 5,
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(14),
@@ -183,35 +205,67 @@ class _AuthenticationState extends State<Authentication> {
                         ),
                       ),
 
-                      GestureDetector(
-                        onTap: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => const CreateLoginAccount(),
-                            ),
-                          );
-                        },
-                        child: const Text.rich(
-                          TextSpan(
-                            style: TextStyle(color: Colors.white, fontSize: 16),
-                            children: [
-                              TextSpan(text: "Não tem uma conta? "),
-                              TextSpan(
-                                text: "Cadastre-se",
-                                style: TextStyle(fontWeight: FontWeight.bold),
-                              ),
-                            ],
-                          ),
-                          textAlign: TextAlign.center,
-                        ),
+                      MouseRegion(
+  cursor: SystemMouseCursors.click,
+  child: StatefulBuilder(
+    builder: (context, setStateText) {
+      bool isHovered = false;
+      bool isPressed = false;
+
+      return StatefulBuilder(
+        builder: (context, setStateState) {
+          Color signUpColor = colors.onSurface; // Cor padrão
+
+          if (isPressed) {
+            signUpColor = colors.primary; // Cor ao CLICAR
+          } else if (isHovered) {
+            signUpColor = colors.secondary; // Cor ao PASSAR O MOUSE
+          }
+
+          return MouseRegion(
+            onEnter: (_) => setStateState(() => isHovered = true),
+            onExit: (_) => setStateState(() => isHovered = false),
+            child: GestureDetector(
+              onTapDown: (_) => setStateState(() => isPressed = true),
+              onTapUp: (_) => setStateState(() => isPressed = false),
+              onTapCancel: () => setStateState(() => isPressed = false),
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => const CreateLoginAccount(),
+                  ),
+                );
+              },
+              child: Text.rich(
+                TextSpan(
+                  style: TextStyle(color: colors.onSurface, fontSize: 16),
+                  children: [
+                    const TextSpan(text: "Não tem uma conta? "),
+                    TextSpan(
+                      text: "Cadastre-se",
+                      style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        color: signUpColor, // Apenas a palavra Cadastre-se muda de cor
                       ),
-                    ],
+                    ),
+                  ],
+                ),
+                textAlign: TextAlign.center,
+              ),
+            ),
+          );
+        },
+      );
+    },
+  ),
+),
+      ],
                   ),
                 ),
                 ),
                 ),
-              ),
+            ),
             ),
           ),
         ),
