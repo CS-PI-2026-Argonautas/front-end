@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:diacritic/diacritic.dart';
 import 'package:frontend/style/ColorScheme.dart' as custom_colors;
 
 class SelectionBottomSheet<T> extends StatefulWidget {
@@ -39,8 +40,46 @@ class SelectionBottomSheet<T> extends StatefulWidget {
 
 class _SelectionBottomSheetState<T>
     extends State<SelectionBottomSheet<T>> {
-
+  
   final colors = custom_colors.colorScheme;
+
+  final TextEditingController _buscaController =
+      TextEditingController();
+
+  late List<T> _itensFiltrados;
+
+  @override
+  void initState() {
+    super.initState();
+
+    _itensFiltrados = List.from(widget.itens);
+
+    _buscaController.addListener(_filtrarItens);
+  }
+
+  @override
+  void dispose() {
+    _buscaController.removeListener(_filtrarItens);
+    _buscaController.dispose();
+
+    super.dispose();
+  }
+
+  void _filtrarItens() {
+    final busca = removeDiacritics(
+      _buscaController.text,
+    ).toLowerCase();
+
+    setState(() {
+      _itensFiltrados = widget.itens.where((item) {
+        final titulo = removeDiacritics(
+          widget.tituloItem(item),
+        ).toLowerCase();
+
+        return titulo.contains(busca);
+      }).toList();
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -91,6 +130,7 @@ class _SelectionBottomSheetState<T>
             const SizedBox(height: 12),
 
             TextField(
+              controller: _buscaController,
               decoration: InputDecoration(
                 hintText: widget.textoBusca,
                 prefixIcon: Icon(
@@ -111,9 +151,9 @@ class _SelectionBottomSheetState<T>
             Flexible(
               child: ListView.builder(
                 shrinkWrap: true,
-                itemCount: widget.itens.length,
+                itemCount: _itensFiltrados.length,
                 itemBuilder: (context, index) {
-                  final item = widget.itens[index];
+                  final item = _itensFiltrados[index];
 
                   return ListTile(
                     contentPadding: EdgeInsets.zero,
@@ -149,7 +189,6 @@ class _SelectionBottomSheetState<T>
                       Icons.chevron_right,
                       color: colors.onSurfaceVariant,
                     ),
-
                     onTap: () {
                       widget.onSelecionar(item);
                     },
