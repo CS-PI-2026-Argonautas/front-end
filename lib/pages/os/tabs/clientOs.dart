@@ -19,7 +19,7 @@ class _ClientOsState extends State<ClientOs> {
       color: colors.surface,
       child: SafeArea(
         child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 16),
+          padding: const EdgeInsets.fromLTRB(32, 32, 32, 16),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -29,7 +29,7 @@ class _ClientOsState extends State<ClientOs> {
                 onAdd: () {},
                 addLabel: 'Adicionar cliente',
               ),
-              const SizedBox(height: 24),
+              const SizedBox(height: 35),
               _buildLabel(
                 'Endereço *',
                 colors,
@@ -56,7 +56,7 @@ class _ClientOsState extends State<ClientOs> {
           style: TextStyle(
             color: colors.onSurface,
             fontSize: 18,
-            fontWeight: FontWeight.w500,
+            fontWeight: FontWeight.bold,
           ),
         ),
         const Spacer(),
