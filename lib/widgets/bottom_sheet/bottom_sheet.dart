@@ -149,52 +149,71 @@ class _SelectionBottomSheetState<T>
             const SizedBox(height: 12),
 
             Flexible(
-              child: ListView.builder(
-                shrinkWrap: true,
-                itemCount: _itensFiltrados.length,
-                itemBuilder: (context, index) {
-                  final item = _itensFiltrados[index];
-
-                  return ListTile(
-                    contentPadding: EdgeInsets.zero,
-
-                    leading: widget.iconeItem != null
-                        ? Icon(
-                            widget.iconeItem,
-                            color: colors.primary,
-                            size: 30,
-                          )
-                        : null,
-
-                    title: Text(
-                      widget.tituloItem(item),
-                      style: TextStyle(
-                        color: colors.onSurface,
-                        fontSize: 18,
-                        fontWeight: FontWeight.w500,
-                      ),
-                    ),
-
-                    subtitle: widget.subtituloItem != null
-                        ? Text(
-                            widget.subtituloItem!(item),
-                            style: TextStyle(
-                              color: colors.onSurfaceVariant,
-                              fontSize: 15,
+              child: widget.carregando
+                  ? const Center(
+                      child: CircularProgressIndicator(),
+                    )
+                  : _itensFiltrados.isEmpty
+                      ? Center(
+                          child: Padding(
+                            padding: const EdgeInsets.all(24),
+                            child: Text(
+                              'Nenhum item encontrado',
+                              style: TextStyle(
+                                color: colors.onSurfaceVariant,
+                                fontSize: 16,
+                              ),
+                              textAlign: TextAlign.center,
                             ),
-                          )
-                        : null,
+                          ),
+                        )
+                      : ListView.builder(
+                          shrinkWrap: true,
+                          itemCount: _itensFiltrados.length,
+                          itemBuilder: (context, index) {
+                            final item = _itensFiltrados[index];
 
-                    trailing: Icon(
-                      Icons.chevron_right,
-                      color: colors.onSurfaceVariant,
-                    ),
-                    onTap: () {
-                      widget.onSelecionar(item);
-                    },
-                  );
-                },
-              ),
+                            return ListTile(
+                              contentPadding: EdgeInsets.zero,
+
+                              leading: widget.iconeItem != null
+                                  ? Icon(
+                                      widget.iconeItem,
+                                      color: colors.primary,
+                                      size: 30,
+                                    )
+                                  : null,
+
+                              title: Text(
+                                widget.tituloItem(item),
+                                style: TextStyle(
+                                  color: colors.onSurface,
+                                  fontSize: 18,
+                                  fontWeight: FontWeight.w500,
+                                ),
+                              ),
+
+                              subtitle: widget.subtituloItem != null
+                                  ? Text(
+                                      widget.subtituloItem!(item),
+                                      style: TextStyle(
+                                        color: colors.onSurfaceVariant,
+                                        fontSize: 15,
+                                      ),
+                                    )
+                                  : null,
+
+                              trailing: Icon(
+                                Icons.chevron_right,
+                                color: colors.onSurfaceVariant,
+                              ),
+
+                              onTap: () {
+                                widget.onSelecionar(item);
+                              },
+                            );
+                          },
+                        ),
             ),
           ],
         ),
