@@ -23,11 +23,19 @@ class _ClientOsState extends State<ClientOs> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              _buildLabel('Cliente *', colors),
+              _buildLabel(
+                'Cliente *',
+                colors,
+                onAdd: () {},
+                addLabel: 'Adicionar cliente',
+              ),
               const SizedBox(height: 24),
-              _buildLabel('Endereço *', colors),
-
-              const Spacer(),
+              _buildLabel(
+                'Endereço *',
+                colors,
+                onAdd: () {},
+                addLabel: 'Adicionar Endereço',
+              ),
             ],
           ),
         ),
@@ -35,14 +43,39 @@ class _ClientOsState extends State<ClientOs> {
     );
   }
 
-  Widget _buildLabel(String text, ColorScheme colors) {
-    return Text(
-      text,
-      style: TextStyle(
-        color: colors.onSurface,
-        fontSize: 18,
-        fontWeight: FontWeight.w500,
-      ),
+  Widget _buildLabel(
+    String text,
+    ColorScheme colors, {
+    VoidCallback? onAdd,
+    String addLabel = 'Adicionar',
+  }) {
+    return Row(
+      children: [
+        Text(
+          text,
+          style: TextStyle(
+            color: colors.onSurface,
+            fontSize: 18,
+            fontWeight: FontWeight.w500,
+          ),
+        ),
+        const Spacer(),
+        if (onAdd != null)
+          ElevatedButton.icon(
+            onPressed: onAdd,
+            icon: const Icon(Icons.add, size: 18),
+            label: Text(addLabel),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: const Color(0xFF1E9E5F),
+              foregroundColor: Colors.white,
+              elevation: 0,
+              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(8),
+              ),
+            ),
+          ),
+      ],
     );
   }
 }
