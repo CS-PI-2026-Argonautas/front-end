@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:frontend/pages/os/tabbar/tabbar.dart';
 import 'package:frontend/pages/os_list/os_list_page.dart';
 
 void main() {
@@ -13,7 +14,7 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       title: 'Recuperação de Senha',
       debugShowCheckedModeBanner: false,
-      home: OsListPage(),
+      home: Tabbar(serviceOrderNumber: -0001),
       theme: ThemeData(
         colorScheme: ColorScheme.fromSeed(
           seedColor: Color.fromARGB(255, 64, 126, 207),
