@@ -42,7 +42,7 @@ class _AuthenticationState extends State<Authentication> {
                     mainAxisSize: MainAxisSize.min,
                     children: [
                       Image.asset(
-                        'lib/assets/images/LogoEmpresa.png',
+                        'lib/assets/images/LogoEmpresaAzul.png',
                         width: MediaQuery.of(context).size.width * 0.7,
                         height: 180,
                         fit: BoxFit.contain,
