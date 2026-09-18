@@ -99,9 +99,9 @@ class OrderServiceState extends State<TollsOs> {
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: abrirListaPecas,
-        backgroundColor: Colors.white,
+        backgroundColor: colors.primary,
         elevation: 3,
-        child: Icon(Icons.add, color: colors.primary, size: 28),
+        child: Icon(Icons.add, color:  Colors.white, size: 28),
       ),
     );
   }
