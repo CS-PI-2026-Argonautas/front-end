@@ -11,6 +11,40 @@ class ClientOs extends StatefulWidget {
 }
 
 class _ClientOsState extends State<ClientOs> {
+  void _abrirListaClientes() {
+    final colors = custom_colors.colorScheme;
+
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: colors.surface,
+      isScrollControlled: true,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+      ),
+      builder: (context) {
+        return SafeArea(
+          child: Padding(
+            padding: const EdgeInsets.all(20),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'Selecionar cliente',
+                  style: TextStyle(
+                    color: colors.onSurface,
+                    fontSize: 22,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final colors = custom_colors.colorScheme;
@@ -26,7 +60,7 @@ class _ClientOsState extends State<ClientOs> {
               _buildLabel(
                 'Cliente *',
                 colors,
-                onAdd: () {},
+                onAdd: _abrirListaClientes,
                 addLabel: 'Adicionar cliente',
               ),
               const SizedBox(height: 35),
