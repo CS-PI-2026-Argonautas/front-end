@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:frontend/style/ColorScheme.dart' as custom_colors;
 
 class SelectionBottomSheet<T> extends StatefulWidget {
   final String titulo;
@@ -9,6 +10,8 @@ class SelectionBottomSheet<T> extends StatefulWidget {
 
   final String Function(T item) tituloItem;
   final String Function(T item)? subtituloItem;
+
+  final IconData? iconeItem;
 
   final bool carregando;
 
@@ -23,6 +26,7 @@ class SelectionBottomSheet<T> extends StatefulWidget {
     required this.textoAcao,
     required this.tituloItem,
     this.subtituloItem,
+    this.iconeItem,
     this.carregando = false,
     this.onAcao,
     required this.onSelecionar,
@@ -33,35 +37,41 @@ class SelectionBottomSheet<T> extends StatefulWidget {
       _SelectionBottomSheetState<T>();
 }
 
-class _SelectionBottomSheetState<T> extends State<SelectionBottomSheet<T>> {
+class _SelectionBottomSheetState<T>
+    extends State<SelectionBottomSheet<T>> {
+
+  final colors = custom_colors.colorScheme;
+
   @override
   Widget build(BuildContext context) {
     return SafeArea(
       child: Padding(
-        padding: const EdgeInsets.all(20),
+        padding: const EdgeInsets.fromLTRB(26, 20, 26, 20),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
+
             Center(
               child: Container(
-                width: 40,
+                width: 48,
                 height: 5,
                 decoration: BoxDecoration(
-                  color: Colors.grey,
+                  color: colors.primary,
                   borderRadius: BorderRadius.circular(10),
                 ),
               ),
             ),
 
-            const SizedBox(height: 12),
+            const SizedBox(height: 24),
 
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Text(
                   widget.titulo,
-                  style: const TextStyle(
+                  style: TextStyle(
+                    color: colors.onSurface,
                     fontSize: 22,
                     fontWeight: FontWeight.bold,
                   ),
@@ -69,24 +79,34 @@ class _SelectionBottomSheetState<T> extends State<SelectionBottomSheet<T>> {
 
                 IconButton(
                   onPressed: widget.onAcao,
-                  icon: const Icon(Icons.add),
+                  icon: Icon(
+                    Icons.add,
+                    color: colors.primary,
+                    size: 28,
+                  ),
                 ),
               ],
             ),
 
-            const SizedBox(height: 16),
+            const SizedBox(height: 12),
 
             TextField(
               decoration: InputDecoration(
                 hintText: widget.textoBusca,
-                prefixIcon: const Icon(Icons.search),
+                prefixIcon: Icon(
+                  Icons.search,
+                  color: colors.onSurfaceVariant,
+                ),
+                filled: true,
+                fillColor: colors.surfaceContainer,
                 border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(12),
+                  borderRadius: BorderRadius.circular(16),
+                  borderSide: BorderSide.none,
                 ),
               ),
             ),
 
-            const SizedBox(height: 16),
+            const SizedBox(height: 12),
 
             Flexible(
               child: ListView.builder(
@@ -98,30 +118,43 @@ class _SelectionBottomSheetState<T> extends State<SelectionBottomSheet<T>> {
                   return ListTile(
                     contentPadding: EdgeInsets.zero,
 
-                    title: Text(widget.tituloItem(item)),
-
-                    subtitle: widget.subtituloItem != null
-                        ? Text(widget.subtituloItem!(item))
+                    leading: widget.iconeItem != null
+                        ? Icon(
+                            widget.iconeItem,
+                            color: colors.primary,
+                            size: 30,
+                          )
                         : null,
 
-                    trailing: const Icon(Icons.chevron_right),
+                    title: Text(
+                      widget.tituloItem(item),
+                      style: TextStyle(
+                        color: colors.onSurface,
+                        fontSize: 18,
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+
+                    subtitle: widget.subtituloItem != null
+                        ? Text(
+                            widget.subtituloItem!(item),
+                            style: TextStyle(
+                              color: colors.onSurfaceVariant,
+                              fontSize: 15,
+                            ),
+                          )
+                        : null,
+
+                    trailing: Icon(
+                      Icons.chevron_right,
+                      color: colors.onSurfaceVariant,
+                    ),
 
                     onTap: () {
                       widget.onSelecionar(item);
                     },
                   );
                 },
-              ),
-            ),
-
-            const SizedBox(height: 16),
-
-            SizedBox(
-              width: double.infinity,
-              child: ElevatedButton.icon(
-                onPressed: widget.onAcao,
-                icon: const Icon(Icons.add),
-                label: Text(widget.textoAcao),
               ),
             ),
           ],

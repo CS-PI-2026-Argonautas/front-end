@@ -116,32 +116,34 @@ void abrirListaPecas() {
       ),
     ),
     builder: (context) {
-      return SelectionBottomSheet<Map<String, dynamic>>(
-        titulo: "Selecionar peça",
-        itens: pecasDisponiveis,
+     return SelectionBottomSheet<Map<String, dynamic>>(
+  titulo: "Selecionar peça",
+  itens: pecasDisponiveis,
 
-        textoBusca: "Buscar peça...",
-        textoAcao: "Nova peça",
+  textoBusca: "Buscar peça...",
+  textoAcao: "Nova peça",
 
-        tituloItem: (peca) => peca["nome"],
+  iconeItem: Icons.build_outlined,
 
-        subtituloItem: (peca) =>
-            "R\$${peca["preco"].toStringAsFixed(2)}",
+  tituloItem: (peca) => peca["nome"],
 
-        onSelecionar: (peca) {
-          _adicionarPeca(peca);
-          Navigator.pop(context);
-        },
+  subtituloItem: (peca) =>
+      "R\$${peca["preco"].toStringAsFixed(2)}",
 
-        onAcao: () {
-          Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (context) => ProductRegistration(),
-            ),
-          );
-        },
-      );
+  onSelecionar: (peca) {
+    _adicionarPeca(peca);
+    Navigator.pop(context);
+  },
+
+  onAcao: () {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => ProductRegistration(),
+      ),
+    );
+  },
+);
     },
   );
 }
