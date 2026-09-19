@@ -1,9 +1,15 @@
 import 'package:flutter/material.dart';
+import 'package:firebase_core/firebase_core.dart';
+import 'package:frontend/firebase_options.dart';
 import 'package:frontend/pages/authentication.dart';
-import 'package:frontend/pages/os/tabbar/tabbar.dart';
-import 'package:frontend/pages/password_recovery/user_information.dart';
 
-void main() {
+Future<void> main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+
+  await Firebase.initializeApp(
+    options: DefaultFirebaseOptions.currentPlatform,
+  );
+
   runApp(const MyApp());
 }
 
