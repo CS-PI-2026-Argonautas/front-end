@@ -9,12 +9,12 @@ class OrdemServicos {
   final String cliente;
   final String cidade;
   final String responsavel;
-  final String relatorio;
-  final StatusOrdemServico statusOrdemServico;
+  String relatorio;
+  StatusOrdemServico statusOrdemServico;
 
   final DateTime criadoEm;
-  final DateTime dataEntrada;
-  final DateTime? dataSaida;
+  DateTime dataEntrada;
+  DateTime? dataSaida;
   // usado para o soft delete
   bool removido;
 
