@@ -6,6 +6,8 @@ import 'package:frontend/pages/product_registration/product_registration.dart';
 import 'package:frontend/pages/stand_in_page.dart';
 import 'package:frontend/style/ColorScheme.dart' as custom_Colors;
 import 'package:frontend/widgets/menu.dart';
+import 'package:frontend/pages/os/tabbar/tabbar.dart';
+
 
 class Dashboard extends StatelessWidget {
   const Dashboard({super.key});
@@ -28,26 +30,35 @@ class Dashboard extends StatelessWidget {
       );
     }
 
+    void irParaOrdemServico() {
+  Navigator.push(
+    context,
+    MaterialPageRoute(
+      builder: (context) => const Tabbar(serviceOrderNumber: '1234'),
+    ),
+  );
+}
+
     Widget botaoDashboard({
       required String texto,
       required IconData icone,
       required bool preenchido,
     }) {
       if (preenchido) {
-        return ElevatedButton.icon(
-          onPressed: irParaStandIn,
-          icon: Icon(icone),
-          label: Text(texto),
-          style: ElevatedButton.styleFrom(
-            backgroundColor: colors.primary,
-            foregroundColor: colors.onSecondary,
-            padding: const EdgeInsets.symmetric(vertical: 16),
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(14),
-            ),
-          ),
-        );
-      }
+  return ElevatedButton.icon(
+    onPressed: irParaOrdemServico, // <-- Altere aqui!
+    icon: Icon(icone),
+    label: Text(texto),
+    style: ElevatedButton.styleFrom(
+      backgroundColor: colors.primary,
+      foregroundColor: colors.onSecondary,
+      padding: const EdgeInsets.symmetric(vertical: 16),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(14),
+      ),
+    ),
+  );
+}
 
       return OutlinedButton.icon(
         onPressed: irParaCadastroPessoa,
@@ -139,20 +150,12 @@ class Dashboard extends StatelessWidget {
               SizedBox(
                 width: double.infinity,
                 child: botaoDashboard(
-                  texto: "Ver mais",
-                  icone: Icons.visibility_outlined,
+                  texto: "Criar Ordem de Serviço",
+                  icone: Icons.assignment_outlined,
                   preenchido: true,
                 ),
               ),
 
-              SizedBox(
-                width: double.infinity,
-                child: botaoDashboard(
-                  texto: "Cadastrar cliente",
-                  icone: Icons.person_add_alt_1_outlined,
-                  preenchido: false,
-                ),
-              ),
             ],
           ),
         ),

@@ -165,14 +165,18 @@ class _AuthenticationState extends State<Authentication> {
                               showDialog(
                                 context: context,
                                 builder: (context) => AlertDialog(
-                                  title: const Text("Aviso"),
-                                  content: const Text(
+                                  title: Text("Aviso", style: TextStyle(color: colors.onSurface),),
+                                  content: Text(
                                     "Digite o usuário e/ou a sua senha",
+                                    style: TextStyle(color: colors.onSurface),
                                   ),
                                   actions: [
                                     TextButton(
                                       onPressed: () => Navigator.pop(context),
-                                      child: const Text("OK"),
+                                      child: Text("OK", style: TextStyle(color: colors.onSurface),),
+                                      style: ButtonStyle(
+                                        backgroundColor: MaterialStateProperty.all(colors.surfaceContainerHigh),
+                                      ),
                                     ),
                                   ],
                                 ),
