@@ -1,0 +1,1 @@
+enum Turno { NOTURNO, DIURNO }

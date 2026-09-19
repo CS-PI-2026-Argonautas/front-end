@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:frontend/pages/authentication.dart';
-
+import 'package:frontend/pages/os/tabbar/tabbar.dart';
 
 void main() {
   runApp(const MyApp());
@@ -8,15 +7,12 @@ void main() {
 
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
-
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Bernadelli Balanças',
+      title: 'Ordem de serviço',
       debugShowCheckedModeBanner: false,
-      home: Authentication(),
-      // home: Tabbar(serviceOrderNumber: -0001,),
-      // home: UserInformation(),
+      home: Tabbar(serviceOrderNumber: 1233),
       theme: ThemeData(
         colorScheme: ColorScheme.fromSeed(
           seedColor: Color.fromARGB(255, 64, 126, 207),

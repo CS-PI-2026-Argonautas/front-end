@@ -1,0 +1,1 @@
+enum Statusordemservico { EM_ORCAMENTO, EM_CONSERTO, CONCLUIDA, ENTREGUE, PAGA }
