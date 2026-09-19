@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:frontend/pages/authentication.dart';
-import 'package:frontend/pages/os/tabbar/tabbar.dart';
-import 'package:frontend/pages/password_recovery/user_information.dart';
+
 
 void main() {
   runApp(const MyApp());

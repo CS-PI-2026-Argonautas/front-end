@@ -9,6 +9,7 @@ environment:
 dependencies:
   drift: ^2.34.3
   drift_flutter: ^0.3.1
+  diacritic: ^0.1.6
   flutter:
     sdk: flutter
   mask_text_input_formatter: ^2.9.0
