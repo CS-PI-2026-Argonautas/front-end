@@ -11,6 +11,16 @@ class ClientOs extends StatefulWidget {
 }
 
 class _ClientOsState extends State<ClientOs> {
+
+  final List<Map<String, dynamic>> clientesDisponiveis = [
+    {"id": 1, "nome": "João Silva", "telefone": "(44) 99876-5432"},
+    {"id": 2, "nome": "Maria Santos", "telefone": "(44) 98765-4321"},
+    {"id": 3, "nome": "Carlos Oliveira", "telefone": "(44) 99123-4567"},
+    {"id": 4, "nome": "Ana Paula", "telefone": "(44) 99988-7766"},
+  ];
+
+  Map<String, dynamic>? clienteSelecionado;
+  
   void _abrirListaClientes() {
     final colors = custom_colors.colorScheme;
 

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:frontend/style/ColorScheme.dart' as custom_colors;
 import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:frontend/pages/product_registration/product_registration.dart';
+import 'package:frontend/widgets/bottom_sheet/bottom_sheet.dart';
 
 class TollsOs extends StatefulWidget {
   const TollsOs({super.key});
@@ -98,112 +99,54 @@ class OrderServiceState extends State<TollsOs> {
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: abrirListaPecas,
-        backgroundColor: Colors.white,
+        backgroundColor: colors.primary,
         elevation: 3,
-        child: Icon(Icons.add, color: colors.primary, size: 28),
+        child: Icon(Icons.add, color:  Colors.white, size: 28),
       ),
     );
   }
-
-  void abrirListaPecas() {
-    showModalBottomSheet(
-      context: context,
-      backgroundColor: colors.surface,
-      isScrollControlled: true,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+void abrirListaPecas() {
+  showModalBottomSheet(
+    context: context,
+    backgroundColor: colors.surface,
+    isScrollControlled: true,
+    shape: const RoundedRectangleBorder(
+      borderRadius: BorderRadius.vertical(
+        top: Radius.circular(24),
       ),
-      builder: (context) {
-        return SafeArea(
-          child: Padding(
-            padding: const EdgeInsets.all(20),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Center(
-                  child: Container(
-                    width: 40,
-                    height: 5,
-                    decoration: BoxDecoration(
-                      color: colors.onSurfaceVariant,
-                      borderRadius: BorderRadius.circular(10),
-                    ),
-                  ),
-                ),
+    ),
+    builder: (context) {
+     return SelectionBottomSheet<Map<String, dynamic>>(
+  titulo: "Selecionar peça",
+  itens: pecasDisponiveis,
 
-                const SizedBox(height: 12),
+  textoBusca: "Buscar peça...",
+  textoAcao: "Nova peça",
 
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text(
-                      "Selecionar peça",
-                      style: TextStyle(
-                        color: colors.onSurface,
-                        fontSize: 22,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                    IconButton(
-                      icon: Icon(Icons.add, color: colors.primary, size: 26),
-                      onPressed: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => ProductRegistration(),
-                          ),
-                        );
-                      },
-                    ),
-                  ],
-                ),
+  iconeItem: Icons.build_outlined,
 
-                const SizedBox(height: 16),
+  tituloItem: (peca) => peca["nome"],
 
-                Flexible(
-                  child: ListView.builder(
-                    shrinkWrap: true,
-                    itemCount: pecasDisponiveis.length,
-                    itemBuilder: (context, index) {
-                      final peca = pecasDisponiveis[index];
+  subtituloItem: (peca) =>
+      "R\$${peca["preco"].toStringAsFixed(2)}",
 
-                      return ListTile(
-                        contentPadding: EdgeInsets.zero,
-                        leading: Icon(
-                          Icons.build_outlined,
-                          color: colors.primary,
-                        ),
-                        title: Text(
-                          peca["nome"],
-                          style: TextStyle(
-                            color: colors.onSurface,
-                            fontWeight: FontWeight.w600,
-                          ),
-                        ),
-                        subtitle: Text(
-                          "R\$${peca["preco"].toStringAsFixed(2)}",
-                          style: TextStyle(color: colors.onSurfaceVariant),
-                        ),
-                        trailing: Icon(
-                          Icons.chevron_right,
-                          color: colors.onSurfaceVariant,
-                        ),
-                        onTap: () {
-                          _adicionarPeca(peca);
-                          Navigator.pop(context);
-                        },
-                      );
-                    },
-                  ),
-                ),
-              ],
-            ),
-          ),
-        );
-      },
+  onSelecionar: (peca) {
+    _adicionarPeca(peca);
+    Navigator.pop(context);
+  },
+
+  onAcao: () {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => ProductRegistration(),
+      ),
     );
-  }
+  },
+);
+    },
+  );
+}
 
   void _adicionarPeca(Map<String, dynamic> peca) {
     setState(() {

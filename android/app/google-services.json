@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "344442342267",
+    "project_id": "app-argos-argonautas",
+    "storage_bucket": "app-argos-argonautas.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:344442342267:android:cfc3c7c7789244c224cbde",
+        "android_client_info": {
+          "package_name": "br.com.bernadelli.balancas"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDWkIgxnODegEXYamUOKu45SzJ4xeT-Dz0"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
