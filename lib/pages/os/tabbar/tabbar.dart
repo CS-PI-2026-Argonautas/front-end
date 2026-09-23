@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:frontend/pages/os/tabs/data_os.dart';
 import 'package:frontend/pages/os/tabs/values_os.dart';
 import 'package:frontend/pages/os/os_service/os_service.dart';
 import 'package:frontend/pages/os/tolls_os.dart';
@@ -64,19 +65,20 @@ class _TabbarState extends State<Tabbar> with TickerProviderStateMixin {
       body: TabBarView(
         controller: _tabController,
         children: <Widget>[
-          Center(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              children: [
-                ElevatedButton(
-                  onPressed: () {
-                    goToNextTab();
-                  },
-                  child: Text('avançar'),
-                ),
-              ],
-            ),
-          ),
+          DataOs(),
+          // Center(
+          //   child: Column(
+          //     mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+          //     children: [
+          //       ElevatedButton(
+          //         onPressed: () {
+          //           goToNextTab();
+          //         },
+          //         child: Text('avançar'),
+          //       ),
+          //     ],
+          //   ),
+          // ),
           TollsOs(),
           OsServicosTab(),
           ValuesOs(),
