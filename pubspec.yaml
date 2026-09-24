@@ -9,10 +9,13 @@ environment:
 dependencies:
   drift: ^2.34.3
   drift_flutter: ^0.3.1
+  diacritic: ^0.1.6
+  firebase_core: ^4.15.0
   flutter:
     sdk: flutter
+  flutter_web_plugins:
+    sdk: flutter
   mask_text_input_formatter: ^2.9.0
-
   path_provider: ^2.1.6
   zxcvbn: ^1.0.0
 
