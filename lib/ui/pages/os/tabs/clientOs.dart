@@ -6,6 +6,7 @@ class ClientOs extends StatefulWidget {
 
   const ClientOs({super.key, required this.onNext});
 
+  
   @override
   State<ClientOs> createState() => _ClientOsState();
 }
@@ -22,8 +23,15 @@ class _ClientOsState extends State<ClientOs> {
   Map<String, dynamic>? clienteSelecionado;
   
   void _abrirListaClientes() {
-    final colors = custom_colors.colorScheme;
 
+
+    void _selecionarCliente(Map<String, dynamic> cliente) {
+    setState(() {
+    clienteSelecionado = cliente;
+  });
+}
+    final colors = custom_colors.colorScheme;
+    
     showModalBottomSheet(
       context: context,
       backgroundColor: colors.surface,
@@ -47,6 +55,38 @@ class _ClientOsState extends State<ClientOs> {
                     fontWeight: FontWeight.bold,
                   ),
                 ),
+
+                const SizedBox(height: 16),
+
+Flexible(
+  child: ListView.builder(
+    shrinkWrap: true,
+    itemCount: clientesDisponiveis.length,
+    itemBuilder: (context, index) {
+      final cliente = clientesDisponiveis[index];
+
+      return ListTile(
+        contentPadding: EdgeInsets.zero,
+        leading: Icon(Icons.person_outline, color: colors.primary),
+        title: Text(
+          cliente["nome"],
+          style: TextStyle(
+            color: colors.onSurface,
+            fontWeight: FontWeight.w600,
+          ),
+        ),
+        subtitle: Text(
+          cliente["telefone"],
+          style: TextStyle(color: colors.onSurfaceVariant),
+        ),
+        onTap: () {
+          _selecionarCliente(cliente);
+          Navigator.pop(context);
+        },
+      );
+    },
+  ),
+),
               ],
             ),
           ),
@@ -54,6 +94,8 @@ class _ClientOsState extends State<ClientOs> {
       },
     );
   }
+
+  
 
   @override
   Widget build(BuildContext context) {
