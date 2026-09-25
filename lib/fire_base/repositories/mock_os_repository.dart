@@ -1,4 +1,4 @@
-import 'package:frontend/fire_base/models/os.dart';
+import 'package:frontend/fire_base/models/so.dart';
 
 class MockOSRepository {
   static final MockOSRepository _instance =

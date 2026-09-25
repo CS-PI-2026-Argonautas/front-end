@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import 'package:frontend/fire_base/models/os.dart';
+import 'package:frontend/fire_base/models/so.dart';
 import 'package:frontend/fire_base/repositories/mock_os_repository.dart';
 
 import 'package:frontend/ui/pages/dashboard.dart';
