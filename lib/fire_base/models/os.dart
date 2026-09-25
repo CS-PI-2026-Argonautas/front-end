@@ -1,70 +1,70 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 
-class OrdemServicos {
+class ServiceOrder {
   final String id;
 
-  final String nome;
-  final String peca;
-  final String equipamento;
-  final String cliente;
-  final String responsavel;
-  final DateTime data;
-  final String statusOdemDeServico;
-  final String relatorio;
-  final DateTime? criadoEm;
-  final String cidade;
+  final String name;
+  final String part;
+  final String equipment;
+  final String client;
+  final String assignee;
+  final DateTime date;
+  final String status;
+  final String report;
+  final DateTime? createdAt;
+  final String city;
 
-  bool removido;
+  bool isDeleted;
 
-  OrdemServicos({
+  ServiceOrder({
     required this.id,
-    required this.nome,
-    required this.peca,
-    required this.equipamento,
-    required this.cliente,
-    required this.responsavel,
-    required this.data,
-    required this.statusOdemDeServico,
-    required this.relatorio,
-    required this.cidade,
-    this.criadoEm,
-    this.removido = false,
+    required this.name,
+    required this.part,
+    required this.equipment,
+    required this.client,
+    required this.assignee,
+    required this.date,
+    required this.status,
+    required this.report,
+    required this.city,
+    this.createdAt,
+    this.isDeleted = false,
   });
 
   Map<String, dynamic> toFirestore() {
     return {
-      'nome': nome,
-      'peca': peca,
-      'equipamento': equipamento,
-      'cliente': cliente,
-      'responsavel': responsavel,
-      'data': Timestamp.fromDate(data),
-      'status_ordem_de_servico': statusOdemDeServico,
-      'relatorio': relatorio,
-      'criado_em': FieldValue.serverTimestamp(),
-      'cidade': cidade,
-      'deleted_at': removido ? FieldValue.serverTimestamp() : null,
+      'name': name,
+      'part': part,
+      'equipment': equipment,
+      'client': client,
+      'assignee': assignee,
+      'date': Timestamp.fromDate(date),
+      'status': status,
+      'report': report,
+      'created_at': FieldValue.serverTimestamp(),
+      'city': city,
+      'deleted_at': isDeleted ? FieldValue.serverTimestamp() : null,
     };
   }
 
-  factory OrdemServicos.fromFirestore(
+  factory ServiceOrder.fromFirestore(
     DocumentSnapshot<Map<String, dynamic>> document,
   ) {
     final data = document.data()!;
 
-    return OrdemServicos(
+    return ServiceOrder(
       id: document.id,
-      nome: data['nome'] as String,
-      peca: data['peca'] as String,
-      equipamento: data['equipamento'] as String,
-      cliente: data['cliente'] as String,
-      responsavel: data['responsavel'] as String,
-      data: (data['data'] as Timestamp).toDate(),
-      statusOdemDeServico: data['status_ordem_de_servico'] as String,
-      relatorio: data['relatorio'] as String,
-      criadoEm: (data['criado_em'] as Timestamp?)?.toDate(),
-      cidade: data['cidade'] as String,
-      removido: data['deleted_at'] != null,
+      name: data['name'] as String,
+      part: data['part'] as String,
+      equipment: data['equipment'] as String,
+      client: data['client'] as String,
+      assignee: data['assignee'] as String,
+      date: (data['date'] as Timestamp).toDate(),
+      status: data['status'] as String,
+      report: data['report'] as String,
+      createdAt: (data['created_at'] as Timestamp?)?.toDate(),
+      city: data['city'] as String,
+      isDeleted: data['deleted_at'] != null,
     );
   }
 }

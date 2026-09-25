@@ -1,11 +1,14 @@
 import 'package:flutter/material.dart';
+
 import 'package:frontend/fire_base/models/os.dart';
+import 'package:frontend/fire_base/repositories/mock_os_repository.dart';
+
 import 'package:frontend/ui/pages/dashboard.dart';
 import 'package:frontend/ui/pages/edit_item/item_edition.dart';
 import 'package:frontend/ui/pages/os/tabbar/tabbar.dart';
 import 'package:frontend/ui/pages/product_registration/product_registration.dart';
 import 'package:frontend/ui/pages/stand_in_page.dart';
-import 'package:frontend/fire_base/repositories/mock_os_repository.dart';
+
 import 'package:frontend/ui/style/ColorScheme.dart' as custom_colors;
 import 'package:frontend/ui/widgets/menu.dart';
 import 'package:frontend/ui/widgets/show_dialog/show_delete_os.dart';
@@ -20,9 +23,9 @@ class OsListPage extends StatefulWidget {
 }
 
 class _OsListPageState extends State<OsListPage> {
-  final MockOsRepository _repository = MockOsRepository();
-  
-  late Future<List<OrdemServicos>> _futureOrdemServicos;
+  final MockOSRepository _service = MockOSRepository();
+
+  late Future<List<ServiceOrder>> _futureOrdemServicos;
 
   final colors = custom_colors.colorScheme;
 
@@ -33,30 +36,33 @@ class _OsListPageState extends State<OsListPage> {
   }
 
   void _carregarOrdemServicos() {
-    final Future<List<OrdemServicos>> os = _repository.listarTodos();
-
-    setState(() {
-      _futureOrdemServicos = os;
-    });   
+    _futureOrdemServicos = _service.getAll();
   }
 
   Color _obterCorDoStatus(String status) {
     switch (status) {
       case 'Concluída':
         return Colors.green;
+
       case 'Pendente':
       case 'Em Andamento':
-        return Colors.orange; 
+        return Colors.orange;
+
       case 'Fechada':
       case 'Cancelada':
         return Colors.red;
+
       default:
         return colors.onSurfaceVariant;
     }
   }
 
-  Future<void> _deletarOrdemServicos(OrdemServicos os) async {
-    os.removido = true;
+  Future<void> _deletarOrdemServicos(ServiceOrder os) async {
+    await _service.delete(os.id);
+  }
+
+  Future<void> _restaurarOrdemServicos(ServiceOrder os) async {
+    await _service.restore(os.id);
   }
 
   @override
@@ -93,7 +99,12 @@ class _OsListPageState extends State<OsListPage> {
           }
 
           if (index == 0 || index == 2) {
-            StandInPage();
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => StandInPage(),
+              ),
+            );
           }
 
           if (index == 3) {
@@ -190,12 +201,10 @@ class _OsListPageState extends State<OsListPage> {
                   ),
                 ),
 
-                // Aqui carrego as ordens de serviço
-                FutureBuilder<List<OrdemServicos>>(
+                FutureBuilder<List<ServiceOrder>>(
                   future: _futureOrdemServicos,
                   builder: (context, snapshot) {
-                    if (
-                        snapshot.connectionState ==
+                    if (snapshot.connectionState ==
                         ConnectionState.waiting) {
                       return const Padding(
                         padding: EdgeInsets.only(top: 20.0),
@@ -246,9 +255,17 @@ class _OsListPageState extends State<OsListPage> {
           Navigator.push(
             context,
             MaterialPageRoute(
-              builder: (context) => Tabbar(serviceOrderNumber: -0001),
+              builder: (context) => const Tabbar(
+                serviceOrderNumber: -1,
+              ),
             ),
-          );
+          ).then((_) {
+            if (!mounted) return;
+
+            setState(() {
+              _carregarOrdemServicos();
+            });
+          });
         },
         backgroundColor: colors.primary,
         foregroundColor: colors.onPrimary,
@@ -260,8 +277,7 @@ class _OsListPageState extends State<OsListPage> {
     );
   }
 
-  // Construo os cards
-  Widget _buildClientCard(OrdemServicos os) {
+  Widget _buildClientCard(ServiceOrder os) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 16),
       child: ClipRRect(
@@ -270,22 +286,24 @@ class _OsListPageState extends State<OsListPage> {
           slidableKey: ValueKey(os.id),
 
           onDelete: () async {
-            final confimarExclusao =
-                await showDialog(
+            final confirmarExclusao =
+                await showDialog<bool>(
                   context: context,
                   builder: (_) => ShowDeleteOsDialog(
-                    nome: os.nome,
+                    nome: os.name,
                   ),
                 ) ??
                 false;
 
-            if (!confimarExclusao) return;
+            if (!confirmarExclusao) return;
 
             await _deletarOrdemServicos(os);
 
-            _carregarOrdemServicos();
-
             if (!mounted) return;
+
+            setState(() {
+              _carregarOrdemServicos();
+            });
 
             final messenger = ScaffoldMessenger.of(context);
 
@@ -294,10 +312,14 @@ class _OsListPageState extends State<OsListPage> {
             messenger.showSnackBar(
               ShowDeleteOsSnackbar(
                 color: colors.primary,
-                onPressed: () {
-                  os.removido = false;
+                onPressed: () async {
+                  await _restaurarOrdemServicos(os);
 
-                  _carregarOrdemServicos();
+                  if (!mounted) return;
+
+                  setState(() {
+                    _carregarOrdemServicos();
+                  });
 
                   messenger.hideCurrentSnackBar();
                 },
@@ -327,9 +349,9 @@ class _OsListPageState extends State<OsListPage> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                      '#${os.id} - ${os.nome}', 
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
+                        '#${os.id} - ${os.name}',
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
                         style: TextStyle(
                           color: colors.onSurface,
                           fontSize: 18,
@@ -338,21 +360,22 @@ class _OsListPageState extends State<OsListPage> {
                       ),
 
                       Text(
-                        os.cidade,
+                        os.city,
                         style: TextStyle(
                           color: colors.onSurfaceVariant,
                           fontSize: 14,
                         ),
                       ),
-                    
-                    Text(
-                        os.statusOdemDeServico,
+
+                      Text(
+                        os.status,
                         style: TextStyle(
-                          color: _obterCorDoStatus(os.statusOdemDeServico),
+                          color: _obterCorDoStatus(
+                            os.status,
+                          ),
                           fontSize: 14,
                         ),
-                        
-                    ),
+                      ),
                     ],
                   ),
                 ),
@@ -366,8 +389,7 @@ class _OsListPageState extends State<OsListPage> {
                     Navigator.push(
                       context,
                       MaterialPageRoute(
-                        builder: (context) =>
-                            const StandInPage(),
+                        builder: (context) => const StandInPage(),
                       ),
                     );
                   },

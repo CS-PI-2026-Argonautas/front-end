@@ -1,111 +1,180 @@
 import 'package:frontend/fire_base/models/os.dart';
-import 'package:frontend/fire_base/repositories/os_repository.dart';
 
-class MockOsRepository implements OsRepository {
+class MockOSRepository {
+  static final MockOSRepository _instance =
+      MockOSRepository._internal();
 
-  static final MockOsRepository _instance = MockOsRepository._internal();
+  MockOSRepository._internal();
 
-  MockOsRepository._internal();
+  factory MockOSRepository() => _instance;
 
-  factory MockOsRepository() => _instance;
-final List<OrdemServicos> _bd = [
-    OrdemServicos(
-      id:1,
-      nome: 'Calibração e aferição anual',
-      peca: 'Lacre Inmetro',
-      equipamento: 'Balança Comercial Toledo Prix 3 Plus',
-      cliente: 'Giovanna',
-      cidade: 'PResidente Prudente - SP',
-      responsavel: 'Carlos (Técnico)',
-      data: DateTime(2026, 8, 1, 9, 30),
-      statusOdemDeServico: 'Concluída',
-      relatorio: 'Equipamento calibrado e selado conforme exigências do Inmetro.',
-      criadoEm: DateTime(2026, 7, 28, 10, 0),
+  final List<ServiceOrder> _serviceOrders = [
+    ServiceOrder(
+      id: '1',
+      name: 'Calibração e aferição anual',
+      part: 'Lacre Inmetro',
+      equipment: 'Balança Comercial Toledo Prix 3 Plus',
+      client: 'Giovanna',
+      city: 'Presidente Prudente - SP',
+      assignee: 'Carlos (Técnico)',
+      date: DateTime(2026, 8, 1, 9, 30),
+      status: 'Concluída',
+      report:
+          'Equipamento calibrado e selado conforme exigências do Inmetro.',
+      createdAt: DateTime(2026, 7, 28, 10, 0),
     ),
-    OrdemServicos(
-      id: 13,
-      nome: 'Substituição de célula de carga',
-      peca: 'Célula de carga Zemic 500kg',
-      equipamento: 'Balança Industrial de Plataforma',
-      cliente: 'Murilo',
-      cidade: 'Campinas - SP', 
-      responsavel: 'Roberto (Técnico)',
-      data: DateTime(2026, 8, 5, 14, 0),
-      statusOdemDeServico: 'Em Andamento',
-      relatorio: 'Peça instalada. Aguardando colocação dos pesos padrão para ajuste fino de tara.',
-      criadoEm: DateTime(2026, 7, 30, 9, 15),
+
+    ServiceOrder(
+      id: '13',
+      name: 'Substituição de célula de carga',
+      part: 'Célula de carga Zemic 500kg',
+      equipment: 'Balança Industrial de Plataforma',
+      client: 'Murilo',
+      city: 'Campinas - SP',
+      assignee: 'Roberto (Técnico)',
+      date: DateTime(2026, 8, 5, 14, 0),
+      status: 'Em Andamento',
+      report:
+          'Peça instalada. Aguardando colocação dos pesos padrão para ajuste fino de tara.',
+      createdAt: DateTime(2026, 7, 30, 9, 15),
     ),
-    OrdemServicos(
-      id: 12,
-      nome: 'Limpeza interna e desoxidação',
-      peca: 'Nenhuma',
-      equipamento: 'Balança Analítica de Precisão',
-      cliente: 'Isaque',
-      cidade: 'Belo Horizonte - BH',
-      responsavel: 'Ana (Especialista)',
-      data: DateTime(2026, 8, 7, 10, 15),
-      statusOdemDeServico: 'Em Andamento',
-      relatorio: 'Visor apresentando oscilação na leitura de gramatura. Equipamento na fila para triagem.',
-      criadoEm: DateTime(2026, 8, 1, 16, 40),
+
+    ServiceOrder(
+      id: '12',
+      name: 'Limpeza interna e desoxidação',
+      part: 'Nenhuma',
+      equipment: 'Balança Analítica de Precisão',
+      client: 'Isaque',
+      city: 'Belo Horizonte - BH',
+      assignee: 'Ana (Especialista)',
+      date: DateTime(2026, 8, 7, 10, 15),
+      status: 'Em Andamento',
+      report:
+          'Visor apresentando oscilação na leitura de gramatura. Equipamento na fila para triagem.',
+      createdAt: DateTime(2026, 8, 1, 16, 40),
     ),
-    OrdemServicos(
-      id:3,
-      nome: 'Troca do mecanismo de impressão',
-      peca: 'Cabeça Térmica de Impressão',
-      equipamento: 'Balança Etiquetadora Filizola',
-      cliente: 'Maria',
-      cidade: 'Curitiba - PR',
-      responsavel: 'Carlos (Técnico)',
-      data: DateTime(2026, 8, 6, 16, 45),
-      statusOdemDeServico: 'Concluída',
-      relatorio: 'Cabeça de impressão antiga estava com falha nos pixels. Substituição e teste concluídos.',
-      criadoEm: DateTime(2026, 8, 2, 11, 5),
+
+    ServiceOrder(
+      id: '3',
+      name: 'Troca do mecanismo de impressão',
+      part: 'Cabeça Térmica de Impressão',
+      equipment: 'Balança Etiquetadora Filizola',
+      client: 'Maria',
+      city: 'Curitiba - PR',
+      assignee: 'Carlos (Técnico)',
+      date: DateTime(2026, 8, 6, 16, 45),
+      status: 'Concluída',
+      report:
+          'Cabeça de impressão antiga estava com falha nos pixels. Substituição e teste concluídos.',
+      createdAt: DateTime(2026, 8, 2, 11, 5),
     ),
-    OrdemServicos(
-      id: 9,
-      nome: 'Reparo na fonte de alimentação',
-      peca: 'Bateria 6V 4.5Ah e Fusível 2A',
-      equipamento: 'Balança Pediátrica',
-      cliente: 'Felipe',
-      cidade: 'Rio de Janeiro - RJ',
-      responsavel: 'Roberto (Técnico)',
-      data: DateTime(2026, 8, 2, 11, 20),
-      statusOdemDeServico: 'Concluída',
-      relatorio: 'Bateria viciada trocada e fusível rompido substituído. Calibração mantida.',
-      criadoEm: DateTime(2026, 8, 3, 8, 50),
+
+    ServiceOrder(
+      id: '9',
+      name: 'Reparo na fonte de alimentação',
+      part: 'Bateria 6V 4.5Ah e Fusível 2A',
+      equipment: 'Balança Pediátrica',
+      client: 'Felipe',
+      city: 'Rio de Janeiro - RJ',
+      assignee: 'Roberto (Técnico)',
+      date: DateTime(2026, 8, 2, 11, 20),
+      status: 'Concluída',
+      report:
+          'Bateria viciada trocada e fusível rompido substituído. Calibração mantida.',
+      createdAt: DateTime(2026, 8, 3, 8, 50),
     ),
-    OrdemServicos(
-      id: 10,
-      nome: 'Recabeamento de módulo',
-      peca: 'Cabo blindado 4 vias (15m)',
-      equipamento: 'Balança Rodoviária 80t',
-      cliente: 'Arthur',
-      cidade: 'Porto Alegre - RS', 
-      responsavel: 'Ana (Especialista)',
-      data: DateTime(2026, 8, 7, 8, 0),
-      statusOdemDeServico: 'Cancelada',
-      relatorio: 'Cliente optou por não realizar o serviço no momento.',
-      criadoEm: DateTime(2026, 8, 5, 13, 30),
-      removido: true,
+
+    ServiceOrder(
+      id: '10',
+      name: 'Recabeamento de módulo',
+      part: 'Cabo blindado 4 vias (15m)',
+      equipment: 'Balança Rodoviária 80t',
+      client: 'Arthur',
+      city: 'Porto Alegre - RS',
+      assignee: 'Ana (Especialista)',
+      date: DateTime(2026, 8, 7, 8, 0),
+      status: 'Cancelada',
+      report: 'Cliente optou por não realizar o serviço no momento.',
+      createdAt: DateTime(2026, 8, 5, 13, 30),
+      isDeleted: true,
     ),
   ];
 
-  @override
-  Future<List<OrdemServicos>> listarTodos() async {
+  Future<List<ServiceOrder>> getAll() async {
     await Future.delayed(const Duration(milliseconds: 300));
-    return List.unmodifiable(_bd.where((os) => !os.removido).toList()..sort((a,b)=>b.criadoEm.compareTo(a.criadoEm)));
+
+    final activeOrders = _serviceOrders
+        .where((order) => !order.isDeleted)
+        .toList();
+
+    activeOrders.sort((a, b) {
+      final dateA = a.createdAt;
+      final dateB = b.createdAt;
+
+      if (dateA == null && dateB == null) {
+        return 0;
+      }
+
+      if (dateA == null) {
+        return 1;
+      }
+
+      if (dateB == null) {
+        return -1;
+      }
+
+      return dateB.compareTo(dateA);
+    });
+
+    return List.unmodifiable(activeOrders);
   }
 
-  @override
-  Future<void> salvar(OrdemServicos os) async {
+  Future<void> save(ServiceOrder order) async {
     await Future.delayed(const Duration(milliseconds: 300));
-    os.id = _bd.length + 1;
-    _bd.add(os);
+
+    final newOrder = ServiceOrder(
+      id: _generateId(),
+      name: order.name,
+      part: order.part,
+      equipment: order.equipment,
+      client: order.client,
+      assignee: order.assignee,
+      date: order.date,
+      status: order.status,
+      report: order.report,
+      city: order.city,
+      createdAt: order.createdAt ?? DateTime.now(),
+      isDeleted: false,
+    );
+
+    _serviceOrders.add(newOrder);
   }
 
-  @override
-  Future<void> deletar(int id) async {
+  Future<void> delete(String id) async {
     await Future.delayed(const Duration(milliseconds: 300));
-    _bd.remove(id);
+
+    final index = _serviceOrders.indexWhere((order) => order.id == id);
+
+    if (index == -1) {
+      return;
+    }
+
+    _serviceOrders[index].isDeleted = true;
+  }
+
+  Future<void> restore(String id) async {
+    await Future.delayed(const Duration(milliseconds: 300));
+
+    final index = _serviceOrders.indexWhere((order) => order.id == id);
+
+    if (index == -1) {
+      return;
+    }
+
+    _serviceOrders[index].isDeleted = false;
+  }
+
+  String _generateId() {
+    return '${DateTime.now().microsecondsSinceEpoch}-${_serviceOrders.length}';
   }
 }
