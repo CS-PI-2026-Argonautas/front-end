@@ -37,52 +37,54 @@ class _TabbarState extends State<Tabbar> with TickerProviderStateMixin {
     _tabController.dispose();
   }
 
-  @override
-  void initState() {
-    super.initState();
-    _tabController = TabController(length: 4, vsync: this);
-  }
+  // @override
+  // void initState() {
+  //   super.initState();
+  //   _tabController = TabController(length: 4, vsync: this);
+  // }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text('OS nº ${widget.serviceOrderNumber}'),
-        backgroundColor: colors.primary,
-        foregroundColor: colors.onSecondary,
-        leading: _onBackAppbar,
-        bottom: TabBar(
-          controller: _tabController,
-          labelColor: colors.onSecondary,
-          tabs: <Widget>[
-            Tab(icon: Icon(Icons.description), text: 'Dados'),
-            Tab(icon: Icon(Icons.build), text: 'Peças'),
-            Tab(icon: Icon(Icons.handyman), text: 'Serviços'),
-            Tab(icon: Icon(Icons.attach_money), text: 'Valores'),
+    return DefaultTabController(
+      length: 4, 
+      child: Scaffold(
+        backgroundColor: colors.surface,
+        appBar: AppBar(
+          title: Text('OS nº ${widget.serviceOrderNumber}'),
+          backgroundColor: colors.primary,
+          foregroundColor: colors.onSecondary,
+          leading: _onBackAppbar,
+          bottom: TabBar(
+            labelColor: colors.onSecondary,
+            tabs: <Widget>[
+              Tab(icon: Icon(Icons.description), text: 'Dados'),
+              Tab(icon: Icon(Icons.build), text: 'Peças'),
+              Tab(icon: Icon(Icons.handyman), text: 'Serviços'),
+              Tab(icon: Icon(Icons.attach_money), text: 'Valores'),
+            ],
+          ),
+        ),
+        body: TabBarView(
+          children: <Widget>[
+            DataOs(),
+            // Center(
+            //   child: Column(
+            //     mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            //     children: [
+            //       ElevatedButton(
+            //         onPressed: () {
+            //           goToNextTab();
+            //         },
+            //         child: Text('avançar'),
+            //       ),
+            //     ],
+            //   ),
+            // ),
+            TollsOs(),
+            OsServicosTab(),
+            ValuesOs(),
           ],
         ),
-      ),
-      body: TabBarView(
-        controller: _tabController,
-        children: <Widget>[
-          DataOs(),
-          // Center(
-          //   child: Column(
-          //     mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-          //     children: [
-          //       ElevatedButton(
-          //         onPressed: () {
-          //           goToNextTab();
-          //         },
-          //         child: Text('avançar'),
-          //       ),
-          //     ],
-          //   ),
-          // ),
-          TollsOs(),
-          OsServicosTab(),
-          ValuesOs(),
-        ],
       ),
     );
   }

@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:frontend/ui/pages/os/tabbar/tabbar.dart';
+import 'package:frontend/ui/pages/os/tolls_os.dart';
 import 'package:frontend/ui/style/ColorScheme.dart' as custom_colors;
 import 'package:frontend/ui/style/inputDecorationStyles.dart';
 
@@ -51,6 +53,7 @@ class _DataOsState extends State<DataOs> {
     'PAGA',
   ];
 
+  
   @override
   void initState() {
     super.initState();
@@ -201,6 +204,7 @@ class _DataOsState extends State<DataOs> {
                 child: SafeArea(
                   top: false,
                   child: Column(
+                    spacing: 18,
                     mainAxisSize: MainAxisSize.min,
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
@@ -215,15 +219,13 @@ class _DataOsState extends State<DataOs> {
                         ),
                       ),
 
-                      const SizedBox(height: 20),
-
                       Row(
+                        spacing: 6,
                         children: [
                           Icon(
                             Icons.description_outlined,
                             color: colors.primary,
                           ),
-                          const SizedBox(width: 8),
                           const Text(
                             'Relatório da OS',
                             style: TextStyle(
@@ -234,8 +236,6 @@ class _DataOsState extends State<DataOs> {
                         ],
                       ),
 
-                      const SizedBox(height: 8),
-
                       Text(
                         'Adicione observações sobre o andamento do conserto.',
                         style: TextStyle(
@@ -243,8 +243,6 @@ class _DataOsState extends State<DataOs> {
                           color: colors.onSurfaceVariant,
                         ),
                       ),
-
-                      const SizedBox(height: 18),
 
                       TextField(
                         controller: _relatorioController,
@@ -272,8 +270,6 @@ class _DataOsState extends State<DataOs> {
                           widget.onRelatorioChanged?.call(value);
                         },
                       ),
-
-                      const SizedBox(height: 12),
 
                       SizedBox(
                         width: double.infinity,
@@ -322,7 +318,12 @@ class _DataOsState extends State<DataOs> {
           constraints: const BoxConstraints(
             maxWidth: 650,
           ),
-          child: _buildFormCard(),
+          child: Column(
+            spacing: 24,
+            children: [
+              _buildFormCard(), 
+            ],
+          )
         ),
       ),
     );
@@ -342,6 +343,7 @@ class _DataOsState extends State<DataOs> {
           vertical: 28,
         ),
         child: Column(
+          spacing: 18,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             _buildSectionTitle(
@@ -349,91 +351,111 @@ class _DataOsState extends State<DataOs> {
               'Atualize as informações referentes ao conserto do equipamento.',
             ),
 
-            const SizedBox(height: 24),
-
-            // DATA DE ENTRADA
-            _buildFieldLabel(
-              Icons.calendar_today_outlined,
-              'Data de entrada',
-            ),
-
-            const SizedBox(height: 8),
-
-            InkWell(
-              borderRadius: BorderRadius.circular(14),
-              onTap: _selecionarDataEntrada,
-              child: InputDecorator(
-                decoration: customInputDecoration(
-                  hintText: 'Selecione a data de entrada',
-                ).copyWith(
-                  suffixIcon: const Icon(
-                    Icons.calendar_month_outlined,
-                  ),
-                ),
-                child: Text(
-                  _formatDate(dataEntrada),
-                  style: const TextStyle(
-                    fontSize: 16,
-                  ),
-                ),
-              ),
-            ),
-
-            const SizedBox(height: 22),
-
-            // DATA DE SAÍDA
-            _buildFieldLabel(
-              Icons.event_available_outlined,
-              'Data de saída',
-            ),
-
-            const SizedBox(height: 8),
-
-            InkWell(
-              borderRadius: BorderRadius.circular(14),
-              onTap: dataSaida == null
-                  ? null
-                  : _alterarDataSaida,
-              child: InputDecorator(
-                decoration: customInputDecoration(
-                  hintText: 'Preenchida automaticamente',
-                ).copyWith(
-                  filled: true,
-                  fillColor: Colors.grey.shade100,
-                  suffixIcon: dataSaida == null
-                      ? const Icon(
-                          Icons.hourglass_empty,
-                          color: Colors.grey,
-                        )
-                      : const Icon(
-                          Icons.edit_calendar_outlined,
-                          color: Colors.grey,
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              spacing: 10,
+              children: [
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    spacing: 8,
+                    children: [
+                      _buildFieldLabel(
+                        Icons.calendar_today_outlined,
+                        'Entrada',
+                      ),
+                      InkWell(
+                        borderRadius: BorderRadius.circular(14),
+                        onTap: _selecionarDataEntrada,
+                        child: InputDecorator(
+                          decoration: customInputDecoration(
+                            hintText: 'Data',
+                          ).copyWith(
+                            suffixIcon: const Icon(
+                              Icons.calendar_month_outlined,
+                              size: 20,
+                            ),
+                            contentPadding: const EdgeInsets.symmetric(
+                              horizontal: 12,
+                              vertical: 14,
+                            ),
+                          ),
+                          child: Text(
+                            _formatDate(dataEntrada),
+                            style: const TextStyle(
+                              fontSize: 14,
+                            ),
+                          ),
                         ),
-                ),
-                child: Text(
-                  dataSaida == null
-                      ? 'Ainda não definida'
-                      : _formatDate(dataSaida),
-                  style: TextStyle(
-                    fontSize: 16,
-                    color: dataSaida == null
-                        ? Colors.grey.shade600
-                        : colors.onSurface,
+                      ),
+                    ],
                   ),
                 ),
-              ),
+
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    spacing: 8,
+                    children: [
+                      _buildFieldLabel(
+                        Icons.event_available_outlined,
+                        'Saída',
+                      ),
+                      InkWell(
+                        borderRadius: BorderRadius.circular(14),
+                        onTap: dataSaida == null
+                            ? null
+                            : _alterarDataSaida,
+                        child: InputDecorator(
+                          decoration: customInputDecoration(
+                            hintText: 'Automática',
+                          ).copyWith(
+                            filled: true,
+                            fillColor: Colors.grey.shade100,
+                            suffixIcon: dataSaida == null
+                                ? const Icon(
+                                    Icons.hourglass_empty,
+                                    color: Colors.grey,
+                                    size: 20,
+                                  )
+                                : const Icon(
+                                    Icons.edit_calendar_outlined,
+                                    color: Colors.grey,
+                                    size: 20,
+                                  ),
+                            contentPadding: const EdgeInsets.symmetric(
+                              horizontal: 12,
+                              vertical: 14,
+                            ),
+                          ),
+                          child: Text(
+                            dataSaida == null
+                                ? 'Ainda não definida'
+                                : _formatDate(dataSaida),
+                            style: TextStyle(
+                              fontSize: 14,
+                              color: dataSaida == null
+                                  ? Colors.grey.shade600
+                                  : colors.onSurface,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
             ),
 
             if (dataSaida != null) ...[
-              const SizedBox(height: 6),
               Row(
+                spacing: 6,
                 children: [
                   const Icon(
                     Icons.info_outline,
                     size: 15,
                     color: Colors.grey,
                   ),
-                  const SizedBox(width: 5),
                   Text(
                     'Toque para corrigir a data de saída.',
                     style: TextStyle(
@@ -445,15 +467,10 @@ class _DataOsState extends State<DataOs> {
               ),
             ],
 
-            const SizedBox(height: 22),
-
-            // STATUS
             _buildFieldLabel(
               Icons.sync_alt,
               'Status',
             ),
-
-            const SizedBox(height: 8),
 
             DropdownButtonFormField<String>(
               value: status,
@@ -466,6 +483,7 @@ class _DataOsState extends State<DataOs> {
                 return DropdownMenuItem(
                   value: value,
                   child: Row(
+                    spacing: 6,
                     children: [
                       Container(
                         width: 9,
@@ -475,7 +493,6 @@ class _DataOsState extends State<DataOs> {
                           shape: BoxShape.circle,
                         ),
                       ),
-                      const SizedBox(width: 10),
                       Text(_statusLabel(value)),
                     ],
                   ),
@@ -492,15 +509,10 @@ class _DataOsState extends State<DataOs> {
               },
             ),
 
-            const SizedBox(height: 22),
-
-            // RELATÓRIO
             _buildFieldLabel(
               Icons.description_outlined,
               'Relatório',
             ),
-
-            const SizedBox(height: 8),
 
             InkWell(
               onTap: _editarRelatorio,
@@ -520,6 +532,7 @@ class _DataOsState extends State<DataOs> {
                 ),
                 child: relatorio.isEmpty
                     ? Row(
+                      spacing: 6,
                         crossAxisAlignment:
                             CrossAxisAlignment.start,
                         children: [
@@ -527,7 +540,6 @@ class _DataOsState extends State<DataOs> {
                             Icons.edit_note,
                             color: colors.onSurfaceVariant,
                           ),
-                          const SizedBox(width: 10),
                           Expanded(
                             child: Text(
                               'Toque para adicionar observações...',
@@ -541,6 +553,7 @@ class _DataOsState extends State<DataOs> {
                         ],
                       )
                     : Column(
+                      spacing: 18,
                         crossAxisAlignment:
                             CrossAxisAlignment.start,
                         children: [
@@ -551,7 +564,6 @@ class _DataOsState extends State<DataOs> {
                               height: 1.45,
                             ),
                           ),
-                          const SizedBox(height: 12),
                           Row(
                             mainAxisAlignment:
                                 MainAxisAlignment.end,
@@ -561,7 +573,6 @@ class _DataOsState extends State<DataOs> {
                                 size: 17,
                                 color: colors.primary,
                               ),
-                              const SizedBox(width: 5),
                               Text(
                                 'Editar',
                                 style: TextStyle(
@@ -577,8 +588,6 @@ class _DataOsState extends State<DataOs> {
               ),
             ),
 
-            const SizedBox(height: 6),
-
             Text(
               '${relatorio.length}/256 caracteres',
               style: TextStyle(
@@ -587,18 +596,17 @@ class _DataOsState extends State<DataOs> {
               ),
             ),
 
-            const SizedBox(height: 28),
-
-            // PRÓXIMA ABA
             SizedBox(
               width: double.infinity,
               child: ElevatedButton.icon(
-                onPressed: widget.avancarTab,
+                onPressed: () {
+                  DefaultTabController.of(context).animateTo(1);
+                },
                 icon: const Icon(
-                  Icons.arrow_forward,
+                  Icons.build,
                 ),
                 label: const Text(
-                  'Adicionar Peças na OS',
+                  'Adicionar Peças',
                   style: TextStyle(
                     fontWeight: FontWeight.bold,
                     fontSize: 16,
@@ -617,8 +625,6 @@ class _DataOsState extends State<DataOs> {
                 ),
               ),
             ),
-
-            const SizedBox(height: 10),
 
             Center(
               child: Text(
@@ -641,6 +647,7 @@ class _DataOsState extends State<DataOs> {
     String subtitle,
   ) {
     return Column(
+      spacing: 6,
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
@@ -651,7 +658,6 @@ class _DataOsState extends State<DataOs> {
             color: colors.onSurface,
           ),
         ),
-        const SizedBox(height: 6),
         Text(
           subtitle,
           style: TextStyle(
@@ -668,13 +674,13 @@ class _DataOsState extends State<DataOs> {
     String label,
   ) {
     return Row(
+      spacing: 6,
       children: [
         Icon(
           icon,
           size: 20,
           color: colors.primary,
         ),
-        const SizedBox(width: 6),
         Text(
           label,
           style: TextStyle(
@@ -686,4 +692,7 @@ class _DataOsState extends State<DataOs> {
       ],
     );
   }
+
 }
+
+
