@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:frontend/ui/pages/os/tabs/values_os.dart';
+import 'package:frontend/ui/pages/os/tabs/data_os.dart';
 import 'package:frontend/ui/pages/os/os_service/os_service.dart';
 import 'package:frontend/ui/pages/os/tolls_os.dart';
+import 'package:frontend/ui/pages/os_list/os_list_page.dart';
 import 'package:frontend/ui/style/ColorScheme.dart' as custom_colors;
 
 class Tabbar extends StatefulWidget {
@@ -15,6 +17,8 @@ class Tabbar extends StatefulWidget {
 
 class _TabbarState extends State<Tabbar> with TickerProviderStateMixin {
   late final TabController _tabController;
+
+  String _status = 'EM_CONSERTO';
 
   final colors = custom_colors.colorScheme;
 
@@ -30,6 +34,27 @@ class _TabbarState extends State<Tabbar> with TickerProviderStateMixin {
     }
   }
 
+  void _concluirOs() {
+    setState(() {
+      _status = 'CONCLUIDA';
+    });
+    
+    // para verificar que a os foi marcada como concluida, comente o trecho abaixo e vá para a aba de dados manualmente. 
+      // caso queira que após a conclusão, seja retornada à listagem de OS, descomente o trecho abaixo.
+      
+    // Navigator.push(
+    //   context, 
+    //   MaterialPageRoute(
+    //     builder: (_) =>OsListPage()),
+    // );
+  }
+
+  void _alterarStatus(String novoStatus) {
+    setState(() {
+      _status = novoStatus;
+    });
+  }
+
   @override
   void dispose() {
     super.dispose();
@@ -37,50 +62,59 @@ class _TabbarState extends State<Tabbar> with TickerProviderStateMixin {
   }
 
   @override
-  void initState() {
-    super.initState();
-    _tabController = TabController(length: 4, vsync: this);
-  }
-
-  @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text('OS nº ${widget.serviceOrderNumber}'),
-        backgroundColor: colors.primary,
-        foregroundColor: colors.onSecondary,
-        leading: _onBackAppbar,
-        bottom: TabBar(
-          controller: _tabController,
-          labelColor: colors.onSecondary,
-          tabs: <Widget>[
-            Tab(icon: Icon(Icons.description), text: 'Dados'),
-            Tab(icon: Icon(Icons.build), text: 'Peças'),
-            Tab(icon: Icon(Icons.handyman), text: 'Serviços'),
-            Tab(icon: Icon(Icons.attach_money), text: 'Valores'),
+    return DefaultTabController(
+      length: 4,
+      child: Scaffold(
+        backgroundColor: colors.surface,
+
+        appBar: AppBar(
+          title: Text(
+            'OS nº ${widget.serviceOrderNumber}',
+          ),
+          backgroundColor: colors.primary,
+          foregroundColor: colors.onSecondary,
+          leading: _onBackAppbar,
+
+          bottom: TabBar(
+            labelColor: colors.onSecondary,
+            tabs: const [
+              Tab(
+                icon: Icon(Icons.description),
+                text: 'Dados',
+              ),
+              Tab(
+                icon: Icon(Icons.build),
+                text: 'Peças',
+              ),
+              Tab(
+                icon: Icon(Icons.handyman),
+                text: 'Serviços',
+              ),
+              Tab(
+                icon: Icon(Icons.attach_money),
+                text: 'Valores',
+              ),
+            ],
+          ),
+        ),
+
+        body: TabBarView(
+          children: [
+            DataOs(
+              status: _status,
+              onStatusChanged: _alterarStatus,
+            ),
+
+            TollsOs(),
+
+            OsServicosTab(),
+
+            ValuesOs(
+              onConcluir: _concluirOs,
+            ),
           ],
         ),
-      ),
-      body: TabBarView(
-        controller: _tabController,
-        children: <Widget>[
-          Center(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              children: [
-                ElevatedButton(
-                  onPressed: () {
-                    goToNextTab();
-                  },
-                  child: Text('avançar'),
-                ),
-              ],
-            ),
-          ),
-          TollsOs(),
-          OsServicosTab(),
-          ValuesOs(),
-        ],
       ),
     );
   }
@@ -88,7 +122,10 @@ class _TabbarState extends State<Tabbar> with TickerProviderStateMixin {
   Widget get _onBackAppbar {
     return IconButton(
       onPressed: () => Navigator.pop(context),
-      icon: const Icon(Icons.arrow_back, size: 20),
+      icon: const Icon(
+        Icons.arrow_back,
+        size: 20,
+      ),
       style: IconButton.styleFrom(
         backgroundColor: Colors.white,
         foregroundColor: Colors.blue,

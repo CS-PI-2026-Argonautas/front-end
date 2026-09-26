@@ -1,16 +1,19 @@
-class OrdemServicos {
+import 'package:frontend/fire_base/Enums/StatusOrdemServico.dart';
 
+class OrdemServicos {
   int? id;
   final String nome;
   final String peca;
   final String equipamento;
   final String cliente;
-  final String responsavel;
-  final DateTime data;
-  final String statusOdemDeServico;
-  final String relatorio;
-  final DateTime criadoEm;
   final String cidade;
+  final String responsavel;
+  String relatorio;
+  Statusordemservico statusOrdemServico;
+
+  final DateTime criadoEm;
+  DateTime dataEntrada;
+  DateTime? dataSaida;
   // usado para o soft delete
   bool removido;
 
@@ -21,10 +24,11 @@ class OrdemServicos {
     required this.equipamento,
     required this.cliente,
     required this.responsavel,
-    required this.data,
-    required this.statusOdemDeServico,
+    required this.statusOrdemServico,
     required this.relatorio,
     required this.cidade,
+    required this.dataEntrada,
+    this.dataSaida,
     DateTime? criadoEm,
     this.removido = false,
   }) : criadoEm = criadoEm ?? DateTime.now();
