@@ -76,7 +76,7 @@ class _DataOsState extends State<DataOs> {
   }
 
   String _formatDate(DateTime? date) {
-    if (date == null) return 'Ainda não definida';
+    if (date == null) return 'Indefinida';
 
     return '${date.day.toString().padLeft(2, '0')}/'
         '${date.month.toString().padLeft(2, '0')}/'
@@ -430,7 +430,7 @@ class _DataOsState extends State<DataOs> {
                           ),
                           child: Text(
                             dataSaida == null
-                                ? 'Ainda não definida'
+                                ? 'Indefinida'
                                 : _formatDate(dataSaida),
                             style: TextStyle(
                               fontSize: 14,
