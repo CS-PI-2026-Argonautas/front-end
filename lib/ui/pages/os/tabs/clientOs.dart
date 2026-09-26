@@ -68,6 +68,41 @@ Map<String, dynamic>? enderecoSelecionado;
     });
   }
   
+  void _abrirListaEnderecos() {
+  final colors = custom_colors.colorScheme;
+
+  showModalBottomSheet(
+    context: context,
+    backgroundColor: colors.surface,
+    isScrollControlled: true,
+    shape: const RoundedRectangleBorder(
+      borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+    ),
+    builder: (context) {
+      return SelectionBottomSheet<Map<String, dynamic>>(
+        titulo: 'Selecionar endereço',
+        itens: enderecosDisponiveis,
+        textoBusca: 'Procurar endereço',
+        textoAcao: 'Novo endereço',
+        tituloItem: (endereco) => endereco['rua'].toString(),
+        subtituloItem: (endereco) => endereco['bairro'].toString(),
+        iconeItem: Icons.location_on_outlined,
+        carregando: false,
+        onAcao: null,
+        onSelecionar: (endereco) {
+          _selecionarEndereco(endereco);
+          Navigator.pop(context);
+        },
+      );
+    },
+  );
+}
+
+void _selecionarEndereco(Map<String, dynamic> endereco) {
+  setState(() {
+    enderecoSelecionado = endereco;
+  });
+}
 
   @override
   Widget build(BuildContext context) {
@@ -92,7 +127,7 @@ Map<String, dynamic>? enderecoSelecionado;
               _buildLabel(
                 'Endereço *',
                 colors,
-                onAdd: () {},
+                onAdd: _abrirListaEnderecos,
                 addLabel: 'Adicionar Endereço',
               ),
             ],
