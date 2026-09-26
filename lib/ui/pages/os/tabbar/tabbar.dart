@@ -17,6 +17,8 @@ class Tabbar extends StatefulWidget {
 class _TabbarState extends State<Tabbar> with TickerProviderStateMixin {
   late final TabController _tabController;
 
+  String _status = 'EM_CONSERTO';
+
   final colors = custom_colors.colorScheme;
 
   void goToNextTab() {
@@ -31,58 +33,77 @@ class _TabbarState extends State<Tabbar> with TickerProviderStateMixin {
     }
   }
 
+  void _concluirOs() {
+    setState(() {
+      _status = 'CONCLUIDA';
+    });
+  }
+
+  void _alterarStatus(String novoStatus) {
+    setState(() {
+      _status = novoStatus;
+    });
+  }
+
   @override
   void dispose() {
     super.dispose();
     _tabController.dispose();
   }
 
-  // @override
-  // void initState() {
-  //   super.initState();
-  //   _tabController = TabController(length: 4, vsync: this);
-  // }
-
   @override
   Widget build(BuildContext context) {
     return DefaultTabController(
-      length: 4, 
+      length: 4,
       child: Scaffold(
         backgroundColor: colors.surface,
+
         appBar: AppBar(
-          title: Text('OS nº ${widget.serviceOrderNumber}'),
+          title: Text(
+            'OS nº ${widget.serviceOrderNumber}',
+          ),
           backgroundColor: colors.primary,
           foregroundColor: colors.onSecondary,
           leading: _onBackAppbar,
+
           bottom: TabBar(
             labelColor: colors.onSecondary,
-            tabs: <Widget>[
-              Tab(icon: Icon(Icons.description), text: 'Dados'),
-              Tab(icon: Icon(Icons.build), text: 'Peças'),
-              Tab(icon: Icon(Icons.handyman), text: 'Serviços'),
-              Tab(icon: Icon(Icons.attach_money), text: 'Valores'),
+            tabs: const [
+              Tab(
+                icon: Icon(Icons.description),
+                text: 'Dados',
+              ),
+              Tab(
+                icon: Icon(Icons.build),
+                text: 'Peças',
+              ),
+              Tab(
+                icon: Icon(Icons.handyman),
+                text: 'Serviços',
+              ),
+              Tab(
+                icon: Icon(Icons.attach_money),
+                text: 'Valores',
+              ),
             ],
           ),
         ),
+
         body: TabBarView(
-          children: <Widget>[
-            DataOs(),
-            // Center(
-            //   child: Column(
-            //     mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-            //     children: [
-            //       ElevatedButton(
-            //         onPressed: () {
-            //           goToNextTab();
-            //         },
-            //         child: Text('avançar'),
-            //       ),
-            //     ],
-            //   ),
-            // ),
+          children: [
+            DataOs(
+              status: _status,
+              onStatusChanged: _alterarStatus,
+            ),
+
             TollsOs(),
+
             OsServicosTab(),
-            ValuesOs(),
+
+            ValuesOs(
+              onConcluir: _concluirOs,
+              
+            ),
           ],
         ),
       ),
@@ -92,7 +113,10 @@ class _TabbarState extends State<Tabbar> with TickerProviderStateMixin {
   Widget get _onBackAppbar {
     return IconButton(
       onPressed: () => Navigator.pop(context),
-      icon: const Icon(Icons.arrow_back, size: 20),
+      icon: const Icon(
+        Icons.arrow_back,
+        size: 20,
+      ),
       style: IconButton.styleFrom(
         backgroundColor: Colors.white,
         foregroundColor: Colors.blue,

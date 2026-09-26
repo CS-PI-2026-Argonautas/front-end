@@ -1,6 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:frontend/ui/pages/os/tabbar/tabbar.dart';
-import 'package:frontend/ui/pages/os/tolls_os.dart';
 import 'package:frontend/ui/style/ColorScheme.dart' as custom_colors;
 import 'package:frontend/ui/style/inputDecorationStyles.dart';
 
@@ -45,7 +43,7 @@ class _DataOsState extends State<DataOs> {
 
   final _relatorioController = TextEditingController();
 
-  static const statuses = [
+  static const editableStatuses = [
     'CANCELADA',
     'EM_CONSERTO',
     'EM_ORCAMENTO',
@@ -61,9 +59,7 @@ class _DataOsState extends State<DataOs> {
     dataEntrada = widget.dataEntrada ?? DateTime.now();
     dataSaida = widget.dataSaida;
 
-    status = statuses.contains(widget.status)
-        ? widget.status!
-        : 'EM_CONSERTO';
+    status = widget.status ?? 'EM_CONSERTO';
 
     relatorio = widget.relatorio ?? '';
     _relatorioController.text = relatorio;
@@ -73,6 +69,18 @@ class _DataOsState extends State<DataOs> {
   void dispose() {
     _relatorioController.dispose();
     super.dispose();
+  }
+
+  @override
+  void didUpdateWidget(covariant DataOs oldWidget) {
+    super.didUpdateWidget(oldWidget);
+
+    if (widget.status != oldWidget.status &&
+        widget.status != null) {
+      setState(() {
+        status = widget.status!;
+      });
+    }
   }
 
   String _formatDate(DateTime? date) {
@@ -95,6 +103,8 @@ class _DataOsState extends State<DataOs> {
         return 'Paga';
       case 'CANCELADA':
         return 'Cancelada';
+      case 'CONCLUIDA':
+        return 'Concluída';
       default:
         return value;
     }
@@ -107,11 +117,13 @@ class _DataOsState extends State<DataOs> {
       case 'EM_ORCAMENTO':
         return Colors.blue;
       case 'ENTREGUE':
-        return Colors.green;
+        return Colors.cyan;
       case 'PAGA':
         return Colors.teal;
       case 'CANCELADA':
         return Colors.red;
+      case 'CONCLUIDA':
+        return Colors.green;
       default:
         return colors.primary;
     }
@@ -472,42 +484,7 @@ class _DataOsState extends State<DataOs> {
               'Status',
             ),
 
-            DropdownButtonFormField<String>(
-              value: status,
-              decoration: customInputDecoration(
-                hintText: 'Selecione o status',
-              ),
-              items: statuses.map((value) {
-                final color = _statusColor(value);
-
-                return DropdownMenuItem(
-                  value: value,
-                  child: Row(
-                    spacing: 6,
-                    children: [
-                      Container(
-                        width: 9,
-                        height: 9,
-                        decoration: BoxDecoration(
-                          color: color,
-                          shape: BoxShape.circle,
-                        ),
-                      ),
-                      Text(_statusLabel(value)),
-                    ],
-                  ),
-                );
-              }).toList(),
-              onChanged: (value) {
-                if (value == null) return;
-
-                setState(() {
-                  status = value;
-                });
-
-                widget.onStatusChanged?.call(value);
-              },
-            ),
+            _buildStatusField(),
 
             _buildFieldLabel(
               Icons.description_outlined,
@@ -690,6 +667,82 @@ class _DataOsState extends State<DataOs> {
           ),
         ),
       ],
+    );
+  }
+
+  Widget _buildStatusField() {
+    if (status == 'CONCLUIDA') {
+      return InputDecorator(
+        decoration: customInputDecoration(
+          hintText: 'Status',
+        ).copyWith(
+          filled: true,
+          fillColor: Colors.grey.shade100,
+          suffixIcon: const Icon(
+            Icons.lock_outline,
+            color: Colors.grey,
+            size: 20,
+          ),
+        ),
+        child: Row(
+          children: [
+            Container(
+              width: 9,
+              height: 9,
+              decoration: BoxDecoration(
+                color: _statusColor(status),
+                shape: BoxShape.circle,
+              ),
+            ),
+            const SizedBox(width: 8),
+            Text(
+              _statusLabel(status),
+              style: TextStyle(
+                fontSize: 14,
+                color: colors.onSurface,
+                fontWeight: FontWeight.w500,
+              ),
+            ),
+          ],
+        ),
+      );
+    }
+
+    return DropdownButtonFormField<String>(
+      value: status,
+      decoration: customInputDecoration(
+        hintText: 'Selecione o status',
+      ),
+      items: editableStatuses.map((value) {
+        final color = _statusColor(value);
+
+        return DropdownMenuItem<String>(
+          value: value,
+          child: Row(
+            children: [
+              Container(
+                width: 9,
+                height: 9,
+                decoration: BoxDecoration(
+                  color: color,
+                  shape: BoxShape.circle,
+                ),
+              ),
+              const SizedBox(width: 6),
+              Text(_statusLabel(value)),
+            ],
+          ),
+        );
+      }).toList(),
+      onChanged: (value) {
+        if (value == null) return;
+
+        setState(() {
+          status = value;
+        });
+
+        widget.onStatusChanged?.call(value);
+      },
     );
   }
 

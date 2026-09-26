@@ -2,7 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:frontend/ui/style/ColorScheme.dart' as custom_colors;
 
 class ValuesOs extends StatefulWidget {
-  const ValuesOs({super.key});
+  final VoidCallback? onConcluir;
+
+  const ValuesOs({
+    super.key,
+    this.onConcluir,
+  });
 
   @override
   State<ValuesOs> createState() => _ValuesOsState();
@@ -12,8 +17,6 @@ class _ValuesOsState extends State<ValuesOs> {
 
   @override
   Widget build(BuildContext context) {
-
-    final colors = custom_colors.colorScheme;
 
     const double subtotalPecas = 100.00;
     const double subtotalServicos = 100.00;
@@ -135,7 +138,9 @@ class _ValuesOsState extends State<ValuesOs> {
             SizedBox(
               width: double.infinity,
               child: ElevatedButton.icon(
-                onPressed: () {},
+                onPressed: () {
+                  widget.onConcluir?.call();
+                },
                 icon: const Icon(
                   Icons.check_circle_outline,
                 ),
