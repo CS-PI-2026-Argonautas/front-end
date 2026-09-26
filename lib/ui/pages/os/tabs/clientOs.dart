@@ -12,6 +12,7 @@ class ClientOs extends StatefulWidget {
   State<ClientOs> createState() => _ClientOsState();
 }
 
+/* ISSSO VAI SER RETIRADO APÓS O BD ESTAR PRONTO (GAMBIARRA)*/
 class _ClientOsState extends State<ClientOs> {
 
   final List<Map<String, dynamic>> clientesDisponiveis = [
@@ -23,6 +24,14 @@ class _ClientOsState extends State<ClientOs> {
 
   Map<String, dynamic>? clienteSelecionado;
   
+  final List<Map<String, dynamic>> enderecosDisponiveis = [
+  {"id": 1, "rua": "Rua das Flores, 123", "bairro": "Centro"},
+  {"id": 2, "rua": "Av. Brasil, 456", "bairro": "Jardim América"},
+  {"id": 3, "rua": "Rua XV de Novembro, 789", "bairro": "Vila Nova"},
+];
+
+Map<String, dynamic>? enderecoSelecionado;
+
   void _abrirListaClientes() {
     final colors = custom_colors.colorScheme;
 
