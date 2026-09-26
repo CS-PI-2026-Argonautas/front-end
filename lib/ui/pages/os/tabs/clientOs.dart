@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:frontend/ui/style/ColorScheme.dart' as custom_colors;
+import 'package:frontend/ui/widgets/bottom_sheet/bottom_sheet.dart';
 
 class ClientOs extends StatefulWidget {
   final VoidCallback onNext;
@@ -23,15 +24,8 @@ class _ClientOsState extends State<ClientOs> {
   Map<String, dynamic>? clienteSelecionado;
   
   void _abrirListaClientes() {
-
-
-    void _selecionarCliente(Map<String, dynamic> cliente) {
-    setState(() {
-    clienteSelecionado = cliente;
-  });
-}
     final colors = custom_colors.colorScheme;
-    
+
     showModalBottomSheet(
       context: context,
       backgroundColor: colors.surface,
@@ -40,61 +34,30 @@ class _ClientOsState extends State<ClientOs> {
         borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
       ),
       builder: (context) {
-        return SafeArea(
-          child: Padding(
-            padding: const EdgeInsets.all(20),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  'Selecionar cliente',
-                  style: TextStyle(
-                    color: colors.onSurface,
-                    fontSize: 22,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-
-                const SizedBox(height: 16),
-
-Flexible(
-  child: ListView.builder(
-    shrinkWrap: true,
-    itemCount: clientesDisponiveis.length,
-    itemBuilder: (context, index) {
-      final cliente = clientesDisponiveis[index];
-
-      return ListTile(
-        contentPadding: EdgeInsets.zero,
-        leading: Icon(Icons.person_outline, color: colors.primary),
-        title: Text(
-          cliente["nome"],
-          style: TextStyle(
-            color: colors.onSurface,
-            fontWeight: FontWeight.w600,
-          ),
-        ),
-        subtitle: Text(
-          cliente["telefone"],
-          style: TextStyle(color: colors.onSurfaceVariant),
-        ),
-        onTap: () {
-          _selecionarCliente(cliente);
-          Navigator.pop(context);
-        },
-      );
-    },
-  ),
-),
-              ],
-            ),
-          ),
+        return SelectionBottomSheet<Map<String, dynamic>>(
+          titulo: 'Selecionar cliente',
+          itens: clientesDisponiveis,
+          textoBusca: 'Procurar cliente',
+          textoAcao: 'Novo cliente',
+          tituloItem: (cliente) => cliente['nome'].toString(),
+          subtituloItem: (cliente) => cliente['telefone'].toString(),
+          iconeItem: Icons.person_outline,
+          carregando: false,
+          onAcao: null,
+          onSelecionar: (cliente) {
+            _selecionarCliente(cliente);
+            Navigator.pop(context);
+          },
         );
       },
     );
   }
 
+  void _selecionarCliente(Map<String, dynamic> cliente) {
+    setState(() {
+      clienteSelecionado = cliente;
+    });
+  }
   
 
   @override
