@@ -78,6 +78,7 @@ class _ClientOsState extends State<ClientOs> {
                 onAdd: _abrirListaClientes,
                 addLabel: 'Adicionar cliente',
               ),
+              _buildClienteSelecionado(colors),
               const SizedBox(height: 35),
               _buildLabel(
                 'Endereço *',
@@ -92,13 +93,26 @@ class _ClientOsState extends State<ClientOs> {
     );
   }
 
-  Widget _buildLabel(
-    String text,
-    ColorScheme colors, {
-    VoidCallback? onAdd,
-    String addLabel = 'Adicionar',
-  }) {
-    return Row(
+ Widget _buildLabel(
+  String text,
+  ColorScheme colors, {
+  VoidCallback? onAdd,
+  String addLabel = 'Adicionar',
+}) {
+  return Container(
+    padding: const EdgeInsets.all(16),
+    decoration: BoxDecoration(
+      color: Colors.white,
+      borderRadius: BorderRadius.circular(14),
+      boxShadow: [
+        BoxShadow(
+          color: Colors.black.withOpacity(0.06),
+          blurRadius: 8,
+          offset: const Offset(0, 2),
+        ),
+      ],
+    ),
+    child: Row(
       children: [
         Text(
           text,
@@ -125,6 +139,55 @@ class _ClientOsState extends State<ClientOs> {
             ),
           ),
       ],
-    );
+    ),
+  );
+}
+
+Widget _buildClienteSelecionado(ColorScheme colors) {
+  if (clienteSelecionado == null) {
+    return const SizedBox.shrink();
   }
+
+  return Padding(
+    padding: const EdgeInsets.only(top: 12),
+    child: Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: Colors.white.withOpacity(0.6),
+        borderRadius: BorderRadius.circular(14),
+        border: Border.all(color: colors.primary.withOpacity(0.3)),
+      ),
+      child: Row(
+        children: [
+          Icon(Icons.person, color: colors.primary),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'Cliente selecionado',
+                  style: TextStyle(
+                    color: colors.onSurfaceVariant,
+                    fontSize: 12,
+                  ),
+                ),
+                const SizedBox(height: 2),
+                Text(
+                  clienteSelecionado!['nome'],
+                  style: TextStyle(
+                    color: colors.onSurface,
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    ),
+  );
+}
 }
