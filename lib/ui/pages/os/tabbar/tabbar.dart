@@ -3,6 +3,7 @@ import 'package:frontend/ui/pages/os/tabs/values_os.dart';
 import 'package:frontend/ui/pages/os/tabs/data_os.dart';
 import 'package:frontend/ui/pages/os/os_service/os_service.dart';
 import 'package:frontend/ui/pages/os/tolls_os.dart';
+import 'package:frontend/ui/pages/os_list/os_list_page.dart';
 import 'package:frontend/ui/style/ColorScheme.dart' as custom_colors;
 
 class Tabbar extends StatefulWidget {
@@ -37,6 +38,15 @@ class _TabbarState extends State<Tabbar> with TickerProviderStateMixin {
     setState(() {
       _status = 'CONCLUIDA';
     });
+    
+    // para verificar que a os foi marcada como concluida, comente o trecho abaixo e vá para a aba de dados manualmente. 
+      // caso queira que após a conclusão, seja retornada à listagem de OS, descomente o trecho abaixo.
+      
+    // Navigator.push(
+    //   context, 
+    //   MaterialPageRoute(
+    //     builder: (_) =>OsListPage()),
+    // );
   }
 
   void _alterarStatus(String novoStatus) {
@@ -102,7 +112,6 @@ class _TabbarState extends State<Tabbar> with TickerProviderStateMixin {
 
             ValuesOs(
               onConcluir: _concluirOs,
-              
             ),
           ],
         ),
