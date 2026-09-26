@@ -1,4 +1,4 @@
-import 'package:frontend/fire_base/models/so.dart';
+import 'package:frontend/fire_base/models/services.dart';
 
 class MockOSRepository {
   static final MockOSRepository _instance =
@@ -8,8 +8,8 @@ class MockOSRepository {
 
   factory MockOSRepository() => _instance;
 
-  final List<ServiceOrder> _serviceOrders = [
-    ServiceOrder(
+  final List<Services> _serviceOrders = [
+    Services(
       id: '1',
       name: 'Calibração e aferição anual',
       part: 'Lacre Inmetro',
@@ -24,7 +24,7 @@ class MockOSRepository {
       createdAt: DateTime(2026, 7, 28, 10, 0),
     ),
 
-    ServiceOrder(
+    Services(
       id: '13',
       name: 'Substituição de célula de carga',
       part: 'Célula de carga Zemic 500kg',
@@ -39,7 +39,7 @@ class MockOSRepository {
       createdAt: DateTime(2026, 7, 30, 9, 15),
     ),
 
-    ServiceOrder(
+    Services(
       id: '12',
       name: 'Limpeza interna e desoxidação',
       part: 'Nenhuma',
@@ -54,7 +54,7 @@ class MockOSRepository {
       createdAt: DateTime(2026, 8, 1, 16, 40),
     ),
 
-    ServiceOrder(
+    Services(
       id: '3',
       name: 'Troca do mecanismo de impressão',
       part: 'Cabeça Térmica de Impressão',
@@ -69,7 +69,7 @@ class MockOSRepository {
       createdAt: DateTime(2026, 8, 2, 11, 5),
     ),
 
-    ServiceOrder(
+    Services(
       id: '9',
       name: 'Reparo na fonte de alimentação',
       part: 'Bateria 6V 4.5Ah e Fusível 2A',
@@ -84,7 +84,7 @@ class MockOSRepository {
       createdAt: DateTime(2026, 8, 3, 8, 50),
     ),
 
-    ServiceOrder(
+    Services(
       id: '10',
       name: 'Recabeamento de módulo',
       part: 'Cabo blindado 4 vias (15m)',
@@ -100,7 +100,7 @@ class MockOSRepository {
     ),
   ];
 
-  Future<List<ServiceOrder>> getAll() async {
+  Future<List<Services>> getAll() async {
     await Future.delayed(const Duration(milliseconds: 300));
 
     final activeOrders = _serviceOrders
@@ -129,10 +129,10 @@ class MockOSRepository {
     return List.unmodifiable(activeOrders);
   }
 
-  Future<void> save(ServiceOrder order) async {
+  Future<void> save(Services order) async {
     await Future.delayed(const Duration(milliseconds: 300));
 
-    final newOrder = ServiceOrder(
+    final newOrder = Services(
       id: _generateId(),
       name: order.name,
       part: order.part,

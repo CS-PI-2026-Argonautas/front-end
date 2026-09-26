@@ -1,6 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 
-class ServiceOrder {
+class Services {
   final String id;
 
   final String name;
@@ -16,7 +16,7 @@ class ServiceOrder {
 
   bool isDeleted;
 
-  ServiceOrder({
+  Services({
     required this.id,
     required this.name,
     required this.part,
@@ -47,12 +47,12 @@ class ServiceOrder {
     };
   }
 
-  factory ServiceOrder.fromFirestore(
+  factory Services.fromFirestore(
     DocumentSnapshot<Map<String, dynamic>> document,
   ) {
     final data = document.data()!;
 
-    return ServiceOrder(
+    return Services(
       id: document.id,
       name: data['name'] as String,
       part: data['part'] as String,

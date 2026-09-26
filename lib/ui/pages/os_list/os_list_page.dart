@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
-import 'package:frontend/fire_base/models/so.dart';
-import 'package:frontend/fire_base/repositories/mock_os_repository.dart';
+import 'package:frontend/fire_base/models/services.dart';
+import 'package:frontend/fire_base/services/services_service.dart';
 
 import 'package:frontend/ui/pages/dashboard.dart';
 import 'package:frontend/ui/pages/edit_item/item_edition.dart';
@@ -23,9 +23,9 @@ class OsListPage extends StatefulWidget {
 }
 
 class _OsListPageState extends State<OsListPage> {
-  final MockOSRepository _service = MockOSRepository();
+  final ServiceS _service = ServiceS();
 
-  late Future<List<ServiceOrder>> _futureOrdemServicos;
+  late Future<List<Services>> _futureOrdemServicos;
 
   final colors = custom_colors.colorScheme;
 
@@ -36,7 +36,7 @@ class _OsListPageState extends State<OsListPage> {
   }
 
   void _carregarOrdemServicos() {
-    _futureOrdemServicos = _service.getAll();
+    _futureOrdemServicos = _service.listAll();
   }
 
   Color _obterCorDoStatus(String status) {
@@ -57,11 +57,11 @@ class _OsListPageState extends State<OsListPage> {
     }
   }
 
-  Future<void> _deletarOrdemServicos(ServiceOrder os) async {
+  Future<void> _deletarOrdemServicos(Services os) async {
     await _service.delete(os.id);
   }
 
-  Future<void> _restaurarOrdemServicos(ServiceOrder os) async {
+  Future<void> _restaurarOrdemServicos(Services os) async {
     await _service.restore(os.id);
   }
 
@@ -201,7 +201,7 @@ class _OsListPageState extends State<OsListPage> {
                   ),
                 ),
 
-                FutureBuilder<List<ServiceOrder>>(
+                FutureBuilder<List<Services>>(
                   future: _futureOrdemServicos,
                   builder: (context, snapshot) {
                     if (snapshot.connectionState ==
@@ -277,7 +277,7 @@ class _OsListPageState extends State<OsListPage> {
     );
   }
 
-  Widget _buildClientCard(ServiceOrder os) {
+  Widget _buildClientCard(Services os) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 16),
       child: ClipRRect(
@@ -370,9 +370,7 @@ class _OsListPageState extends State<OsListPage> {
                       Text(
                         os.status,
                         style: TextStyle(
-                          color: _obterCorDoStatus(
-                            os.status,
-                          ),
+                          color: _obterCorDoStatus(os.status),
                           fontSize: 14,
                         ),
                       ),
