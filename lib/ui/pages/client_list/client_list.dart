@@ -56,7 +56,7 @@ class _ClientListState extends State<ClientList> {
         elevation: 8, // Define a intensidade da sombra da AppBar
         shadowColor: Colors.black.withOpacity(0.5), // Cor da sombra
         title: const Text(
-          'Listar Clientes',
+          'Listar clientes',
           style: TextStyle(
             color: Colors.white,
             fontWeight: FontWeight.bold,
@@ -136,7 +136,7 @@ class _ClientListState extends State<ClientList> {
                       ElevatedButton.icon(
                         onPressed: () {},
                         icon: const Icon(Icons.tune),
-                        label: const Text('Filtrar', style: TextStyle(fontWeight: FontWeight.bold)),
+                        label: const Text('Filtrar', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14.8)),
                         style: ElevatedButton.styleFrom(
                           backgroundColor: colors.secondary,
                           foregroundColor: Colors.white,
@@ -147,7 +147,7 @@ class _ClientListState extends State<ClientList> {
                         child: ElevatedButton.icon(
                           onPressed: () {},
                           icon: const Icon(Icons.swap_vert),
-                          label: const Text('Ordenar',style: TextStyle(fontWeight: FontWeight.bold)),
+                          label: const Text('Ordenar',style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14.8)),
                           style: ElevatedButton.styleFrom(
                             backgroundColor: colors.secondary,
                             foregroundColor: Colors.white,
@@ -289,7 +289,7 @@ class _ClientListState extends State<ClientList> {
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                     style: TextStyle(
-                      color: colors.onSurface,
+                      color: Colors.blueGrey.shade600,
                       fontSize: 18,
                       fontWeight: FontWeight.bold,
                     ),

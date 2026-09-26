@@ -65,15 +65,30 @@ class _OsListPageState extends State<OsListPage> {
       backgroundColor: colors.surface,
 
       appBar: AppBar(
-        backgroundColor: colors.primary,
+        // Remove a cor sólida para permitir o gradiente
+        backgroundColor: Colors.transparent,
         foregroundColor: colors.onPrimary,
         centerTitle: true,
+        elevation: 8,
+        shadowColor: Colors.black.withOpacity(0.5),
         title: const Text(
           'Listar OS',
           style: TextStyle(
             color: Colors.white,
             fontWeight: FontWeight.bold,
             fontSize: 20,
+          ),
+        ),
+        flexibleSpace: Container(
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              colors: [
+                colors.primary, 
+                colors.tertiary,
+              ],
+              begin: Alignment.centerLeft,
+              end: Alignment.centerRight,
+            ),
           ),
         ),
       ),
@@ -133,7 +148,7 @@ class _OsListPageState extends State<OsListPage> {
                     hintStyle: TextStyle(
                       color: colors.onSurface,
                     ),
-                    prefixIcon: const Icon(Icons.search),
+                    prefixIcon: Icon(Icons.search, color: colors.tertiary),
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(14),
                       borderSide: BorderSide.none,
@@ -149,9 +164,15 @@ class _OsListPageState extends State<OsListPage> {
                       ElevatedButton.icon(
                         onPressed: () {},
                         icon: const Icon(Icons.tune),
-                        label: const Text('FILTRAR'),
+                        label: const Text(
+                          'Filtrar', 
+                          style: TextStyle(
+                            fontWeight: FontWeight.bold, 
+                            fontSize: 14.8,
+                          ),
+                        ),
                         style: ElevatedButton.styleFrom(
-                          backgroundColor: colors.primary,
+                          backgroundColor: colors.secondary,
                           foregroundColor: Colors.white,
                         ),
                       ),
@@ -161,9 +182,15 @@ class _OsListPageState extends State<OsListPage> {
                         child: ElevatedButton.icon(
                           onPressed: () {},
                           icon: const Icon(Icons.swap_vert),
-                          label: const Text('ORDENAR'),
+                          label: const Text(
+                            'Ordenar',
+                            style: TextStyle(
+                              fontWeight: FontWeight.bold, 
+                              fontSize: 14.8,
+                            ),
+                          ),
                           style: ElevatedButton.styleFrom(
-                            backgroundColor: colors.primary,
+                            backgroundColor: colors.secondary,
                             foregroundColor: Colors.white,
                           ),
                         ),
@@ -194,9 +221,7 @@ class _OsListPageState extends State<OsListPage> {
                 FutureBuilder<List<OrdemServicos>>(
                   future: _futureOrdemServicos,
                   builder: (context, snapshot) {
-                    if (
-                        snapshot.connectionState ==
-                        ConnectionState.waiting) {
+                    if (snapshot.connectionState == ConnectionState.waiting) {
                       return const Padding(
                         padding: EdgeInsets.only(top: 20.0),
                         child: Center(
@@ -250,8 +275,8 @@ class _OsListPageState extends State<OsListPage> {
             ),
           );
         },
-        backgroundColor: colors.primary,
-        foregroundColor: colors.onPrimary,
+        backgroundColor: colors.tertiary,
+        foregroundColor: colors.onTertiary,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(8),
         ),
@@ -264,116 +289,115 @@ class _OsListPageState extends State<OsListPage> {
   Widget _buildClientCard(OrdemServicos os) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 16),
-      child: ClipRRect(
-        borderRadius: BorderRadius.circular(16),
-        child: SlidableDeleteCard(
-          slidableKey: ValueKey(os.id),
+      child: SlidableDeleteCard(
+        slidableKey: ValueKey(os.id),
 
-          onDelete: () async {
-            final confimarExclusao =
-                await showDialog(
-                  context: context,
-                  builder: (_) => ShowDeleteOsDialog(
-                    nome: os.nome,
-                  ),
-                ) ??
-                false;
+        onDelete: () async {
+          final confimarExclusao =
+              await showDialog(
+                context: context,
+                builder: (_) => ShowDeleteOsDialog(
+                  nome: os.nome,
+                ),
+              ) ??
+              false;
 
-            if (!confimarExclusao) return;
+          if (!confimarExclusao) return;
 
-            await _deletarOrdemServicos(os);
+          await _deletarOrdemServicos(os);
 
-            _carregarOrdemServicos();
+          _carregarOrdemServicos();
 
-            if (!mounted) return;
+          if (!mounted) return;
 
-            final messenger = ScaffoldMessenger.of(context);
+          final messenger = ScaffoldMessenger.of(context);
 
-            messenger.hideCurrentSnackBar();
+          messenger.hideCurrentSnackBar();
 
-            messenger.showSnackBar(
-              ShowDeleteOsSnackbar(
-                color: colors.primary,
-                onPressed: () {
-                  os.removido = false;
+          messenger.showSnackBar(
+            ShowDeleteOsSnackbar(
+              color: colors.primary,
+              onPressed: () {
+                os.removido = false;
 
-                  _carregarOrdemServicos();
+                _carregarOrdemServicos();
 
-                  messenger.hideCurrentSnackBar();
-                },
-                duration: const Duration(seconds: 5),
-              ),
-            );
-          },
-
-          extentRatio: 0.20,
-
-          child: Container(
-            padding: const EdgeInsets.all(10.0),
-            decoration: BoxDecoration(
-              color: colors.surfaceContainer,
-              border: Border.all(
-                color: colors.primary,
-                width: 1.5,
-              ),
-              borderRadius: BorderRadius.circular(16),
+                messenger.hideCurrentSnackBar();
+              },
+              duration: const Duration(seconds: 5),
             ),
+          );
+        },
 
-            child: Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
+        extentRatio: 0.20,
+
+        child: Container(
+          padding: const EdgeInsets.all(10.0),
+          decoration: BoxDecoration(
+            color: colors.surfaceContainer,
+            borderRadius: BorderRadius.circular(12),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withOpacity(0.12),
+                blurRadius: 10,
+                spreadRadius: 1,
+                offset: const Offset(0, 5),
+              ),
+            ],
+          ),
+
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
                       '#${os.id} - ${os.nome}', 
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
-                        style: TextStyle(
-                          color: colors.onSurface,
-                          fontSize: 18,
-                          fontWeight: FontWeight.bold,
-                        ),
+                      style: TextStyle(
+                        color: Colors.blueGrey.shade600,
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
                       ),
-
-                      Text(
-                        os.cidade,
-                        style: TextStyle(
-                          color: colors.onSurfaceVariant,
-                          fontSize: 14,
-                        ),
-                      ),
-                    
-                    Text(
-                        os.statusOdemDeServico,
-                        style: TextStyle(
-                          color: _obterCorDoStatus(os.statusOdemDeServico),
-                          fontSize: 14,
-                        ),
-                        
                     ),
-                    ],
-                  ),
-                ),
 
-                IconButton(
-                  icon: Icon(
-                    Icons.edit,
-                    color: colors.primary,
-                  ),
-                  onPressed: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) =>
-                            const StandInPage(),
+                    Text(
+                      os.cidade,
+                      style: TextStyle(
+                        color: colors.onSurfaceVariant,
+                        fontSize: 14,
                       ),
-                    );
-                  },
+                    ),
+                  
+                    Text(
+                      os.statusOdemDeServico,
+                      style: TextStyle(
+                        color: _obterCorDoStatus(os.statusOdemDeServico),
+                        fontSize: 14,
+                      ),
+                    ),
+                  ],
                 ),
-              ],
-            ),
+              ),
+
+              IconButton(
+                icon: Icon(
+                  Icons.edit,
+                  color: colors.secondary,
+                ),
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => const StandInPage(),
+                    ),
+                  );
+                },
+              ),
+            ],
           ),
         ),
       ),

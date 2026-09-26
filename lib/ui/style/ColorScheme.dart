@@ -18,5 +18,6 @@ final colorScheme = ColorScheme(
     0xFFcfdde5,
   ), //cor de fundo de componentes em destaque
   onSurface: Colors.blueGrey.shade800, //textos
-  onSurfaceVariant: Colors.blueGrey.shade500, //textos secundários
+  onSurfaceVariant: Colors.blueGrey.shade500,
+  //textos secundários
 );
