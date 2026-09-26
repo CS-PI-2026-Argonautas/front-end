@@ -130,6 +130,7 @@ void _selecionarEndereco(Map<String, dynamic> endereco) {
                 onAdd: _abrirListaEnderecos,
                 addLabel: 'Adicionar Endereço',
               ),
+              _buildEnderecoSelecionado(colors),
             ],
           ),
         ),
@@ -137,7 +138,7 @@ void _selecionarEndereco(Map<String, dynamic> endereco) {
     );
   }
 
- Widget _buildLabel(
+Widget _buildLabel(
   String text,
   ColorScheme colors, {
   VoidCallback? onAdd,
@@ -183,6 +184,52 @@ void _selecionarEndereco(Map<String, dynamic> endereco) {
             ),
           ),
       ],
+    ),
+  );
+}
+Widget _buildEnderecoSelecionado(ColorScheme colors) {
+  if (enderecoSelecionado == null) {
+    return const SizedBox.shrink();
+  }
+
+  return Padding(
+    padding: const EdgeInsets.only(top: 12),
+    child: Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: Colors.white.withOpacity(0.6),
+        borderRadius: BorderRadius.circular(14),
+      ),
+      child: Row(
+        children: [
+          Icon(Icons.location_on, color: colors.primary),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'Endereço selecionado',
+                  style: TextStyle(
+                    color: colors.onSurfaceVariant,
+                    fontSize: 12,
+                  ),
+                ),
+                const SizedBox(height: 2),
+                Text(
+                  enderecoSelecionado!['rua'],
+                  style: TextStyle(
+                    color: colors.onSurface,
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
     ),
   );
 }
