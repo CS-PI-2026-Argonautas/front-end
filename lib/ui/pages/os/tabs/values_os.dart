@@ -1,9 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:frontend/ui/style/ColorScheme.dart' as custom_colors;
 
-class ValuesOs extends StatefulWidget{
+class ValuesOs extends StatefulWidget {
+  final VoidCallback? onConcluir;
 
-  const ValuesOs({super.key});
+  const ValuesOs({
+    super.key,
+    this.onConcluir,
+  });
 
   @override
   State<ValuesOs> createState() => _ValuesOsState();
@@ -13,203 +17,285 @@ class _ValuesOsState extends State<ValuesOs> {
 
   @override
   Widget build(BuildContext context) {
-    final colors = custom_colors.colorScheme;
-
 
     const double subtotalPecas = 100.00;
     const double subtotalServicos = 100.00;
     const double desconto = 0.00;
     const double taxas = 0.00;
 
-    final double total = subtotalPecas + subtotalServicos + taxas - desconto;
+    final double total =
+        subtotalPecas + subtotalServicos + taxas - desconto;
 
-    return Container(
-      color: colors.surface,
-      child: SafeArea(
+    return SingleChildScrollView(
+      padding: const EdgeInsets.symmetric(
+        horizontal: 16,
+        vertical: 18,
+      ),
+      child: Center(
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(
+            maxWidth: 650,
+          ),
+          child: _buildFormCard(
+            subtotalPecas: subtotalPecas,
+            subtotalServicos: subtotalServicos,
+            desconto: desconto,
+            taxas: taxas,
+            total: total,
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildFormCard({
+    required double subtotalPecas,
+    required double subtotalServicos,
+    required double desconto,
+    required double taxas,
+    required double total,
+  }) {
+    final colors = custom_colors.colorScheme;
+    return Card(
+      color: Colors.white,
+      elevation: 8,
+      shadowColor: Colors.black26,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(22),
+      ),
       child: Padding(
         padding: const EdgeInsets.symmetric(
-          horizontal: 32,
-          vertical: 16,
+          horizontal: 24,
+          vertical: 28,
         ),
         child: Column(
+          spacing: 18,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(
-              'Resumo:',
-              style: TextStyle(
-                color: colors.onSurface,
-                fontSize: 20,
-                fontWeight: FontWeight.w500,
-              ),
+            _buildSectionTitle(
+              'Resumo da OS',
+              'Confira os valores das peças, serviços e ajustes da ordem de serviço.',
             ),
 
-            const SizedBox(height: 24),
-
-            _buildSectionHeader(
+            _buildSummarySection(
+              icon: Icons.build_outlined,
               title: 'Peças',
               value: subtotalPecas,
-              colors: colors,
+              children: [
+                _buildItem(
+                  name: 'Peça',
+                  value: 50.00,
+                ),
+                _buildItem(
+                  name: 'Peça',
+                  value: 50.00,
+                ),
+              ],
             ),
 
-            const SizedBox(height: 4),
-
-            _buildItem(
-              name: 'Peça',
-              value: 50.00,
-              colors: colors,
-            ),
-
-            _buildItem(
-              name: 'Peça',
-              value: 50.00,
-              colors: colors,
-            ),
-
-            const SizedBox(height: 24),
-
-            _buildSectionHeader(
+            _buildSummarySection(
+              icon: Icons.handyman_outlined,
               title: 'Serviços',
               value: subtotalServicos,
-              colors: colors,
+              children: [
+                _buildItem(
+                  name: 'Serviço',
+                  value: 50.00,
+                ),
+                _buildItem(
+                  name: 'Serviço',
+                  value: 50.00,
+                ),
+              ],
             ),
-
-            const SizedBox(height: 4),
-
-            _buildItem(
-              name: 'Serviço',
-              value: 50.00,
-              colors: colors,
-            ),
-
-            _buildItem(
-              name: 'Serviço',
-              value: 50.00,
-              colors: colors,
-            ),
-
-            const SizedBox(height: 24),
 
             _buildValueRow(
+              icon: Icons.remove_circle_outline,
               title: 'Descontos',
               value: desconto,
               color: Colors.redAccent,
-              colors: colors,
             ),
 
-            const SizedBox(height: 14),
-
             _buildValueRow(
+              icon: Icons.add_circle_outline,
               title: 'Taxas',
               value: taxas,
               color: Colors.green,
-              colors: colors,
             ),
-
-            const SizedBox(height: 12),
 
             Divider(
               color: colors.outline,
-              thickness: 1.5,
+              thickness: 1.2,
               height: 1,
             ),
 
-            const SizedBox(height: 12),
-
-            _buildTotalRow(
+            _buildTotalCard(
               total: total,
-              colors: colors,
             ),
 
-            const Spacer(),
+            const SizedBox(height: 4),
 
-            Center(
-              child: ElevatedButton(
+            SizedBox(
+              width: double.infinity,
+              child: ElevatedButton.icon(
                 onPressed: () {
+                  widget.onConcluir?.call();
                 },
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.black,
-                  foregroundColor: Colors.white,
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 18,
-                    vertical: 12,
-                  ),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                  elevation: 0,
+                icon: const Icon(
+                  Icons.check_circle_outline,
                 ),
-                child: const Text(
+                label: const Text(
                   'Concluir OS e voltar',
                   style: TextStyle(
-                    fontSize: 15,
-                    fontWeight: FontWeight.w500,
+                    fontWeight: FontWeight.bold,
+                    fontSize: 16,
+                  ),
+                ),
+                style: ElevatedButton.styleFrom(
+                  elevation: 3,
+                  backgroundColor: colors.primary,
+                  foregroundColor: colors.onSecondary,
+                  padding: const EdgeInsets.symmetric(
+                    vertical: 18,
+                  ),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(14),
                   ),
                 ),
               ),
             ),
 
-            const SizedBox(height: 16),
+            Center(
+              child: Text(
+                'Confira os valores antes de concluir a OS.',
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  fontSize: 12,
+                  color: colors.onSurfaceVariant,
+                ),
+              ),
+            ),
           ],
         ),
       ),
-    ),
     );
-    
-    
   }
 
-
-  Widget _buildSectionHeader({
-    required String title,
-    required double value,
-    required dynamic colors,
-  }) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      crossAxisAlignment: CrossAxisAlignment.center,
+  Widget _buildSectionTitle(
+    String title,
+    String subtitle,
+  ) {
+    final colors = custom_colors.colorScheme;
+    return Column(
+      spacing: 6,
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
           title,
           style: TextStyle(
+            fontSize: 20,
+            fontWeight: FontWeight.bold,
             color: colors.onSurface,
-            fontSize: 18,
-            fontWeight: FontWeight.w500,
           ),
         ),
         Text(
-          _formatMoney(value),
+          subtitle,
           style: TextStyle(
-            color: colors.onSurface,
-            fontSize: 18,
-            fontWeight: FontWeight.w500,
+            fontSize: 14,
+            color: colors.onSurfaceVariant,
           ),
         ),
       ],
     );
   }
 
+  Widget _buildSummarySection({
+    required IconData icon,
+    required String title,
+    required double value,
+    required List<Widget> children,
+  }) {
+    final colors = custom_colors.colorScheme;
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: colors.surface.withOpacity(0.6),
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(
+          color: colors.outline.withOpacity(0.18),
+        ),
+      ),
+      child: Column(
+        spacing: 8,
+        children: [
+          Row(
+            children: [
+              Icon(
+                icon,
+                size: 20,
+                color: colors.primary,
+              ),
+              const SizedBox(width: 8),
+              Expanded(
+                child: Text(
+                  title,
+                  style: TextStyle(
+                    color: colors.primary,
+                    fontSize: 17,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ),
+              Text(
+                _formatMoney(value),
+                style: TextStyle(
+                  color: colors.primary,
+                  fontSize: 17,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ],
+          ),
+
+          Divider(
+            color: colors.outline.withOpacity(0.5),
+            height: 1,
+          ),
+
+          ...children,
+        ],
+      ),
+    );
+  }
+
   Widget _buildItem({
     required String name,
     required double value,
-    required dynamic colors,
   }) {
+    final colors = custom_colors.colorScheme;
     return Padding(
-      padding: const EdgeInsets.only(
-        left: 4,
-        bottom: 4,
+      padding: const EdgeInsets.symmetric(
+        horizontal: 4,
+        vertical: 2,
       ),
       child: Row(
         children: [
-          Text(
-            '- $name',
-            style: TextStyle(
-              color: colors.onSurface,
-              fontSize: 14,
+          Icon(
+            Icons.chevron_right,
+            size: 18,
+            color: colors.onSurface,
+          ),
+          const SizedBox(width: 4),
+          Expanded(
+            child: Text(
+              name,
+              style: TextStyle(
+                color: colors.onSurface,
+                fontSize: 14,
+              ),
             ),
           ),
-
-          const Spacer(),
-
           Text(
             _formatMoney(value),
             style: TextStyle(
@@ -223,60 +309,125 @@ class _ValuesOsState extends State<ValuesOs> {
   }
 
   Widget _buildValueRow({
+    required IconData icon,
     required String title,
     required double value,
     required Color color,
-    required dynamic colors,
   }) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: [
-        Text(
-          title,
-          style: TextStyle(
-            color: color,
-            fontSize: 18,
-            fontWeight: FontWeight.w500,
-          ),
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.symmetric(
+        horizontal: 14,
+        vertical: 12,
+      ),
+      decoration: BoxDecoration(
+        color: color.withOpacity(0.06),
+        borderRadius: BorderRadius.circular(14),
+        border: Border.all(
+          color: color.withOpacity(0.18),
         ),
-
-        Text(
-          _formatMoney(value),
-          style: TextStyle(
+      ),
+      child: Row(
+        children: [
+          Icon(
+            icon,
+            size: 20,
             color: color,
-            fontSize: 18,
-            fontWeight: FontWeight.w500,
           ),
-        ),
-      ],
+          const SizedBox(width: 8),
+          Expanded(
+            child: Text(
+              title,
+              style: TextStyle(
+                color: color,
+                fontSize: 15,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+          ),
+          Text(
+            _formatMoney(value),
+            style: TextStyle(
+              color: color,
+              fontSize: 15,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+        ],
+      ),
     );
   }
 
-  Widget _buildTotalRow({
+  Widget _buildTotalCard({
     required double total,
-    required dynamic colors,
   }) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: [
-        Text(
-          'TOTAL',
-          style: TextStyle(
-            color: colors.onSurface,
-            fontSize: 18,
-            fontWeight: FontWeight.w500,
-          ),
+    final colors = custom_colors.colorScheme;
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.symmetric(
+        horizontal: 18,
+        vertical: 18,
+      ),
+      decoration: BoxDecoration(
+        color: colors.primary.withOpacity(0.08),
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(
+          color: colors.primary.withOpacity(0.25),
         ),
+      ),
+      child: Row(
+        children: [
+          Container(
+            width: 42,
+            height: 42,
+            decoration: BoxDecoration(
+              color: colors.primary,
+              borderRadius: BorderRadius.circular(12),
+            ),
+            child: Icon(
+              Icons.payments_outlined,
+              color: colors.onSecondary,
+              size: 22,
+            ),
+          ),
 
-        Text(
-          _formatMoney(total),
-          style: TextStyle(
-            color: colors.onSurface,
-            fontSize: 18,
-            fontWeight: FontWeight.w500,
+          const SizedBox(width: 12),
+
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'TOTAL',
+                  style: TextStyle(
+                    color: colors.onSurfaceVariant,
+                    fontSize: 12,
+                    fontWeight: FontWeight.bold,
+                    letterSpacing: 0.6,
+                  ),
+                ),
+                const SizedBox(height: 2),
+                Text(
+                  'Valor final da OS',
+                  style: TextStyle(
+                    color: colors.onSurface,
+                    fontSize: 14,
+                  ),
+                ),
+              ],
+            ),
           ),
-        ),
-      ],
+
+          Text(
+            _formatMoney(total),
+            style: TextStyle(
+              color: colors.primary,
+              fontSize: 20,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+        ],
+      ),
     );
   }
 
@@ -284,6 +435,14 @@ class _ValuesOsState extends State<ValuesOs> {
     return 'R\$${value.toStringAsFixed(2).replaceAll('.', ',')}';
   }
 }
+
+
+
+
+
+
+
+
 
 
 
