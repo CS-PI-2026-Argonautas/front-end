@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:frontend/ui/pages/os/tabs/values_os.dart';
 import 'package:frontend/ui/pages/os/os_service/os_service.dart';
+import 'package:frontend/ui/pages/os/tabs/clientOs.dart';
+import 'package:frontend/ui/pages/os/tabs/values_os.dart';
 import 'package:frontend/ui/pages/os/tolls_os.dart';
 import 'package:frontend/ui/style/ColorScheme.dart' as custom_colors;
 
@@ -64,19 +65,7 @@ class _TabbarState extends State<Tabbar> with TickerProviderStateMixin {
       body: TabBarView(
         controller: _tabController,
         children: <Widget>[
-          Center(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              children: [
-                ElevatedButton(
-                  onPressed: () {
-                    goToNextTab();
-                  },
-                  child: Text('avançar'),
-                ),
-              ],
-            ),
-          ),
+          ClientOs(onNext: goToNextTab),
           TollsOs(),
           OsServicosTab(),
           ValuesOs(),
