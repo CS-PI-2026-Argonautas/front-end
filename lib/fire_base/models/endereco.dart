@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:frontend/fire_base/Enums/Uf.dart';
 
 class Endereco {
@@ -14,4 +15,30 @@ class Endereco {
     this.numero = 'S/N',
     required this.uf 
   });
+
+  Map<String, dynamic> toFirestore() {
+    return {
+      'cep': cep,
+      'rua': rua,
+      'cidade': cidade,
+      'numero': numero,
+      'uf': uf.name,
+    };
+  }
+
+  factory Endereco.fromFirestore(
+  DocumentSnapshot<Map<String, dynamic>> doc,
+) {
+  final data = doc.data()!;
+
+    return Endereco(
+      cep: data['cep'] ?? '',
+      rua: data['rua'] ?? '',
+      cidade: data['cidade'] ?? '',
+      numero: data['numero'] ?? 'S/N',
+      uf: Uf.values.firstWhere(
+        (uf) => uf.name == data['uf'],
+      ),
+    );
+  }
 }
