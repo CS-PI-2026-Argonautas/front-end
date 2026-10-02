@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:frontend/ui/style/ColorScheme.dart' as custom_colors;
 import 'package:frontend/ui/style/inputDecorationStyles.dart';
 import 'package:frontend/ui/widgets/bottom_sheet/bottom_sheet.dart';
+import 'package:frontend/ui/pages/person_registration/person_registration.dart';
+import 'package:frontend/ui/pages/person_registration/person_registration_address.dart';
 
 class DataOs extends StatefulWidget {
   final DateTime? dataEntrada;
@@ -335,7 +337,15 @@ class _DataOsState extends State<DataOs> {
           subtituloItem: (cliente) => cliente['telefone'].toString(),
           iconeItem: Icons.person_outline,
           carregando: false,
-          onAcao: null,
+          onAcao: () {
+            Navigator.pop(context);
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => const PersonRegistration(),
+              ),
+            );
+          },
           onSelecionar: (cliente) {
             setState(() {
               clienteSelecionado = cliente;
@@ -365,7 +375,29 @@ class _DataOsState extends State<DataOs> {
           subtituloItem: (endereco) => endereco['bairro'].toString(),
           iconeItem: Icons.location_on_outlined,
           carregando: false,
-          onAcao: null,
+          onAcao: () async {
+            Navigator.pop(context);
+
+            final novoEndereco = await Navigator.push<String>(
+              context,
+              MaterialPageRoute(
+                builder: (context) => const PersonRegistrationAddress(),
+              ),
+            );
+
+            if (novoEndereco != null && novoEndereco.isNotEmpty) {
+              final enderecoMap = {
+                "id": DateTime.now().millisecondsSinceEpoch,
+                "rua": novoEndereco,
+                "bairro": "",
+              };
+
+              setState(() {
+                enderecosDisponiveis.add(enderecoMap);
+                enderecoSelecionado = enderecoMap;
+              });
+            }
+          },
           onSelecionar: (endereco) {
             setState(() {
               enderecoSelecionado = endereco;
@@ -702,9 +734,9 @@ class _DataOsState extends State<DataOs> {
       width: double.infinity,
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: Colors.grey.shade50,
+        color: colors.surfaceContainer,
         borderRadius: BorderRadius.circular(14),
-        border: Border.all(color: colors.primary.withOpacity(0.3)),
+        border: Border.all(color: colors.surfaceContainerHigh),
       ),
       child: Row(
         children: [
@@ -750,8 +782,9 @@ class _DataOsState extends State<DataOs> {
       width: double.infinity,
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: Colors.grey.shade50,
+        color: colors.surfaceContainer,
         borderRadius: BorderRadius.circular(14),
+        border: Border.all(color: colors.surfaceContainerHigh),
       ),
       child: Row(
         children: [
