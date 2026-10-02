@@ -1,12 +1,14 @@
 import 'package:flutter/material.dart';
-import 'package:frontend/fire_base/models/os.dart';
-import 'package:frontend/fire_base/Enums/StatusOrdemServico.dart';
+
+import 'package:frontend/fire_base/models/services.dart';
+import 'package:frontend/fire_base/services/services_service.dart';
+
 import 'package:frontend/ui/pages/dashboard.dart';
 import 'package:frontend/ui/pages/edit_item/item_edition.dart';
 import 'package:frontend/ui/pages/os/tabbar/tabbar.dart';
 import 'package:frontend/ui/pages/product_registration/product_registration.dart';
 import 'package:frontend/ui/pages/stand_in_page.dart';
-import 'package:frontend/fire_base/repositories/mock_os_repository.dart';
+
 import 'package:frontend/ui/style/ColorScheme.dart' as custom_colors;
 import 'package:frontend/ui/widgets/menu.dart';
 import 'package:frontend/ui/widgets/show_dialog/show_delete_os.dart';
@@ -21,43 +23,98 @@ class OsListPage extends StatefulWidget {
 }
 
 class _OsListPageState extends State<OsListPage> {
-  final MockOsRepository _repository = MockOsRepository();
+  final ServiceS _service = ServiceS();
 
-  late Future<List<OrdemServicos>> _futureOrdemServicos;
+  late Future<List<Services>> _futureOrdemServicos;
+
+  final TextEditingController _searchController =
+      TextEditingController();
 
   final colors = custom_colors.colorScheme;
+
+  String _termoBusca = '';
 
   @override
   void initState() {
     super.initState();
+
     _carregarOrdemServicos();
-  }
 
-  void _carregarOrdemServicos() {
-    final Future<List<OrdemServicos>> os = _repository.listarTodos();
-
-    setState(() {
-      _futureOrdemServicos = os;
+    _searchController.addListener(() {
+      setState(() {
+        _termoBusca =
+            _searchController.text.trim().toLowerCase();
+      });
     });
   }
 
-  Color _obterCorDoStatus(Statusordemservico status) {
+  @override
+  void dispose() {
+    _searchController.dispose();
+    super.dispose();
+  }
+
+  void _carregarOrdemServicos() {
+    _futureOrdemServicos = _service.listAll();
+  }
+
+  Future<void> _atualizarLista() async {
+    setState(() {
+      _carregarOrdemServicos();
+    });
+
+    await _futureOrdemServicos;
+  }
+
+  Future<void> _deletarOrdemServico(Services os) async {
+    await _service.delete(os.id);
+  }
+
+  Future<void> _restaurarOrdemServico(Services os) async {
+    await _service.restore(os.id);
+  }
+
+  Color _obterCorDoStatus(String status) {
     switch (status) {
-      case Statusordemservico.CONCLUIDA:
+      case 'Concluída':
+      case 'Concluida':
         return Colors.green;
-      case Statusordemservico.EM_CONSERTO:
-      case Statusordemservico.EM_ORCAMENTO:
+
+      case 'Pendente':
+      case 'Em Andamento':
         return Colors.orange;
-      // case 'Fechada':
-      case Statusordemservico.CANCELADA:
+
+      case 'Fechada':
+      case 'Cancelada':
         return Colors.red;
+
       default:
         return colors.onSurfaceVariant;
     }
   }
 
-  Future<void> _deletarOrdemServicos(OrdemServicos os) async {
-    os.removido = true;
+  List<Services> _filtrarOrdens(List<Services> ordens) {
+    if (_termoBusca.isEmpty) {
+      return ordens;
+    }
+
+    return ordens.where((os) {
+      final id = os.id.toLowerCase();
+      final nome = os.name.toLowerCase();
+      final cliente = os.client.toLowerCase();
+      final equipamento = os.equipment.toLowerCase();
+      final cidade = os.city.toLowerCase();
+      final tecnico = os.assignee.toLowerCase();
+      final status = os.status.toLowerCase();
+
+      return id.contains(_termoBusca) ||
+          nome.contains(_termoBusca) ||
+          cliente.contains(_termoBusca) ||
+          equipamento.contains(_termoBusca) ||
+          cidade.contains(_termoBusca) ||
+          tecnico.contains(_termoBusca) ||
+          status.contains(_termoBusca);
+    }).toList();
   }
 
   @override
@@ -69,6 +126,7 @@ class _OsListPageState extends State<OsListPage> {
         backgroundColor: colors.primary,
         foregroundColor: colors.onPrimary,
         centerTitle: true,
+
         title: const Text(
           'Listar OS',
           style: TextStyle(
@@ -77,6 +135,18 @@ class _OsListPageState extends State<OsListPage> {
             fontSize: 20,
           ),
         ),
+
+        actions: [
+          IconButton(
+            tooltip: 'Atualizar',
+            onPressed: () {
+              setState(() {
+                _carregarOrdemServicos();
+              });
+            },
+            icon: const Icon(Icons.refresh),
+          ),
+        ],
       ),
 
       endDrawer: Menu(
@@ -88,240 +158,452 @@ class _OsListPageState extends State<OsListPage> {
             Navigator.push(
               context,
               MaterialPageRoute(
-                builder: (context) => const ProductRegistration(),
+                builder: (context) =>
+                    const ProductRegistration(),
               ),
             );
           }
 
           if (index == 0 || index == 2) {
-            StandInPage();
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => StandInPage(),
+              ),
+            );
           }
 
           if (index == 3) {
             Navigator.push(
               context,
-              MaterialPageRoute(builder: (context) => const ItemEdition()),
+              MaterialPageRoute(
+                builder: (context) =>
+                    const ItemEdition(),
+              ),
             );
           }
 
           if (index == 4) {
             Navigator.push(
               context,
-              MaterialPageRoute(builder: (context) => const Dashboard()),
+              MaterialPageRoute(
+                builder: (context) =>
+                    const Dashboard(),
+              ),
             );
           }
         },
       ),
 
       body: SafeArea(
-        child: SingleChildScrollView(
-          child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 50),
-            child: Column(
-              children: [
-                TextFormField(
-                  decoration: InputDecoration(
-                    hintText: 'Procurar OS',
-                    filled: true,
-                    fillColor: Colors.white,
-                    hintStyle: TextStyle(color: colors.onSurface),
-                    prefixIcon: const Icon(Icons.search),
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(14),
-                      borderSide: BorderSide.none,
-                    ),
-                  ),
-                ),
+        child: RefreshIndicator(
+          onRefresh: _atualizarLista,
 
-                Padding(
-                  padding: const EdgeInsets.only(top: 20.0),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.start,
-                    children: [
-                      ElevatedButton.icon(
-                        onPressed: () {},
-                        icon: const Icon(Icons.tune),
-                        label: const Text('FILTRAR'),
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: colors.primary,
-                          foregroundColor: Colors.white,
-                        ),
+          child: SingleChildScrollView(
+            physics:
+                const AlwaysScrollableScrollPhysics(),
+
+            child: Padding(
+              padding: const EdgeInsets.symmetric(
+                horizontal: 40,
+                vertical: 30,
+              ),
+
+              child: Column(
+                children: [
+                  TextFormField(
+                    controller: _searchController,
+
+                    decoration: InputDecoration(
+                      hintText: 'Procurar OS',
+
+                      filled: true,
+                      fillColor: Colors.white,
+
+                      hintStyle: TextStyle(
+                        color: colors.onSurface,
                       ),
 
-                      Padding(
-                        padding: const EdgeInsets.only(left: 10.0),
-                        child: ElevatedButton.icon(
-                          onPressed: () {},
-                          icon: const Icon(Icons.swap_vert),
-                          label: const Text('ORDENAR'),
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: colors.primary,
-                            foregroundColor: Colors.white,
+                      prefixIcon:
+                          const Icon(Icons.search),
+
+                      suffixIcon:
+                          _termoBusca.isNotEmpty
+                              ? IconButton(
+                                  onPressed: () {
+                                    _searchController
+                                        .clear();
+                                  },
+                                  icon: const Icon(
+                                    Icons.clear,
+                                  ),
+                                )
+                              : null,
+
+                      border: OutlineInputBorder(
+                        borderRadius:
+                            BorderRadius.circular(14),
+                        borderSide: BorderSide.none,
+                      ),
+                    ),
+                  ),
+                  Padding(
+                    padding:
+                        const EdgeInsets.only(top: 20),
+
+                    child: Row(
+                      children: [
+                        Expanded(
+                          child:
+                              ElevatedButton.icon(
+                            onPressed: () {
+                              _mostrarFiltro(context);
+                            },
+
+                            icon:
+                                const Icon(Icons.tune),
+
+                            label:
+                                const Text('FILTRAR'),
+
+                            style:
+                                ElevatedButton.styleFrom(
+                              backgroundColor:
+                                  colors.primary,
+                              foregroundColor:
+                                  Colors.white,
+                            ),
                           ),
                         ),
-                      ),
-                    ],
-                  ),
-                ),
 
-                Padding(
-                  padding: const EdgeInsets.only(top: 10.0, bottom: 10.0),
-                  child: Align(
-                    alignment: Alignment.centerLeft,
-                    child: Text(
-                      'Recentes',
-                      style: TextStyle(
-                        color: colors.onSurface,
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
+                        const SizedBox(width: 10),
+
+                        Expanded(
+                          child:
+                              ElevatedButton.icon(
+                            onPressed: () {
+                              _mostrarOrdenacao(
+                                  context);
+                            },
+
+                            icon: const Icon(
+                              Icons.swap_vert,
+                            ),
+
+                            label:
+                                const Text('ORDENAR'),
+
+                            style:
+                                ElevatedButton.styleFrom(
+                              backgroundColor:
+                                  colors.primary,
+                              foregroundColor:
+                                  Colors.white,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.only(
+                      top: 20,
+                      bottom: 10,
+                    ),
+
+                    child: Align(
+                      alignment:
+                          Alignment.centerLeft,
+
+                      child: Text(
+                        _termoBusca.isEmpty
+                            ? 'Recentes'
+                            : 'Resultados da busca',
+
+                        style: TextStyle(
+                          color: colors.onSurface,
+                          fontSize: 18,
+                          fontWeight:
+                              FontWeight.bold,
+                        ),
                       ),
                     ),
                   ),
-                ),
 
-                // Aqui carrego as ordens de serviço
-                FutureBuilder<List<OrdemServicos>>(
-                  future: _futureOrdemServicos,
-                  builder: (context, snapshot) {
-                    if (snapshot.connectionState == ConnectionState.waiting) {
-                      return const Padding(
-                        padding: EdgeInsets.only(top: 20.0),
-                        child: Center(child: CircularProgressIndicator()),
+                  FutureBuilder<List<Services>>(
+                    future: _futureOrdemServicos,
+
+                    builder:
+                        (context, snapshot) {
+                      if (snapshot.connectionState ==
+                          ConnectionState.waiting) {
+                        return const Padding(
+                          padding:
+                              EdgeInsets.only(top: 40),
+
+                          child: Center(
+                            child:
+                                CircularProgressIndicator(),
+                          ),
+                        );
+                      }
+
+                      if (snapshot.hasError) {
+                        return _buildErro(
+                            snapshot.error);
+                      }
+
+                      if (!snapshot.hasData ||
+                          snapshot.data!.isEmpty) {
+                        return _buildVazio(
+                          'Nenhuma ordem de serviço encontrada.',
+                        );
+                      }
+
+                      final ordensFiltradas =
+                          _filtrarOrdens(
+                              snapshot.data!);
+
+                      if (ordensFiltradas.isEmpty) {
+                        return _buildVazio(
+                          _termoBusca.isEmpty
+                              ? 'Nenhuma ordem de serviço encontrada.'
+                              : 'Nenhuma OS encontrada para "$_termoBusca".',
+                        );
+                      }
+
+                      return ListView.builder(
+                        shrinkWrap: true,
+
+                        physics:
+                            const NeverScrollableScrollPhysics(),
+
+                        itemCount:
+                            ordensFiltradas.length,
+
+                        itemBuilder:
+                            (context, index) {
+                          final os =
+                              ordensFiltradas[index];
+
+                          return _buildOsCard(os);
+                        },
                       );
-                    }
-
-                    if (snapshot.hasError) {
-                      return const Center(
-                        child: Text('Erro ao carregar ordens de serviço.'),
-                      );
-                    }
-
-                    if (!snapshot.hasData || snapshot.data!.isEmpty) {
-                      return const Center(
-                        child: Text('Nenhuma ordem de serviço encontrada.'),
-                      );
-                    }
-
-                    final ordemServicos = snapshot.data!;
-
-                    return ListView.builder(
-                      shrinkWrap: true,
-                      physics: const NeverScrollableScrollPhysics(),
-                      itemCount: ordemServicos.length,
-                      itemBuilder: (context, index) {
-                        return _buildClientCard(ordemServicos[index]);
-                      },
-                    );
-                  },
-                ),
-              ],
+                    },
+                  ),
+                ],
+              ),
             ),
           ),
         ),
       ),
 
-      floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          Navigator.push(
+      floatingActionButton:
+          FloatingActionButton(
+        onPressed: () async {
+          await Navigator.push(
             context,
             MaterialPageRoute(
-              builder: (context) => Tabbar(serviceOrderNumber: -0001),
+              builder: (context) => const Tabbar(
+                serviceOrderNumber: -1,
+              ),
             ),
           );
+
+          if (!mounted) return;
+
+          setState(() {
+            _carregarOrdemServicos();
+          });
         },
+
         backgroundColor: colors.primary,
         foregroundColor: colors.onPrimary,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(8),
+        ),
+
         child: const Icon(Icons.add),
       ),
     );
   }
 
-  // Construo os cards
-  Widget _buildClientCard(OrdemServicos os) {
+
+  Widget _buildOsCard(Services os) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 16),
+
       child: ClipRRect(
-        borderRadius: BorderRadius.circular(16),
+        borderRadius:
+            BorderRadius.circular(16),
+
         child: SlidableDeleteCard(
           slidableKey: ValueKey(os.id),
 
           onDelete: () async {
-            final confimarExclusao =
-                await showDialog(
+            final confirmarExclusao =
+                await showDialog<bool>(
                   context: context,
-                  builder: (_) => ShowDeleteOsDialog(nome: os.nome),
+
+                  builder: (_) =>
+                      ShowDeleteOsDialog(
+                    nome: os.name,
+                  ),
                 ) ??
                 false;
 
-            if (!confimarExclusao) return;
+            if (!confirmarExclusao) return;
 
-            await _deletarOrdemServicos(os);
+            try {
+              await _deletarOrdemServico(os);
 
-            _carregarOrdemServicos();
+              if (!mounted) return;
 
-            if (!mounted) return;
+              setState(() {
+                _carregarOrdemServicos();
+              });
 
-            final messenger = ScaffoldMessenger.of(context);
+              final messenger =
+                  ScaffoldMessenger.of(context);
 
-            messenger.hideCurrentSnackBar();
+              messenger.hideCurrentSnackBar();
 
-            messenger.showSnackBar(
-              ShowDeleteOsSnackbar(
-                color: colors.primary,
-                onPressed: () {
-                  os.removido = false;
+              messenger.showSnackBar(
+                ShowDeleteOsSnackbar(
+                  color: colors.primary,
 
-                  _carregarOrdemServicos();
+                  onPressed: () async {
+                    try {
+                      await _restaurarOrdemServico(
+                          os);
 
-                  messenger.hideCurrentSnackBar();
-                },
-                duration: const Duration(seconds: 5),
-              ),
-            );
+                      if (!mounted) return;
+
+                      setState(() {
+                        _carregarOrdemServicos();
+                      });
+
+                      messenger
+                          .hideCurrentSnackBar();
+                    } catch (e) {
+                      if (!mounted) return;
+
+                      messenger.showSnackBar(
+                        SnackBar(
+                          content: Text(
+                            'Erro ao restaurar OS: $e',
+                          ),
+                        ),
+                      );
+                    }
+                  },
+
+                  duration:
+                      const Duration(seconds: 5),
+                ),
+              );
+            } catch (e) {
+              if (!mounted) return;
+
+              ScaffoldMessenger.of(context)
+                  .showSnackBar(
+                SnackBar(
+                  content: Text(
+                    'Erro ao excluir OS: $e',
+                  ),
+                ),
+              );
+            }
           },
 
           extentRatio: 0.20,
 
           child: Container(
-            padding: const EdgeInsets.all(10.0),
+            padding: const EdgeInsets.all(10),
+
             decoration: BoxDecoration(
               color: colors.surfaceContainer,
-              border: Border.all(color: colors.primary, width: 1.5),
-              borderRadius: BorderRadius.circular(16),
+
+              border: Border.all(
+                color: colors.primary,
+                width: 1.5,
+              ),
+
+              borderRadius:
+                  BorderRadius.circular(16),
             ),
 
             child: Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
+              crossAxisAlignment:
+                  CrossAxisAlignment.start,
+
               children: [
                 Expanded(
                   child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
+                    crossAxisAlignment:
+                        CrossAxisAlignment.start,
+
                     children: [
                       Text(
-                        '#${os.id} - ${os.nome}',
+                        '#${os.id} - ${os.name}',
+
                         maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
+
+                        overflow:
+                            TextOverflow.ellipsis,
+
                         style: TextStyle(
                           color: colors.onSurface,
                           fontSize: 18,
-                          fontWeight: FontWeight.bold,
+                          fontWeight:
+                              FontWeight.bold,
                         ),
                       ),
 
+                      const SizedBox(height: 4),
+
                       Text(
-                        os.cidade,
+                        os.client,
+
+                        maxLines: 1,
+
+                        overflow:
+                            TextOverflow.ellipsis,
+
                         style: TextStyle(
-                          color: colors.onSurfaceVariant,
+                          color:
+                              colors.onSurfaceVariant,
                           fontSize: 14,
                         ),
                       ),
 
                       Text(
-                        os.statusOrdemServico.name,
+                        os.city,
+
+                        maxLines: 1,
+
+                        overflow:
+                            TextOverflow.ellipsis,
+
                         style: TextStyle(
-                          color: _obterCorDoStatus(os.statusOrdemServico),
+                          color:
+                              colors.onSurfaceVariant,
                           fontSize: 14,
+                        ),
+                      ),
+
+                      Text(
+                        os.status,
+
+                        style: TextStyle(
+                          color:
+                              _obterCorDoStatus(
+                            os.status,
+                          ),
+                          fontSize: 14,
+                          fontWeight:
+                              FontWeight.w600,
                         ),
                       ),
                     ],
@@ -329,14 +611,29 @@ class _OsListPageState extends State<OsListPage> {
                 ),
 
                 IconButton(
-                  icon: Icon(Icons.edit, color: colors.primary),
-                  onPressed: () {
-                    Navigator.push(
+                  tooltip: 'Editar',
+
+                  icon: Icon(
+                    Icons.edit,
+                    color: colors.primary,
+                  ),
+
+                  onPressed: () async {
+                    await Navigator.push(
                       context,
                       MaterialPageRoute(
-                        builder: (context) => const StandInPage(),
+                        builder: (context) =>
+                            const Tabbar(
+                          serviceOrderNumber: -1,
+                        ),
                       ),
                     );
+
+                    if (!mounted) return;
+
+                    setState(() {
+                      _carregarOrdemServicos();
+                    });
                   },
                 ),
               ],
@@ -344,6 +641,245 @@ class _OsListPageState extends State<OsListPage> {
           ),
         ),
       ),
+    );
+  }
+  Widget _buildErro(Object? erro) {
+    return Padding(
+      padding: const EdgeInsets.only(top: 40),
+
+      child: Column(
+        children: [
+          Icon(
+            Icons.error_outline,
+            size: 50,
+            color: colors.error,
+          ),
+
+          const SizedBox(height: 10),
+
+          Text(
+            'Erro ao carregar ordens de serviço.',
+
+            textAlign: TextAlign.center,
+
+            style: TextStyle(
+              color: colors.onSurface,
+              fontSize: 16,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+
+          const SizedBox(height: 5),
+
+          Text(
+            '$erro',
+
+            textAlign: TextAlign.center,
+
+            style: TextStyle(
+              color: colors.onSurfaceVariant,
+              fontSize: 12,
+            ),
+          ),
+
+          const SizedBox(height: 15),
+
+          ElevatedButton.icon(
+            onPressed: () {
+              setState(() {
+                _carregarOrdemServicos();
+              });
+            },
+
+            icon: const Icon(Icons.refresh),
+
+            label:
+                const Text('Tentar novamente'),
+          ),
+        ],
+      ),
+    );
+  }
+  Widget _buildVazio(String mensagem) {
+    return Padding(
+      padding: const EdgeInsets.only(top: 40),
+
+      child: Column(
+        children: [
+          Icon(
+            Icons.assignment_outlined,
+            size: 50,
+            color: colors.onSurfaceVariant,
+          ),
+
+          const SizedBox(height: 10),
+
+          Text(
+            mensagem,
+
+            textAlign: TextAlign.center,
+
+            style: TextStyle(
+              color: colors.onSurfaceVariant,
+              fontSize: 15,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _mostrarFiltro(BuildContext context) {
+    showModalBottomSheet(
+      context: context,
+
+      builder: (context) {
+        return SafeArea(
+          child: Padding(
+            padding:
+                const EdgeInsets.all(20),
+
+            child: Column(
+              mainAxisSize:
+                  MainAxisSize.min,
+
+              crossAxisAlignment:
+                  CrossAxisAlignment.start,
+
+              children: [
+                const Text(
+                  'Filtrar OS',
+
+                  style: TextStyle(
+                    fontSize: 20,
+                    fontWeight:
+                        FontWeight.bold,
+                  ),
+                ),
+
+                const SizedBox(height: 20),
+
+                ListTile(
+                  leading: const Icon(
+                      Icons.all_inclusive),
+
+                  title:
+                      const Text('Todas'),
+
+                  onTap: () {
+                    _searchController.clear();
+                    Navigator.pop(context);
+                  },
+                ),
+
+                ListTile(
+                  leading: const Icon(
+                      Icons.pending_actions),
+
+                  title:
+                      const Text('Pendentes'),
+
+                  onTap: () {
+                    _searchController.text =
+                        'Pendente';
+
+                    Navigator.pop(context);
+                  },
+                ),
+
+                ListTile(
+                  leading: const Icon(
+                      Icons.engineering),
+
+                  title: const Text(
+                      'Em Andamento'),
+
+                  onTap: () {
+                    _searchController.text =
+                        'Em Andamento';
+
+                    Navigator.pop(context);
+                  },
+                ),
+
+                ListTile(
+                  leading: const Icon(
+                      Icons.check_circle),
+
+                  title: const Text(
+                      'Concluídas'),
+
+                  onTap: () {
+                    _searchController.text =
+                        'Concluída';
+
+                    Navigator.pop(context);
+                  },
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
+  void _mostrarOrdenacao(BuildContext context) {
+    showModalBottomSheet(
+      context: context,
+
+      builder: (context) {
+        return SafeArea(
+          child: Column(
+            mainAxisSize:
+                MainAxisSize.min,
+
+            children: [
+              const Padding(
+                padding:
+                    EdgeInsets.all(20),
+
+                child: Align(
+                  alignment:
+                      Alignment.centerLeft,
+
+                  child: Text(
+                    'Ordenar por',
+
+                    style: TextStyle(
+                      fontSize: 20,
+                      fontWeight:
+                          FontWeight.bold,
+                    ),
+                  ),
+                ),
+              ),
+
+              ListTile(
+                leading: const Icon(
+                    Icons.access_time),
+
+                title: const Text(
+                    'Mais recentes'),
+
+                onTap: () {
+                  Navigator.pop(context);
+                },
+              ),
+
+              ListTile(
+                leading: const Icon(
+                    Icons.sort_by_alpha),
+
+                title: const Text('Nome'),
+
+                onTap: () {
+                  Navigator.pop(context);
+                },
+              ),
+            ],
+          ),
+        );
+      },
     );
   }
 }
