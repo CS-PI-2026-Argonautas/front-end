@@ -1,9 +1,9 @@
-import 'package:frontend/fire_base/database/database.dart';
+import 'package:frontend/fire_base/models/endereco.dart';
 
 class Cliente {
   int? id;
   final String nome;
-  final Endereco endereco;
+  final List<Endereco> enderecos;
   final String info_contato;
 
   // usado para o soft delete
@@ -12,7 +12,7 @@ class Cliente {
   Cliente({
     this.id,
     required this.nome,
-    required this.endereco,
+    this.enderecos = const [],
     required this.info_contato,
     this.removido = false,
   });

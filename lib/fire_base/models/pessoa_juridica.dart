@@ -7,7 +7,7 @@ class PessoaJuridica extends Cliente{
   
   PessoaJuridica ({required this.cnpj,
                   required this.setor,
-                  required super.endereco,
+                  required super.enderecos,
                   required super.nome,
                   required super.info_contato
   });

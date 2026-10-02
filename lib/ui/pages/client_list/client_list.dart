@@ -12,6 +12,7 @@ import 'package:frontend/ui/widgets/menu.dart';
 import 'package:frontend/ui/widgets/show_dialog/show_delete_client_dialog.dart';
 import 'package:frontend/ui/widgets/show_snackbar/show_delete_client_snackbar.dart';
 import 'package:frontend/ui/widgets/slidable/slidable_delete_card.dart';
+import 'package:frontend/utils/data_os/address_formatter.dart';
 
 class ClientList extends StatefulWidget {
   const ClientList({super.key});
@@ -273,13 +274,19 @@ class _ClientListState extends State<ClientList> {
                           fontWeight: FontWeight.bold,
                         ),
                       ),
+                      // EM TESTE 
                       Text(
-                        cliente.endereco,
-                        style: TextStyle(
-                          color: colors.onSurfaceVariant,
-                          fontSize: 14,
-                        ),
+                        cliente.enderecos.isEmpty
+                            ? 'Nenhum endereço cadastrado'
+                            : formatarEndereco(cliente.enderecos.first),
                       ),
+                      // Text(
+                      //   cliente.endereco,
+                      //   style: TextStyle(
+                      //     color: colors.onSurfaceVariant,
+                      //     fontSize: 14,
+                      //   ),
+                      // ),
                       Text(
                         cliente.info_contato,
                         style: TextStyle(

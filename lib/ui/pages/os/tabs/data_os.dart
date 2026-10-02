@@ -1,6 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:frontend/fire_base/Enums/Uf.dart';
+// import 'package:frontend/fire_base/database/database.dart';
+import 'package:frontend/fire_base/services/endereco_service.dart';
+import 'package:frontend/fire_base/models/endereco.dart';
 import 'package:frontend/ui/style/ColorScheme.dart' as custom_colors;
 import 'package:frontend/ui/style/inputDecorationStyles.dart';
+import 'package:frontend/ui/widgets/bottom_sheet/bottom_sheet.dart';
+import 'package:frontend/utils/data_os/address_formatter.dart';
 
 class DataOs extends StatefulWidget {
   final DateTime? dataEntrada;
@@ -35,6 +41,9 @@ class DataOs extends StatefulWidget {
 
 class _DataOsState extends State<DataOs> {
   final colors = custom_colors.colorScheme;
+
+  final EnderecoService _enderecoService = EnderecoService();
+  Endereco? _enderecoSelecionado;
 
   late DateTime dataEntrada;
   DateTime? dataSaida;
@@ -318,6 +327,51 @@ class _DataOsState extends State<DataOs> {
     );
   }
 
+  Future<void> _abrirBottomSheetEnderecos() async {
+    final enderecos = await _enderecoService.listAll();
+
+    if (!mounted) return;
+
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.white,
+      builder: (context) {
+        return SelectionBottomSheet<Endereco>(
+          titulo: 'Selecionar endereço',
+          itens: enderecos,
+          textoBusca: 'Buscar endereço...',
+          textoAcao: 'Novo endereço',
+          iconeItem: Icons.location_on_outlined,
+
+          tituloItem: (endereco) {
+            print('RUA: "${endereco.rua}"');
+            print('NUMERO: "${endereco.numero}"');
+
+            return '${endereco.rua}, ${endereco.numero}';
+          },
+
+          subtituloItem: (endereco) {
+            return '${endereco.cidade} - ${endereco.uf.name} '
+                '• CEP ${endereco.cep}';
+          },
+
+          onAcao: () {
+            // implementar depois
+          },
+
+          onSelecionar: (endereco) {
+            setState(() {
+              _enderecoSelecionado = endereco;
+            });
+
+            Navigator.pop(context);
+          },
+        );
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return SingleChildScrollView(
@@ -361,6 +415,11 @@ class _DataOsState extends State<DataOs> {
             _buildSectionTitle(
               'Andamento da OS',
               'Atualize as informações referentes ao conserto do equipamento.',
+            ),
+
+            _buildEnderecoField(
+              Icons.location_on_outlined, 
+              'Endereço'
             ),
 
             Row(
@@ -745,6 +804,67 @@ class _DataOsState extends State<DataOs> {
       },
     );
   }
+
+  Widget _buildEnderecoField(IconData icon, String label) {
+    final endereco = _enderecoSelecionado;
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+            spacing: 6,
+            children: [
+              Icon(
+                icon,
+                size: 20,
+                color: colors.primary,
+              ),
+              Text(
+                label,
+                style: TextStyle(
+                  fontWeight: FontWeight.bold,
+                  fontSize: 16,
+                  color: colors.onSurface,
+                ),
+              ),
+            ],
+        ),
+        const SizedBox(height: 8),
+
+        InkWell(
+          onTap: _abrirBottomSheetEnderecos,
+          borderRadius: BorderRadius.circular(12),
+          child: InputDecorator(
+            decoration: customInputDecoration(
+              hintText: 'Selecione um endereço',
+            ).copyWith(
+              suffixIcon: Icon(
+                Icons.keyboard_arrow_down,
+                color: colors.onSurfaceVariant,
+              ),
+            ),
+            child: Text(
+              endereco == null
+                  ? 'Selecione um endereço'
+                  : formatarEndereco(endereco),
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: TextStyle(
+                fontSize: 14,
+                color: endereco == null
+                    ? colors.onSurfaceVariant
+                    : colors.onSurface,
+                fontWeight: endereco == null
+                    ? FontWeight.normal
+                    : FontWeight.w500,
+              ),
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
 
 }
 
