@@ -65,9 +65,9 @@ class _OsListPageState extends State<OsListPage> {
     await _futureOrdemServicos;
   }
 
-  Color _obterCorDoStatus(String status) {
+  Color _obterCorDoStatus(Statusordemservico status) {
     switch (status) {
-      case 'Concluída':
+      case Statusordemservico.CONCLUIDA:
         return Colors.green;
 
       case 'Pendente':
@@ -173,18 +173,14 @@ class _OsListPageState extends State<OsListPage> {
           if (index == 3) {
             Navigator.push(
               context,
-              MaterialPageRoute(
-                builder: (context) => const ItemEdition(),
-              ),
+              MaterialPageRoute(builder: (context) => const ItemEdition()),
             );
           }
 
           if (index == 4) {
             Navigator.push(
               context,
-              MaterialPageRoute(
-                builder: (context) => const Dashboard(),
-              ),
+              MaterialPageRoute(builder: (context) => const Dashboard()),
             );
           }
         },
