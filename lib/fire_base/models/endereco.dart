@@ -2,6 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:frontend/fire_base/Enums/Uf.dart';
 
 class Endereco {
+  String? id;
   String cep;
   String rua;
   String cidade;
@@ -9,6 +10,7 @@ class Endereco {
   Uf uf;
 
   Endereco({
+    this.id,
     required this.cep,
     required this.rua,
     required this.cidade,
@@ -32,6 +34,7 @@ class Endereco {
   final data = doc.data()!;
 
     return Endereco(
+      id: doc.id,
       cep: data['cep'] ?? '',
       rua: data['rua'] ?? '',
       cidade: data['cidade'] ?? '',
