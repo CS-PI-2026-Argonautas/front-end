@@ -733,6 +733,11 @@ class _DataOsState extends State<DataOs> {
               ],
             ),
           ),
+          IconButton(
+            onPressed: _abrirListaClientes,
+            icon: Icon(Icons.sync_alt, color: colors.primary),
+            tooltip: 'Trocar cliente',
+          ),
         ],
       ),
     );
@@ -774,6 +779,11 @@ class _DataOsState extends State<DataOs> {
                 ),
               ],
             ),
+          ),
+          IconButton(
+            onPressed: _abrirListaEnderecos,
+            icon: Icon(Icons.sync_alt, color: colors.primary),
+            tooltip: 'Trocar endereço',
           ),
         ],
       ),
