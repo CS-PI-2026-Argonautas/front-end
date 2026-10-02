@@ -42,7 +42,8 @@ class _OsListPageState extends State<OsListPage> {
 
     _searchController.addListener(() {
       setState(() {
-        _termoBusca = _searchController.text.trim().toLowerCase();
+        _termoBusca =
+            _searchController.text.trim().toLowerCase();
       });
     });
   }
@@ -65,9 +66,18 @@ class _OsListPageState extends State<OsListPage> {
     await _futureOrdemServicos;
   }
 
-  Color _obterCorDoStatus(Statusordemservico status) {
+  Future<void> _deletarOrdemServico(Services os) async {
+    await _service.delete(os.id);
+  }
+
+  Future<void> _restaurarOrdemServico(Services os) async {
+    await _service.restore(os.id);
+  }
+
+  Color _obterCorDoStatus(String status) {
     switch (status) {
-      case Statusordemservico.CONCLUIDA:
+      case 'Concluída':
+      case 'Concluida':
         return Colors.green;
 
       case 'Pendente':
@@ -81,14 +91,6 @@ class _OsListPageState extends State<OsListPage> {
       default:
         return colors.onSurfaceVariant;
     }
-  }
-
-  Future<void> _deletarOrdemServico(Services os) async {
-    await _service.delete(os.id);
-  }
-
-  Future<void> _restaurarOrdemServico(Services os) async {
-    await _service.restore(os.id);
   }
 
   List<Services> _filtrarOrdens(List<Services> ordens) {
@@ -156,7 +158,8 @@ class _OsListPageState extends State<OsListPage> {
             Navigator.push(
               context,
               MaterialPageRoute(
-                builder: (context) => const ProductRegistration(),
+                builder: (context) =>
+                    const ProductRegistration(),
               ),
             );
           }
@@ -173,14 +176,20 @@ class _OsListPageState extends State<OsListPage> {
           if (index == 3) {
             Navigator.push(
               context,
-              MaterialPageRoute(builder: (context) => const ItemEdition()),
+              MaterialPageRoute(
+                builder: (context) =>
+                    const ItemEdition(),
+              ),
             );
           }
 
           if (index == 4) {
             Navigator.push(
               context,
-              MaterialPageRoute(builder: (context) => const Dashboard()),
+              MaterialPageRoute(
+                builder: (context) =>
+                    const Dashboard(),
+              ),
             );
           }
         },
@@ -191,7 +200,8 @@ class _OsListPageState extends State<OsListPage> {
           onRefresh: _atualizarLista,
 
           child: SingleChildScrollView(
-            physics: const AlwaysScrollableScrollPhysics(),
+            physics:
+                const AlwaysScrollableScrollPhysics(),
 
             child: Padding(
               padding: const EdgeInsets.symmetric(
@@ -201,7 +211,6 @@ class _OsListPageState extends State<OsListPage> {
 
               child: Column(
                 children: [
-
                   TextFormField(
                     controller: _searchController,
 
@@ -215,41 +224,54 @@ class _OsListPageState extends State<OsListPage> {
                         color: colors.onSurface,
                       ),
 
-                      prefixIcon: const Icon(Icons.search),
+                      prefixIcon:
+                          const Icon(Icons.search),
 
-                      suffixIcon: _termoBusca.isNotEmpty
-                          ? IconButton(
-                              onPressed: () {
-                                _searchController.clear();
-                              },
-                              icon: const Icon(Icons.clear),
-                            )
-                          : null,
+                      suffixIcon:
+                          _termoBusca.isNotEmpty
+                              ? IconButton(
+                                  onPressed: () {
+                                    _searchController
+                                        .clear();
+                                  },
+                                  icon: const Icon(
+                                    Icons.clear,
+                                  ),
+                                )
+                              : null,
 
                       border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(14),
+                        borderRadius:
+                            BorderRadius.circular(14),
                         borderSide: BorderSide.none,
                       ),
                     ),
                   ),
-
                   Padding(
-                    padding: const EdgeInsets.only(top: 20),
+                    padding:
+                        const EdgeInsets.only(top: 20),
+
                     child: Row(
                       children: [
                         Expanded(
-                          child: ElevatedButton.icon(
+                          child:
+                              ElevatedButton.icon(
                             onPressed: () {
                               _mostrarFiltro(context);
                             },
 
-                            icon: const Icon(Icons.tune),
+                            icon:
+                                const Icon(Icons.tune),
 
-                            label: const Text('FILTRAR'),
+                            label:
+                                const Text('FILTRAR'),
 
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: colors.primary,
-                              foregroundColor: Colors.white,
+                            style:
+                                ElevatedButton.styleFrom(
+                              backgroundColor:
+                                  colors.primary,
+                              foregroundColor:
+                                  Colors.white,
                             ),
                           ),
                         ),
@@ -257,26 +279,32 @@ class _OsListPageState extends State<OsListPage> {
                         const SizedBox(width: 10),
 
                         Expanded(
-                          child: ElevatedButton.icon(
+                          child:
+                              ElevatedButton.icon(
                             onPressed: () {
-                              _mostrarOrdenacao(context);
+                              _mostrarOrdenacao(
+                                  context);
                             },
 
-                            icon: const Icon(Icons.swap_vert),
+                            icon: const Icon(
+                              Icons.swap_vert,
+                            ),
 
-                            label: const Text('ORDENAR'),
+                            label:
+                                const Text('ORDENAR'),
 
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: colors.primary,
-                              foregroundColor: Colors.white,
+                            style:
+                                ElevatedButton.styleFrom(
+                              backgroundColor:
+                                  colors.primary,
+                              foregroundColor:
+                                  Colors.white,
                             ),
                           ),
                         ),
                       ],
                     ),
                   ),
-
-
                   Padding(
                     padding: const EdgeInsets.only(
                       top: 20,
@@ -284,7 +312,8 @@ class _OsListPageState extends State<OsListPage> {
                     ),
 
                     child: Align(
-                      alignment: Alignment.centerLeft,
+                      alignment:
+                          Alignment.centerLeft,
 
                       child: Text(
                         _termoBusca.isEmpty
@@ -294,7 +323,8 @@ class _OsListPageState extends State<OsListPage> {
                         style: TextStyle(
                           color: colors.onSurface,
                           fontSize: 18,
-                          fontWeight: FontWeight.bold,
+                          fontWeight:
+                              FontWeight.bold,
                         ),
                       ),
                     ),
@@ -303,30 +333,36 @@ class _OsListPageState extends State<OsListPage> {
                   FutureBuilder<List<Services>>(
                     future: _futureOrdemServicos,
 
-                    builder: (context, snapshot) {
+                    builder:
+                        (context, snapshot) {
                       if (snapshot.connectionState ==
                           ConnectionState.waiting) {
                         return const Padding(
-                          padding: EdgeInsets.only(top: 40),
+                          padding:
+                              EdgeInsets.only(top: 40),
 
                           child: Center(
-                            child: CircularProgressIndicator(),
+                            child:
+                                CircularProgressIndicator(),
                           ),
                         );
                       }
 
                       if (snapshot.hasError) {
-                        return _buildErro(snapshot.error);
+                        return _buildErro(
+                            snapshot.error);
                       }
 
-                      if (!snapshot.hasData) {
+                      if (!snapshot.hasData ||
+                          snapshot.data!.isEmpty) {
                         return _buildVazio(
                           'Nenhuma ordem de serviço encontrada.',
                         );
                       }
 
                       final ordensFiltradas =
-                          _filtrarOrdens(snapshot.data!);
+                          _filtrarOrdens(
+                              snapshot.data!);
 
                       if (ordensFiltradas.isEmpty) {
                         return _buildVazio(
@@ -342,10 +378,13 @@ class _OsListPageState extends State<OsListPage> {
                         physics:
                             const NeverScrollableScrollPhysics(),
 
-                        itemCount: ordensFiltradas.length,
+                        itemCount:
+                            ordensFiltradas.length,
 
-                        itemBuilder: (context, index) {
-                          final os = ordensFiltradas[index];
+                        itemBuilder:
+                            (context, index) {
+                          final os =
+                              ordensFiltradas[index];
 
                           return _buildOsCard(os);
                         },
@@ -358,11 +397,12 @@ class _OsListPageState extends State<OsListPage> {
           ),
         ),
       ),
-      floatingActionButton: FloatingActionButton(
+
+      floatingActionButton:
+          FloatingActionButton(
         onPressed: () async {
           await Navigator.push(
             context,
-
             MaterialPageRoute(
               builder: (context) => const Tabbar(
                 serviceOrderNumber: -1,
@@ -388,12 +428,15 @@ class _OsListPageState extends State<OsListPage> {
       ),
     );
   }
+
+
   Widget _buildOsCard(Services os) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 16),
 
       child: ClipRRect(
-        borderRadius: BorderRadius.circular(16),
+        borderRadius:
+            BorderRadius.circular(16),
 
         child: SlidableDeleteCard(
           slidableKey: ValueKey(os.id),
@@ -403,7 +446,8 @@ class _OsListPageState extends State<OsListPage> {
                 await showDialog<bool>(
                   context: context,
 
-                  builder: (_) => ShowDeleteOsDialog(
+                  builder: (_) =>
+                      ShowDeleteOsDialog(
                     nome: os.name,
                   ),
                 ) ??
@@ -431,7 +475,8 @@ class _OsListPageState extends State<OsListPage> {
 
                   onPressed: () async {
                     try {
-                      await _restaurarOrdemServico(os);
+                      await _restaurarOrdemServico(
+                          os);
 
                       if (!mounted) return;
 
@@ -439,7 +484,8 @@ class _OsListPageState extends State<OsListPage> {
                         _carregarOrdemServicos();
                       });
 
-                      messenger.hideCurrentSnackBar();
+                      messenger
+                          .hideCurrentSnackBar();
                     } catch (e) {
                       if (!mounted) return;
 
@@ -453,13 +499,15 @@ class _OsListPageState extends State<OsListPage> {
                     }
                   },
 
-                  duration: const Duration(seconds: 5),
+                  duration:
+                      const Duration(seconds: 5),
                 ),
               );
             } catch (e) {
               if (!mounted) return;
 
-              ScaffoldMessenger.of(context).showSnackBar(
+              ScaffoldMessenger.of(context)
+                  .showSnackBar(
                 SnackBar(
                   content: Text(
                     'Erro ao excluir OS: $e',
@@ -482,7 +530,8 @@ class _OsListPageState extends State<OsListPage> {
                 width: 1.5,
               ),
 
-              borderRadius: BorderRadius.circular(16),
+              borderRadius:
+                  BorderRadius.circular(16),
             ),
 
             child: Row(
@@ -490,7 +539,6 @@ class _OsListPageState extends State<OsListPage> {
                   CrossAxisAlignment.start,
 
               children: [
-
                 Expanded(
                   child: Column(
                     crossAxisAlignment:
@@ -508,7 +556,8 @@ class _OsListPageState extends State<OsListPage> {
                         style: TextStyle(
                           color: colors.onSurface,
                           fontSize: 18,
-                          fontWeight: FontWeight.bold,
+                          fontWeight:
+                              FontWeight.bold,
                         ),
                       ),
 
@@ -553,13 +602,13 @@ class _OsListPageState extends State<OsListPage> {
                             os.status,
                           ),
                           fontSize: 14,
-                          fontWeight: FontWeight.w600,
+                          fontWeight:
+                              FontWeight.w600,
                         ),
                       ),
                     ],
                   ),
                 ),
-
 
                 IconButton(
                   tooltip: 'Editar',
@@ -572,9 +621,9 @@ class _OsListPageState extends State<OsListPage> {
                   onPressed: () async {
                     await Navigator.push(
                       context,
-
                       MaterialPageRoute(
-                        builder: (context) => const Tabbar(
+                        builder: (context) =>
+                            const Tabbar(
                           serviceOrderNumber: -1,
                         ),
                       ),
@@ -594,7 +643,6 @@ class _OsListPageState extends State<OsListPage> {
       ),
     );
   }
-
   Widget _buildErro(Object? erro) {
     return Padding(
       padding: const EdgeInsets.only(top: 40),
@@ -645,13 +693,13 @@ class _OsListPageState extends State<OsListPage> {
 
             icon: const Icon(Icons.refresh),
 
-            label: const Text('Tentar novamente'),
+            label:
+                const Text('Tentar novamente'),
           ),
         ],
       ),
     );
   }
-
   Widget _buildVazio(String mensagem) {
     return Padding(
       padding: const EdgeInsets.only(top: 40),
@@ -680,6 +728,7 @@ class _OsListPageState extends State<OsListPage> {
       ),
     );
   }
+
   void _mostrarFiltro(BuildContext context) {
     showModalBottomSheet(
       context: context,
@@ -687,10 +736,12 @@ class _OsListPageState extends State<OsListPage> {
       builder: (context) {
         return SafeArea(
           child: Padding(
-            padding: const EdgeInsets.all(20),
+            padding:
+                const EdgeInsets.all(20),
 
             child: Column(
-              mainAxisSize: MainAxisSize.min,
+              mainAxisSize:
+                  MainAxisSize.min,
 
               crossAxisAlignment:
                   CrossAxisAlignment.start,
@@ -701,28 +752,32 @@ class _OsListPageState extends State<OsListPage> {
 
                   style: TextStyle(
                     fontSize: 20,
-                    fontWeight: FontWeight.bold,
+                    fontWeight:
+                        FontWeight.bold,
                   ),
                 ),
 
                 const SizedBox(height: 20),
 
                 ListTile(
-                  leading:
-                      const Icon(Icons.all_inclusive),
+                  leading: const Icon(
+                      Icons.all_inclusive),
 
-                  title: const Text('Todas'),
+                  title:
+                      const Text('Todas'),
 
                   onTap: () {
+                    _searchController.clear();
                     Navigator.pop(context);
                   },
                 ),
 
                 ListTile(
-                  leading:
-                      const Icon(Icons.pending_actions),
+                  leading: const Icon(
+                      Icons.pending_actions),
 
-                  title: const Text('Pendentes'),
+                  title:
+                      const Text('Pendentes'),
 
                   onTap: () {
                     _searchController.text =
@@ -733,11 +788,11 @@ class _OsListPageState extends State<OsListPage> {
                 ),
 
                 ListTile(
-                  leading:
-                      const Icon(Icons.engineering),
+                  leading: const Icon(
+                      Icons.engineering),
 
-                  title:
-                      const Text('Em Andamento'),
+                  title: const Text(
+                      'Em Andamento'),
 
                   onTap: () {
                     _searchController.text =
@@ -748,11 +803,11 @@ class _OsListPageState extends State<OsListPage> {
                 ),
 
                 ListTile(
-                  leading:
-                      const Icon(Icons.check_circle),
+                  leading: const Icon(
+                      Icons.check_circle),
 
-                  title:
-                      const Text('Concluídas'),
+                  title: const Text(
+                      'Concluídas'),
 
                   onTap: () {
                     _searchController.text =
@@ -768,7 +823,6 @@ class _OsListPageState extends State<OsListPage> {
       },
     );
   }
-
   void _mostrarOrdenacao(BuildContext context) {
     showModalBottomSheet(
       context: context,
@@ -776,32 +830,36 @@ class _OsListPageState extends State<OsListPage> {
       builder: (context) {
         return SafeArea(
           child: Column(
-            mainAxisSize: MainAxisSize.min,
+            mainAxisSize:
+                MainAxisSize.min,
 
             children: [
               const Padding(
-                padding: EdgeInsets.all(20),
+                padding:
+                    EdgeInsets.all(20),
 
                 child: Align(
-                  alignment: Alignment.centerLeft,
+                  alignment:
+                      Alignment.centerLeft,
 
                   child: Text(
                     'Ordenar por',
 
                     style: TextStyle(
                       fontSize: 20,
-                      fontWeight: FontWeight.bold,
+                      fontWeight:
+                          FontWeight.bold,
                     ),
                   ),
                 ),
               ),
 
               ListTile(
-                leading:
-                    const Icon(Icons.access_time),
+                leading: const Icon(
+                    Icons.access_time),
 
-                title:
-                    const Text('Mais recentes'),
+                title: const Text(
+                    'Mais recentes'),
 
                 onTap: () {
                   Navigator.pop(context);
@@ -809,15 +867,13 @@ class _OsListPageState extends State<OsListPage> {
               ),
 
               ListTile(
-                leading:
-                    const Icon(Icons.sort_by_alpha),
+                leading: const Icon(
+                    Icons.sort_by_alpha),
 
-                title:
-                    const Text('Nome'),
+                title: const Text('Nome'),
 
                 onTap: () {
                   Navigator.pop(context);
-
                 },
               ),
             ],
