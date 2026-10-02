@@ -64,9 +64,10 @@ class Menu extends StatelessWidget {
                       index: 2,
                       colors: colors,
                     ),
+
                     _buildDrawerItem(
-                      icon: Icons.edit,
-                      label: "Editar peças",
+                      icon: Icons.build,
+                      label: "Serviços",
                       index: 3,
                       colors: colors,
                     ),

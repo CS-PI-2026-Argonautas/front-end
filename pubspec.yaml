@@ -33,3 +33,4 @@ flutter:
   assets:
     - lib/assets/icons/
     - lib/assets/images/LogoEmpresa.png
+    - lib/assets/images/LogoEmpresaAzul.png
