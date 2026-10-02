@@ -1,6 +1,4 @@
 import 'package:firebase_core/firebase_core.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
-
 import 'package:frontend/firebase_options.dart';
 import 'package:frontend/fire_base/models/services.dart';
 import 'package:frontend/fire_base/repositories/service_repository.dart';
@@ -13,63 +11,133 @@ Future<void> main() async {
   final repository = ServicesRepository();
 
   try {
-    // 1. SALVAR
-    final os = Services(
-      id: 'teste-os-001',
-      name: 'OS Teste Firestore',
-      part: 'Peça Teste',
-      equipment: 'Equipamento Teste',
-      client: 'Cliente Teste',
-      assignee: 'Técnico Teste',
-      date: DateTime.now(),
-      status: 'Pendente',
-      report: 'Teste do ServicesRepository',
-      city: 'Paranavaí',
-    );
+    print('======================================');
+    print('   TESTE DO FIRESTORE - ORDENS DE OS');
+    print('======================================');
 
-    await repository.save(os);
+    final ordens = [
+      Services(
+        id: 'teste-os-001',
+        name: 'Manutenção preventiva',
+        part: 'Filtro de ar',
+        equipment: 'Compressor Industrial',
+        client: 'Empresa Alpha',
+        assignee: 'João Técnico',
+        date: DateTime.now(),
+        status: 'Pendente',
+        report: 'Manutenção preventiva solicitada.',
+        city: 'Paranavaí',
+      ),
 
-    print('✅ 1 - OS salva com sucesso');
+      Services(
+        id: 'teste-os-002',
+        name: 'Troca de componente',
+        part: 'Motor',
+        equipment: 'Gerador',
+        client: 'Empresa Beta',
+        assignee: 'Carlos Técnico',
+        date: DateTime.now().subtract(
+          const Duration(days: 1),
+        ),
+        status: 'Em Andamento',
+        report: 'Troca de componente em execução.',
+        city: 'Maringá',
+      ),
 
-    // 2. LISTAR
-    final ordens = await repository.listAll();
+      Services(
+        id: 'teste-os-003',
+        name: 'Inspeção técnica',
+        part: 'Sensor',
+        equipment: 'Máquina CNC',
+        client: 'Empresa Gamma',
+        assignee: 'Pedro Técnico',
+        date: DateTime.now().subtract(
+          const Duration(days: 2),
+        ),
+        status: 'Concluída',
+        report: 'Inspeção concluída com sucesso.',
+        city: 'Londrina',
+      ),
+    ];
 
-    print('✅ 2 - OS encontradas: ${ordens.length}');
 
-    for (final ordem in ordens) {
-      print('   ${ordem.id} - ${ordem.name}');
+    for (final os in ordens) {
+      await repository.save(os);
+
+      print(
+        '✅ OS salva: ${os.id} - ${os.name}',
+      );
     }
 
-    // 3. DELETAR
-    await repository.delete('teste-os-001');
 
-    print('✅ 3 - OS deletada logicamente');
+    final ordensSalvas = await repository.listAll();
 
-    // 4. VERIFICAR SE SUMIU DA LISTA
-    final depoisDeletar = await repository.listAll();
+    print('');
+    print('======================================');
+    print('OS ENCONTRADAS NO FIRESTORE:');
+    print('======================================');
 
+    for (final os in ordensSalvas) {
+      print(
+        '${os.id} | ${os.name} | ${os.status} | ${os.city}',
+      );
+    }
+
+    print('');
     print(
-      '✅ 4 - OS após exclusão: ${depoisDeletar.length}',
+      ' Total de OS encontradas: ${ordensSalvas.length}',
     );
 
-    // 5. RESTAURAR
-    await repository.restore('teste-os-001');
 
-    print('✅ 5 - OS restaurada');
+    await repository.delete('teste-os-003');
 
-    // 6. VERIFICAR NOVAMENTE
-    final depoisDeRestaurar = await repository.listAll();
+    print('');
+    print(' OS teste-os-003 marcada como excluída.');
+
+    final depoisDaExclusao =
+        await repository.listAll();
 
     print(
-      '✅ 6 - OS após restauração: ${depoisDeRestaurar.length}',
+      ' OS ativas após exclusão: '
+      '${depoisDaExclusao.length}',
     );
 
+
+    await repository.restore('teste-os-003');
+
+    print('');
+    print(' OS teste-os-003 restaurada.');
+
+    final depoisDaRestauracao =
+        await repository.listAll();
+
+    print(
+      ' OS ativas após restauração: '
+      '${depoisDaRestauracao.length}',
+    );
+
+
+    print('');
     print('======================================');
-    print('🎉 TESTE DO SERVICES REPOSITORY OK!');
+    print(' TESTE CONCLUÍDO!');
     print('======================================');
+    print('');
+    print(
+      'As OS de teste foram gravadas na coleção:',
+    );
+    print('service_orders');
+    print('');
+    print(
+      'Agora abra a OsListPage para verificar se elas aparecem.',
+    );
+    print('');
   } catch (e, stackTrace) {
-    print('❌ ERRO NO TESTE:');
+    print('');
+    print('======================================');
+    print(' ERRO NO TESTE');
+    print('======================================');
     print(e);
+    print('');
     print(stackTrace);
   }
 }
