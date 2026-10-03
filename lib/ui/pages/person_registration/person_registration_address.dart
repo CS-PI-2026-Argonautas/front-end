@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:frontend/fire_base/Enums/Uf.dart';
+import 'package:frontend/fire_base/models/endereco.dart';
 import 'package:frontend/fire_base/services/person_registration/uppercaser.dart';
 import 'package:frontend/ui/style/ColorScheme.dart' as custom_colors;
 import 'package:frontend/ui/style/inputDecorationStyles.dart';
@@ -10,6 +12,7 @@ import 'package:frontend/ui/widgets/header.dart';
 import 'package:flutter/services.dart';
 
 class CepInputFormatter extends TextInputFormatter {
+
   @override
   TextEditingValue formatEditUpdate(
     TextEditingValue oldValue,
@@ -33,7 +36,7 @@ class CepInputFormatter extends TextInputFormatter {
 }
 
 class PersonRegistrationAddress extends StatefulWidget {
-  final String? enderecoInicial;
+  final Endereco? enderecoInicial;
 
   const PersonRegistrationAddress({super.key, this.enderecoInicial});
 
@@ -58,22 +61,17 @@ class _PersonRegistration2State extends State<PersonRegistrationAddress> {
   }
 
   void _preencherCamposSeEdicao() {
-    if (widget.enderecoInicial != null && widget.enderecoInicial!.isNotEmpty) {
-      final partes = widget.enderecoInicial!.split(', ');
-      if (partes.isNotEmpty) {
-        final cidadeUf = partes[0].split(' - ');
-        if (cidadeUf.length == 2) {
-          _cidadeController.text = cidadeUf[0];
-          _ufController.text = cidadeUf[1];
-        }
-      }
-      if (partes.length > 1) {
-        _ruaController.text = partes[1];
-      }
-      if (partes.length > 2) {
-        _numeroController.text = partes[2];
-      }
+    final endereco = widget.enderecoInicial;
+
+    if (endereco == null) {
+      return;
     }
+
+    _cepController.text = endereco.cep;
+    _ruaController.text = endereco.rua;
+    _cidadeController.text = endereco.cidade;
+    _numeroController.text = endereco.numero;
+    _ufController.text = endereco.uf.name;
   }
 
   @override
@@ -123,6 +121,7 @@ class _PersonRegistration2State extends State<PersonRegistrationAddress> {
               CepInputFormatter(),
             ],
             validator: (value) {
+
               if (value == null || value.isEmpty) {
                 return 'Informe o CEP';
               }
@@ -216,19 +215,30 @@ class _PersonRegistration2State extends State<PersonRegistrationAddress> {
               Navigator.pop(context);
             },
             onCadastrar: () {
-              if (_formKey.currentState!.validate()) {
-                String rua = _ruaController.text.trim();
-                String cidade = _cidadeController.text.trim();
-                String uf = _ufController.text.trim().toUpperCase();
-                String numero = _numeroController.text.trim();
-                String enderecoFormatado = "$cidade - $uf, $rua";
-
-                if (numero.isNotEmpty) {
-                  enderecoFormatado += ", $numero";
-                }
-
-                Navigator.pop(context, enderecoFormatado);
+              if (!_formKey.currentState!.validate()) {
+                return;
               }
+
+              final cep = _cepController.text.trim();
+              final rua = _ruaController.text.trim();
+              final cidade = _cidadeController.text.trim();
+              final numero = _numeroController.text.trim();
+              final ufTexto = _ufController.text.trim().toUpperCase();
+
+              final uf = Uf.values.firstWhere(
+                (u) => u.name == ufTexto,
+              );
+
+              final endereco = Endereco(
+                id: widget.enderecoInicial?.id,
+                cep: cep,
+                rua: rua,
+                cidade: cidade,
+                numero: numero.isEmpty ? 'S/N' : numero,
+                uf: uf,
+              );
+
+              Navigator.pop(context, endereco);
             },
           ),
         ],

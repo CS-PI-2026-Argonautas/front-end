@@ -3,6 +3,7 @@ import 'package:frontend/fire_base/Enums/Uf.dart';
 
 class Endereco {
   String? id;
+  String? clienteId;
   String cep;
   String rua;
   String cidade;
@@ -11,6 +12,7 @@ class Endereco {
 
   Endereco({
     this.id,
+    this.clienteId,
     required this.cep,
     required this.rua,
     required this.cidade,
@@ -18,13 +20,20 @@ class Endereco {
     required this.uf 
   });
 
-  Map<String, dynamic> toFirestore() {
+  Map<String, dynamic> toMap() {
     return {
       'cep': cep,
       'rua': rua,
       'cidade': cidade,
       'numero': numero,
       'uf': uf.name,
+    };
+  }
+
+  Map<String, dynamic> toFirestore() {
+    return {
+      ...toMap(),
+      'clienteId': clienteId,
     };
   }
 
@@ -37,9 +46,10 @@ class Endereco {
 
     return Endereco(
       id: doc.id,
-      cep: data['cep'] ?? ''.toString().trim(),
-      rua: data['rua'] ?? ''.toString().trim(),
-      cidade: data['cidade'] ?? ''.toString().trim(),
+      clienteId: data['clienteId']?.toString(),
+      cep: (data['cep'] ?? '').toString().trim(),
+      rua: (data['rua'] ?? '').toString().trim(),
+      cidade: (data['cidade'] ?? '').toString().trim(),
       numero: (data['numero'] ?? 'S/N').toString(),
       uf: Uf.values.firstWhere((u) => u.name == (data['uf'] as String?)?.toUpperCase(), orElse: () => Uf.PR)
     );

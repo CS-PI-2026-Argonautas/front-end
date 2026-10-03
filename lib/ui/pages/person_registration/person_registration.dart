@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:frontend/fire_base/models/endereco.dart';
+import 'package:frontend/fire_base/services/endereco_service.dart';
 import 'package:frontend/ui/pages/person_registration/person_registration_contact.dart';
 import 'package:frontend/ui/style/ColorScheme.dart' as custom_colors;
 import 'package:frontend/ui/pages/person_registration/person_registration_address.dart';
@@ -6,6 +8,7 @@ import 'package:frontend/ui/style/inputDecorationStyles.dart';
 import 'package:frontend/ui/widgets/action_buttons.dart';
 import 'package:frontend/ui/widgets/form_card.dart';
 import 'package:frontend/ui/widgets/form_field_label.dart';
+import 'package:frontend/utils/data_os/address_formatter.dart';
 import 'package:mask_text_input_formatter/mask_text_input_formatter.dart';
 import 'package:frontend/ui/pages/dashboard.dart';
 import 'package:frontend/ui/widgets/header.dart';
@@ -25,12 +28,15 @@ class PersonRegistration extends StatefulWidget {
 
 class _PersonRegistrationState1 extends State<PersonRegistration> {
   final _formKey = GlobalKey<FormState>();
+
+  final EnderecoService _enderecoService = EnderecoService();
   bool _isPessoaFisica = false;
   final colors = custom_colors.colorScheme;
-  final List<String> _enderecos = [
-    'Paranavaí - PR, Av. Brasil, 123',
-    'Maringá - PR, Rua Santos Dumont, 456',
-  ];
+  final List<Endereco> _enderecos = [];
+  // final List<String> _enderecos = [
+  //   'Paranavaí - PR, Av. Brasil, 123',
+  //   'Maringá - PR, Rua Santos Dumont, 456',
+  // ];
 
   final _cpfFormatter = MaskTextInputFormatter(
     mask: '###.###.###-##',
@@ -117,15 +123,13 @@ class _PersonRegistrationState1 extends State<PersonRegistration> {
                   size: 26,
                 ),
                 onPressed: () async {
-                  final resultadoEndereco = await Navigator.push<String>(
+                  final resultadoEndereco = await Navigator.push<Endereco>(
                     context,
                     MaterialPageRoute(
                       builder: (context) => const PersonRegistrationAddress(),
                     ),
                   );
-                  if (resultadoEndereco != null &&
-                      resultadoEndereco.trim().isNotEmpty &&
-                      mounted) {
+                  if (resultadoEndereco != null && mounted) {
                     setState(() {
                       _enderecos.add(resultadoEndereco);
                     });
@@ -162,11 +166,12 @@ class _PersonRegistrationState1 extends State<PersonRegistration> {
                       slidableKey: ValueKey('$endereco-$index'),
                       extentRatio: 0.20,
                       onDelete: () async {
+                        final enderecoFormatado = formatarEndereco(endereco);
                         final confirmarExclusao =
                             await showDialog<bool>(
                               context: context,
                               builder: (_) =>
-                                  ShowDeleteClientDialog(nome: endereco),
+                                  ShowDeleteClientDialog(nome: enderecoFormatado),
                             ) ??
                             false;
 
@@ -212,8 +217,7 @@ class _PersonRegistrationState1 extends State<PersonRegistration> {
                             const SizedBox(width: 12),
                             Expanded(
                               child: Text(
-                                endereco,
-                                style: TextStyle(
+                                formatarEndereco(endereco),                                style: TextStyle(
                                   color: colors.onSurface,
                                   fontSize: 14,
                                   fontWeight: FontWeight.w500,
@@ -225,7 +229,7 @@ class _PersonRegistrationState1 extends State<PersonRegistration> {
                               icon: Icon(Icons.edit, color: colors.primary),
                               onPressed: () async {
                                 final enderecoEditado =
-                                    await Navigator.push<String>(
+                                    await Navigator.push<Endereco>(
                                       context,
                                       MaterialPageRoute(
                                         builder: (context) =>
@@ -235,9 +239,7 @@ class _PersonRegistrationState1 extends State<PersonRegistration> {
                                       ),
                                     );
 
-                                if (enderecoEditado != null &&
-                                    enderecoEditado.isNotEmpty &&
-                                    mounted) {
+                                if (enderecoEditado != null && mounted) {
                                   setState(() {
                                     _enderecos[index] = enderecoEditado;
                                   });
