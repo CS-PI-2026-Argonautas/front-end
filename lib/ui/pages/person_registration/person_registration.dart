@@ -16,7 +16,8 @@ import 'package:frontend/ui/widgets/show_dialog/show_delete_client_dialog.dart';
 import 'package:frontend/ui/widgets/show_snackbar/show_delete_client_snackbar.dart';
 
 class PersonRegistration extends StatefulWidget {
-  const PersonRegistration({super.key});
+  final bool retornarDadosAoFechar;
+  const PersonRegistration({super.key, this.retornarDadosAoFechar = false});
 
   @override
   State<PersonRegistration> createState() => _PersonRegistrationState1();
@@ -43,6 +44,7 @@ class _PersonRegistrationState1 extends State<PersonRegistration> {
 
   final _enderecoController = TextEditingController();
   final _contatoController = TextEditingController();
+  final _nomeController = TextEditingController();
 
   String? _erroEndereco;
   String? _erroContato;
@@ -51,12 +53,12 @@ class _PersonRegistrationState1 extends State<PersonRegistration> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: colors.surface,
-      //widget da appbar
+
       appBar: Header(
         onBack: () {
           Navigator.pop(context);
-        }, //voltar para a tela anterior
-        title: 'Cadastro de clientes', //titulo personalizado
+        },
+        title: 'Cadastro de clientes',
       ),
       body: SafeArea(
         child: SingleChildScrollView(
@@ -80,23 +82,18 @@ class _PersonRegistrationState1 extends State<PersonRegistration> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           FormSectionTile(
-            title: "Informações Pessoais", //titulo do card
-            subtitle:
-                "Complete os campos de identificação abaixo.", //subtitulo do card
+            title: "Informações Pessoais",
+            subtitle: "Complete os campos de identificação abaixo.",
           ),
 
-          FormFieldLabel(
-            icon: Icons.person_outline, //icone do campo do input
-            label: "Nome completo *", //label do campo do input
-          ),
+          FormFieldLabel(icon: Icons.person_outline, label: "Nome completo *"),
 
           TextFormField(
-            decoration: customInputDecoration(
-              hintText: "Digite o nome aqui", //placeholder do campo do input
-            ),
+            controller: _nomeController,
+            decoration: customInputDecoration(hintText: "Digite o nome aqui"),
             validator: (value) {
               if (value == null || value.isEmpty) {
-                return 'Informe o nome'; //mensagem de erro
+                return 'Informe o nome';
               }
               return null;
             },
@@ -223,7 +220,7 @@ class _PersonRegistrationState1 extends State<PersonRegistration> {
                                 ),
                               ),
                             ),
-                            // --- BOTÃO DE EDIÇÃO ---
+
                             IconButton(
                               icon: Icon(Icons.edit, color: colors.primary),
                               onPressed: () async {
@@ -358,23 +355,28 @@ class _PersonRegistrationState1 extends State<PersonRegistration> {
             ),
           ),
 
-          //botões de ação
           ActionButtons(
             formKey: _formKey,
             colors: colors,
             onCancel: () {
-              //botão de cancelar
               MaterialPageRoute(builder: (context) => const Dashboard());
               Navigator.pop(context);
             },
             onCadastrar: () {
-              // botão de cadastrar
               if (_formKey.currentState!.validate()) {
-                Navigator.pushAndRemoveUntil(
-                  context,
-                  MaterialPageRoute(builder: (context) => const Dashboard()),
-                  (route) => false,
-                );
+                if (widget.retornarDadosAoFechar) {
+                  Navigator.pop(context, {
+                    'id': DateTime.now().millisecondsSinceEpoch,
+                    'nome': _nomeController.text.trim(),
+                    'telefone': _contatoController.text.trim(),
+                  });
+                } else {
+                  Navigator.pushAndRemoveUntil(
+                    context,
+                    MaterialPageRoute(builder: (context) => const Dashboard()),
+                    (route) => false,
+                  );
+                }
               }
             },
           ),

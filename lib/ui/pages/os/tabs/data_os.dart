@@ -337,14 +337,23 @@ class _DataOsState extends State<DataOs> {
           subtituloItem: (cliente) => cliente['telefone'].toString(),
           iconeItem: Icons.person_outline,
           carregando: false,
-          onAcao: () {
+          onAcao: () async {
             Navigator.pop(context);
-            Navigator.push(
+
+            final novoCliente = await Navigator.push<Map<String, dynamic>>(
               context,
               MaterialPageRoute(
-                builder: (context) => const PersonRegistration(),
+                builder: (context) =>
+                    const PersonRegistration(retornarDadosAoFechar: true),
               ),
             );
+
+            if (novoCliente != null) {
+              setState(() {
+                clientesDisponiveis.add(novoCliente);
+                clienteSelecionado = novoCliente;
+              });
+            }
           },
           onSelecionar: (cliente) {
             setState(() {
