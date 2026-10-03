@@ -38,7 +38,7 @@ class DataOs extends StatefulWidget {
 
 class _DataOsState extends State<DataOs> {
   final colors = custom_colors.colorScheme;
-
+  bool get _formHabilitado => clienteSelecionado != null;
   late DateTime dataEntrada;
   DateTime? dataSaida;
   late String status;
@@ -352,12 +352,14 @@ class _DataOsState extends State<DataOs> {
               setState(() {
                 clientesDisponiveis.add(novoCliente);
                 clienteSelecionado = novoCliente;
+                enderecoSelecionado = null;
               });
             }
           },
           onSelecionar: (cliente) {
             setState(() {
               clienteSelecionado = cliente;
+              enderecoSelecionado = null;
             });
             Navigator.pop(context);
           },
@@ -443,10 +445,6 @@ class _DataOsState extends State<DataOs> {
           spacing: 18,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            _buildSectionTitle(
-              'Andamento da OS',
-              'Atualize as informações referentes ao conserto do equipamento.',
-            ),
             _buildClienteEnderecoLabel(
               'Cliente *',
               onAdd: _abrirListaClientes,
@@ -460,241 +458,256 @@ class _DataOsState extends State<DataOs> {
             ),
             _buildEnderecoSelecionado(),
 
-            Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              spacing: 10,
-              children: [
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    spacing: 8,
-                    children: [
-                      _buildFieldLabel(
-                        Icons.calendar_today_outlined,
-                        'Entrada',
-                      ),
-                      InkWell(
-                        borderRadius: BorderRadius.circular(14),
-                        onTap: _selecionarDataEntrada,
-                        child: InputDecorator(
-                          decoration: customInputDecoration(hintText: 'Data')
-                              .copyWith(
-                                suffixIcon: const Icon(
-                                  Icons.calendar_month_outlined,
-                                  size: 20,
-                                ),
-                                contentPadding: const EdgeInsets.symmetric(
-                                  horizontal: 12,
-                                  vertical: 14,
-                                ),
-                              ),
-                          child: Text(
-                            _formatDate(dataEntrada),
-                            style: const TextStyle(fontSize: 14),
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
+            if (!_formHabilitado) _buildAvisoSelecioneCliente(),
 
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    spacing: 8,
-                    children: [
-                      _buildFieldLabel(Icons.event_available_outlined, 'Saída'),
-                      InkWell(
-                        borderRadius: BorderRadius.circular(14),
-                        onTap: dataSaida == null ? null : _alterarDataSaida,
-                        child: InputDecorator(
-                          decoration:
-                              customInputDecoration(
-                                hintText: 'Automática',
-                              ).copyWith(
-                                filled: true,
-                                fillColor: Colors.grey.shade100,
-                                suffixIcon: dataSaida == null
-                                    ? const Icon(
-                                        Icons.hourglass_empty,
-                                        color: Colors.grey,
-                                        size: 20,
-                                      )
-                                    : const Icon(
-                                        Icons.edit_calendar_outlined,
-                                        color: Colors.grey,
-                                        size: 20,
-                                      ),
-                                contentPadding: const EdgeInsets.symmetric(
-                                  horizontal: 12,
-                                  vertical: 14,
-                                ),
-                              ),
-                          child: Text(
-                            dataSaida == null
-                                ? 'Indefinida'
-                                : _formatDate(dataSaida),
-                            style: TextStyle(
-                              fontSize: 14,
-                              color: dataSaida == null
-                                  ? Colors.grey.shade600
-                                  : colors.onSurface,
-                            ),
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ],
-            ),
-
-            if (dataSaida != null) ...[
-              Row(
-                spacing: 6,
-                children: [
-                  const Icon(Icons.info_outline, size: 15, color: Colors.grey),
-                  Text(
-                    'Toque para corrigir a data de saída.',
-                    style: TextStyle(
-                      fontSize: 12,
-                      color: colors.onSurfaceVariant,
+            Opacity(
+              opacity: _formHabilitado ? 1.0 : 0.4,
+              child: AbsorbPointer(
+                absorbing: !_formHabilitado,
+                child: Column(
+                  spacing: 18,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    _buildSectionTitle(
+                      'Andamento da OS',
+                      'Atualize as informações referentes ao conserto do equipamento.',
                     ),
-                  ),
-                ],
-              ),
-            ],
 
-            _buildFieldLabel(Icons.sync_alt, 'Status'),
-
-            _buildStatusField(),
-
-            _buildFieldLabel(Icons.description_outlined, 'Relatório'),
-
-            InkWell(
-              onTap: _editarRelatorio,
-              borderRadius: BorderRadius.circular(16),
-              child: Container(
-                width: double.infinity,
-                constraints: const BoxConstraints(minHeight: 130),
-                padding: const EdgeInsets.all(16),
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  border: Border.all(color: Colors.grey.shade400),
-                  borderRadius: BorderRadius.circular(16),
-                ),
-                child: relatorio.isEmpty
-                    ? Row(
-                        spacing: 6,
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Icon(Icons.edit_note, color: colors.onSurfaceVariant),
-                          Expanded(
-                            child: Text(
-                              'Toque para adicionar observações...',
-                              style: TextStyle(
-                                color: colors.onSurfaceVariant,
-                                fontSize: 15,
-                              ),
-                            ),
-                          ),
-                        ],
-                      )
-                    : Column(
-                        spacing: 18,
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            relatorio,
-                            style: const TextStyle(fontSize: 15, height: 1.45),
-                          ),
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.end,
+                    Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      spacing: 10,
+                      children: [
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            spacing: 8,
                             children: [
-                              Icon(
-                                Icons.edit_outlined,
-                                size: 17,
-                                color: colors.primary,
+                              _buildFieldLabel(
+                                Icons.calendar_today_outlined,
+                                'Entrada',
                               ),
-                              Text(
-                                'Editar',
-                                style: TextStyle(
-                                  color: colors.primary,
-                                  fontWeight: FontWeight.bold,
+                              InkWell(
+                                borderRadius: BorderRadius.circular(14),
+                                onTap: _selecionarDataEntrada,
+                                child: InputDecorator(
+                                  decoration:
+                                      customInputDecoration(
+                                        hintText: 'Data',
+                                      ).copyWith(
+                                        suffixIcon: const Icon(
+                                          Icons.calendar_month_outlined,
+                                          size: 20,
+                                        ),
+                                        contentPadding:
+                                            const EdgeInsets.symmetric(
+                                              horizontal: 12,
+                                              vertical: 14,
+                                            ),
+                                      ),
+                                  child: Text(
+                                    _formatDate(dataEntrada),
+                                    style: const TextStyle(fontSize: 14),
+                                  ),
                                 ),
                               ),
                             ],
                           ),
+                        ),
+
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            spacing: 8,
+                            children: [
+                              _buildFieldLabel(
+                                Icons.event_available_outlined,
+                                'Saída',
+                              ),
+                              InkWell(
+                                borderRadius: BorderRadius.circular(14),
+                                onTap: _alterarDataSaida,
+                                child: InputDecorator(
+                                  decoration:
+                                      customInputDecoration(
+                                        hintText: 'Automática',
+                                      ).copyWith(
+                                        filled: true,
+                                        fillColor: Colors.grey.shade100,
+                                        suffixIcon: dataSaida == null
+                                            ? const Icon(
+                                                Icons.hourglass_empty,
+                                                color: Colors.grey,
+                                                size: 20,
+                                              )
+                                            : const Icon(
+                                                Icons.edit_calendar_outlined,
+                                                color: Colors.grey,
+                                                size: 20,
+                                              ),
+                                        contentPadding:
+                                            const EdgeInsets.symmetric(
+                                              horizontal: 12,
+                                              vertical: 14,
+                                            ),
+                                      ),
+                                  child: Text(
+                                    dataSaida == null
+                                        ? 'Indefinida'
+                                        : _formatDate(dataSaida),
+                                    style: TextStyle(
+                                      fontSize: 14,
+                                      color: dataSaida == null
+                                          ? Colors.grey.shade600
+                                          : colors.onSurface,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
+
+                    if (dataSaida != null) ...[
+                      Row(
+                        spacing: 6,
+                        children: [
+                          const Icon(
+                            Icons.info_outline,
+                            size: 15,
+                            color: Colors.grey,
+                          ),
+                          Text(
+                            'Toque para corrigir a data de saída.',
+                            style: TextStyle(
+                              fontSize: 12,
+                              color: colors.onSurfaceVariant,
+                            ),
+                          ),
                         ],
                       ),
-              ),
-            ),
+                    ],
 
-            Text(
-              '${relatorio.length}/256 caracteres',
-              style: TextStyle(fontSize: 12, color: colors.onSurfaceVariant),
-            ),
+                    _buildFieldLabel(Icons.sync_alt, 'Status'),
 
-            SizedBox(
-              width: double.infinity,
-              child: ElevatedButton.icon(
-                onPressed: () {
-                  DefaultTabController.of(context).animateTo(1);
-                },
-                icon: const Icon(Icons.build),
-                label: const Text(
-                  'Adicionar Peças',
-                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                    _buildStatusField(),
+
+                    _buildFieldLabel(Icons.description_outlined, 'Relatório'),
+
+                    InkWell(
+                      onTap: _editarRelatorio,
+                      borderRadius: BorderRadius.circular(16),
+                      child: Container(
+                        width: double.infinity,
+                        constraints: const BoxConstraints(minHeight: 130),
+                        padding: const EdgeInsets.all(16),
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          border: Border.all(color: Colors.grey.shade400),
+                          borderRadius: BorderRadius.circular(16),
+                        ),
+                        child: relatorio.isEmpty
+                            ? Row(
+                                spacing: 6,
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Icon(
+                                    Icons.edit_note,
+                                    color: colors.onSurfaceVariant,
+                                  ),
+                                  Expanded(
+                                    child: Text(
+                                      'Toque para adicionar observações...',
+                                      style: TextStyle(
+                                        color: colors.onSurfaceVariant,
+                                        fontSize: 15,
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              )
+                            : Column(
+                                spacing: 18,
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    relatorio,
+                                    style: const TextStyle(
+                                      fontSize: 15,
+                                      height: 1.45,
+                                    ),
+                                  ),
+                                  Row(
+                                    mainAxisAlignment: MainAxisAlignment.end,
+                                    children: [
+                                      Icon(
+                                        Icons.edit_outlined,
+                                        size: 17,
+                                        color: colors.primary,
+                                      ),
+                                      Text(
+                                        'Editar',
+                                        style: TextStyle(
+                                          color: colors.primary,
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ],
+                              ),
+                      ),
+                    ),
+
+                    Text(
+                      '${relatorio.length}/256 caracteres',
+                      style: TextStyle(
+                        fontSize: 12,
+                        color: colors.onSurfaceVariant,
+                      ),
+                    ),
+
+                    SizedBox(
+                      width: double.infinity,
+                      child: ElevatedButton.icon(
+                        onPressed: () {
+                          DefaultTabController.of(context).animateTo(1);
+                        },
+                        icon: const Icon(Icons.build),
+                        label: const Text(
+                          'Adicionar Peças',
+                          style: TextStyle(
+                            fontWeight: FontWeight.bold,
+                            fontSize: 16,
+                          ),
+                        ),
+                        style: ElevatedButton.styleFrom(
+                          elevation: 3,
+                          backgroundColor: colors.primary,
+                          foregroundColor: colors.onSecondary,
+                          padding: const EdgeInsets.symmetric(vertical: 18),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(14),
+                          ),
+                        ),
+                      ),
+                    ),
+
+                    Center(
+                      child: Text(
+                        'A conclusão da OS não altera a data de saída.',
+                        textAlign: TextAlign.center,
+                        style: TextStyle(
+                          fontSize: 12,
+                          color: colors.onSurfaceVariant,
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
-                style: ElevatedButton.styleFrom(
-                  elevation: 3,
-                  backgroundColor: colors.primary,
-                  foregroundColor: colors.onSecondary,
-                  padding: const EdgeInsets.symmetric(vertical: 18),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(14),
-                  ),
-                ),
               ),
             ),
-
-            Center(
-              child: Text(
-                'A conclusão da OS não altera a data de saída.',
-                textAlign: TextAlign.center,
-                style: TextStyle(fontSize: 12, color: colors.onSurfaceVariant),
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildClienteCard() {
-    return Card(
-      color: Colors.white,
-      elevation: 8,
-      shadowColor: Colors.black26,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(22)),
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 28),
-        child: Column(
-          spacing: 18,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            _buildClienteEnderecoLabel(
-              'Cliente *',
-              onAdd: _abrirListaClientes,
-              addLabel: 'Adicionar cliente',
-            ),
-            _buildClienteSelecionado(),
-            _buildClienteEnderecoLabel(
-              'Endereço *',
-              onAdd: _abrirListaEnderecos,
-              addLabel: 'Adicionar Endereço',
-            ),
-            _buildEnderecoSelecionado(),
           ],
         ),
       ),
@@ -826,6 +839,30 @@ class _DataOsState extends State<DataOs> {
             onPressed: _abrirListaEnderecos,
             icon: Icon(Icons.sync_alt, color: colors.primary),
             tooltip: 'Trocar endereço',
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildAvisoSelecioneCliente() {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: Colors.amber.shade50,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: Colors.amber.shade300),
+      ),
+      child: Row(
+        children: [
+          Icon(Icons.info_outline, color: Colors.amber.shade800, size: 18),
+          const SizedBox(width: 8),
+          Expanded(
+            child: Text(
+              'Selecione um cliente para liberar os demais campos.',
+              style: TextStyle(fontSize: 13, color: Colors.amber.shade900),
+            ),
           ),
         ],
       ),
