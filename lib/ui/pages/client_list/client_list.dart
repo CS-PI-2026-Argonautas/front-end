@@ -12,7 +12,6 @@ import 'package:frontend/ui/widgets/menu.dart';
 import 'package:frontend/ui/widgets/show_dialog/show_delete_client_dialog.dart';
 import 'package:frontend/ui/widgets/show_snackbar/show_delete_client_snackbar.dart';
 import 'package:frontend/ui/widgets/slidable/slidable_delete_card.dart';
-import 'package:frontend/utils/data_os/address_formatter.dart';
 
 class ClientList extends StatefulWidget {
   const ClientList({super.key});
@@ -50,15 +49,31 @@ class _ClientListState extends State<ClientList> {
     return Scaffold(
       backgroundColor: colors.surface,
       appBar: AppBar(
-        backgroundColor: colors.primary,
+        // Remove a cor sólida para que o flexibeSpace com gradiente apareça
+        backgroundColor: Colors.transparent, 
         foregroundColor: colors.onPrimary,
         centerTitle: true,
+        elevation: 8, // Define a intensidade da sombra da AppBar
+        shadowColor: Colors.black.withOpacity(0.5), // Cor da sombra
         title: const Text(
-          'Listar Clientes',
+          'Listar clientes',
           style: TextStyle(
             color: Colors.white,
             fontWeight: FontWeight.bold,
             fontSize: 20,
+          ),
+        ),
+        // Adiciona o gradiente de cor no fundo da AppBar
+        flexibleSpace: Container(
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              colors: [
+                colors.primary, 
+                colors.tertiary,
+              ],
+              begin: Alignment.centerLeft,
+              end: Alignment.centerRight,
+            ),
           ),
         ),
       ),
@@ -106,7 +121,7 @@ class _ClientListState extends State<ClientList> {
                     filled: true,
                     fillColor: Colors.white,
                     hintStyle: TextStyle(color: colors.onSurface),
-                    prefixIcon: const Icon(Icons.search),
+                    prefixIcon: Icon(Icons.search, color: colors.tertiary),
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(14),
                       borderSide: BorderSide.none,
@@ -121,9 +136,9 @@ class _ClientListState extends State<ClientList> {
                       ElevatedButton.icon(
                         onPressed: () {},
                         icon: const Icon(Icons.tune),
-                        label: const Text('FILTRAR'),
+                        label: const Text('Filtrar', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14.8)),
                         style: ElevatedButton.styleFrom(
-                          backgroundColor: colors.primary,
+                          backgroundColor: colors.secondary,
                           foregroundColor: Colors.white,
                         ),
                       ),
@@ -132,9 +147,9 @@ class _ClientListState extends State<ClientList> {
                         child: ElevatedButton.icon(
                           onPressed: () {},
                           icon: const Icon(Icons.swap_vert),
-                          label: const Text('ORDENAR'),
+                          label: const Text('Ordenar',style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14.8)),
                           style: ElevatedButton.styleFrom(
-                            backgroundColor: colors.primary,
+                            backgroundColor: colors.secondary,
                             foregroundColor: Colors.white,
                           ),
                         ),
@@ -199,8 +214,8 @@ class _ClientListState extends State<ClientList> {
             MaterialPageRoute(builder: (context) => const PersonRegistration()),
           );
         },
-        backgroundColor: colors.primary,
-        foregroundColor: colors.onPrimary,
+        backgroundColor: colors.tertiary,
+        foregroundColor: colors.onTertiary,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
         child: const Icon(Icons.add),
       ),
@@ -208,111 +223,109 @@ class _ClientListState extends State<ClientList> {
   }
 
   // construo meus cards
-  Widget _buildClientCard(Cliente cliente) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 16),
-      child: ClipRRect(
-        borderRadius: BorderRadius.circular(16),
-        child: SlidableDeleteCard(
-          slidableKey: ValueKey(cliente.id),
-          onDelete: () async {
-            final confimarExclusao =
-                await showDialog(
-                  context: context,
-                  builder: (_) => ShowDeleteClientDialog(nome: cliente.nome),
-                ) ??
-                false;
+ Widget _buildClientCard(Cliente cliente) {
+  return Padding(
+    padding: const EdgeInsets.only(bottom: 16),
+    child: SlidableDeleteCard(
+      slidableKey: ValueKey(cliente.id),
+      onDelete: () async {
+        final confimarExclusao =
+            await showDialog(
+              context: context,
+              builder: (_) => ShowDeleteClientDialog(nome: cliente.nome),
+            ) ??
+            false;
 
-            if (!confimarExclusao) return;
+        if (!confimarExclusao) return;
 
-            await _deletarCliente(cliente);
+        await _deletarCliente(cliente);
 
-            _carregarClientes();
+        _carregarClientes();
 
-            if (!mounted) return;
+        if (!mounted) return;
 
-            final messenger = ScaffoldMessenger.of(context);
+        final messenger = ScaffoldMessenger.of(context);
 
-            messenger.hideCurrentSnackBar();
+        messenger.hideCurrentSnackBar();
 
-            messenger.showSnackBar(
-              ShowDeleteClientSnackbar(
-                color: colors.primary,
-                onPressed: () {
-                  cliente.removido = false;
+        messenger.showSnackBar(
+          ShowDeleteClientSnackbar(
+            color: colors.primary,
+            onPressed: () {
+              cliente.removido = false;
 
-                  _carregarClientes();
+              _carregarClientes();
 
-                  messenger.hideCurrentSnackBar();
-                },
-                duration: Duration(seconds: 5),
-              ),
-            );
-          },
-          extentRatio: 0.20,
-          child: Container(
-            padding: const EdgeInsets.all(10.0),
-            decoration: BoxDecoration(
-              color: colors.surfaceContainer,
-              border: Border.all(color: colors.primary, width: 1.5),
-              borderRadius: BorderRadius.circular(16),
-            ),
-            child: Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        cliente.nome,
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                        style: TextStyle(
-                          color: colors.onSurface,
-                          fontSize: 18,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                      // EM TESTE 
-                      Text(
-                        cliente.enderecos.isEmpty
-                            ? 'Nenhum endereço cadastrado'
-                            : formatarEndereco(cliente.enderecos.first),
-                      ),
-                      // Text(
-                      //   cliente.endereco,
-                      //   style: TextStyle(
-                      //     color: colors.onSurfaceVariant,
-                      //     fontSize: 14,
-                      //   ),
-                      // ),
-                      Text(
-                        cliente.info_contato,
-                        style: TextStyle(
-                          color: colors.onSurfaceVariant,
-                          fontSize: 14,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-                IconButton(
-                  icon: Icon(Icons.edit, color: colors.primary),
-                  onPressed: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => const PersonAlteration(),
-                      ),
-                    );
-                  },
-                ),
-              ],
-            ),
+              messenger.hideCurrentSnackBar();
+            },
+            duration: const Duration(seconds: 5),
           ),
+        );
+      },
+      extentRatio: 0.20,
+      child: Container(
+        padding: const EdgeInsets.all(10.0),
+        decoration: BoxDecoration(
+          color: colors.surfaceContainer,
+          borderRadius: BorderRadius.circular(12),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.12),
+              blurRadius: 10,
+              spreadRadius: 1,
+              offset: const Offset(0, 5),
+            ),
+          ],
+        ),
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    cliente.nome,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: TextStyle(
+                      color: Colors.blueGrey.shade600,
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  Text(
+                    cliente.endereco,
+                    style: TextStyle(
+                      color: colors.onSurfaceVariant,
+                      fontSize: 14,
+                    ),
+                  ),
+                  Text(
+                    cliente.info_contato,
+                    style: TextStyle(
+                      color: colors.onSurfaceVariant,
+                      fontSize: 14,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            IconButton(
+              icon: Icon(Icons.edit, color: colors.secondary),
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => const PersonAlteration(),
+                  ),
+                );
+              },
+            ),
+          ],
         ),
       ),
-    );
-  }
+    ),
+  );
+}
 }

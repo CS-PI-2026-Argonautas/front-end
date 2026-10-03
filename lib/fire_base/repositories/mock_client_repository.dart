@@ -10,26 +10,13 @@ class MockClientRepository implements ClientRepository {
 
   factory MockClientRepository() => _instance;
 
-//TESTES SEM ENDERECO
   final List<Cliente> _bd = [
-    Cliente(nome: 'Giovanna', 
-    //endereco: 'Rua x', 
-    info_contato: '999198999'),
-    Cliente(nome: 'Murilo', 
-    //endereco: 'Rua y', 
-    info_contato: '111111111'),
-    Cliente(nome: 'Isaque', 
-    //endereco: 'Rua p', 
-    info_contato: '411819111'),
-    Cliente(nome: 'Maria', 
-    //endereco: 'Rua j', 
-    info_contato: '111311311'),
-    Cliente(nome: 'Felipe', 
-    //endereco: 'Rua w', 
-    info_contato: '112219171'),
-    Cliente(nome: 'Arthur', 
-    //endereco: 'Rua w', 
-    info_contato: '812333178'),
+    Cliente(nome: 'Giovanna', endereco: 'Rua x', info_contato: '999198999'),
+    Cliente(nome: 'Murilo', endereco: 'Rua y', info_contato: '111111111'),
+    Cliente(nome: 'Isaque', endereco: 'Rua p', info_contato: '411819111'),
+    Cliente(nome: 'Maria', endereco: 'Rua j', info_contato: '111311311'),
+    Cliente(nome: 'Felipe', endereco: 'Rua w', info_contato: '112219171'),
+    Cliente(nome: 'Arthur', endereco: 'Rua w', info_contato: '812333178'),
   ];
 
   @override

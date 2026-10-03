@@ -31,17 +31,17 @@ class Endereco {
   factory Endereco.fromFirestore(
   DocumentSnapshot<Map<String, dynamic>> doc,
 ) {
-  final data = doc.data()!;
+    final data = {
+      for (final e in doc.data()!.entries) e.key.trim(): e.value,
+    };
 
     return Endereco(
       id: doc.id,
-      cep: data['cep'] ?? '',
-      rua: data['rua'] ?? '',
-      cidade: data['cidade'] ?? '',
-      numero: data['numero'] ?? 'S/N',
-      uf: Uf.values.firstWhere(
-        (uf) => uf.name == data['uf'],
-      ),
+      cep: data['cep'] ?? ''.toString().trim(),
+      rua: data['rua'] ?? ''.toString().trim(),
+      cidade: data['cidade'] ?? ''.toString().trim(),
+      numero: (data['numero'] ?? 'S/N').toString(),
+      uf: Uf.values.firstWhere((u) => u.name == (data['uf'] as String?)?.toUpperCase(), orElse: () => Uf.PR)
     );
   }
 }
