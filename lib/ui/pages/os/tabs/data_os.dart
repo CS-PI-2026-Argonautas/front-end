@@ -1,9 +1,13 @@
 import 'package:flutter/material.dart';
+import 'package:frontend/fire_base/services/cliente_service.dart';
+import 'package:frontend/fire_base/services/endereco_service.dart';
+import 'package:frontend/fire_base/models/endereco.dart';
+import 'package:frontend/ui/pages/person_registration/person_registration_address.dart';
 import 'package:frontend/ui/style/ColorScheme.dart' as custom_colors;
 import 'package:frontend/ui/style/inputDecorationStyles.dart';
 import 'package:frontend/ui/widgets/bottom_sheet/bottom_sheet.dart';
+import 'package:frontend/utils/data_os/address_formatter.dart';
 import 'package:frontend/ui/pages/person_registration/person_registration.dart';
-import 'package:frontend/ui/pages/person_registration/person_registration_address.dart';
 
 class DataOs extends StatefulWidget {
   final DateTime? dataEntrada;
@@ -38,6 +42,14 @@ class DataOs extends StatefulWidget {
 
 class _DataOsState extends State<DataOs> {
   final colors = custom_colors.colorScheme;
+
+  final EnderecoService _enderecoService = EnderecoService();
+  Endereco? _enderecoSelecionado;
+
+  final ClienteService _clienteService = ClienteService();
+  List<Map<String, dynamic>> clientesDisponiveis = [];
+  Map<String, dynamic>? clienteSelecionado;
+
   bool get _formHabilitado => clienteSelecionado != null;
   late DateTime dataEntrada;
   DateTime? dataSaida;
@@ -46,23 +58,11 @@ class _DataOsState extends State<DataOs> {
 
   final _relatorioController = TextEditingController();
 
-  // gambiarra (giovanna), quando o banco estiver populado, uso o mesmo
-  final List<Map<String, dynamic>> clientesDisponiveis = [
-    {"id": 1, "nome": "João Silva", "telefone": "(44) 99876-5432"},
-    {"id": 2, "nome": "Maria Santos", "telefone": "(44) 98765-4321"},
-    {"id": 3, "nome": "Carlos Oliveira", "telefone": "(44) 99123-4567"},
-    {"id": 4, "nome": "Ana Paula", "telefone": "(44) 99988-7766"},
-  ];
-
-  Map<String, dynamic>? clienteSelecionado;
-
-  final List<Map<String, dynamic>> enderecosDisponiveis = [
-    {"id": 1, "rua": "Rua das Flores, 123", "bairro": "Centro"},
-    {"id": 2, "rua": "Av. Brasil, 456", "bairro": "Jardim América"},
-    {"id": 3, "rua": "Rua XV de Novembro, 789", "bairro": "Vila Nova"},
-  ];
-
-  Map<String, dynamic>? enderecoSelecionado;
+  bool get _formValido {
+    return clienteSelecionado != null &&
+        _enderecoSelecionado != null &&
+        relatorio.trim().isNotEmpty;
+  }
 
   static const editableStatuses = [
     'CANCELADA',
@@ -83,6 +83,8 @@ class _DataOsState extends State<DataOs> {
 
     relatorio = widget.relatorio ?? '';
     _relatorioController.text = relatorio;
+
+    _carregarClientes();
   }
 
   @override
@@ -100,6 +102,48 @@ class _DataOsState extends State<DataOs> {
         status = widget.status!;
       });
     }
+  }
+
+    bool _validarFormulario() {
+    if (clienteSelecionado == null) {
+      _mostrarErro('Selecione um cliente.');
+      return false;
+    }
+
+    if (_enderecoSelecionado == null) {
+      _mostrarErro('Selecione um endereço.');
+      return false;
+    }
+
+    if (relatorio.trim().isEmpty) {
+      _mostrarErro('Preencha o relatório da OS.');
+      return false;
+    }
+
+    return true;
+  }
+
+  void _mostrarErro(String mensagem) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(mensagem),
+        behavior: SnackBarBehavior.floating,
+      ),
+    );
+  }
+
+  Future<void> _carregarClientes() async {
+    final clientes = await _clienteService.listar();
+
+    setState(() {
+      clientesDisponiveis = clientes.map((c) {
+        return {
+          'id': c.id,
+          'nome': c.nome,
+          'telefone': c.info_contato,
+        };
+      }).toList();
+    });
   }
 
   String _formatDate(DateTime? date) {
@@ -352,14 +396,14 @@ class _DataOsState extends State<DataOs> {
               setState(() {
                 clientesDisponiveis.add(novoCliente);
                 clienteSelecionado = novoCliente;
-                enderecoSelecionado = null;
+                _enderecoSelecionado = null;
               });
             }
           },
           onSelecionar: (cliente) {
             setState(() {
               clienteSelecionado = cliente;
-              enderecoSelecionado = null;
+              _enderecoSelecionado = null;
             });
             Navigator.pop(context);
           },
@@ -368,7 +412,24 @@ class _DataOsState extends State<DataOs> {
     );
   }
 
-  void _abrirListaEnderecos() {
+  Future<void> _abrirListaEnderecos() async {
+    final List<Endereco> enderecos;
+
+    try {
+      enderecos = await _enderecoService.listByCliente(clienteSelecionado!['id'].toString());
+    } catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Não foi possível carregar os endereços.'),
+          behavior: SnackBarBehavior.floating,
+        ),
+      );
+      return;
+    }
+
+    if (!mounted) return;
+
     showModalBottomSheet(
       context: context,
       backgroundColor: colors.surface,
@@ -377,41 +438,31 @@ class _DataOsState extends State<DataOs> {
         borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
       ),
       builder: (context) {
-        return SelectionBottomSheet<Map<String, dynamic>>(
+        return SelectionBottomSheet<Endereco>(
           titulo: 'Selecionar endereço',
-          itens: enderecosDisponiveis,
+          itens: enderecos,
           textoBusca: 'Procurar endereço',
           textoAcao: 'Novo endereço',
-          tituloItem: (endereco) => endereco['rua'].toString(),
-          subtituloItem: (endereco) => endereco['bairro'].toString(),
+          tituloItem: (endereco) => '${endereco.rua}, ${endereco.numero}, ${endereco.complemento}',
+          subtituloItem: (endereco) =>
+              '${endereco.cidade} - ${endereco.uf.name} • CEP ${endereco.cep}',
           iconeItem: Icons.location_on_outlined,
           carregando: false,
           onAcao: () async {
             Navigator.pop(context);
-
-            final novoEndereco = await Navigator.push<String>(
+            final novo = await Navigator.push<Endereco>(
               context,
-              MaterialPageRoute(
-                builder: (context) => const PersonRegistrationAddress(),
-              ),
+              MaterialPageRoute(builder: (_) => const PersonRegistrationAddress()),
             );
-
-            if (novoEndereco != null && novoEndereco.isNotEmpty) {
-              final enderecoMap = {
-                "id": DateTime.now().millisecondsSinceEpoch,
-                "rua": novoEndereco,
-                "bairro": "",
-              };
-
-              setState(() {
-                enderecosDisponiveis.add(enderecoMap);
-                enderecoSelecionado = enderecoMap;
-              });
-            }
+            if (novo == null) return;
+            final salvo = await _enderecoService
+                .saveForCliente(clienteSelecionado!['id'].toString(), novo);
+            if (!mounted) return;
+            setState(() => _enderecoSelecionado = salvo);
           },
           onSelecionar: (endereco) {
             setState(() {
-              enderecoSelecionado = endereco;
+              _enderecoSelecionado = endereco;
             });
             Navigator.pop(context);
           },
@@ -646,13 +697,6 @@ class _DataOsState extends State<DataOs> {
                                         size: 17,
                                         color: colors.primary,
                                       ),
-                                      Text(
-                                        'Editar',
-                                        style: TextStyle(
-                                          color: colors.primary,
-                                          fontWeight: FontWeight.bold,
-                                        ),
-                                      ),
                                     ],
                                   ),
                                 ],
@@ -671,9 +715,13 @@ class _DataOsState extends State<DataOs> {
                     SizedBox(
                       width: double.infinity,
                       child: ElevatedButton.icon(
-                        onPressed: () {
-                          DefaultTabController.of(context).animateTo(1);
-                        },
+                        onPressed: _formValido
+                            ? () {
+                                if (!_validarFormulario()) return;
+
+                                DefaultTabController.of(context).animateTo(1);
+                              }
+                            : null,
                         icon: const Icon(Icons.build),
                         label: const Text(
                           'Adicionar Peças',
@@ -683,9 +731,11 @@ class _DataOsState extends State<DataOs> {
                           ),
                         ),
                         style: ElevatedButton.styleFrom(
-                          elevation: 3,
+                          elevation: _formValido ? 3 : 0,
                           backgroundColor: colors.primary,
                           foregroundColor: colors.onSecondary,
+                          disabledBackgroundColor: Colors.grey.shade300,
+                          disabledForegroundColor: Colors.grey.shade600,
                           padding: const EdgeInsets.symmetric(vertical: 18),
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(14),
@@ -798,7 +848,8 @@ class _DataOsState extends State<DataOs> {
   }
 
   Widget _buildEnderecoSelecionado() {
-    if (enderecoSelecionado == null) return const SizedBox.shrink();
+    final endereco = _enderecoSelecionado;
+    if (endereco == null) return const SizedBox.shrink();
 
     return Container(
       width: double.infinity,
@@ -825,7 +876,7 @@ class _DataOsState extends State<DataOs> {
                 ),
                 const SizedBox(height: 2),
                 Text(
-                  enderecoSelecionado!['rua'],
+                  formatarEndereco(endereco),
                   style: TextStyle(
                     color: colors.onSurface,
                     fontSize: 16,

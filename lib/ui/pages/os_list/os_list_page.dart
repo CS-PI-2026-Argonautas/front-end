@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:frontend/fire_base/models/os.dart';
+import 'package:frontend/fire_base/models/services.dart';
 import 'package:frontend/ui/pages/dashboard.dart';
 import 'package:frontend/ui/pages/edit_item/item_edition.dart';
 import 'package:frontend/ui/pages/os/tabbar/tabbar.dart';
@@ -20,9 +20,9 @@ class OsListPage extends StatefulWidget {
 }
 
 class _OsListPageState extends State<OsListPage> {
-  final MockOsRepository _repository = MockOsRepository();
+  final MockOSRepository _repository = MockOSRepository();
   
-  late Future<List<OrdemServicos>> _futureOrdemServicos;
+  late Future<List<Services>> _futureOrdemServicos;
 
   final colors = custom_colors.colorScheme;
 
@@ -33,7 +33,7 @@ class _OsListPageState extends State<OsListPage> {
   }
 
   void _carregarOrdemServicos() {
-    final Future<List<OrdemServicos>> os = _repository.listarTodos();
+    final Future<List<Services>> os = _repository.getAll();
 
     setState(() {
       _futureOrdemServicos = os;
@@ -55,8 +55,8 @@ class _OsListPageState extends State<OsListPage> {
     }
   }
 
-  Future<void> _deletarOrdemServicos(OrdemServicos os) async {
-    os.removido = true;
+  Future<void> _deletarOrdemServicos(Services os) async {
+    await _repository.delete(os.id);
   }
 
   @override
@@ -218,7 +218,7 @@ class _OsListPageState extends State<OsListPage> {
                 ),
 
                 // Aqui carrego as ordens de serviço
-                FutureBuilder<List<OrdemServicos>>(
+                FutureBuilder<List<Services>>(
                   future: _futureOrdemServicos,
                   builder: (context, snapshot) {
                     if (snapshot.connectionState == ConnectionState.waiting) {
@@ -286,7 +286,7 @@ class _OsListPageState extends State<OsListPage> {
   }
 
   // Construo os cards
-  Widget _buildClientCard(OrdemServicos os) {
+  Widget _buildClientCard(Services os) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 16),
       child: SlidableDeleteCard(
@@ -297,7 +297,7 @@ class _OsListPageState extends State<OsListPage> {
               await showDialog(
                 context: context,
                 builder: (_) => ShowDeleteOsDialog(
-                  nome: os.nome,
+                  nome: os.name,
                 ),
               ) ??
               false;
@@ -317,8 +317,8 @@ class _OsListPageState extends State<OsListPage> {
           messenger.showSnackBar(
             ShowDeleteOsSnackbar(
               color: colors.primary,
-              onPressed: () {
-                os.removido = false;
+              onPressed: () async {
+                await _repository.restore(os.id);
 
                 _carregarOrdemServicos();
 
@@ -354,7 +354,7 @@ class _OsListPageState extends State<OsListPage> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      '#${os.id} - ${os.nome}', 
+                      '#${os.id} - ${os.name}', 
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                       style: TextStyle(
@@ -365,7 +365,7 @@ class _OsListPageState extends State<OsListPage> {
                     ),
 
                     Text(
-                      os.cidade,
+                      os.city,
                       style: TextStyle(
                         color: colors.onSurfaceVariant,
                         fontSize: 14,
@@ -373,9 +373,9 @@ class _OsListPageState extends State<OsListPage> {
                     ),
                   
                     Text(
-                      os.statusOdemDeServico,
+                      os.status,
                       style: TextStyle(
-                        color: _obterCorDoStatus(os.statusOdemDeServico),
+                        color: _obterCorDoStatus(os.status),
                         fontSize: 14,
                       ),
                     ),
