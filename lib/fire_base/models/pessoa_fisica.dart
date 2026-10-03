@@ -6,6 +6,6 @@ class PessoaFisica extends Cliente {
 
   PessoaFisica({required this.cpf,
                 required super.nome,
-                required super.endereco,
+                //required super.endereco,
                 required super.info_contato});
 }

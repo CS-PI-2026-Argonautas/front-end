@@ -294,13 +294,13 @@ class _ClientListState extends State<ClientList> {
                       fontWeight: FontWeight.bold,
                     ),
                   ),
-                  Text(
-                    cliente.endereco,
-                    style: TextStyle(
-                      color: colors.onSurfaceVariant,
-                      fontSize: 14,
-                    ),
-                  ),
+                  // Text(
+                  //   cliente.endereco,
+                  //   style: TextStyle(
+                  //     color: colors.onSurfaceVariant,
+                  //     fontSize: 14,
+                  //   ),
+                  // ),
                   Text(
                     cliente.info_contato,
                     style: TextStyle(

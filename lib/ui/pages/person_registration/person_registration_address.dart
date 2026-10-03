@@ -50,6 +50,7 @@ class _PersonRegistration2State extends State<PersonRegistrationAddress> {
 
   final _cepController = TextEditingController();
   final _ruaController = TextEditingController();
+  final _complementoController = TextEditingController();
   final _cidadeController = TextEditingController();
   final _numeroController = TextEditingController();
   final _ufController = TextEditingController();
@@ -69,6 +70,7 @@ class _PersonRegistration2State extends State<PersonRegistrationAddress> {
 
     _cepController.text = endereco.cep;
     _ruaController.text = endereco.rua;
+    _complementoController.text = endereco.complemento;
     _cidadeController.text = endereco.cidade;
     _numeroController.text = endereco.numero;
     _ufController.text = endereco.uf.name;
@@ -141,6 +143,13 @@ class _PersonRegistration2State extends State<PersonRegistrationAddress> {
                 (value == null || value.isEmpty) ? 'Informe a rua' : null,
           ),
 
+          FormFieldLabel(icon: Icons.apartment_outlined, label: "Complemento"),
+
+          TextFormField(
+            controller: _complementoController,
+            decoration: customInputDecoration(hintText: "Sala 2, fundos..."),
+          ),
+
           FormFieldLabel(icon: Icons.location_city_outlined, label: "Cidade *"),
 
           TextFormField(
@@ -196,7 +205,7 @@ class _PersonRegistration2State extends State<PersonRegistrationAddress> {
                         if (value == null || value.isEmpty) {
                           return 'Informe a UF';
                         }
-                        if (value.length != 2) {
+                        if (!Uf.values.any((u) => u.name == value.toUpperCase())) {
                           return 'UF inválida';
                         }
                         return null;
@@ -221,6 +230,7 @@ class _PersonRegistration2State extends State<PersonRegistrationAddress> {
 
               final cep = _cepController.text.trim();
               final rua = _ruaController.text.trim();
+              final complemento = _complementoController.text.trim();
               final cidade = _cidadeController.text.trim();
               final numero = _numeroController.text.trim();
               final ufTexto = _ufController.text.trim().toUpperCase();
@@ -231,8 +241,10 @@ class _PersonRegistration2State extends State<PersonRegistrationAddress> {
 
               final endereco = Endereco(
                 id: widget.enderecoInicial?.id,
+                clienteId: widget.enderecoInicial?.clienteId,
                 cep: cep,
                 rua: rua,
+                complemento: complemento,
                 cidade: cidade,
                 numero: numero.isEmpty ? 'S/N' : numero,
                 uf: uf,
