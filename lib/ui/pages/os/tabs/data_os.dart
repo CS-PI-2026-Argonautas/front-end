@@ -446,7 +446,7 @@ class _DataOsState extends State<DataOs> {
             _buildClienteSelecionado(),
             _buildClienteEnderecoLabel(
               'Endereço *',
-              onAdd: _abrirListaEnderecos,
+              onAdd: clienteSelecionado == null ? null : _abrirListaEnderecos,
               addLabel: 'Adicionar Endereço',
             ),
             _buildEnderecoSelecionado(),
@@ -708,7 +708,7 @@ class _DataOsState extends State<DataOs> {
           ),
         ),
         const Spacer(),
-        if (onAdd != null)
+        if (onAdd != null || addLabel.isNotEmpty)
           ElevatedButton.icon(
             onPressed: onAdd,
             icon: const Icon(Icons.add, size: 18),
