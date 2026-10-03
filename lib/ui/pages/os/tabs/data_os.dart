@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:frontend/fire_base/services/cliente_service.dart';
 import 'package:frontend/fire_base/services/endereco_service.dart';
 import 'package:frontend/fire_base/models/endereco.dart';
-import 'package:frontend/tozip/person_registration/person_registration_address.dart';
+import 'package:frontend/ui/pages/person_registration/person_registration_address.dart';
 import 'package:frontend/ui/style/ColorScheme.dart' as custom_colors;
 import 'package:frontend/ui/style/inputDecorationStyles.dart';
 import 'package:frontend/ui/widgets/bottom_sheet/bottom_sheet.dart';
