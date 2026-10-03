@@ -6,9 +6,8 @@ class Cliente {
   final String nome;
   final String info_contato;
 
-  /// NÃO é gravada no documento do cliente. É preenchida pelo
-  /// ClienteRepository a partir da coleção `addresses`
-  /// (where clienteId == id). Lista mutável de propósito.
+  /// NÃO é gravada no documento do cliente. É preenchida depois, a partir
+  /// da coleção `addresses` (where clienteId == id).
   List<Endereco> enderecos;
 
   // usado para o soft delete
@@ -18,9 +17,9 @@ class Cliente {
     this.id,
     required this.nome,
     required this.info_contato,
-    List<Endereco>? enderecos,
+    this.enderecos = const [],
     this.removido = false,
-  }) : enderecos = enderecos ?? [];
+  });
 
   Map<String, dynamic> toFirestore() {
     return {

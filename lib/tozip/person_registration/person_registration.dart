@@ -1,0 +1,389 @@
+import 'package:flutter/material.dart';
+import 'package:frontend/fire_base/models/endereco.dart';
+import 'package:frontend/ui/pages/person_registration/person_registration_contact.dart';
+import 'package:frontend/ui/style/ColorScheme.dart' as custom_colors;
+import 'package:frontend/ui/pages/person_registration/person_registration_address.dart';
+import 'package:frontend/ui/style/inputDecorationStyles.dart';
+import 'package:frontend/ui/widgets/action_buttons.dart';
+import 'package:frontend/ui/widgets/form_card.dart';
+import 'package:frontend/ui/widgets/form_field_label.dart';
+import 'package:mask_text_input_formatter/mask_text_input_formatter.dart';
+import 'package:frontend/ui/pages/dashboard.dart';
+import 'package:frontend/ui/widgets/header.dart';
+import 'package:frontend/utils/data_os/address_formatter.dart';
+import 'package:frontend/ui/widgets/form_section_tile.dart';
+
+import 'package:frontend/ui/widgets/slidable/slidable_delete_card.dart';
+import 'package:frontend/ui/widgets/show_dialog/show_delete_client_dialog.dart';
+import 'package:frontend/ui/widgets/show_snackbar/show_delete_client_snackbar.dart';
+
+class PersonRegistration extends StatefulWidget {
+  final bool retornarDadosAoFechar;
+  const PersonRegistration({super.key, this.retornarDadosAoFechar = false});
+
+  @override
+  State<PersonRegistration> createState() => _PersonRegistrationState1();
+}
+
+class _PersonRegistrationState1 extends State<PersonRegistration> {
+  final _formKey = GlobalKey<FormState>();
+
+  bool _isPessoaFisica = false;
+  final colors = custom_colors.colorScheme;
+
+  // Endereços ficam só em memória enquanto o cliente ainda não existe no
+  // banco. Ao cadastrar, o cliente é salvo primeiro e cada endereço é gravado
+  // com o clienteId gerado (ver ClienteRepository.cadastrar).
+  final List<Endereco> _enderecos = [];
+
+  final _cpfFormatter = MaskTextInputFormatter(
+    mask: '###.###.###-##',
+    filter: {"#": RegExp(r'[0-9]')},
+  );
+
+  final _cnpjFormatter = MaskTextInputFormatter(
+    mask: '##.###.###/####-##',
+    filter: {"#": RegExp(r'[0-9]')},
+  );
+
+  final _contatoController = TextEditingController();
+  final _nomeController = TextEditingController();
+
+  String? _erroContato;
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: colors.surface,
+
+      appBar: Header(
+        onBack: () {
+          Navigator.pop(context);
+        },
+        title: 'Cadastro de clientes',
+      ),
+      body: SafeArea(
+        child: SingleChildScrollView(
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 18),
+          child: Center(
+            child: ConstrainedBox(
+              constraints: const BoxConstraints(maxWidth: 650),
+              child: Column(spacing: 24, children: [_buildFormCard()]),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildFormCard() {
+    return FormCard(
+      formKey: _formKey,
+      child: Column(
+        spacing: 18,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          FormSectionTile(
+            title: "Informações Pessoais",
+            subtitle: "Complete os campos de identificação abaixo.",
+          ),
+
+          FormFieldLabel(icon: Icons.person_outline, label: "Nome completo *"),
+
+          TextFormField(
+            controller: _nomeController,
+            decoration: customInputDecoration(hintText: "Digite o nome aqui"),
+            validator: (value) {
+              if (value == null || value.isEmpty) {
+                return 'Informe o nome';
+              }
+              return null;
+            },
+          ),
+
+          Row(
+            spacing: 6,
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              const FormFieldLabel(
+                icon: Icons.home_outlined,
+                label: "Endereço",
+              ),
+
+              IconButton(
+                padding: EdgeInsets.zero,
+                constraints: const BoxConstraints(),
+                icon: Icon(
+                  Icons.add_box_rounded,
+                  color: colors.secondary,
+                  size: 26,
+                ),
+                onPressed: () async {
+                  final resultadoEndereco = await Navigator.push<Endereco>(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => const PersonRegistrationAddress(),
+                    ),
+                  );
+                  if (resultadoEndereco != null && mounted) {
+                    setState(() {
+                      _enderecos.add(resultadoEndereco);
+                    });
+                  }
+                },
+              ),
+            ],
+          ),
+
+          if (_enderecos.isEmpty)
+            Padding(
+              padding: const EdgeInsets.symmetric(vertical: 8.0),
+              child: Text(
+                "Nenhum endereço adicionado.",
+                style: TextStyle(
+                  color: colors.onSurfaceVariant.withOpacity(0.6),
+                  fontSize: 14,
+                ),
+              ),
+            )
+          else
+            ListView.builder(
+              shrinkWrap: true,
+              physics: const NeverScrollableScrollPhysics(),
+              itemCount: _enderecos.length,
+              itemBuilder: (context, index) {
+                final endereco = _enderecos[index];
+
+                return Padding(
+                  padding: const EdgeInsets.only(bottom: 8.0),
+                  child: ClipRRect(
+                    borderRadius: BorderRadius.circular(12),
+                    child: SlidableDeleteCard(
+                      slidableKey: ValueKey(
+                        endereco.id ?? '$index-${formatarEndereco(endereco)}',
+                      ),
+                      extentRatio: 0.20,
+                      onDelete: () async {
+                        final confirmarExclusao =
+                            await showDialog<bool>(
+                              context: context,
+                              builder: (_) =>
+                                  ShowDeleteClientDialog(
+                                    nome: formatarEndereco(endereco),
+                                  ),
+                            ) ??
+                            false;
+
+                        if (!confirmarExclusao) return;
+
+                        setState(() {
+                          _enderecos.removeAt(index);
+                        });
+
+                        if (!mounted) return;
+
+                        final messenger = ScaffoldMessenger.of(context);
+                        messenger.hideCurrentSnackBar();
+                        messenger.showSnackBar(
+                          ShowDeleteClientSnackbar(
+                            color: colors.primary,
+                            onPressed: () {
+                              setState(() {
+                                _enderecos.insert(index, endereco);
+                              });
+                              messenger.hideCurrentSnackBar();
+                            },
+                            duration: const Duration(seconds: 5),
+                          ),
+                        );
+                      },
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 16,
+                          vertical: 8,
+                        ),
+                        decoration: BoxDecoration(
+                          color: colors.surfaceContainer,
+                          border: Border.all(
+                            color: colors.primary.withOpacity(0.5),
+                            width: 1,
+                          ),
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        child: Row(
+                          children: [
+                            Icon(Icons.location_on, color: colors.primary),
+                            const SizedBox(width: 12),
+                            Expanded(
+                              child: Text(
+                                formatarEndereco(endereco),
+                                style: TextStyle(
+                                  color: colors.onSurface,
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.w500,
+                                ),
+                              ),
+                            ),
+
+                            IconButton(
+                              icon: Icon(Icons.edit, color: colors.primary),
+                              onPressed: () async {
+                                final enderecoEditado =
+                                    await Navigator.push<Endereco>(
+                                      context,
+                                      MaterialPageRoute(
+                                        builder: (context) =>
+                                            PersonRegistrationAddress(
+                                              enderecoInicial: endereco,
+                                            ),
+                                      ),
+                                    );
+
+                                if (enderecoEditado != null && mounted) {
+                                  setState(() {
+                                    _enderecos[index] = enderecoEditado;
+                                  });
+                                }
+                              },
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ),
+                );
+              },
+            ),
+
+          Row(
+            spacing: 6,
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              const FormFieldLabel(
+                icon: Icons.phone_android_outlined,
+                label: "Informações de contato",
+              ),
+
+              IconButton(
+                padding: EdgeInsets.zero,
+                constraints: const BoxConstraints(),
+                icon: Icon(
+                  Icons.add_box_rounded,
+                  color: colors.secondary,
+                  size: 26,
+                ),
+                onPressed: () async {
+                  final resultadoContato = await Navigator.push<String>(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => const PersonRegistrationContact(),
+                    ),
+                  );
+
+                  if (resultadoContato != null && mounted) {
+                    setState(() {
+                      _contatoController.text = resultadoContato;
+                    });
+                  }
+                },
+              ),
+            ],
+          ),
+
+          FormField<String>(
+            key: ValueKey('contato_${_contatoController.text}'),
+            initialValue: _contatoController.text,
+            validator: (value) {
+              if (_contatoController.text.isEmpty) {
+                return 'Informe as informações de contato';
+              }
+              return null;
+            },
+            builder: (FormFieldState<String> state) {
+              return InputDecorator(
+                decoration: customInputDecoration(
+                  hintText: _contatoController.text.isEmpty
+                      ? "Inserir contato"
+                      : null,
+                ).copyWith(errorText: state.errorText),
+                child: Text(
+                  _contatoController.text.isEmpty
+                      ? "Inserir contato"
+                      : _contatoController.text,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: TextStyle(
+                    fontSize: 16,
+                    color: _contatoController.text.isEmpty
+                        ? colors.onSurfaceVariant.withOpacity(0.6)
+                        : colors.onSurface,
+                  ),
+                ),
+              );
+            },
+          ),
+
+          FormFieldLabel(
+            icon: Icons.badge_outlined,
+            label: _isPessoaFisica ? "CPF *" : "CNPJ *",
+          ),
+
+          TextFormField(
+            key: ValueKey(_isPessoaFisica),
+            decoration: customInputDecoration(hintText: "000.000.000-00"),
+            keyboardType: TextInputType.number,
+            inputFormatters: [_isPessoaFisica ? _cpfFormatter : _cnpjFormatter],
+            validator: (value) {
+              if (value == null || value.isEmpty) {
+                return 'Informe o documento';
+              }
+              return null;
+            },
+          ),
+
+          CheckboxListTile(
+            value: _isPessoaFisica,
+            onChanged: (value) =>
+                setState(() => _isPessoaFisica = value ?? false),
+            activeColor: colors.secondary,
+            contentPadding: EdgeInsets.zero,
+            controlAffinity: ListTileControlAffinity.leading,
+            title: Text(
+              "Pessoa física?",
+              style: TextStyle(
+                color: colors.onSurface,
+                fontWeight: FontWeight.w500,
+              ),
+            ),
+          ),
+
+          ActionButtons(
+            formKey: _formKey,
+            colors: colors,
+            onCancel: () {
+              MaterialPageRoute(builder: (context) => const Dashboard());
+              Navigator.pop(context);
+            },
+            onCadastrar: () {
+              if (_formKey.currentState!.validate()) {
+                if (widget.retornarDadosAoFechar) {
+                  Navigator.pop(context, {
+                    'id': DateTime.now().millisecondsSinceEpoch,
+                    'nome': _nomeController.text.trim(),
+                    'telefone': _contatoController.text.trim(),
+                  });
+                } else {
+                  Navigator.pushAndRemoveUntil(
+                    context,
+                    MaterialPageRoute(builder: (context) => const Dashboard()),
+                    (route) => false,
+                  );
+                }
+              }
+            },
+          ),
+        ],
+      ),
+    );
+  }
+}

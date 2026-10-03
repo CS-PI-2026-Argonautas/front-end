@@ -1,18 +1,26 @@
 import 'package:flutter/material.dart';
+import 'package:frontend/fire_base/models/cliente.dart';
+import 'package:frontend/fire_base/models/endereco.dart';
+import 'package:frontend/fire_base/models/pessoa_fisica.dart';
+import 'package:frontend/fire_base/models/pessoa_juridica.dart';
+import 'package:frontend/fire_base/services/cliente_service.dart';
 import 'package:frontend/ui/pages/person_alteration/person_alteration_address.dart';
 import 'package:frontend/ui/pages/person_alteration/person_alteration_contact.dart';
 import 'package:frontend/ui/style/ColorScheme.dart' as custom_colors;
 import 'package:frontend/ui/style/inputDecorationStyles.dart';
 import 'package:frontend/ui/widgets/action_buttons.dart';
+import 'package:frontend/ui/widgets/enderecos_editor.dart';
 import 'package:frontend/ui/widgets/form_card.dart';
 import 'package:frontend/ui/widgets/form_field_label.dart';
-import 'package:mask_text_input_formatter/mask_text_input_formatter.dart';
-import 'package:frontend/ui/pages/dashboard.dart';
-import 'package:frontend/ui/widgets/header.dart';
 import 'package:frontend/ui/widgets/form_section_tile.dart';
+import 'package:frontend/ui/widgets/header.dart';
+import 'package:mask_text_input_formatter/mask_text_input_formatter.dart';
 
 class PersonAlteration extends StatefulWidget {
-  const PersonAlteration({super.key});
+  /// Cliente a editar, já com os endereços preenchidos (ClienteRepository.listar).
+  final Cliente cliente;
+
+  const PersonAlteration({super.key, required this.cliente});
 
   @override
   State<PersonAlteration> createState() => _PersonAlterationState();
@@ -20,32 +28,73 @@ class PersonAlteration extends StatefulWidget {
 
 class _PersonAlterationState extends State<PersonAlteration> {
   final _formKey = GlobalKey<FormState>();
-  bool _isPessoaFisica = false;
   final colors = custom_colors.colorScheme;
+  final ClienteService _service = ClienteService();
 
-  final _cpfFormatter = MaskTextInputFormatter(
-    mask: '###.###.###-##',
-    filter: {"#": RegExp(r'[0-9]')},
-  );
+  late bool _isPessoaFisica;
 
-  final _cnpjFormatter = MaskTextInputFormatter(
-    mask: '##.###.###/####-##',
-    filter: {"#": RegExp(r'[0-9]')},
-  );
+  // cópia da lista: o formulário edita aqui e só grava ao confirmar
+  late final List<Endereco> _enderecos;
 
-  final _enderecoController = TextEditingController();
-  final _contatoController = TextEditingController();
+  late final TextEditingController _nomeController;
+  late final TextEditingController _contatoController;
+  late final TextEditingController _documentoController;
+  late final MaskTextInputFormatter _cpfFormatter;
+  late final MaskTextInputFormatter _cnpjFormatter;
+
+  bool _salvando = false;
+
+  @override
+  void initState() {
+    super.initState();
+
+    final cliente = widget.cliente;
+
+    _isPessoaFisica = cliente is! PessoaJuridica;
+    _enderecos = List<Endereco>.of(cliente.enderecos);
+
+    final documento = cliente is PessoaFisica
+        ? cliente.cpf
+        : cliente is PessoaJuridica
+        ? cliente.cnpj
+        : '';
+    final digitos = documento.replaceAll(RegExp(r'[^0-9]'), '');
+
+    _cpfFormatter = MaskTextInputFormatter(
+      mask: '###.###.###-##',
+      filter: {"#": RegExp(r'[0-9]')},
+      initialText: _isPessoaFisica ? digitos : '',
+    );
+    _cnpjFormatter = MaskTextInputFormatter(
+      mask: '##.###.###/####-##',
+      filter: {"#": RegExp(r'[0-9]')},
+      initialText: _isPessoaFisica ? '' : digitos,
+    );
+
+    _nomeController = TextEditingController(text: cliente.nome);
+    _contatoController = TextEditingController(text: cliente.info_contato);
+    _documentoController = TextEditingController(
+      text: (_isPessoaFisica ? _cpfFormatter : _cnpjFormatter).getMaskedText(),
+    );
+  }
+
+  @override
+  void dispose() {
+    _nomeController.dispose();
+    _contatoController.dispose();
+    _documentoController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: colors.surface,
-      //widget da appbar
       appBar: Header(
         onBack: () {
           Navigator.pop(context);
-        }, //voltar para a tela anterior
-        title: 'Edição de clientes', //titulo personalizado
+        },
+        title: 'Edição de clientes',
       ),
       body: SafeArea(
         child: SingleChildScrollView(
@@ -69,96 +118,32 @@ class _PersonAlterationState extends State<PersonAlteration> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           FormSectionTile(
-            title: "Informações Pessoais", //titulo do card
-            subtitle:
-                "Complete os campos de identificação abaixo.", //subtitulo do card
+            title: "Informações Pessoais",
+            subtitle: "Complete os campos de identificação abaixo.",
           ),
 
-          FormFieldLabel(
-            icon: Icons.person_outline, //icone do campo do input
-            label: "Nome completo *", //label do campo do input
-          ),
+          FormFieldLabel(icon: Icons.person_outline, label: "Nome completo *"),
 
           TextFormField(
-            decoration: customInputDecoration(
-              hintText: "Digite o nome aqui", //placeholder do campo do input
+            controller: _nomeController,
+            decoration: customInputDecoration(hintText: "Digite o nome aqui"),
+            validator: (value) {
+              if (value == null || value.trim().isEmpty) {
+                return 'Informe o nome';
+              }
+              return null;
+            },
+          ),
+
+          EnderecosEditor(
+            enderecos: _enderecos,
+            abrirFormulario: (inicial) => Navigator.push<Endereco>(
+              context,
+              MaterialPageRoute(
+                builder: (context) =>
+                    PersonAlterationAddress(enderecoInicial: inicial),
+              ),
             ),
-            validator: (value) {
-              if (value == null || value.isEmpty) {
-                return 'Informe o nome'; //mensagem de erro
-              }
-              return null;
-            },
-          ),
-
-          Row(
-            spacing: 6,
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              const FormFieldLabel(
-                icon: Icons.home_outlined,
-                label: "Endereço",
-              ),
-
-              IconButton(
-                padding: EdgeInsets.zero,
-                constraints: const BoxConstraints(),
-                icon: Icon(
-                  Icons.add_box_rounded,
-                  color: colors.secondary,
-                  size: 26,
-                ),
-                onPressed: () async {
-                  final resultadoEndereco = await Navigator.push<String>(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => const PersonAlterationAddress(),
-                    ),
-                  );
-
-                  if (resultadoEndereco != null && mounted) {
-                    setState(() {
-                      _enderecoController.text = resultadoEndereco;
-                    });
-                  }
-                },
-              ),
-            ],
-          ),
-
-          FormField<String>(
-            key: ValueKey(
-              'endereco_${_enderecoController.text}',
-            ), // Prefixo exclusivo
-            initialValue: _enderecoController.text,
-            validator: (value) {
-              if (_enderecoController.text.isEmpty) {
-                return 'Informe o endereço';
-              }
-              return null;
-            },
-            builder: (FormFieldState<String> state) {
-              return InputDecorator(
-                decoration: customInputDecoration(
-                  hintText: _enderecoController.text.isEmpty
-                      ? "Inserir o endereço"
-                      : null,
-                ).copyWith(errorText: state.errorText),
-                child: Text(
-                  _enderecoController.text.isEmpty
-                      ? "Inserir o endereço"
-                      : _enderecoController.text,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: TextStyle(
-                    fontSize: 16,
-                    color: _enderecoController.text.isEmpty
-                        ? colors.onSurfaceVariant.withOpacity(0.6)
-                        : colors.onSurface,
-                  ),
-                ),
-              );
-            },
           ),
 
           Row(
@@ -221,7 +206,7 @@ class _PersonAlterationState extends State<PersonAlteration> {
                   style: TextStyle(
                     fontSize: 16,
                     color: _contatoController.text.isEmpty
-                        ? colors.onSurfaceVariant.withOpacity(0.6)
+                        ? colors.onSurfaceVariant.withValues(alpha: 0.6)
                         : colors.onSurface,
                   ),
                 ),
@@ -236,12 +221,20 @@ class _PersonAlterationState extends State<PersonAlteration> {
 
           TextFormField(
             key: ValueKey(_isPessoaFisica),
-            decoration: customInputDecoration(hintText: "000.000.000-00"),
+            controller: _documentoController,
+            decoration: customInputDecoration(
+              hintText: _isPessoaFisica
+                  ? "000.000.000-00"
+                  : "00.000.000/0000-00",
+            ),
             keyboardType: TextInputType.number,
             inputFormatters: [_isPessoaFisica ? _cpfFormatter : _cnpjFormatter],
             validator: (value) {
               if (value == null || value.isEmpty) {
                 return 'Informe o documento';
+              }
+              if (value.length != (_isPessoaFisica ? 14 : 18)) {
+                return _isPessoaFisica ? 'CPF incompleto' : 'CNPJ incompleto';
               }
               return null;
             },
@@ -249,9 +242,13 @@ class _PersonAlterationState extends State<PersonAlteration> {
 
           CheckboxListTile(
             value: _isPessoaFisica,
-            onChanged: (value) =>
-                setState(() => _isPessoaFisica = value ?? false),
-            activeColor: Colors.green,
+            onChanged: (value) => setState(() {
+              _isPessoaFisica = value ?? false;
+              _documentoController.clear();
+              _cpfFormatter.clear();
+              _cnpjFormatter.clear();
+            }),
+            activeColor: colors.secondary,
             contentPadding: EdgeInsets.zero,
             controlAffinity: ListTileControlAffinity.leading,
             title: Text(
@@ -263,28 +260,71 @@ class _PersonAlterationState extends State<PersonAlteration> {
             ),
           ),
 
-          //botões de ação
           ActionButtons(
             formKey: _formKey,
             colors: colors,
-            onCancel: () {
-              //botão de cancelar
-              MaterialPageRoute(builder: (context) => const Dashboard());
-              Navigator.pop(context);
-            },
-            onCadastrar: () {
-              // botão de cadastrar
-              if (_formKey.currentState!.validate()) {
-                Navigator.pushAndRemoveUntil(
-                  context,
-                  MaterialPageRoute(builder: (context) => const Dashboard()),
-                  (route) => false,
-                );
-              }
-            },
+            textoConfirmar: 'Salvar',
+            onCancel: () => Navigator.pop(context),
+            onCadastrar: _salvar,
           ),
         ],
       ),
     );
+  }
+
+  Future<void> _salvar() async {
+    if (_salvando) return;
+
+    final id = widget.cliente.id;
+    if (id == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Este cliente ainda não foi salvo no banco.'),
+          behavior: SnackBarBehavior.floating,
+        ),
+      );
+      return;
+    }
+
+    setState(() => _salvando = true);
+
+    final nome = _nomeController.text.trim();
+    final contato = _contatoController.text.trim();
+    final documento = _documentoController.text.trim();
+    final original = widget.cliente;
+
+    final Cliente atualizado = _isPessoaFisica
+        ? PessoaFisica(
+            id: id,
+            nome: nome,
+            info_contato: contato,
+            cpf: documento,
+          )
+        : PessoaJuridica(
+            id: id,
+            nome: nome,
+            info_contato: contato,
+            cnpj: documento,
+            setor: original is PessoaJuridica ? original.setor : '',
+          );
+
+    try {
+      await _service.atualizar(atualizado, _enderecos);
+
+      if (!mounted) return;
+
+      // true avisa a listagem para recarregar
+      Navigator.pop(context, true);
+    } catch (e) {
+      if (!mounted) return;
+
+      setState(() => _salvando = false);
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Não foi possível salvar as alterações.'),
+          behavior: SnackBarBehavior.floating,
+        ),
+      );
+    }
   }
 }

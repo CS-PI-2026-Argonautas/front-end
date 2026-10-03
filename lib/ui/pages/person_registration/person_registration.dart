@@ -1,5 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:frontend/fire_base/models/cliente.dart';
 import 'package:frontend/fire_base/models/endereco.dart';
+import 'package:frontend/fire_base/models/pessoa_fisica.dart';
+import 'package:frontend/fire_base/models/pessoa_juridica.dart';
+import 'package:frontend/fire_base/services/cliente_service.dart';
 import 'package:frontend/ui/pages/person_registration/person_registration_contact.dart';
 import 'package:frontend/ui/style/ColorScheme.dart' as custom_colors;
 import 'package:frontend/ui/pages/person_registration/person_registration_address.dart';
@@ -10,12 +14,9 @@ import 'package:frontend/ui/widgets/form_field_label.dart';
 import 'package:mask_text_input_formatter/mask_text_input_formatter.dart';
 import 'package:frontend/ui/pages/dashboard.dart';
 import 'package:frontend/ui/widgets/header.dart';
-import 'package:frontend/utils/data_os/address_formatter.dart';
+import 'package:frontend/ui/widgets/enderecos_editor.dart';
 import 'package:frontend/ui/widgets/form_section_tile.dart';
 
-import 'package:frontend/ui/widgets/slidable/slidable_delete_card.dart';
-import 'package:frontend/ui/widgets/show_dialog/show_delete_client_dialog.dart';
-import 'package:frontend/ui/widgets/show_snackbar/show_delete_client_snackbar.dart';
 
 class PersonRegistration extends StatefulWidget {
   final bool retornarDadosAoFechar;
@@ -48,8 +49,10 @@ class _PersonRegistrationState1 extends State<PersonRegistration> {
 
   final _contatoController = TextEditingController();
   final _nomeController = TextEditingController();
+  final _documentoController = TextEditingController();
 
-  String? _erroContato;
+  final ClienteService _service = ClienteService();
+  bool _salvando = false;
 
   @override
   Widget build(BuildContext context) {
@@ -101,159 +104,16 @@ class _PersonRegistrationState1 extends State<PersonRegistration> {
             },
           ),
 
-          Row(
-            spacing: 6,
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              const FormFieldLabel(
-                icon: Icons.home_outlined,
-                label: "Endereço",
+          EnderecosEditor(
+            enderecos: _enderecos,
+            abrirFormulario: (inicial) => Navigator.push<Endereco>(
+              context,
+              MaterialPageRoute(
+                builder: (context) =>
+                    PersonRegistrationAddress(enderecoInicial: inicial),
               ),
-
-              IconButton(
-                padding: EdgeInsets.zero,
-                constraints: const BoxConstraints(),
-                icon: Icon(
-                  Icons.add_box_rounded,
-                  color: colors.secondary,
-                  size: 26,
-                ),
-                onPressed: () async {
-                  final resultadoEndereco = await Navigator.push<Endereco>(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => const PersonRegistrationAddress(),
-                    ),
-                  );
-                  if (resultadoEndereco != null && mounted) {
-                    setState(() {
-                      _enderecos.add(resultadoEndereco);
-                    });
-                  }
-                },
-              ),
-            ],
-          ),
-
-          if (_enderecos.isEmpty)
-            Padding(
-              padding: const EdgeInsets.symmetric(vertical: 8.0),
-              child: Text(
-                "Nenhum endereço adicionado.",
-                style: TextStyle(
-                  color: colors.onSurfaceVariant.withOpacity(0.6),
-                  fontSize: 14,
-                ),
-              ),
-            )
-          else
-            ListView.builder(
-              shrinkWrap: true,
-              physics: const NeverScrollableScrollPhysics(),
-              itemCount: _enderecos.length,
-              itemBuilder: (context, index) {
-                final endereco = _enderecos[index];
-
-                return Padding(
-                  padding: const EdgeInsets.only(bottom: 8.0),
-                  child: ClipRRect(
-                    borderRadius: BorderRadius.circular(12),
-                    child: SlidableDeleteCard(
-                      slidableKey: ValueKey(
-                        endereco.id ?? '$index-${formatarEndereco(endereco)}',
-                      ),
-                      extentRatio: 0.20,
-                      onDelete: () async {
-                        final confirmarExclusao =
-                            await showDialog<bool>(
-                              context: context,
-                              builder: (_) =>
-                                  ShowDeleteClientDialog(
-                                    nome: formatarEndereco(endereco),
-                                  ),
-                            ) ??
-                            false;
-
-                        if (!confirmarExclusao) return;
-
-                        setState(() {
-                          _enderecos.removeAt(index);
-                        });
-
-                        if (!mounted) return;
-
-                        final messenger = ScaffoldMessenger.of(context);
-                        messenger.hideCurrentSnackBar();
-                        messenger.showSnackBar(
-                          ShowDeleteClientSnackbar(
-                            color: colors.primary,
-                            onPressed: () {
-                              setState(() {
-                                _enderecos.insert(index, endereco);
-                              });
-                              messenger.hideCurrentSnackBar();
-                            },
-                            duration: const Duration(seconds: 5),
-                          ),
-                        );
-                      },
-                      child: Container(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 16,
-                          vertical: 8,
-                        ),
-                        decoration: BoxDecoration(
-                          color: colors.surfaceContainer,
-                          border: Border.all(
-                            color: colors.primary.withOpacity(0.5),
-                            width: 1,
-                          ),
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                        child: Row(
-                          children: [
-                            Icon(Icons.location_on, color: colors.primary),
-                            const SizedBox(width: 12),
-                            Expanded(
-                              child: Text(
-                                formatarEndereco(endereco),
-                                style: TextStyle(
-                                  color: colors.onSurface,
-                                  fontSize: 14,
-                                  fontWeight: FontWeight.w500,
-                                ),
-                              ),
-                            ),
-
-                            IconButton(
-                              icon: Icon(Icons.edit, color: colors.primary),
-                              onPressed: () async {
-                                final enderecoEditado =
-                                    await Navigator.push<Endereco>(
-                                      context,
-                                      MaterialPageRoute(
-                                        builder: (context) =>
-                                            PersonRegistrationAddress(
-                                              enderecoInicial: endereco,
-                                            ),
-                                      ),
-                                    );
-
-                                if (enderecoEditado != null && mounted) {
-                                  setState(() {
-                                    _enderecos[index] = enderecoEditado;
-                                  });
-                                }
-                              },
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
-                  ),
-                );
-              },
             ),
+          ),
 
           Row(
             spacing: 6,
@@ -330,12 +190,20 @@ class _PersonRegistrationState1 extends State<PersonRegistration> {
 
           TextFormField(
             key: ValueKey(_isPessoaFisica),
-            decoration: customInputDecoration(hintText: "000.000.000-00"),
+            controller: _documentoController,
+            decoration: customInputDecoration(
+              hintText: _isPessoaFisica
+                  ? "000.000.000-00"
+                  : "00.000.000/0000-00",
+            ),
             keyboardType: TextInputType.number,
             inputFormatters: [_isPessoaFisica ? _cpfFormatter : _cnpjFormatter],
             validator: (value) {
               if (value == null || value.isEmpty) {
                 return 'Informe o documento';
+              }
+              if (value.length != (_isPessoaFisica ? 14 : 18)) {
+                return _isPessoaFisica ? 'CPF incompleto' : 'CNPJ incompleto';
               }
               return null;
             },
@@ -343,8 +211,13 @@ class _PersonRegistrationState1 extends State<PersonRegistration> {
 
           CheckboxListTile(
             value: _isPessoaFisica,
-            onChanged: (value) =>
-                setState(() => _isPessoaFisica = value ?? false),
+            onChanged: (value) => setState(() {
+              _isPessoaFisica = value ?? false;
+              // a máscara muda, então o texto antigo não vale mais
+              _documentoController.clear();
+              _cpfFormatter.clear();
+              _cnpjFormatter.clear();
+            }),
             activeColor: colors.secondary,
             contentPadding: EdgeInsets.zero,
             controlAffinity: ListTileControlAffinity.leading,
@@ -360,30 +233,55 @@ class _PersonRegistrationState1 extends State<PersonRegistration> {
           ActionButtons(
             formKey: _formKey,
             colors: colors,
-            onCancel: () {
-              MaterialPageRoute(builder: (context) => const Dashboard());
-              Navigator.pop(context);
-            },
-            onCadastrar: () {
-              if (_formKey.currentState!.validate()) {
-                if (widget.retornarDadosAoFechar) {
-                  Navigator.pop(context, {
-                    'id': DateTime.now().millisecondsSinceEpoch,
-                    'nome': _nomeController.text.trim(),
-                    'telefone': _contatoController.text.trim(),
-                  });
-                } else {
-                  Navigator.pushAndRemoveUntil(
-                    context,
-                    MaterialPageRoute(builder: (context) => const Dashboard()),
-                    (route) => false,
-                  );
-                }
-              }
-            },
+            onCancel: () => Navigator.pop(context),
+            onCadastrar: _salvar,
           ),
         ],
       ),
     );
+  }
+
+  Future<void> _salvar() async {
+    if (_salvando) return;
+    setState(() => _salvando = true);
+
+    final nome = _nomeController.text.trim();
+    final contato = _contatoController.text.trim();
+    final documento = _documentoController.text.trim();
+
+    final Cliente cliente = _isPessoaFisica
+        ? PessoaFisica(nome: nome, info_contato: contato, cpf: documento)
+        : PessoaJuridica(nome: nome, info_contato: contato, cnpj: documento);
+
+    try {
+      // cliente + endereços num batch só (ver ClienteRepository.cadastrar)
+      final id = await _service.cadastrar(cliente, _enderecos);
+
+      if (!mounted) return;
+
+      if (widget.retornarDadosAoFechar) {
+        Navigator.pop(context, {
+          'id': id,
+          'nome': nome,
+          'telefone': contato,
+        });
+      } else {
+        Navigator.pushAndRemoveUntil(
+          context,
+          MaterialPageRoute(builder: (context) => const Dashboard()),
+          (route) => false,
+        );
+      }
+    } catch (e) {
+      if (!mounted) return;
+
+      setState(() => _salvando = false);
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Não foi possível salvar o cliente.'),
+          behavior: SnackBarBehavior.floating,
+        ),
+      );
+    }
   }
 }

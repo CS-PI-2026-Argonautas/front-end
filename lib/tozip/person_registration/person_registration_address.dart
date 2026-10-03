@@ -37,13 +37,8 @@ class CepInputFormatter extends TextInputFormatter {
 
 class PersonRegistrationAddress extends StatefulWidget {
   final Endereco? enderecoInicial;
-  final String titulo;
 
-  const PersonRegistrationAddress({
-    super.key,
-    this.enderecoInicial,
-    this.titulo = 'Endereço',
-  });
+  const PersonRegistrationAddress({super.key, this.enderecoInicial});
 
   @override
   State<PersonRegistrationAddress> createState() => _PersonRegistration2State();
@@ -89,7 +84,7 @@ class _PersonRegistration2State extends State<PersonRegistrationAddress> {
         onBack: () {
           Navigator.pop(context);
         },
-        title: widget.titulo,
+        title: 'Endereço',
       ),
       body: SafeArea(
         child: SingleChildScrollView(
@@ -183,9 +178,6 @@ class _PersonRegistration2State extends State<PersonRegistrationAddress> {
                       controller: _numeroController,
                       decoration: customInputDecoration(hintText: "123"),
                       keyboardType: TextInputType.number,
-                      inputFormatters: [
-                        FilteringTextInputFormatter.digitsOnly,
-                      ],
                     ),
                   ],
                 ),
@@ -228,8 +220,6 @@ class _PersonRegistration2State extends State<PersonRegistrationAddress> {
           ActionButtons(
             formKey: _formKey,
             colors: colors,
-            textoConfirmar:
-                widget.enderecoInicial == null ? 'Cadastrar' : 'Salvar',
             onCancel: () {
               Navigator.pop(context);
             },

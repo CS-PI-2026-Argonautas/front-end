@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:frontend/fire_base/models/cliente.dart';
+import 'package:frontend/fire_base/services/cliente_service.dart';
 import 'package:frontend/ui/pages/dashboard.dart';
 import 'package:frontend/ui/pages/edit_item/item_edition.dart';
 import 'package:frontend/ui/pages/person_alteration/person_alteration.dart';
@@ -21,6 +22,9 @@ class ClientList extends StatefulWidget {
 }
 
 class _ClientListState extends State<ClientList> {
+
+  final ClienteService _service = ClienteService();
+
   final MockClientRepository _repository = MockClientRepository();
   late Future<List<Cliente>> _futureClientes;
   final colors = custom_colors.colorScheme;
@@ -32,16 +36,12 @@ class _ClientListState extends State<ClientList> {
   }
 
   void _carregarClientes() {
-    final Future<List<Cliente>> clientes = _repository.listarTodos();
-
-    setState(() {
-      _futureClientes = clientes;
-    });
+    final clientes = _service.listar();
+    setState(() { _futureClientes = clientes; });
   }
 
-  // este metodo é ilustrativo, quando houver backend será realmente deletado
   Future<void> _deletarCliente(Cliente cliente) async {
-    cliente.removido = true;
+    await _service.remover(cliente.id!);
   }
 
   @override
@@ -213,6 +213,7 @@ class _ClientListState extends State<ClientList> {
             context,
             MaterialPageRoute(builder: (context) => const PersonRegistration()),
           );
+          _carregarClientes();
         },
         backgroundColor: colors.tertiary,
         foregroundColor: colors.onTertiary,
@@ -251,11 +252,9 @@ class _ClientListState extends State<ClientList> {
         messenger.showSnackBar(
           ShowDeleteClientSnackbar(
             color: colors.primary,
-            onPressed: () {
-              cliente.removido = false;
-
+            onPressed: () async {
+              await _service.restaurar(cliente.id!);
               _carregarClientes();
-
               messenger.hideCurrentSnackBar();
             },
             duration: const Duration(seconds: 5),
@@ -313,13 +312,14 @@ class _ClientListState extends State<ClientList> {
             ),
             IconButton(
               icon: Icon(Icons.edit, color: colors.secondary),
-              onPressed: () {
-                Navigator.push(
+              onPressed: () async {
+                final alterou = await Navigator.push<bool>(
                   context,
                   MaterialPageRoute(
-                    builder: (context) => const PersonAlteration(),
+                    builder: (context) => PersonAlteration(cliente: cliente),
                   ),
                 );
+                if (alterou == true) _carregarClientes();
               },
             ),
           ],

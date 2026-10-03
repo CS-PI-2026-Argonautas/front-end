@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
-// import 'package:frontend/fire_base/database/database.dart';
+import 'package:frontend/fire_base/services/cliente_service.dart';
 import 'package:frontend/fire_base/services/endereco_service.dart';
 import 'package:frontend/fire_base/models/endereco.dart';
+import 'package:frontend/tozip/person_registration/person_registration_address.dart';
 import 'package:frontend/ui/style/ColorScheme.dart' as custom_colors;
 import 'package:frontend/ui/style/inputDecorationStyles.dart';
 import 'package:frontend/ui/widgets/bottom_sheet/bottom_sheet.dart';
@@ -44,6 +45,11 @@ class _DataOsState extends State<DataOs> {
 
   final EnderecoService _enderecoService = EnderecoService();
   Endereco? _enderecoSelecionado;
+
+  final ClienteService _clienteService = ClienteService();
+  List<Map<String, dynamic>> clientesDisponiveis = [];
+  Map<String, dynamic>? clienteSelecionado;
+
   bool get _formHabilitado => clienteSelecionado != null;
   late DateTime dataEntrada;
   DateTime? dataSaida;
@@ -52,15 +58,11 @@ class _DataOsState extends State<DataOs> {
 
   final _relatorioController = TextEditingController();
 
-  // gambiarra (giovanna), quando o banco estiver populado, uso o mesmo
-  final List<Map<String, dynamic>> clientesDisponiveis = [
-    {"id": 1, "nome": "João Silva", "telefone": "(44) 99876-5432"},
-    {"id": 2, "nome": "Maria Santos", "telefone": "(44) 98765-4321"},
-    {"id": 3, "nome": "Carlos Oliveira", "telefone": "(44) 99123-4567"},
-    {"id": 4, "nome": "Ana Paula", "telefone": "(44) 99988-7766"},
-  ];
-
-  Map<String, dynamic>? clienteSelecionado;
+  bool get _formValido {
+    return clienteSelecionado != null &&
+        _enderecoSelecionado != null &&
+        relatorio.trim().isNotEmpty;
+  }
 
   static const editableStatuses = [
     'CANCELADA',
@@ -81,6 +83,8 @@ class _DataOsState extends State<DataOs> {
 
     relatorio = widget.relatorio ?? '';
     _relatorioController.text = relatorio;
+
+    _carregarClientes();
   }
 
   @override
@@ -98,6 +102,48 @@ class _DataOsState extends State<DataOs> {
         status = widget.status!;
       });
     }
+  }
+
+    bool _validarFormulario() {
+    if (clienteSelecionado == null) {
+      _mostrarErro('Selecione um cliente.');
+      return false;
+    }
+
+    if (_enderecoSelecionado == null) {
+      _mostrarErro('Selecione um endereço.');
+      return false;
+    }
+
+    if (relatorio.trim().isEmpty) {
+      _mostrarErro('Preencha o relatório da OS.');
+      return false;
+    }
+
+    return true;
+  }
+
+  void _mostrarErro(String mensagem) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(mensagem),
+        behavior: SnackBarBehavior.floating,
+      ),
+    );
+  }
+
+  Future<void> _carregarClientes() async {
+    final clientes = await _clienteService.listar();
+
+    setState(() {
+      clientesDisponiveis = clientes.map((c) {
+        return {
+          'id': c.id,
+          'nome': c.nome,
+          'telefone': c.info_contato,
+        };
+      }).toList();
+    });
   }
 
   String _formatDate(DateTime? date) {
@@ -367,12 +413,10 @@ class _DataOsState extends State<DataOs> {
   }
 
   Future<void> _abrirListaEnderecos() async {
-    // TODO: quando existir cliente no banco, listar só os endereços vinculados
-    // a clienteSelecionado (ex.: _enderecoService.listByCliente(id)).
     final List<Endereco> enderecos;
 
     try {
-      enderecos = await _enderecoService.listAll();
+      enderecos = await _enderecoService.listByCliente(clienteSelecionado!['id'].toString());
     } catch (e) {
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
@@ -399,15 +443,22 @@ class _DataOsState extends State<DataOs> {
           itens: enderecos,
           textoBusca: 'Procurar endereço',
           textoAcao: 'Novo endereço',
-          tituloItem: (endereco) => '${endereco.rua}, ${endereco.numero}',
+          tituloItem: (endereco) => '${endereco.rua}, ${endereco.numero}, ${endereco.complemento}',
           subtituloItem: (endereco) =>
               '${endereco.cidade} - ${endereco.uf.name} • CEP ${endereco.cep}',
           iconeItem: Icons.location_on_outlined,
           carregando: false,
-          onAcao: () {
-            // TODO: PersonRegistrationAddress ainda devolve String; precisa
-            // devolver Endereco (e salvar via _enderecoService.save) antes de
-            // ligar aqui.
+          onAcao: () async {
+            Navigator.pop(context);
+            final novo = await Navigator.push<Endereco>(
+              context,
+              MaterialPageRoute(builder: (_) => const PersonRegistrationAddress()),
+            );
+            if (novo == null) return;
+            final salvo = await _enderecoService
+                .saveForCliente(clienteSelecionado!['id'].toString(), novo);
+            if (!mounted) return;
+            setState(() => _enderecoSelecionado = salvo);
           },
           onSelecionar: (endereco) {
             setState(() {
@@ -646,13 +697,6 @@ class _DataOsState extends State<DataOs> {
                                         size: 17,
                                         color: colors.primary,
                                       ),
-                                      Text(
-                                        'Editar',
-                                        style: TextStyle(
-                                          color: colors.primary,
-                                          fontWeight: FontWeight.bold,
-                                        ),
-                                      ),
                                     ],
                                   ),
                                 ],
@@ -671,9 +715,13 @@ class _DataOsState extends State<DataOs> {
                     SizedBox(
                       width: double.infinity,
                       child: ElevatedButton.icon(
-                        onPressed: () {
-                          DefaultTabController.of(context).animateTo(1);
-                        },
+                        onPressed: _formValido
+                            ? () {
+                                if (!_validarFormulario()) return;
+
+                                DefaultTabController.of(context).animateTo(1);
+                              }
+                            : null,
                         icon: const Icon(Icons.build),
                         label: const Text(
                           'Adicionar Peças',
@@ -683,9 +731,11 @@ class _DataOsState extends State<DataOs> {
                           ),
                         ),
                         style: ElevatedButton.styleFrom(
-                          elevation: 3,
+                          elevation: _formValido ? 3 : 0,
                           backgroundColor: colors.primary,
                           foregroundColor: colors.onSecondary,
+                          disabledBackgroundColor: Colors.grey.shade300,
+                          disabledForegroundColor: Colors.grey.shade600,
                           padding: const EdgeInsets.symmetric(vertical: 18),
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(14),
