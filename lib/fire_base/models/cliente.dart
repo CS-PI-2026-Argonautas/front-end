@@ -12,7 +12,6 @@ class Cliente {
 
   String documento;
 
-  /// [NOVO] telefone, email, contato_adicional, setor e observacoes.
   Contato contato;
 
   Timestamp? createdAt;
