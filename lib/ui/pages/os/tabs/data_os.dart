@@ -104,7 +104,7 @@ class _DataOsState extends State<DataOs> {
     }
   }
 
-    bool _validarFormulario() {
+  bool _validarFormulario() {
     if (clienteSelecionado == null) {
       _mostrarErro('Selecione um cliente.');
       return false;
@@ -125,10 +125,7 @@ class _DataOsState extends State<DataOs> {
 
   void _mostrarErro(String mensagem) {
     ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(mensagem),
-        behavior: SnackBarBehavior.floating,
-      ),
+      SnackBar(content: Text(mensagem), behavior: SnackBarBehavior.floating),
     );
   }
 
@@ -137,11 +134,7 @@ class _DataOsState extends State<DataOs> {
 
     setState(() {
       clientesDisponiveis = clientes.map((c) {
-        return {
-          'id': c.id,
-          'nome': c.nome,
-          'telefone': c.info_contato,
-        };
+        return {'id': c.id, 'nome': c.nome, 'telefone': c.contato.telefone};
       }).toList();
     });
   }
@@ -416,7 +409,9 @@ class _DataOsState extends State<DataOs> {
     final List<Endereco> enderecos;
 
     try {
-      enderecos = await _enderecoService.listByCliente(clienteSelecionado!['id'].toString());
+      enderecos = await _enderecoService.listar(
+        clienteSelecionado!['id'].toString(),
+      );
     } catch (e) {
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
@@ -443,22 +438,27 @@ class _DataOsState extends State<DataOs> {
           itens: enderecos,
           textoBusca: 'Procurar endereço',
           textoAcao: 'Novo endereço',
-          tituloItem: (endereco) => '${endereco.rua}, ${endereco.numero}, ${endereco.complemento}',
+          tituloItem: (endereco) => formatarEndereco(endereco),
           subtituloItem: (endereco) =>
-              '${endereco.cidade} - ${endereco.uf.name} • CEP ${endereco.cep}',
+              '${endereco.cidade} - ${endereco.uf.name}'
+              '${endereco.cep.isEmpty ? '' : ' • CEP ${endereco.cep}'}',
           iconeItem: Icons.location_on_outlined,
           carregando: false,
           onAcao: () async {
             Navigator.pop(context);
             final novo = await Navigator.push<Endereco>(
               context,
-              MaterialPageRoute(builder: (_) => const PersonRegistrationAddress()),
+              MaterialPageRoute(
+                builder: (_) => const PersonRegistrationAddress(),
+              ),
             );
             if (novo == null) return;
-            final salvo = await _enderecoService
-                .saveForCliente(clienteSelecionado!['id'].toString(), novo);
+            await _enderecoService.salvar(
+              clienteSelecionado!['id'].toString(),
+              novo,
+            );
             if (!mounted) return;
-            setState(() => _enderecoSelecionado = salvo);
+            setState(() => _enderecoSelecionado = novo);
           },
           onSelecionar: (endereco) {
             setState(() {
