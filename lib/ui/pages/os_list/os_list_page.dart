@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:frontend/fire_base/models/os.dart';
-import 'package:frontend/fire_base/Enums/StatusOrdemServico.dart';
+import 'package:frontend/fire_base/models/services.dart';
 import 'package:frontend/ui/pages/dashboard.dart';
 import 'package:frontend/ui/pages/edit_item/item_edition.dart';
 import 'package:frontend/ui/pages/os/tabbar/tabbar.dart';
@@ -21,9 +20,9 @@ class OsListPage extends StatefulWidget {
 }
 
 class _OsListPageState extends State<OsListPage> {
-  final MockOsRepository _repository = MockOsRepository();
-
-  late Future<List<OrdemServicos>> _futureOrdemServicos;
+  final MockOSRepository _repository = MockOSRepository();
+  
+  late Future<List<Services>> _futureOrdemServicos;
 
   final colors = custom_colors.colorScheme;
 
@@ -34,30 +33,30 @@ class _OsListPageState extends State<OsListPage> {
   }
 
   void _carregarOrdemServicos() {
-    final Future<List<OrdemServicos>> os = _repository.listarTodos();
+    final Future<List<Services>> os = _repository.getAll();
 
     setState(() {
       _futureOrdemServicos = os;
-    });
+    });   
   }
 
-  Color _obterCorDoStatus(Statusordemservico status) {
+  Color _obterCorDoStatus(String status) {
     switch (status) {
-      case Statusordemservico.CONCLUIDA:
+      case 'Concluída':
         return Colors.green;
-      case Statusordemservico.EM_CONSERTO:
-      case Statusordemservico.EM_ORCAMENTO:
-        return Colors.orange;
-      // case 'Fechada':
-      case Statusordemservico.CANCELADA:
+      case 'Pendente':
+      case 'Em Andamento':
+        return Colors.orange; 
+      case 'Fechada':
+      case 'Cancelada':
         return Colors.red;
       default:
         return colors.onSurfaceVariant;
     }
   }
 
-  Future<void> _deletarOrdemServicos(OrdemServicos os) async {
-    os.removido = true;
+  Future<void> _deletarOrdemServicos(Services os) async {
+    await _repository.delete(os.id);
   }
 
   @override
@@ -66,15 +65,30 @@ class _OsListPageState extends State<OsListPage> {
       backgroundColor: colors.surface,
 
       appBar: AppBar(
-        backgroundColor: colors.primary,
+        // Remove a cor sólida para permitir o gradiente
+        backgroundColor: Colors.transparent,
         foregroundColor: colors.onPrimary,
         centerTitle: true,
+        elevation: 8,
+        shadowColor: Colors.black.withOpacity(0.5),
         title: const Text(
           'Listar OS',
           style: TextStyle(
             color: Colors.white,
             fontWeight: FontWeight.bold,
             fontSize: 20,
+          ),
+        ),
+        flexibleSpace: Container(
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              colors: [
+                colors.primary, 
+                colors.tertiary,
+              ],
+              begin: Alignment.centerLeft,
+              end: Alignment.centerRight,
+            ),
           ),
         ),
       ),
@@ -100,14 +114,18 @@ class _OsListPageState extends State<OsListPage> {
           if (index == 3) {
             Navigator.push(
               context,
-              MaterialPageRoute(builder: (context) => const ItemEdition()),
+              MaterialPageRoute(
+                builder: (context) => const ItemEdition(),
+              ),
             );
           }
 
           if (index == 4) {
             Navigator.push(
               context,
-              MaterialPageRoute(builder: (context) => const Dashboard()),
+              MaterialPageRoute(
+                builder: (context) => const Dashboard(),
+              ),
             );
           }
         },
@@ -116,7 +134,10 @@ class _OsListPageState extends State<OsListPage> {
       body: SafeArea(
         child: SingleChildScrollView(
           child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 50),
+            padding: const EdgeInsets.symmetric(
+              horizontal: 40,
+              vertical: 50,
+            ),
             child: Column(
               children: [
                 TextFormField(
@@ -124,8 +145,10 @@ class _OsListPageState extends State<OsListPage> {
                     hintText: 'Procurar OS',
                     filled: true,
                     fillColor: Colors.white,
-                    hintStyle: TextStyle(color: colors.onSurface),
-                    prefixIcon: const Icon(Icons.search),
+                    hintStyle: TextStyle(
+                      color: colors.onSurface,
+                    ),
+                    prefixIcon: Icon(Icons.search, color: colors.tertiary),
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(14),
                       borderSide: BorderSide.none,
@@ -141,9 +164,15 @@ class _OsListPageState extends State<OsListPage> {
                       ElevatedButton.icon(
                         onPressed: () {},
                         icon: const Icon(Icons.tune),
-                        label: const Text('FILTRAR'),
+                        label: const Text(
+                          'Filtrar', 
+                          style: TextStyle(
+                            fontWeight: FontWeight.bold, 
+                            fontSize: 14.8,
+                          ),
+                        ),
                         style: ElevatedButton.styleFrom(
-                          backgroundColor: colors.primary,
+                          backgroundColor: colors.secondary,
                           foregroundColor: Colors.white,
                         ),
                       ),
@@ -153,9 +182,15 @@ class _OsListPageState extends State<OsListPage> {
                         child: ElevatedButton.icon(
                           onPressed: () {},
                           icon: const Icon(Icons.swap_vert),
-                          label: const Text('ORDENAR'),
+                          label: const Text(
+                            'Ordenar',
+                            style: TextStyle(
+                              fontWeight: FontWeight.bold, 
+                              fontSize: 14.8,
+                            ),
+                          ),
                           style: ElevatedButton.styleFrom(
-                            backgroundColor: colors.primary,
+                            backgroundColor: colors.secondary,
                             foregroundColor: Colors.white,
                           ),
                         ),
@@ -165,7 +200,10 @@ class _OsListPageState extends State<OsListPage> {
                 ),
 
                 Padding(
-                  padding: const EdgeInsets.only(top: 10.0, bottom: 10.0),
+                  padding: const EdgeInsets.only(
+                    top: 10.0,
+                    bottom: 10.0,
+                  ),
                   child: Align(
                     alignment: Alignment.centerLeft,
                     child: Text(
@@ -180,25 +218,31 @@ class _OsListPageState extends State<OsListPage> {
                 ),
 
                 // Aqui carrego as ordens de serviço
-                FutureBuilder<List<OrdemServicos>>(
+                FutureBuilder<List<Services>>(
                   future: _futureOrdemServicos,
                   builder: (context, snapshot) {
                     if (snapshot.connectionState == ConnectionState.waiting) {
                       return const Padding(
                         padding: EdgeInsets.only(top: 20.0),
-                        child: Center(child: CircularProgressIndicator()),
+                        child: Center(
+                          child: CircularProgressIndicator(),
+                        ),
                       );
                     }
 
                     if (snapshot.hasError) {
                       return const Center(
-                        child: Text('Erro ao carregar ordens de serviço.'),
+                        child: Text(
+                          'Erro ao carregar ordens de serviço.',
+                        ),
                       );
                     }
 
                     if (!snapshot.hasData || snapshot.data!.isEmpty) {
                       return const Center(
-                        child: Text('Nenhuma ordem de serviço encontrada.'),
+                        child: Text(
+                          'Nenhuma ordem de serviço encontrada.',
+                        ),
                       );
                     }
 
@@ -209,7 +253,9 @@ class _OsListPageState extends State<OsListPage> {
                       physics: const NeverScrollableScrollPhysics(),
                       itemCount: ordemServicos.length,
                       itemBuilder: (context, index) {
-                        return _buildClientCard(ordemServicos[index]);
+                        return _buildClientCard(
+                          ordemServicos[index],
+                        );
                       },
                     );
                   },
@@ -229,118 +275,129 @@ class _OsListPageState extends State<OsListPage> {
             ),
           );
         },
-        backgroundColor: colors.primary,
-        foregroundColor: colors.onPrimary,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+        backgroundColor: colors.tertiary,
+        foregroundColor: colors.onTertiary,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(8),
+        ),
         child: const Icon(Icons.add),
       ),
     );
   }
 
   // Construo os cards
-  Widget _buildClientCard(OrdemServicos os) {
+  Widget _buildClientCard(Services os) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 16),
-      child: ClipRRect(
-        borderRadius: BorderRadius.circular(16),
-        child: SlidableDeleteCard(
-          slidableKey: ValueKey(os.id),
+      child: SlidableDeleteCard(
+        slidableKey: ValueKey(os.id),
 
-          onDelete: () async {
-            final confimarExclusao =
-                await showDialog(
-                  context: context,
-                  builder: (_) => ShowDeleteOsDialog(nome: os.nome),
-                ) ??
-                false;
+        onDelete: () async {
+          final confimarExclusao =
+              await showDialog(
+                context: context,
+                builder: (_) => ShowDeleteOsDialog(
+                  nome: os.name,
+                ),
+              ) ??
+              false;
 
-            if (!confimarExclusao) return;
+          if (!confimarExclusao) return;
 
-            await _deletarOrdemServicos(os);
+          await _deletarOrdemServicos(os);
 
-            _carregarOrdemServicos();
+          _carregarOrdemServicos();
 
-            if (!mounted) return;
+          if (!mounted) return;
 
-            final messenger = ScaffoldMessenger.of(context);
+          final messenger = ScaffoldMessenger.of(context);
 
-            messenger.hideCurrentSnackBar();
+          messenger.hideCurrentSnackBar();
 
-            messenger.showSnackBar(
-              ShowDeleteOsSnackbar(
-                color: colors.primary,
-                onPressed: () {
-                  os.removido = false;
+          messenger.showSnackBar(
+            ShowDeleteOsSnackbar(
+              color: colors.primary,
+              onPressed: () async {
+                await _repository.restore(os.id);
 
-                  _carregarOrdemServicos();
+                _carregarOrdemServicos();
 
-                  messenger.hideCurrentSnackBar();
-                },
-                duration: const Duration(seconds: 5),
+                messenger.hideCurrentSnackBar();
+              },
+              duration: const Duration(seconds: 5),
+            ),
+          );
+        },
+
+        extentRatio: 0.20,
+
+        child: Container(
+          padding: const EdgeInsets.all(10.0),
+          decoration: BoxDecoration(
+            color: colors.surfaceContainer,
+            borderRadius: BorderRadius.circular(12),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withOpacity(0.12),
+                blurRadius: 10,
+                spreadRadius: 1,
+                offset: const Offset(0, 5),
               ),
-            );
-          },
+            ],
+          ),
 
-          extentRatio: 0.20,
-
-          child: Container(
-            padding: const EdgeInsets.all(10.0),
-            decoration: BoxDecoration(
-              color: colors.surfaceContainer,
-              border: Border.all(color: colors.primary, width: 1.5),
-              borderRadius: BorderRadius.circular(16),
-            ),
-
-            child: Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        '#${os.id} - ${os.nome}',
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                        style: TextStyle(
-                          color: colors.onSurface,
-                          fontSize: 18,
-                          fontWeight: FontWeight.bold,
-                        ),
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      '#${os.id} - ${os.name}', 
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: TextStyle(
+                        color: Colors.blueGrey.shade600,
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
                       ),
+                    ),
 
-                      Text(
-                        os.cidade,
-                        style: TextStyle(
-                          color: colors.onSurfaceVariant,
-                          fontSize: 14,
-                        ),
+                    Text(
+                      os.city,
+                      style: TextStyle(
+                        color: colors.onSurfaceVariant,
+                        fontSize: 14,
                       ),
-
-                      Text(
-                        os.statusOrdemServico.name,
-                        style: TextStyle(
-                          color: _obterCorDoStatus(os.statusOrdemServico),
-                          fontSize: 14,
-                        ),
+                    ),
+                  
+                    Text(
+                      os.status,
+                      style: TextStyle(
+                        color: _obterCorDoStatus(os.status),
+                        fontSize: 14,
                       ),
-                    ],
-                  ),
+                    ),
+                  ],
                 ),
+              ),
 
-                IconButton(
-                  icon: Icon(Icons.edit, color: colors.primary),
-                  onPressed: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => const StandInPage(),
-                      ),
-                    );
-                  },
+              IconButton(
+                icon: Icon(
+                  Icons.edit,
+                  color: colors.secondary,
                 ),
-              ],
-            ),
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => const StandInPage(),
+                    ),
+                  );
+                },
+              ),
+            ],
           ),
         ),
       ),

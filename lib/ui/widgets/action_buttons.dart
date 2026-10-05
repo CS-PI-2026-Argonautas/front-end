@@ -5,6 +5,7 @@ class ActionButtons extends StatelessWidget {
   final VoidCallback onCancel;
   final VoidCallback onCadastrar;
   final dynamic colors; 
+  final String textoConfirmar;
 
   const ActionButtons({
     super.key,
@@ -12,6 +13,7 @@ class ActionButtons extends StatelessWidget {
     required this.onCancel,
     required this.onCadastrar,
     required this.colors,
+    this.textoConfirmar = 'Cadastrar',
   });
 
   @override
@@ -55,9 +57,9 @@ class ActionButtons extends StatelessWidget {
               ),
             ),
             icon: const Icon(Icons.check_circle_outline),
-            label: const Text(
-              "Cadastrar",
-              style: TextStyle(
+            label: Text(
+              textoConfirmar,
+              style: const TextStyle(
                 fontWeight: FontWeight.bold,
                 fontSize: 16,
               ),

@@ -11,12 +11,24 @@ class MockClientRepository implements ClientRepository {
   factory MockClientRepository() => _instance;
 
   final List<Cliente> _bd = [
-    Cliente(nome: 'Giovanna', endereco: 'Rua x', info_contato: '999198999'),
-    Cliente(nome: 'Murilo', endereco: 'Rua y', info_contato: '111111111'),
-    Cliente(nome: 'Isaque', endereco: 'Rua p', info_contato: '411819111'),
-    Cliente(nome: 'Maria', endereco: 'Rua j', info_contato: '111311311'),
-    Cliente(nome: 'Felipe', endereco: 'Rua w', info_contato: '112219171'),
-    Cliente(nome: 'Arthur', endereco: 'Rua w', info_contato: '812333178'),
+    Cliente(nome: 'Giovanna', 
+    //endereco: 'Rua x', 
+    info_contato: '999198999'),
+    Cliente(nome: 'Murilo', 
+    //endereco: 'Rua y', 
+    info_contato: '111111111'),
+    Cliente(nome: 'Isaque', 
+    //endereco: 'Rua p', 
+    info_contato: '411819111'),
+    Cliente(nome: 'Maria', 
+    //endereco: 'Rua j', 
+    info_contato: '111311311'),
+    Cliente(nome: 'Felipe', 
+    //endereco: 'Rua w', 
+    info_contato: '112219171'),
+    Cliente(nome: 'Arthur', 
+    //endereco: 'Rua w', 
+    info_contato: '812333178'),
   ];
 
   @override
@@ -29,7 +41,7 @@ class MockClientRepository implements ClientRepository {
   @override
   Future<void> salvar(Cliente cliente) async {
     await Future.delayed(const Duration(milliseconds: 300));
-    cliente.id = _bd.length + 1;
+    //cliente.id = _bd.length + 1;
     _bd.add(cliente);
   }
 
