@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:frontend/fire_base/models/contato.dart'; // [NOVO]
 import 'package:frontend/ui/style/ColorScheme.dart' as custom_colors;
 import 'package:frontend/ui/style/inputDecorationStyles.dart';
 import 'package:frontend/ui/widgets/action_buttons.dart';
@@ -9,7 +10,14 @@ import 'package:frontend/ui/widgets/header.dart';
 import 'package:mask_text_input_formatter/mask_text_input_formatter.dart';
 
 class PersonRegistrationContact extends StatefulWidget {
-  const PersonRegistrationContact({super.key});
+  final Contato? contatoInicial;
+  final String titulo;
+
+  const PersonRegistrationContact({
+    super.key,
+    this.contatoInicial,
+    this.titulo = 'Contato',
+  });
 
   @override
   State<PersonRegistrationContact> createState() => _PersonRegistration3State();
@@ -19,15 +27,30 @@ class _PersonRegistration3State extends State<PersonRegistrationContact> {
   final _formKey = GlobalKey<FormState>();
   final colors = custom_colors.colorScheme;
 
-  final _phoneFormatter = MaskTextInputFormatter(
+  late final _phoneFormatter = MaskTextInputFormatter(
     mask: '(##) #####-####',
     filter: {"#": RegExp(r'[0-9]')},
+    initialText: (widget.contatoInicial?.telefone ?? '').replaceAll(
+      RegExp(r'[^0-9]'),
+      '',
+    ),
   );
 
-  final _telefoneController = TextEditingController();
-  final _emailController = TextEditingController();
-  final _contatoAdicionalController = TextEditingController();
-  final _observacoesController = TextEditingController();
+  late final _telefoneController = TextEditingController(
+    text: _phoneFormatter.getMaskedText(),
+  );
+  late final _emailController = TextEditingController(
+    text: widget.contatoInicial?.email ?? '',
+  );
+  late final _contatoAdicionalController = TextEditingController(
+    text: widget.contatoInicial?.contatoAdicional ?? '',
+  );
+  late final _setorController = TextEditingController(
+    text: widget.contatoInicial?.setor ?? '',
+  );
+  late final _observacoesController = TextEditingController(
+    text: widget.contatoInicial?.observacoes ?? '',
+  );
 
   @override
   Widget build(BuildContext context) {
@@ -37,7 +60,7 @@ class _PersonRegistration3State extends State<PersonRegistrationContact> {
         onBack: () {
           Navigator.pop(context);
         },
-        title: 'Contato',
+        title: widget.titulo,
       ),
       body: SafeArea(
         child: SingleChildScrollView(
@@ -84,14 +107,17 @@ class _PersonRegistration3State extends State<PersonRegistrationContact> {
             },
           ),
 
-          FormFieldLabel(icon: Icons.email_outlined, label: "Email *"),
+          FormFieldLabel(
+            icon: Icons.email_outlined,
+            label: "Email",
+          ), // [ALTERADO] opcional na HU
 
           TextFormField(
             controller: _emailController,
             decoration: customInputDecoration(hintText: "exemplo@email.com"),
             keyboardType: TextInputType.emailAddress,
             validator: (value) {
-              if (value == null || value.isEmpty) return 'Informe o email';
+              if (value == null || value.trim().isEmpty) return null;
               final bool emailValid = RegExp(
                 r"^[a-zA-Z0-9.a-zA-Z0-9.!#$%&'*+-/=?^_`{|}~]+@[a-zA-Z0-9]+\.[a-zA-Z]+",
               ).hasMatch(value);
@@ -113,6 +139,16 @@ class _PersonRegistration3State extends State<PersonRegistrationContact> {
             maxLength: 50,
           ),
 
+          FormFieldLabel(icon: Icons.business_outlined, label: "Setor"),
+
+          TextFormField(
+            controller: _setorController,
+            decoration: customInputDecoration(
+              hintText: "Financeiro, Compras...",
+            ),
+            maxLength: 50,
+          ),
+
           FormFieldLabel(icon: Icons.comment_outlined, label: "Observações"),
 
           TextFormField(
@@ -128,13 +164,21 @@ class _PersonRegistration3State extends State<PersonRegistrationContact> {
           ActionButtons(
             formKey: _formKey,
             colors: colors,
+            textoConfirmar: widget.contatoInicial == null
+                ? 'Cadastrar'
+                : 'Salvar',
             onCancel: () => Navigator.pop(context),
             onCadastrar: () {
-              if (_formKey.currentState!.validate()) {
-                String telefone = _telefoneController.text.trim();
-                String email = _emailController.text.trim();
-                Navigator.pop(context, "$telefone / $email");
-              }
+              Navigator.pop(
+                context,
+                Contato(
+                  telefone: _telefoneController.text.trim(),
+                  email: _emailController.text.trim(),
+                  contatoAdicional: _contatoAdicionalController.text.trim(),
+                  setor: _setorController.text.trim(),
+                  observacoes: _observacoesController.text.trim(),
+                ),
+              );
             },
           ),
         ],
