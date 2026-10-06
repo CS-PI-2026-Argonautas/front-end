@@ -2,7 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:frontend/fire_base/Enums/TiposItens.dart';
 
 class Item {
-  final String id;
+  final String? id;
   final String name;
   final String? description;
   final int valueInCents;
@@ -11,19 +11,17 @@ class Item {
   final Timestamp createdAt;
   final Timestamp updatedAt;
   final Timestamp? deletedAt;
-
-  Item({
-    required this.id,
-    required this.name,
-    this.description,
-    required this.valueInCents,
-    required this.minimumQuantity,
-    required this.type,
-    required this.createdAt,
-    required this.updatedAt,
-    this.deletedAt,
-  });
-
+Item({
+  this.id,
+  required this.name,
+  this.description,
+  required this.valueInCents,
+  required this.minimumQuantity,
+  required this.type,
+  required this.createdAt,
+  required this.updatedAt,
+  this.deletedAt,
+});
   factory Item.fromFirestore(
     DocumentSnapshot<Map<String, dynamic>> document,
   ) {

@@ -22,8 +22,6 @@ class MyApp extends StatelessWidget {
       title: 'Bernadelli Balanças',
       debugShowCheckedModeBanner: false,
       home: Authentication(),
-      // home: Tabbar(serviceOrderNumber: -0001,),
-      // home: UserInformation(),
       theme: ThemeData(
         colorScheme: ColorScheme.fromSeed(
           seedColor: Color.fromARGB(255, 64, 126, 207),

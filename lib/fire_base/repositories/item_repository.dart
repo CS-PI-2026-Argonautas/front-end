@@ -1,7 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:frontend/fire_base/Enums/TiposItens.dart';
 import 'package:uuid/uuid.dart';
-import '../models/item.dart';
+import 'package:frontend/fire_base/Enums/TiposItens.dart';
+import 'package:frontend/fire_base/models/item.dart';
 
 class ItemRepository {
   final FirebaseFirestore _firestore;
@@ -32,6 +32,10 @@ class ItemRepository {
   }
 
   Future<void> update(Item item) async {
+    if (item.id == null) {
+      throw ArgumentError('Item ID is required for update.');
+    }
+
     await _itemsCollection.doc(item.id).update({
       'nome': item.name,
       'descricao': item.description,
@@ -65,7 +69,7 @@ class ItemRepository {
         .snapshots()
         .map((snapshot) {
       return snapshot.docs
-          .map((document) => Item.fromFirestore(document))
+          .map(Item.fromFirestore)
           .toList();
     });
   }
@@ -77,7 +81,7 @@ class ItemRepository {
         .snapshots()
         .map((snapshot) {
       return snapshot.docs
-          .map((document) => Item.fromFirestore(document))
+          .map(Item.fromFirestore)
           .toList();
     });
   }
