@@ -7,14 +7,9 @@ import 'package:frontend/ui/widgets/show_snackbar/show_delete_client_snackbar.da
 import 'package:frontend/ui/widgets/slidable/slidable_delete_card.dart';
 import 'package:frontend/utils/data_os/address_formatter.dart';
 
-/// Lista de endereços de um cliente dentro do formulário (cadastro e edição).
-///
-/// Altera [enderecos] diretamente (adiciona, troca, remove). Nada é gravado
-/// no banco aqui: quem salva é a tela, ao confirmar o formulário.
 class EnderecosEditor extends StatefulWidget {
   final List<Endereco> enderecos;
 
-  /// Abre o formulário de endereço; [inicial] é null para "novo".
   final Future<Endereco?> Function(Endereco? inicial) abrirFormulario;
 
   const EnderecosEditor({
@@ -134,9 +129,8 @@ class _EnderecosEditorState extends State<EnderecosEditor> {
                 child: ClipRRect(
                   borderRadius: BorderRadius.circular(12),
                   child: SlidableDeleteCard(
-                    slidableKey: ValueKey(
-                      endereco.id ?? '$index-${formatarEndereco(endereco)}',
-                    ),
+                    // [ALTERADO] id agora nunca é nulo (UUID)
+                    slidableKey: ValueKey(endereco.id),
                     extentRatio: 0.20,
                     onDelete: () => _remover(index),
                     child: Container(

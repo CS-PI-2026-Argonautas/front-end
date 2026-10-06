@@ -74,7 +74,7 @@ class _PersonRegistration2State extends State<PersonRegistrationAddress> {
     }
 
     _cepController.text = endereco.cep;
-    _ruaController.text = endereco.rua;
+    _ruaController.text = endereco.logradouro; 
     _complementoController.text = endereco.complemento;
     _cidadeController.text = endereco.cidade;
     _numeroController.text = endereco.numero;
@@ -117,7 +117,7 @@ class _PersonRegistration2State extends State<PersonRegistrationAddress> {
             subtitle: "Campos obrigatórios estão marcados com *",
           ),
 
-          FormFieldLabel(icon: Icons.pin_drop_outlined, label: "CEP *"),
+          FormFieldLabel(icon: Icons.pin_drop_outlined, label: "CEP *"), 
 
           TextFormField(
             controller: _cepController,
@@ -130,7 +130,7 @@ class _PersonRegistration2State extends State<PersonRegistrationAddress> {
             validator: (value) {
 
               if (value == null || value.isEmpty) {
-                return 'Informe o CEP';
+                return 'Preencha o CEP';
               }
               if (value.length != 9) {
                 return 'CEP inválido';
@@ -251,12 +251,11 @@ class _PersonRegistration2State extends State<PersonRegistrationAddress> {
 
               final endereco = Endereco(
                 id: widget.enderecoInicial?.id,
-                clienteId: widget.enderecoInicial?.clienteId,
                 cep: cep,
-                rua: rua,
+                logradouro: rua,
                 complemento: complemento,
                 cidade: cidade,
-                numero: numero.isEmpty ? 'S/N' : numero,
+                numero: numero,
                 uf: uf,
               );
 

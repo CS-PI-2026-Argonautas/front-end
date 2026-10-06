@@ -4,33 +4,31 @@ import 'package:frontend/fire_base/repositories/endereco_repository.dart';
 class EnderecoService {
   final EnderecoRepository _repository;
 
-  EnderecoService({
-    EnderecoRepository? repository,
-  }) : _repository = repository ?? EnderecoRepository();
+  EnderecoService({EnderecoRepository? repository})
+    : _repository = repository ?? EnderecoRepository();
 
-  Future<List<Endereco>> listAll() async {
-    return await _repository.listAll();
+  Future<List<Endereco>> listar(String clienteId) {
+    return _repository.listar(clienteId);
   }
 
-  Future<List<Endereco>> listByCliente(String clienteId) async {
-    return await _repository.listByCliente(clienteId);
+  Future<void> salvar(String clienteId, Endereco endereco) {
+    _validar(endereco);
+    return _repository.salvar(clienteId, endereco);
   }
 
-  /// Salva (cria ou atualiza, conforme o id) um endereço de um cliente
-  /// que já existe no banco.
-  Future<Endereco> saveForCliente(String clienteId, Endereco endereco) async {
-    final comCliente = endereco.copyWith(clienteId: clienteId);
+  Future<void> atualizar(String clienteId, Endereco endereco) {
+    _validar(endereco);
+    return _repository.atualizar(clienteId, endereco);
+  }
 
-    if (comCliente.id == null) {
-      final id = await _repository.save(comCliente);
-      return comCliente.copyWith(id: id);
+  Future<void> excluir(String clienteId, String enderecoId) {
+    return _repository.excluir(clienteId, enderecoId);
+  }
+
+  void _validar(Endereco endereco) {
+    if (endereco.logradouro.trim().isEmpty ||
+        endereco.cidade.trim().isEmpty) {
+      throw ArgumentError('Logradouro e cidade são obrigatórios.');
     }
-
-    await _repository.update(comCliente.id!, comCliente);
-    return comCliente;
-  }
-
-  Future<void> delete(String id) async {
-    await _repository.delete(id);
   }
 }
