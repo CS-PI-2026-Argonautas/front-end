@@ -5,9 +5,10 @@ packages:
     dependency: transitive
     description:
       name: _fe_analyzer_shared
-      sha256: fdcd9f70f9eb80df3bc5ed0fa67280df2595fd481948df8a9ab082e6a40ad04b
+      sha256: "8d7ff3948166b8ec5da0fbb5962000926b8e02f2ed9b3e51d1738905fbd4c98d"
       url: "https://pub.dev"
     source: hosted
+<<<<<<< HEAD
     version: "108.0.0"
   _flutterfire_internals:
     dependency: transitive
@@ -16,7 +17,7 @@ packages:
       sha256: f6966125633a34f82d9be2ee895b755cff3554087b1d00a9eb884e5947f4bca9
       url: "https://pub.dev"
     source: hosted
-    version: "1.3.77"
+    version: "93.0.0"
   analyzer:
     dependency: transitive
     description:
@@ -198,6 +199,14 @@ packages:
     description:
       name: dart_style
       sha256: "82ade9fc4273f29ed673e33166944465225b4f7fc5d4aaef48605cc751c18fc1"
+      url: "https://pub.dev"
+    source: hosted
+    version: "3.1.13"
+  diacritic:
+    dependency: "direct main"
+    description:
+      name: diacritic
+      sha256: "12981945ec38931748836cd76f2b38773118d0baef3c68404bdfde9566147876"
       url: "https://pub.dev"
     source: hosted
     version: "3.1.13"
