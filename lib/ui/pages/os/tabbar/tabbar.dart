@@ -1,10 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:frontend/ui/pages/os/tabs/data_os.dart';
 import 'package:frontend/ui/pages/os/os_service/os_service.dart';
-import 'package:frontend/ui/pages/os/tabs/clientOs.dart';
 import 'package:frontend/ui/pages/os/tabs/values_os.dart';
 import 'package:frontend/ui/pages/os/tolls_os.dart';
-import 'package:frontend/ui/pages/os_list/os_list_page.dart';
 import 'package:frontend/ui/style/ColorScheme.dart' as custom_colors;
 
 class Tabbar extends StatefulWidget {
@@ -17,23 +15,10 @@ class Tabbar extends StatefulWidget {
 }
 
 class _TabbarState extends State<Tabbar> with TickerProviderStateMixin {
-  // late final TabController _tabController;
 
   String _status = 'EM_CONSERTO';
 
   final colors = custom_colors.colorScheme;
-
-  // void goToNextTab() {
-  //   if (_tabController.index < _tabController.length - 1) {
-  //     _tabController.animateTo(_tabController.index + 1);
-  //   }
-  // }
-
-  // void goToPreviousTab() {
-  //   if (_tabController.index > 0) {
-  //     _tabController.animateTo(_tabController.index - 1);
-  //   }
-  // }
 
   void _concluirOs() {
     setState(() {
@@ -54,12 +39,6 @@ class _TabbarState extends State<Tabbar> with TickerProviderStateMixin {
     setState(() {
       _status = novoStatus;
     });
-  }
-
-  @override
-  void dispose() {
-    super.dispose();
-    // _tabController.dispose();
   }
 
   @override
