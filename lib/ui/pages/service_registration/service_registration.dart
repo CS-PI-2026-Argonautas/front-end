@@ -2,11 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:frontend/ui/style/ColorScheme.dart' as custom_colors;
 
-class ServiceRegistration extends StatelessWidget {
+class ServiceRegistration extends StatefulWidget {
   final VoidCallback? onBack;
   final VoidCallback? onClose;
   final VoidCallback? onCancel;
-  final VoidCallback? onSubmit;
+  final void Function(Map<String, String> dadosServico)? onSubmit;
 
   const ServiceRegistration({
     super.key,
@@ -16,11 +16,70 @@ class ServiceRegistration extends StatelessWidget {
     this.onSubmit,
   });
 
+  @override
+  State<ServiceRegistration> createState() => _ServiceRegistrationState();
+}
+
+class _ServiceRegistrationState extends State<ServiceRegistration> {
+  final _formKey = GlobalKey<FormState>();
+
+  final TextEditingController _nomeController = TextEditingController();
+  final TextEditingController _descricaoController = TextEditingController();
+  final TextEditingController _valorController = TextEditingController();
+
   static const Color _inputFillColor = Color(0xFFF3F6F8);
   static const Color _inputBorderColor = Color(0xFFD3DFE7);
   static const Color _labelTextColor = Color(0xFF263944);
   static const Color _iconBlueColor = Color(0xFF2A92B6);
   static const Color _requiredRedColor = Color(0xFFD32F2F);
+
+  @override
+  void initState() {
+    super.initState();
+    _nomeController.addListener(_atualizarEstado);
+    _valorController.addListener(_atualizarEstado);
+  }
+
+  void _atualizarEstado() {
+    setState(() {});
+  }
+
+  bool get _formularioPreenchido {
+    return _nomeController.text.trim().isNotEmpty &&
+        _valorController.text.trim().isNotEmpty;
+  }
+
+  @override
+  void dispose() {
+    _nomeController.removeListener(_atualizarEstado);
+    _valorController.removeListener(_atualizarEstado);
+    _nomeController.dispose();
+    _descricaoController.dispose();
+    _valorController.dispose();
+    super.dispose();
+  }
+
+  void _handleCadastrar() {
+    if (_formKey.currentState?.validate() ?? false) {
+      final dados = {
+        'nome': _nomeController.text.trim(),
+        'descricao': _descricaoController.text.trim(),
+        'valor': _valorController.text.trim(),
+      };
+
+      if (widget.onSubmit != null) {
+        widget.onSubmit!(dados);
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Serviço cadastrado com sucesso!'),
+            backgroundColor: Color(0xFF1E9E5F),
+          ),
+        );
+        Navigator.maybePop(context);
+      }
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -42,10 +101,10 @@ class ServiceRegistration extends StatelessWidget {
             color: Colors.white,
             size: 20,
           ),
-          onPressed: onBack ?? () => Navigator.maybePop(context),
+          onPressed: widget.onBack ?? () => Navigator.maybePop(context),
         ),
         title: const Text(
-          'Serviços',
+          'Cadastro de Serviços',
           style: TextStyle(
             color: Colors.white,
             fontWeight: FontWeight.bold,
@@ -55,7 +114,7 @@ class ServiceRegistration extends StatelessWidget {
         actions: [
           IconButton(
             icon: const Icon(Icons.close, color: Colors.white, size: 24),
-            onPressed: onClose ?? () => Navigator.maybePop(context),
+            onPressed: widget.onClose ?? () => Navigator.maybePop(context),
           ),
         ],
         flexibleSpace: Container(
@@ -92,64 +151,72 @@ class ServiceRegistration extends StatelessWidget {
                     ),
                   ],
                 ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    const Text(
-                      'Dados do Serviço',
-                      style: TextStyle(
-                        color: _labelTextColor,
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
+                child: Form(
+                  key: _formKey,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const Text(
+                        'Dados do Serviço',
+                        style: TextStyle(
+                          color: _labelTextColor,
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                        ),
                       ),
-                    ),
-                    const SizedBox(height: 4),
-                    Text(
-                      'Preencha as informações do serviço prestado.',
-                      style: TextStyle(
-                        color: _labelTextColor.withOpacity(0.65),
-                        fontSize: 13,
+                      const SizedBox(height: 4),
+                      Text(
+                        'Preencha as informações do serviço prestado.',
+                        style: TextStyle(
+                          color: _labelTextColor.withOpacity(0.65),
+                          fontSize: 13,
+                        ),
                       ),
-                    ),
-                    const SizedBox(height: 22),
+                      const SizedBox(height: 22),
 
-                    _buildField(
-                      label: 'Nome do Serviço',
-                      hintText: 'Exemplo',
-                      icon: Icons.work_outline,
-                      colors: colors,
-                      isRequired: true,
-                    ),
-                    const SizedBox(height: 16),
+                      _buildField(
+                        label: 'Nome do Serviço',
+                        hintText: 'Exemplo',
+                        icon: Icons.work_outline,
+                        controller: _nomeController,
+                        colors: colors,
+                        isRequired: true,
+                      ),
+                      const SizedBox(height: 16),
 
-                    _buildField(
-                      label: 'Descrição',
-                      hintText: 'Descreva o serviço (opcional)',
-                      icon: Icons.notes_outlined,
-                      colors: colors,
-                      isRequired: false,
-                      maxLines: 4,
-                    ),
-                    const SizedBox(height: 16),
+                      _buildField(
+                        label: 'Descrição',
+                        hintText: 'Descreva o serviço (opcional)',
+                        icon: Icons.notes_outlined,
+                        controller: _descricaoController,
+                        colors: colors,
+                        isRequired: false,
+                        maxLines: 4,
+                      ),
+                      const SizedBox(height: 16),
 
-                    _buildField(
-                      label: 'Valor',
-                      hintText: 'R\$ 30,00',
-                      icon: Icons.attach_money,
-                      colors: colors,
-                      isRequired: true,
-                      isNumeric: true,
-                    ),
-                  ],
+                      _buildField(
+                        label: 'Valor',
+                        hintText: 'R\$ 30,00',
+                        icon: Icons.attach_money,
+                        controller: _valorController,
+                        colors: colors,
+                        isRequired: true,
+                        isNumeric: true,
+                      ),
+                    ],
+                  ),
                 ),
               ),
 
               const SizedBox(height: 24),
+
               Row(
                 children: [
                   Expanded(
                     child: OutlinedButton(
-                      onPressed: onCancel ?? () => Navigator.maybePop(context),
+                      onPressed:
+                          widget.onCancel ?? () => Navigator.maybePop(context),
                       style: OutlinedButton.styleFrom(
                         padding: const EdgeInsets.symmetric(vertical: 14),
                         side: const BorderSide(
@@ -173,10 +240,14 @@ class ServiceRegistration extends StatelessWidget {
                   const SizedBox(width: 16),
                   Expanded(
                     child: ElevatedButton(
-                      onPressed: onSubmit,
+                      onPressed: _formularioPreenchido
+                          ? _handleCadastrar
+                          : null,
                       style: ElevatedButton.styleFrom(
                         backgroundColor: const Color(0xFF1E9E5F),
+                        disabledBackgroundColor: const Color(0xFFD1D8DD),
                         foregroundColor: Colors.white,
+                        disabledForegroundColor: const Color(0xFF7A8D99),
                         elevation: 0,
                         padding: const EdgeInsets.symmetric(vertical: 14),
                         shape: RoundedRectangleBorder(
@@ -205,6 +276,7 @@ class ServiceRegistration extends StatelessWidget {
     required String label,
     required String hintText,
     required IconData icon,
+    required TextEditingController controller,
     required ColorScheme colors,
     bool isRequired = false,
     bool isNumeric = false,
@@ -229,12 +301,21 @@ class ServiceRegistration extends StatelessWidget {
         ),
         const SizedBox(height: 7),
         TextFormField(
+          controller: controller,
           maxLines: maxLines,
           keyboardType: isNumeric
               ? const TextInputType.numberWithOptions(decimal: true)
               : (maxLines > 1 ? TextInputType.multiline : TextInputType.text),
           inputFormatters: isNumeric
               ? [FilteringTextInputFormatter.allow(RegExp(r'^\d*\,?\d{0,2}'))]
+              : null,
+          validator: isRequired
+              ? (value) {
+                  if (value == null || value.trim().isEmpty) {
+                    return 'Campo obrigatório';
+                  }
+                  return null;
+                }
               : null,
           style: const TextStyle(
             color: _labelTextColor,
