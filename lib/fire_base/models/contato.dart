@@ -1,5 +1,5 @@
 class Contato {
-  final String telefone; 
+  final String telefone;
   final String? email;
   final String? contatoAdicional;
   final String? setor;
@@ -18,7 +18,7 @@ class Contato {
     return (texto == null || texto.isEmpty) ? null : texto;
   }
 
-  Map<String, dynamic> toMap() {
+  Map<String, dynamic> toFirestore() {
     return {
       'telefone': telefone.trim(),
       'email': _nulo(email),
@@ -28,7 +28,7 @@ class Contato {
     };
   }
 
-  factory Contato.fromMap(Map<String, dynamic> data) {
+  factory Contato.fromFirestore(Map<String, dynamic> data) {
     return Contato(
       telefone: (data['telefone'] ?? '').toString().trim(),
       email: _nulo(data['email']),

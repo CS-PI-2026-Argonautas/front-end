@@ -5,12 +5,12 @@ import 'package:uuid/uuid.dart';
 class Endereco {
   final String id;
 
-  String cep; 
-  String logradouro; 
+  String cep;
+  String logradouro;
   String numero;
-  String complemento; 
-  String cidade; 
-  Uf uf; 
+  String complemento;
+  String cidade;
+  Uf uf;
 
   Timestamp? createdAt;
   Timestamp? updatedAt;
@@ -36,7 +36,7 @@ class Endereco {
     return texto.isEmpty ? null : texto;
   }
 
-  Map<String, dynamic> toMap() {
+  Map<String, dynamic> toFirestore() {
     return {
       'cep': _nulo(cep),
       'logradouro': logradouro.trim(),

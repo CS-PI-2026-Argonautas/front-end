@@ -4,7 +4,7 @@ import 'package:flutter/foundation.dart';
 import 'package:frontend/fire_base/models/cliente.dart';
 import 'package:frontend/fire_base/models/endereco.dart';
 import 'package:frontend/fire_base/repositories/endereco_repository.dart';
-import 'package:frontend/fire_base/repositories/leitura_firestore.dart'; 
+import 'package:frontend/fire_base/repositories/leitura_firestore.dart';
 
 class ClienteRepository {
   final FirebaseFirestore _db;
@@ -39,7 +39,8 @@ class ClienteRepository {
 
   Stream<List<Cliente>> observar() => _clientes.snapshots().map(_ativos);
 
-  Future<List<Cliente>> listar() async => _ativos(await lerComFallback(_clientes));
+  Future<List<Cliente>> listar() async =>
+      _ativos(await lerComFallback(_clientes));
 
   Future<List<Cliente>> listarDoCache() async {
     try {
@@ -57,7 +58,7 @@ class ClienteRepository {
     final agora = FieldValue.serverTimestamp();
 
     batch.set(_clientes.doc(cliente.id), {
-      ...cliente.toMap(),
+      ...cliente.toFirestore(),
       'created_at': agora,
       'updated_at': agora,
       'deleted_at': null,
@@ -65,7 +66,7 @@ class ClienteRepository {
 
     for (final endereco in enderecos) {
       batch.set(_enderecos(cliente.id).doc(endereco.id), {
-        ...endereco.toMap(),
+        ...endereco.toFirestore(),
         'created_at': agora,
         'updated_at': agora,
         'deleted_at': null,
@@ -84,7 +85,7 @@ class ClienteRepository {
     final agora = FieldValue.serverTimestamp();
 
     batch.update(_clientes.doc(cliente.id), {
-      ...cliente.toMap(),
+      ...cliente.toFirestore(),
       'updated_at': agora,
     });
 
@@ -97,13 +98,13 @@ class ClienteRepository {
 
       if (antigo == null) {
         batch.set(ref, {
-          ...endereco.toMap(),
+          ...endereco.toFirestore(),
           'created_at': agora,
           'updated_at': agora,
           'deleted_at': null,
         });
       } else if (!antigo.mesmosDados(endereco)) {
-        batch.update(ref, {...endereco.toMap(), 'updated_at': agora});
+        batch.update(ref, {...endereco.toFirestore(), 'updated_at': agora});
       }
     }
 

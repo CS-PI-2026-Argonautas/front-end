@@ -2,7 +2,7 @@ import 'dart:async';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/foundation.dart';
 import 'package:frontend/fire_base/models/endereco.dart';
-import 'package:frontend/fire_base/repositories/leitura_firestore.dart'; 
+import 'package:frontend/fire_base/repositories/leitura_firestore.dart';
 
 class EnderecoRepository {
   final FirebaseFirestore _db;
@@ -47,7 +47,7 @@ class EnderecoRepository {
       _col(clienteId)
           .doc(endereco.id)
           .set({
-            ...endereco.toMap(),
+            ...endereco.toFirestore(),
             'created_at': agora,
             'updated_at': agora,
             'deleted_at': null,
@@ -61,7 +61,7 @@ class EnderecoRepository {
       _col(clienteId)
           .doc(endereco.id)
           .update({
-            ...endereco.toMap(),
+            ...endereco.toFirestore(),
             'updated_at': FieldValue.serverTimestamp(),
           })
           .catchError((Object e) => _log(e, 'atualizar')),

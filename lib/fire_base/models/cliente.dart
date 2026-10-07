@@ -40,12 +40,12 @@ class Cliente {
 
   bool get ativo => deletedAt == null;
 
-  Map<String, dynamic> toMap() {
+  Map<String, dynamic> toFirestore() {
     return {
       'nome': nome.trim(),
       'tipo_pessoa': tipoPessoa.valor,
       'documento': documento,
-      ...contato.toMap(),
+      ...contato.toFirestore(),
     };
   }
 
@@ -59,7 +59,7 @@ class Cliente {
       nome: (data['nome'] ?? '').toString().trim(),
       tipoPessoa: TipoPessoa.de(data['tipo_pessoa']?.toString()),
       documento: (data['documento'] ?? '').toString(),
-      contato: Contato.fromMap(data),
+      contato: Contato.fromFirestore(data),
       createdAt: _ts(data['created_at']),
       updatedAt: _ts(data['updated_at']),
       deletedAt: _ts(data['deleted_at']),
