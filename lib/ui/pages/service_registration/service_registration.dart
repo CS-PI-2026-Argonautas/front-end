@@ -33,26 +33,11 @@ class _ServiceRegistrationState extends State<ServiceRegistration> {
   static const Color _iconBlueColor = Color(0xFF2A92B6);
   static const Color _requiredRedColor = Color(0xFFD32F2F);
 
-  @override
-  void initState() {
-    super.initState();
-    _nomeController.addListener(_atualizarEstado);
-    _valorController.addListener(_atualizarEstado);
-  }
-
-  void _atualizarEstado() {
-    setState(() {});
-  }
-
-  bool get _formularioPreenchido {
-    return _nomeController.text.trim().isNotEmpty &&
-        _valorController.text.trim().isNotEmpty;
-  }
+  bool _salvando = false;
+  bool _autovalidar = false;
 
   @override
   void dispose() {
-    _nomeController.removeListener(_atualizarEstado);
-    _valorController.removeListener(_atualizarEstado);
     _nomeController.dispose();
     _descricaoController.dispose();
     _valorController.dispose();
@@ -60,7 +45,14 @@ class _ServiceRegistrationState extends State<ServiceRegistration> {
   }
 
   void _handleCadastrar() {
-    if (_formKey.currentState?.validate() ?? false) {
+    // Ativa a validação em tempo real ao clicar no botão pela primeira vez
+    setState(() => _autovalidar = true);
+
+    if (!(_formKey.currentState?.validate() ?? false)) return;
+
+    setState(() => _salvando = true);
+
+    try {
       final dados = {
         'nome': _nomeController.text.trim(),
         'descricao': _descricaoController.text.trim(),
@@ -72,12 +64,14 @@ class _ServiceRegistrationState extends State<ServiceRegistration> {
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
-            content: Text('Serviço cadastrado com sucesso!'),
+            content: Text('Serviço salvo com sucesso!'),
             backgroundColor: Color(0xFF1E9E5F),
           ),
         );
         Navigator.maybePop(context);
       }
+    } finally {
+      if (mounted) setState(() => _salvando = false);
     }
   }
 
@@ -104,7 +98,7 @@ class _ServiceRegistrationState extends State<ServiceRegistration> {
           onPressed: widget.onBack ?? () => Navigator.maybePop(context),
         ),
         title: const Text(
-          'Cadastro de Serviços',
+          'Serviços',
           style: TextStyle(
             color: Colors.white,
             fontWeight: FontWeight.bold,
@@ -176,7 +170,7 @@ class _ServiceRegistrationState extends State<ServiceRegistration> {
 
                       _buildField(
                         label: 'Nome do Serviço',
-                        hintText: 'Exemplo',
+                        hintText: 'Ex: troca de bateria',
                         icon: Icons.work_outline,
                         controller: _nomeController,
                         colors: colors,
@@ -186,7 +180,7 @@ class _ServiceRegistrationState extends State<ServiceRegistration> {
 
                       _buildField(
                         label: 'Descrição',
-                        hintText: 'Descreva o serviço (opcional)',
+                        hintText: 'Descricao do produto...', // Atualizado
                         icon: Icons.notes_outlined,
                         controller: _descricaoController,
                         colors: colors,
@@ -197,7 +191,7 @@ class _ServiceRegistrationState extends State<ServiceRegistration> {
 
                       _buildField(
                         label: 'Valor',
-                        hintText: 'R\$ 30,00',
+                        hintText: '40,00', // Atualizado
                         icon: Icons.attach_money,
                         controller: _valorController,
                         colors: colors,
@@ -208,9 +202,7 @@ class _ServiceRegistrationState extends State<ServiceRegistration> {
                   ),
                 ),
               ),
-
               const SizedBox(height: 24),
-
               Row(
                 children: [
                   Expanded(
@@ -240,14 +232,11 @@ class _ServiceRegistrationState extends State<ServiceRegistration> {
                   const SizedBox(width: 16),
                   Expanded(
                     child: ElevatedButton(
-                      onPressed: _formularioPreenchido
-                          ? _handleCadastrar
-                          : null,
+                      // Botão simples, direto e sem firula (exatamente como no EquipamentData original)
+                      onPressed: _handleCadastrar,
                       style: ElevatedButton.styleFrom(
                         backgroundColor: const Color(0xFF1E9E5F),
-                        disabledBackgroundColor: const Color(0xFFD1D8DD),
                         foregroundColor: Colors.white,
-                        disabledForegroundColor: const Color(0xFF7A8D99),
                         elevation: 0,
                         padding: const EdgeInsets.symmetric(vertical: 14),
                         shape: RoundedRectangleBorder(
@@ -303,6 +292,10 @@ class _ServiceRegistrationState extends State<ServiceRegistration> {
         TextFormField(
           controller: controller,
           maxLines: maxLines,
+          // Remove o erro instantaneamente assim que o utilizador começar a digitar
+          autovalidateMode: _autovalidar
+              ? AutovalidateMode.onUserInteraction
+              : AutovalidateMode.disabled,
           keyboardType: isNumeric
               ? const TextInputType.numberWithOptions(decimal: true)
               : (maxLines > 1 ? TextInputType.multiline : TextInputType.text),
