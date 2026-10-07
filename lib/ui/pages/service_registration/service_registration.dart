@@ -6,7 +6,8 @@ class ServiceRegistration extends StatefulWidget {
   final VoidCallback? onBack;
   final VoidCallback? onClose;
   final VoidCallback? onCancel;
-  final void Function(Map<String, String> dadosServico)? onSubmit;
+  // REQUISITOS 1 e 2: Alterado para 'dynamic' para poder devolver o valor em Inteiro (cêntimos)
+  final void Function(Map<String, dynamic> dadosServico)? onSubmit;
 
   const ServiceRegistration({
     super.key,
@@ -33,9 +34,6 @@ class _ServiceRegistrationState extends State<ServiceRegistration> {
   static const Color _iconBlueColor = Color(0xFF2A92B6);
   static const Color _requiredRedColor = Color(0xFFD32F2F);
 
-  bool _salvando = false;
-  bool _autovalidar = false;
-
   @override
   void dispose() {
     _nomeController.dispose();
@@ -44,34 +42,32 @@ class _ServiceRegistrationState extends State<ServiceRegistration> {
     super.dispose();
   }
 
-  void _handleCadastrar() {
-    // Ativa a validação em tempo real ao clicar no botão pela primeira vez
-    setState(() => _autovalidar = true);
+  // REQUISITO 4: Converte a string de Reais para um número inteiro em Centavos
+  int _converterParaCentavos(String valorTexto) {
+    if (valorTexto.isEmpty) return 0;
+    String valorFormatado = valorTexto.replaceAll(',', '.');
+    double valorDouble = double.tryParse(valorFormatado) ?? 0.0;
+    return (valorDouble * 100).round();
+  }
 
+  void _handleCadastrar() {
     if (!(_formKey.currentState?.validate() ?? false)) return;
 
-    setState(() => _salvando = true);
+    // REQUISITOS 1, 2 e 4: Devolve um objeto (Map) preenchido e com os centavos
+    final dados = {
+      'nome': _nomeController.text.trim(),
+      'descricao': _descricaoController.text.trim(),
 
-    try {
-      final dados = {
-        'nome': _nomeController.text.trim(),
-        'descricao': _descricaoController.text.trim(),
-        'valor': _valorController.text.trim(),
-      };
+      // NOTA: Se preferir usar a classe que o seu colega sugeriu no PR,
+      // pode apagar a linha abaixo e usar: Dinheiro.paraCentavos(_valorController.text.trim())
+      'valor': _converterParaCentavos(_valorController.text.trim()),
+    };
 
-      if (widget.onSubmit != null) {
-        widget.onSubmit!(dados);
-      } else {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Serviço salvo com sucesso!'),
-            backgroundColor: Color(0xFF1E9E5F),
-          ),
-        );
-        Navigator.maybePop(context);
-      }
-    } finally {
-      if (mounted) setState(() => _salvando = false);
+    if (widget.onSubmit != null) {
+      widget.onSubmit!(dados);
+    } else {
+      // Devolve o objeto completo para o ecrã anterior (fecha a tela a passar os dados)
+      Navigator.maybePop(context, dados);
     }
   }
 
@@ -170,7 +166,7 @@ class _ServiceRegistrationState extends State<ServiceRegistration> {
 
                       _buildField(
                         label: 'Nome do Serviço',
-                        hintText: 'Ex: troca de bateria',
+                        hintText: 'Exemplo',
                         icon: Icons.work_outline,
                         controller: _nomeController,
                         colors: colors,
@@ -180,18 +176,19 @@ class _ServiceRegistrationState extends State<ServiceRegistration> {
 
                       _buildField(
                         label: 'Descrição',
-                        hintText: 'Descricao do produto...', // Atualizado
+                        hintText: 'descricao...',
                         icon: Icons.notes_outlined,
                         controller: _descricaoController,
                         colors: colors,
                         isRequired: false,
                         maxLines: 4,
+                        maxLength: 50,
                       ),
                       const SizedBox(height: 16),
 
                       _buildField(
                         label: 'Valor',
-                        hintText: '40,00', // Atualizado
+                        hintText: '40,00',
                         icon: Icons.attach_money,
                         controller: _valorController,
                         colors: colors,
@@ -207,8 +204,12 @@ class _ServiceRegistrationState extends State<ServiceRegistration> {
                 children: [
                   Expanded(
                     child: OutlinedButton(
+                      // REQUISITO 3: Botão "Cancelar" fecha o ecrã e não devolve nada (null implicitamente)
                       onPressed:
-                          widget.onCancel ?? () => Navigator.maybePop(context),
+                          widget.onCancel ??
+                          () {
+                            Navigator.maybePop(context);
+                          },
                       style: OutlinedButton.styleFrom(
                         padding: const EdgeInsets.symmetric(vertical: 14),
                         side: const BorderSide(
@@ -232,7 +233,6 @@ class _ServiceRegistrationState extends State<ServiceRegistration> {
                   const SizedBox(width: 16),
                   Expanded(
                     child: ElevatedButton(
-                      // Botão simples, direto e sem firula (exatamente como no EquipamentData original)
                       onPressed: _handleCadastrar,
                       style: ElevatedButton.styleFrom(
                         backgroundColor: const Color(0xFF1E9E5F),
@@ -270,6 +270,7 @@ class _ServiceRegistrationState extends State<ServiceRegistration> {
     bool isRequired = false,
     bool isNumeric = false,
     int maxLines = 1,
+    int? maxLength,
   }) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -292,10 +293,7 @@ class _ServiceRegistrationState extends State<ServiceRegistration> {
         TextFormField(
           controller: controller,
           maxLines: maxLines,
-          // Remove o erro instantaneamente assim que o utilizador começar a digitar
-          autovalidateMode: _autovalidar
-              ? AutovalidateMode.onUserInteraction
-              : AutovalidateMode.disabled,
+          maxLength: maxLength,
           keyboardType: isNumeric
               ? const TextInputType.numberWithOptions(decimal: true)
               : (maxLines > 1 ? TextInputType.multiline : TextInputType.text),
@@ -321,6 +319,7 @@ class _ServiceRegistrationState extends State<ServiceRegistration> {
               color: _labelTextColor.withOpacity(0.4),
               fontSize: 14,
             ),
+            counterText: '',
             isDense: true,
             filled: true,
             fillColor: _inputFillColor,
