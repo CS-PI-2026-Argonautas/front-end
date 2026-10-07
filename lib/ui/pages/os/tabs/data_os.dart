@@ -6,8 +6,10 @@ import 'package:frontend/ui/pages/person_registration/person_registration_addres
 import 'package:frontend/ui/style/ColorScheme.dart' as custom_colors;
 import 'package:frontend/ui/style/inputDecorationStyles.dart';
 import 'package:frontend/ui/widgets/bottom_sheet/bottom_sheet.dart';
+import 'package:frontend/ui/widgets/equipment_field.dart';
 import 'package:frontend/utils/data_os/address_formatter.dart';
 import 'package:frontend/ui/pages/person_registration/person_registration.dart';
+import 'package:frontend/ui/pages/stand_in_page.dart';
 
 class DataOs extends StatefulWidget {
   final DateTime? dataEntrada;
@@ -50,6 +52,8 @@ class _DataOsState extends State<DataOs> {
   List<Map<String, dynamic>> clientesDisponiveis = [];
   Map<String, dynamic>? clienteSelecionado;
 
+  dynamic _equipamentoSelecionado;
+
   bool get _formHabilitado => clienteSelecionado != null;
   late DateTime dataEntrada;
   DateTime? dataSaida;
@@ -61,6 +65,7 @@ class _DataOsState extends State<DataOs> {
   bool get _formValido {
     return clienteSelecionado != null &&
         _enderecoSelecionado != null &&
+        _equipamentoSelecionado != null &&
         relatorio.trim().isNotEmpty;
   }
 
@@ -104,7 +109,7 @@ class _DataOsState extends State<DataOs> {
     }
   }
 
-    bool _validarFormulario() {
+  bool _validarFormulario() {
     if (clienteSelecionado == null) {
       _mostrarErro('Selecione um cliente.');
       return false;
@@ -112,6 +117,11 @@ class _DataOsState extends State<DataOs> {
 
     if (_enderecoSelecionado == null) {
       _mostrarErro('Selecione um endereço.');
+      return false;
+    }
+
+    if (_equipamentoSelecionado == null) {
+      _mostrarErro('Selecione ou cadastre um equipamento.');
       return false;
     }
 
@@ -144,6 +154,21 @@ class _DataOsState extends State<DataOs> {
         };
       }).toList();
     });
+  }
+
+  Future<void> _abrirCadastroEquipamento([dynamic equipamentoInicial]) async {
+    final resultado = await Navigator.push<dynamic>(
+      context,
+      MaterialPageRoute(
+        builder: (context) => const StandInPage(),
+      ),
+    );
+
+    if (resultado != null && mounted) {
+      setState(() {
+        _equipamentoSelecionado = resultado;
+      });
+    }
   }
 
   String _formatDate(DateTime? date) {
@@ -280,7 +305,6 @@ class _DataOsState extends State<DataOs> {
                           ),
                         ),
                       ),
-
                       Row(
                         spacing: 6,
                         children: [
@@ -297,7 +321,6 @@ class _DataOsState extends State<DataOs> {
                           ),
                         ],
                       ),
-
                       Text(
                         'Adicione observações sobre o andamento do conserto.',
                         style: TextStyle(
@@ -305,22 +328,20 @@ class _DataOsState extends State<DataOs> {
                           color: colors.onSurfaceVariant,
                         ),
                       ),
-
                       TextField(
                         controller: _relatorioController,
                         autofocus: true,
                         maxLines: 7,
                         maxLength: 256,
                         textCapitalization: TextCapitalization.sentences,
-                        decoration:
-                            customInputDecoration(
-                              hintText: 'Digite observações sobre a OS...',
-                            ).copyWith(
-                              alignLabelWithHint: true,
-                              counterStyle: TextStyle(
-                                color: colors.onSurfaceVariant,
-                              ),
-                            ),
+                        decoration: customInputDecoration(
+                          hintText: 'Digite observações sobre a OS...',
+                        ).copyWith(
+                          alignLabelWithHint: true,
+                          counterStyle: TextStyle(
+                            color: colors.onSurfaceVariant,
+                          ),
+                        ),
                         onChanged: (value) {
                           setModalState(() {});
 
@@ -331,7 +352,6 @@ class _DataOsState extends State<DataOs> {
                           widget.onRelatorioChanged?.call(value);
                         },
                       ),
-
                       SizedBox(
                         width: double.infinity,
                         child: ElevatedButton.icon(
@@ -416,7 +436,8 @@ class _DataOsState extends State<DataOs> {
     final List<Endereco> enderecos;
 
     try {
-      enderecos = await _enderecoService.listByCliente(clienteSelecionado!['id'].toString());
+      enderecos = await _enderecoService
+          .listByCliente(clienteSelecionado!['id'].toString());
     } catch (e) {
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
@@ -443,7 +464,8 @@ class _DataOsState extends State<DataOs> {
           itens: enderecos,
           textoBusca: 'Procurar endereço',
           textoAcao: 'Novo endereço',
-          tituloItem: (endereco) => '${endereco.rua}, ${endereco.numero}, ${endereco.complemento}',
+          tituloItem: (endereco) =>
+              '${endereco.rua}, ${endereco.numero}, ${endereco.complemento}',
           subtituloItem: (endereco) =>
               '${endereco.cidade} - ${endereco.uf.name} • CEP ${endereco.cep}',
           iconeItem: Icons.location_on_outlined,
@@ -452,11 +474,15 @@ class _DataOsState extends State<DataOs> {
             Navigator.pop(context);
             final novo = await Navigator.push<Endereco>(
               context,
-              MaterialPageRoute(builder: (_) => const PersonRegistrationAddress()),
+              MaterialPageRoute(
+                builder: (_) => const PersonRegistrationAddress(),
+              ),
             );
             if (novo == null) return;
-            final salvo = await _enderecoService
-                .saveForCliente(clienteSelecionado!['id'].toString(), novo);
+            final salvo = await _enderecoService.saveForCliente(
+              clienteSelecionado!['id'].toString(),
+              novo,
+            );
             if (!mounted) return;
             setState(() => _enderecoSelecionado = salvo);
           },
@@ -502,12 +528,20 @@ class _DataOsState extends State<DataOs> {
               addLabel: 'Adicionar cliente',
             ),
             _buildClienteSelecionado(),
+
             _buildClienteEnderecoLabel(
               'Endereço *',
               onAdd: clienteSelecionado == null ? null : _abrirListaEnderecos,
               addLabel: 'Adicionar Endereço',
             ),
             _buildEnderecoSelecionado(),
+
+            // Seção modular de Equipamento
+            EquipmentSection(
+              equipamento: _equipamentoSelecionado,
+              onOpenCadastro: () => _abrirCadastroEquipamento(_equipamentoSelecionado),
+              onEdit: (equip) => _abrirCadastroEquipamento(equip),
+            ),
 
             if (!_formHabilitado) _buildAvisoSelecioneCliente(),
 
@@ -523,7 +557,6 @@ class _DataOsState extends State<DataOs> {
                       'Andamento da OS',
                       'Atualize as informações referentes ao conserto do equipamento.',
                     ),
-
                     Row(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       spacing: 10,
@@ -541,20 +574,19 @@ class _DataOsState extends State<DataOs> {
                                 borderRadius: BorderRadius.circular(14),
                                 onTap: _selecionarDataEntrada,
                                 child: InputDecorator(
-                                  decoration:
-                                      customInputDecoration(
-                                        hintText: 'Data',
-                                      ).copyWith(
-                                        suffixIcon: const Icon(
-                                          Icons.calendar_month_outlined,
-                                          size: 20,
-                                        ),
-                                        contentPadding:
-                                            const EdgeInsets.symmetric(
-                                              horizontal: 12,
-                                              vertical: 14,
-                                            ),
-                                      ),
+                                  decoration: customInputDecoration(
+                                    hintText: 'Data',
+                                  ).copyWith(
+                                    suffixIcon: const Icon(
+                                      Icons.calendar_month_outlined,
+                                      size: 20,
+                                    ),
+                                    contentPadding:
+                                        const EdgeInsets.symmetric(
+                                      horizontal: 12,
+                                      vertical: 14,
+                                    ),
+                                  ),
                                   child: Text(
                                     _formatDate(dataEntrada),
                                     style: const TextStyle(fontSize: 14),
@@ -564,7 +596,6 @@ class _DataOsState extends State<DataOs> {
                             ],
                           ),
                         ),
-
                         Expanded(
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
@@ -578,29 +609,28 @@ class _DataOsState extends State<DataOs> {
                                 borderRadius: BorderRadius.circular(14),
                                 onTap: _alterarDataSaida,
                                 child: InputDecorator(
-                                  decoration:
-                                      customInputDecoration(
-                                        hintText: 'Automática',
-                                      ).copyWith(
-                                        filled: true,
-                                        fillColor: Colors.grey.shade100,
-                                        suffixIcon: dataSaida == null
-                                            ? const Icon(
-                                                Icons.hourglass_empty,
-                                                color: Colors.grey,
-                                                size: 20,
-                                              )
-                                            : const Icon(
-                                                Icons.edit_calendar_outlined,
-                                                color: Colors.grey,
-                                                size: 20,
-                                              ),
-                                        contentPadding:
-                                            const EdgeInsets.symmetric(
-                                              horizontal: 12,
-                                              vertical: 14,
-                                            ),
-                                      ),
+                                  decoration: customInputDecoration(
+                                    hintText: 'Automática',
+                                  ).copyWith(
+                                    filled: true,
+                                    fillColor: Colors.grey.shade100,
+                                    suffixIcon: dataSaida == null
+                                        ? const Icon(
+                                            Icons.hourglass_empty,
+                                            color: Colors.grey,
+                                            size: 20,
+                                          )
+                                        : const Icon(
+                                            Icons.edit_calendar_outlined,
+                                            color: Colors.grey,
+                                            size: 20,
+                                          ),
+                                    contentPadding:
+                                        const EdgeInsets.symmetric(
+                                      horizontal: 12,
+                                      vertical: 14,
+                                    ),
+                                  ),
                                   child: Text(
                                     dataSaida == null
                                         ? 'Indefinida'
@@ -619,7 +649,6 @@ class _DataOsState extends State<DataOs> {
                         ),
                       ],
                     ),
-
                     if (dataSaida != null) ...[
                       Row(
                         spacing: 6,
@@ -639,13 +668,9 @@ class _DataOsState extends State<DataOs> {
                         ],
                       ),
                     ],
-
                     _buildFieldLabel(Icons.sync_alt, 'Status'),
-
                     _buildStatusField(),
-
                     _buildFieldLabel(Icons.description_outlined, 'Relatório'),
-
                     InkWell(
                       onTap: _editarRelatorio,
                       borderRadius: BorderRadius.circular(16),
@@ -703,7 +728,6 @@ class _DataOsState extends State<DataOs> {
                               ),
                       ),
                     ),
-
                     Text(
                       '${relatorio.length}/256 caracteres',
                       style: TextStyle(
@@ -711,7 +735,6 @@ class _DataOsState extends State<DataOs> {
                         color: colors.onSurfaceVariant,
                       ),
                     ),
-
                     SizedBox(
                       width: double.infinity,
                       child: ElevatedButton.icon(
@@ -743,7 +766,6 @@ class _DataOsState extends State<DataOs> {
                         ),
                       ),
                     ),
-
                     Center(
                       child: Text(
                         'A conclusão da OS não altera a data de saída.',
