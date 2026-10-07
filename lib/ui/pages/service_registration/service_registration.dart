@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:frontend/ui/style/ColorScheme.dart' as custom_colors;
 
 class ServiceRegistration extends StatelessWidget {
@@ -19,6 +20,7 @@ class ServiceRegistration extends StatelessWidget {
   static const Color _inputBorderColor = Color(0xFFD3DFE7);
   static const Color _labelTextColor = Color(0xFF263944);
   static const Color _iconBlueColor = Color(0xFF2A92B6);
+  static const Color _requiredRedColor = Color(0xFFD32F2F);
 
   @override
   Widget build(BuildContext context) {
@@ -115,18 +117,18 @@ class ServiceRegistration extends StatelessWidget {
                       label: 'Nome do Serviço',
                       hintText: 'Exemplo',
                       icon: Icons.work_outline,
-                      isRequired: true,
                       colors: colors,
+                      isRequired: true,
                     ),
                     const SizedBox(height: 16),
 
                     _buildField(
                       label: 'Descrição',
-                      hintText: 'Descreva os detalhes do serviço...',
+                      hintText: 'Descreva o serviço (opcional)',
                       icon: Icons.notes_outlined,
+                      colors: colors,
                       isRequired: false,
                       maxLines: 4,
-                      colors: colors,
                     ),
                     const SizedBox(height: 16),
 
@@ -134,9 +136,9 @@ class ServiceRegistration extends StatelessWidget {
                       label: 'Valor',
                       hintText: 'R\$ 30,00',
                       icon: Icons.attach_money,
+                      colors: colors,
                       isRequired: true,
                       isNumeric: true,
-                      colors: colors,
                     ),
                   ],
                 ),
@@ -226,11 +228,14 @@ class ServiceRegistration extends StatelessWidget {
           ],
         ),
         const SizedBox(height: 7),
-        TextField(
+        TextFormField(
           maxLines: maxLines,
           keyboardType: isNumeric
               ? const TextInputType.numberWithOptions(decimal: true)
               : (maxLines > 1 ? TextInputType.multiline : TextInputType.text),
+          inputFormatters: isNumeric
+              ? [FilteringTextInputFormatter.allow(RegExp(r'^\d*\,?\d{0,2}'))]
+              : null,
           style: const TextStyle(
             color: _labelTextColor,
             fontSize: 14.5,
@@ -249,6 +254,11 @@ class ServiceRegistration extends StatelessWidget {
               horizontal: 14,
               vertical: 13,
             ),
+            errorStyle: const TextStyle(
+              color: _requiredRedColor,
+              fontSize: 11.5,
+              fontWeight: FontWeight.w500,
+            ),
             enabledBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(12),
               borderSide: const BorderSide(
@@ -259,6 +269,20 @@ class ServiceRegistration extends StatelessWidget {
             focusedBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(12),
               borderSide: BorderSide(color: colors.primary, width: 1.5),
+            ),
+            errorBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(12),
+              borderSide: const BorderSide(
+                color: _requiredRedColor,
+                width: 1.2,
+              ),
+            ),
+            focusedErrorBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(12),
+              borderSide: const BorderSide(
+                color: _requiredRedColor,
+                width: 1.5,
+              ),
             ),
             border: OutlineInputBorder(
               borderRadius: BorderRadius.circular(12),
