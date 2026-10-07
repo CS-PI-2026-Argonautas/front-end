@@ -6,7 +6,6 @@ class ServiceRegistration extends StatefulWidget {
   final VoidCallback? onBack;
   final VoidCallback? onClose;
   final VoidCallback? onCancel;
-  // REQUISITOS 1 e 2: Alterado para 'dynamic' para poder devolver o valor em Inteiro (cêntimos)
   final void Function(Map<String, dynamic> dadosServico)? onSubmit;
 
   const ServiceRegistration({
@@ -42,7 +41,6 @@ class _ServiceRegistrationState extends State<ServiceRegistration> {
     super.dispose();
   }
 
-  // REQUISITO 4: Converte a string de Reais para um número inteiro em Centavos
   int _converterParaCentavos(String valorTexto) {
     if (valorTexto.isEmpty) return 0;
     String valorFormatado = valorTexto.replaceAll(',', '.');
@@ -53,20 +51,16 @@ class _ServiceRegistrationState extends State<ServiceRegistration> {
   void _handleCadastrar() {
     if (!(_formKey.currentState?.validate() ?? false)) return;
 
-    // REQUISITOS 1, 2 e 4: Devolve um objeto (Map) preenchido e com os centavos
     final dados = {
       'nome': _nomeController.text.trim(),
       'descricao': _descricaoController.text.trim(),
 
-      // NOTA: Se preferir usar a classe que o seu colega sugeriu no PR,
-      // pode apagar a linha abaixo e usar: Dinheiro.paraCentavos(_valorController.text.trim())
       'valor': _converterParaCentavos(_valorController.text.trim()),
     };
 
     if (widget.onSubmit != null) {
       widget.onSubmit!(dados);
     } else {
-      // Devolve o objeto completo para o ecrã anterior (fecha a tela a passar os dados)
       Navigator.maybePop(context, dados);
     }
   }
@@ -204,7 +198,6 @@ class _ServiceRegistrationState extends State<ServiceRegistration> {
                 children: [
                   Expanded(
                     child: OutlinedButton(
-                      // REQUISITO 3: Botão "Cancelar" fecha o ecrã e não devolve nada (null implicitamente)
                       onPressed:
                           widget.onCancel ??
                           () {
