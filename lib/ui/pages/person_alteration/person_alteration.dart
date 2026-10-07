@@ -1,10 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:frontend/fire_base/Enums/TipoPessoa.dart';
 import 'package:frontend/fire_base/models/cliente.dart';
-import 'package:frontend/fire_base/models/contato.dart';
 import 'package:frontend/fire_base/models/endereco.dart';
+import 'package:frontend/fire_base/models/pessoa_fisica.dart';
+import 'package:frontend/fire_base/models/pessoa_juridica.dart';
 import 'package:frontend/fire_base/services/cliente_service.dart';
-import 'package:frontend/fire_base/services/endereco_service.dart';
 import 'package:frontend/ui/pages/person_alteration/person_alteration_address.dart';
 import 'package:frontend/ui/pages/person_alteration/person_alteration_contact.dart';
 import 'package:frontend/ui/style/ColorScheme.dart' as custom_colors;
@@ -15,10 +14,10 @@ import 'package:frontend/ui/widgets/form_card.dart';
 import 'package:frontend/ui/widgets/form_field_label.dart';
 import 'package:frontend/ui/widgets/form_section_tile.dart';
 import 'package:frontend/ui/widgets/header.dart';
-import 'package:frontend/ui/widgets/show_dialog/show_duplicate_document_dialog.dart';
 import 'package:mask_text_input_formatter/mask_text_input_formatter.dart';
 
 class PersonAlteration extends StatefulWidget {
+  /// Cliente a editar, já com os endereços preenchidos (ClienteRepository.listar).
   final Cliente cliente;
 
   const PersonAlteration({super.key, required this.cliente});
@@ -31,24 +30,19 @@ class _PersonAlterationState extends State<PersonAlteration> {
   final _formKey = GlobalKey<FormState>();
   final colors = custom_colors.colorScheme;
   final ClienteService _service = ClienteService();
-  final EnderecoService _enderecoService = EnderecoService(); 
 
   late bool _isPessoaFisica;
-  late Contato _contato; 
-  List<Endereco> _originais = [];
-  final List<Endereco> _enderecos = [];
-  bool _carregandoEnderecos = true;
-  bool _enderecosCarregados = false;
+
+  // cópia da lista: o formulário edita aqui e só grava ao confirmar
+  late final List<Endereco> _enderecos;
 
   late final TextEditingController _nomeController;
+  late final TextEditingController _contatoController;
   late final TextEditingController _documentoController;
   late final MaskTextInputFormatter _cpfFormatter;
   late final MaskTextInputFormatter _cnpjFormatter;
 
   bool _salvando = false;
-
-  TipoPessoa get _tipoPessoa =>
-      _isPessoaFisica ? TipoPessoa.fisica : TipoPessoa.juridica;
 
   @override
   void initState() {
@@ -56,60 +50,38 @@ class _PersonAlterationState extends State<PersonAlteration> {
 
     final cliente = widget.cliente;
 
-    _isPessoaFisica = cliente.tipoPessoa == TipoPessoa.fisica;
-    _contato = cliente.contato;
+    _isPessoaFisica = cliente is! PessoaJuridica;
+    _enderecos = List<Endereco>.of(cliente.enderecos);
+
+    final documento = cliente is PessoaFisica
+        ? cliente.cpf
+        : cliente is PessoaJuridica
+        ? cliente.cnpj
+        : '';
+    final digitos = documento.replaceAll(RegExp(r'[^0-9]'), '');
 
     _cpfFormatter = MaskTextInputFormatter(
       mask: '###.###.###-##',
       filter: {"#": RegExp(r'[0-9]')},
-      initialText: _isPessoaFisica ? cliente.documento : '',
+      initialText: _isPessoaFisica ? digitos : '',
     );
     _cnpjFormatter = MaskTextInputFormatter(
       mask: '##.###.###/####-##',
       filter: {"#": RegExp(r'[0-9]')},
-      initialText: _isPessoaFisica ? '' : cliente.documento,
+      initialText: _isPessoaFisica ? '' : digitos,
     );
 
     _nomeController = TextEditingController(text: cliente.nome);
+    _contatoController = TextEditingController(text: cliente.info_contato);
     _documentoController = TextEditingController(
       text: (_isPessoaFisica ? _cpfFormatter : _cnpjFormatter).getMaskedText(),
     );
-
-    _carregarEnderecos();
-  }
-
-  Future<void> _carregarEnderecos() async {
-    try {
-      final lista = await _enderecoService.listar(widget.cliente.id);
-
-      if (!mounted) return;
-
-      setState(() {
-        _originais = List<Endereco>.of(lista);
-        _enderecos
-          ..clear()
-          ..addAll(lista);
-        _enderecosCarregados = true;
-        _carregandoEnderecos = false;
-      });
-    } catch (e) {
-      debugPrint('Erro ao carregar endereços: $e');
-
-      if (!mounted) return;
-
-      setState(() => _carregandoEnderecos = false);
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Não foi possível carregar os endereços do cliente.'),
-          behavior: SnackBarBehavior.floating,
-        ),
-      );
-    }
   }
 
   @override
   void dispose() {
     _nomeController.dispose();
+    _contatoController.dispose();
     _documentoController.dispose();
     super.dispose();
   }
@@ -163,19 +135,16 @@ class _PersonAlterationState extends State<PersonAlteration> {
             },
           ),
 
-          if (_carregandoEnderecos)
-            const Center(child: CircularProgressIndicator())
-          else
-            EnderecosEditor(
-              enderecos: _enderecos,
-              abrirFormulario: (inicial) => Navigator.push<Endereco>(
-                context,
-                MaterialPageRoute(
-                  builder: (context) =>
-                      PersonAlterationAddress(enderecoInicial: inicial),
-                ),
+          EnderecosEditor(
+            enderecos: _enderecos,
+            abrirFormulario: (inicial) => Navigator.push<Endereco>(
+              context,
+              MaterialPageRoute(
+                builder: (context) =>
+                    PersonAlterationAddress(enderecoInicial: inicial),
               ),
             ),
+          ),
 
           Row(
             spacing: 6,
@@ -195,17 +164,16 @@ class _PersonAlterationState extends State<PersonAlteration> {
                   size: 26,
                 ),
                 onPressed: () async {
-                  final resultadoContato = await Navigator.push<Contato>(
+                  final resultadoContato = await Navigator.push<String>(
                     context,
                     MaterialPageRoute(
-                      builder: (context) =>
-                          PersonAlterationContact(contatoInicial: _contato),
+                      builder: (context) => const PersonAlterationContact(),
                     ),
                   );
 
                   if (resultadoContato != null && mounted) {
                     setState(() {
-                      _contato = resultadoContato;
+                      _contatoController.text = resultadoContato;
                     });
                   }
                 },
@@ -214,28 +182,30 @@ class _PersonAlterationState extends State<PersonAlteration> {
           ),
 
           FormField<String>(
-            key: ValueKey('contato_${_contato.resumo}'),
-            initialValue: _contato.resumo,
+            key: ValueKey('contato_${_contatoController.text}'),
+            initialValue: _contatoController.text,
             validator: (value) {
-              if (_contato.telefone.trim().isEmpty) {
+              if (_contatoController.text.isEmpty) {
                 return 'Informe as informações de contato';
               }
               return null;
             },
             builder: (FormFieldState<String> state) {
-              final vazio = _contato.resumo.isEmpty;
-
               return InputDecorator(
                 decoration: customInputDecoration(
-                  hintText: vazio ? "Inserir contato" : null,
+                  hintText: _contatoController.text.isEmpty
+                      ? "Inserir contato"
+                      : null,
                 ).copyWith(errorText: state.errorText),
                 child: Text(
-                  vazio ? "Inserir contato" : _contato.resumo,
+                  _contatoController.text.isEmpty
+                      ? "Inserir contato"
+                      : _contatoController.text,
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                   style: TextStyle(
                     fontSize: 16,
-                    color: vazio
+                    color: _contatoController.text.isEmpty
                         ? colors.onSurfaceVariant.withValues(alpha: 0.6)
                         : colors.onSurface,
                   ),
@@ -259,8 +229,15 @@ class _PersonAlterationState extends State<PersonAlteration> {
             ),
             keyboardType: TextInputType.number,
             inputFormatters: [_isPessoaFisica ? _cpfFormatter : _cnpjFormatter],
-            validator: (value) =>
-                ClienteService.validarDocumento(value ?? '', _tipoPessoa),
+            validator: (value) {
+              if (value == null || value.isEmpty) {
+                return 'Informe o documento';
+              }
+              if (value.length != (_isPessoaFisica ? 14 : 18)) {
+                return _isPessoaFisica ? 'CPF incompleto' : 'CNPJ incompleto';
+              }
+              return null;
+            },
           ),
 
           CheckboxListTile(
@@ -298,10 +275,11 @@ class _PersonAlterationState extends State<PersonAlteration> {
   Future<void> _salvar() async {
     if (_salvando) return;
 
-    if (!_enderecosCarregados) {
+    final id = widget.cliente.id;
+    if (id == null) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
-          content: Text('Aguarde o carregamento dos endereços.'),
+          content: Text('Este cliente ainda não foi salvo no banco.'),
           behavior: SnackBarBehavior.floating,
         ),
       );
@@ -310,49 +288,34 @@ class _PersonAlterationState extends State<PersonAlteration> {
 
     setState(() => _salvando = true);
 
+    final nome = _nomeController.text.trim();
+    final contato = _contatoController.text.trim();
+    final documento = _documentoController.text.trim();
     final original = widget.cliente;
 
-    final atualizado = Cliente(
-      id: original.id,
-      nome: _nomeController.text.trim(),
-      tipoPessoa: _tipoPessoa,
-      documento: _documentoController.text,
-      contato: _contato,
-    );
+    final Cliente atualizado = _isPessoaFisica
+        ? PessoaFisica(
+            id: id,
+            nome: nome,
+            info_contato: contato,
+            cpf: documento,
+          )
+        : PessoaJuridica(
+            id: id,
+            nome: nome,
+            info_contato: contato,
+            cnpj: documento,
+            setor: original is PessoaJuridica ? original.setor : '',
+          );
 
     try {
-      final duplicado = await _service.buscarDuplicado(
-        atualizado.documento,
-        ignorarId: original.id,
-      );
-
-      if (duplicado != null) {
-        if (!mounted) return;
-
-        final gravar =
-            await showDialog<bool>(
-              context: context,
-              builder: (_) => ShowDuplicateDocumentDialog(
-                nomeCliente: duplicado.nome,
-                tipo: _tipoPessoa,
-              ),
-            ) ??
-            false;
-
-        if (!gravar) {
-          if (mounted) setState(() => _salvando = false);
-          return;
-        }
-      }
-
-      await _service.atualizar(atualizado, _originais, _enderecos);
+      await _service.atualizar(atualizado, _enderecos);
 
       if (!mounted) return;
 
+      // true avisa a listagem para recarregar
       Navigator.pop(context, true);
     } catch (e) {
-      debugPrint('Erro ao salvar cliente: $e');
-
       if (!mounted) return;
 
       setState(() => _salvando = false);

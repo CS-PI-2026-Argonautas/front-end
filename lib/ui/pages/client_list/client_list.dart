@@ -7,6 +7,7 @@ import 'package:frontend/ui/pages/person_alteration/person_alteration.dart';
 import 'package:frontend/ui/pages/person_registration/person_registration.dart';
 import 'package:frontend/ui/pages/product_registration/product_registration.dart';
 import 'package:frontend/ui/pages/stand_in_page.dart';
+import 'package:frontend/fire_base/repositories/mock_client_repository.dart';
 import 'package:frontend/ui/style/ColorScheme.dart' as custom_colors;
 import 'package:frontend/ui/widgets/menu.dart';
 import 'package:frontend/ui/widgets/show_dialog/show_delete_client_dialog.dart';
@@ -24,11 +25,23 @@ class _ClientListState extends State<ClientList> {
 
   final ClienteService _service = ClienteService();
 
-  late final Stream<List<Cliente>> _clientes = _service.observar();
+  final MockClientRepository _repository = MockClientRepository();
+  late Future<List<Cliente>> _futureClientes;
   final colors = custom_colors.colorScheme;
 
+  @override
+  void initState() {
+    super.initState();
+    _carregarClientes();
+  }
+
+  void _carregarClientes() {
+    final clientes = _service.listar();
+    setState(() { _futureClientes = clientes; });
+  }
+
   Future<void> _deletarCliente(Cliente cliente) async {
-    await _service.excluir(cliente.id);
+    await _service.remover(cliente.id!);
   }
 
   @override
@@ -36,11 +49,12 @@ class _ClientListState extends State<ClientList> {
     return Scaffold(
       backgroundColor: colors.surface,
       appBar: AppBar(
+        // Remove a cor sólida para que o flexibeSpace com gradiente apareça
         backgroundColor: Colors.transparent, 
         foregroundColor: colors.onPrimary,
         centerTitle: true,
-        elevation: 8, 
-        shadowColor: Colors.black.withOpacity(0.5), 
+        elevation: 8, // Define a intensidade da sombra da AppBar
+        shadowColor: Colors.black.withOpacity(0.5), // Cor da sombra
         title: const Text(
           'Listar clientes',
           style: TextStyle(
@@ -49,6 +63,7 @@ class _ClientListState extends State<ClientList> {
             fontSize: 20,
           ),
         ),
+        // Adiciona o gradiente de cor no fundo da AppBar
         flexibleSpace: Container(
           decoration: BoxDecoration(
             gradient: LinearGradient(
@@ -157,9 +172,8 @@ class _ClientListState extends State<ClientList> {
                   ),
                 ),
                 //aqui faço meu "for" e adiciono um
-                // [ALTERADO] FutureBuilder -> StreamBuilder
-                StreamBuilder<List<Cliente>>(
-                  stream: _clientes,
+                FutureBuilder<List<Cliente>>(
+                  future: _futureClientes,
                   builder: (context, snapshot) {
                     if (snapshot.connectionState == ConnectionState.waiting) {
                       return const Padding(
@@ -199,6 +213,7 @@ class _ClientListState extends State<ClientList> {
             context,
             MaterialPageRoute(builder: (context) => const PersonRegistration()),
           );
+          _carregarClientes();
         },
         backgroundColor: colors.tertiary,
         foregroundColor: colors.onTertiary,
@@ -226,6 +241,7 @@ class _ClientListState extends State<ClientList> {
 
         await _deletarCliente(cliente);
 
+        _carregarClientes();
 
         if (!mounted) return;
 
@@ -237,7 +253,8 @@ class _ClientListState extends State<ClientList> {
           ShowDeleteClientSnackbar(
             color: colors.primary,
             onPressed: () async {
-              await _service.restaurar(cliente.id); 
+              await _service.restaurar(cliente.id!);
+              _carregarClientes();
               messenger.hideCurrentSnackBar();
             },
             duration: const Duration(seconds: 5),
@@ -284,7 +301,7 @@ class _ClientListState extends State<ClientList> {
                   //   ),
                   // ),
                   Text(
-                    cliente.contato.resumo, 
+                    cliente.info_contato,
                     style: TextStyle(
                       color: colors.onSurfaceVariant,
                       fontSize: 14,
@@ -295,13 +312,14 @@ class _ClientListState extends State<ClientList> {
             ),
             IconButton(
               icon: Icon(Icons.edit, color: colors.secondary),
-              onPressed: () {
-                Navigator.push(
+              onPressed: () async {
+                final alterou = await Navigator.push<bool>(
                   context,
                   MaterialPageRoute(
                     builder: (context) => PersonAlteration(cliente: cliente),
                   ),
                 );
+                if (alterou == true) _carregarClientes();
               },
             ),
           ],

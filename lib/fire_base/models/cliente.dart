@@ -1,68 +1,45 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:frontend/fire_base/Enums/TipoPessoa.dart';
-import 'package:frontend/fire_base/models/contato.dart';
 import 'package:frontend/fire_base/models/endereco.dart';
-import 'package:uuid/uuid.dart';
 
 class Cliente {
-  final String id;
+  String? id;
+  final String nome;
+  final String info_contato;
 
-  String nome;
-  TipoPessoa tipoPessoa;
-
-  String documento;
-
-  Contato contato;
-
-  Timestamp? createdAt;
-  Timestamp? updatedAt;
-  Timestamp? deletedAt;
-
+  /// NÃO é gravada no documento do cliente. É preenchida pelo
+  /// ClienteRepository a partir da coleção `addresses`
+  /// (where clienteId == id). Lista mutável de propósito.
   List<Endereco> enderecos;
 
+  // usado para o soft delete
+  bool removido;
+
   Cliente({
-    String? id,
+    this.id,
     required this.nome,
-    required this.tipoPessoa,
-    required String documento,
-    required this.contato,
-    this.createdAt,
-    this.updatedAt,
-    this.deletedAt,
+    required this.info_contato,
     List<Endereco>? enderecos,
-  }) : id = id ?? const Uuid().v4(),
-       documento = somenteDigitos(documento),
-       enderecos = enderecos ?? [];
+    this.removido = false,
+  }) : enderecos = enderecos ?? [];
 
-  static String somenteDigitos(String valor) {
-    return valor.replaceAll(RegExp(r'[^0-9]'), '');
-  }
-
-  bool get ativo => deletedAt == null;
-
-  Map<String, dynamic> toMap() {
+  Map<String, dynamic> toFirestore() {
     return {
-      'nome': nome.trim(),
-      'tipo_pessoa': tipoPessoa.valor,
-      'documento': documento,
-      ...contato.toMap(),
+      'nome': nome,
+      'info_contato': info_contato,
+      'removido': removido,
     };
   }
 
-  static Timestamp? _ts(Object? valor) => valor is Timestamp ? valor : null;
-
-  factory Cliente.fromFirestore(DocumentSnapshot<Map<String, dynamic>> doc) {
-    final data = doc.data() ?? <String, dynamic>{};
+  factory Cliente.fromFirestore(
+    DocumentSnapshot<Map<String, dynamic>> doc,
+  ) {
+    final data = doc.data()!;
 
     return Cliente(
       id: doc.id,
-      nome: (data['nome'] ?? '').toString().trim(),
-      tipoPessoa: TipoPessoa.de(data['tipo_pessoa']?.toString()),
-      documento: (data['documento'] ?? '').toString(),
-      contato: Contato.fromMap(data),
-      createdAt: _ts(data['created_at']),
-      updatedAt: _ts(data['updated_at']),
-      deletedAt: _ts(data['deleted_at']),
+      nome: (data['nome'] ?? '').toString(),
+      info_contato: (data['info_contato'] ?? '').toString(),
+      removido: data['removido'] == true,
     );
   }
 }

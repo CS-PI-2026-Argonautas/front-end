@@ -1,10 +1,8 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:frontend/fire_base/Enums/TipoPessoa.dart';
 import 'package:frontend/fire_base/models/cliente.dart';
-import 'package:frontend/fire_base/models/contato.dart';
 import 'package:frontend/fire_base/repositories/client_repository.dart';
 
 class MockClientRepository implements ClientRepository {
+  //instancia interna  (precisa pro front funcionar)
   static final MockClientRepository _instance =
       MockClientRepository._internal();
 
@@ -12,41 +10,44 @@ class MockClientRepository implements ClientRepository {
 
   factory MockClientRepository() => _instance;
 
-  static Cliente _fisica(String nome, String documento, String telefone) {
-    return Cliente(
-      nome: nome,
-      tipoPessoa: TipoPessoa.fisica,
-      documento: documento,
-      contato: Contato(telefone: telefone),
-    );
-  }
-
   final List<Cliente> _bd = [
-    _fisica('Giovanna', '00000000001', '999198999'),
-    _fisica('Murilo', '00000000002', '111111111'),
-    _fisica('Isaque', '00000000003', '411819111'),
-    _fisica('Maria', '00000000004', '111311311'),
-    _fisica('Felipe', '00000000005', '112219171'),
-    _fisica('Arthur', '00000000006', '812333178'),
+    Cliente(nome: 'Giovanna', 
+    //endereco: 'Rua x', 
+    info_contato: '999198999'),
+    Cliente(nome: 'Murilo', 
+    //endereco: 'Rua y', 
+    info_contato: '111111111'),
+    Cliente(nome: 'Isaque', 
+    //endereco: 'Rua p', 
+    info_contato: '411819111'),
+    Cliente(nome: 'Maria', 
+    //endereco: 'Rua j', 
+    info_contato: '111311311'),
+    Cliente(nome: 'Felipe', 
+    //endereco: 'Rua w', 
+    info_contato: '112219171'),
+    Cliente(nome: 'Arthur', 
+    //endereco: 'Rua w', 
+    info_contato: '812333178'),
   ];
 
   @override
   Future<List<Cliente>> listarTodos() async {
     await Future.delayed(const Duration(milliseconds: 300));
-    return List.unmodifiable(_bd.where((cliente) => cliente.ativo));
+    // lista apenas os clientes que não estiverem com a tag 'removido' ativa, ao implementar o backend isso será revisto
+    return List.unmodifiable(_bd.where((cliente) => !cliente.removido));
   }
 
   @override
   Future<void> salvar(Cliente cliente) async {
     await Future.delayed(const Duration(milliseconds: 300));
+    //cliente.id = _bd.length + 1;
     _bd.add(cliente);
   }
 
   @override
-  Future<void> deletar(String id) async {
+  Future<void> deletar(int id) async {
     await Future.delayed(const Duration(milliseconds: 300));
-    for (final cliente in _bd.where((c) => c.id == id)) {
-      cliente.deletedAt = Timestamp.now();
-    }
+    _bd.remove(id);
   }
 }

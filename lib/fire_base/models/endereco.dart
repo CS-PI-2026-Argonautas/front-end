@@ -1,82 +1,99 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:frontend/fire_base/Enums/Uf.dart';
-import 'package:uuid/uuid.dart';
 
 class Endereco {
-  final String id;
+  String? id;
 
-  String cep; 
-  String logradouro; 
+  /// Id do documento do cliente dono do endereço (coleção `clients`).
+  /// Fica null enquanto o cliente ainda não foi salvo.
+  String? clienteId;
+
+  String cep;
+  String rua;
+  String cidade;
+  String complemento;
   String numero;
-  String complemento; 
-  String cidade; 
-  Uf uf; 
-
-  Timestamp? createdAt;
-  Timestamp? updatedAt;
-  Timestamp? deletedAt;
+  Uf uf;
 
   Endereco({
-    String? id,
+    this.id,
+    this.clienteId,
     required this.cep,
-    required this.logradouro,
-    this.numero = '',
-    this.complemento = '',
+    required this.rua,
     required this.cidade,
+    required this.complemento,
+    this.numero = 'S/N',
     required this.uf,
-    this.createdAt,
-    this.updatedAt,
-    this.deletedAt,
-  }) : id = id ?? const Uuid().v4();
+  });
 
-  bool get ativo => deletedAt == null;
-
-  static String? _nulo(String valor) {
-    final texto = valor.trim();
-    return texto.isEmpty ? null : texto;
-  }
-
+  /// Só os dados do endereço (sem id e sem clienteId).
+  /// É isso que a OS grava como cópia embutida.
   Map<String, dynamic> toMap() {
     return {
-      'cep': _nulo(cep),
-      'logradouro': logradouro.trim(),
-      'numero': _nulo(numero),
-      'complemento': _nulo(complemento),
-      'cidade': cidade.trim(),
+      'cep': cep,
+      'rua': rua,
+      'cidade': cidade,
+      'complemento': complemento,
+      'numero': numero,
       'uf': uf.name,
     };
   }
 
-  static String _texto(Object? valor) => (valor ?? '').toString().trim();
-  static Timestamp? _ts(Object? valor) => valor is Timestamp ? valor : null;
+  /// Documento da coleção `addresses`: dados + vínculo com o cliente.
+  Map<String, dynamic> toFirestore() {
+    return {
+      ...toMap(),
+      'clienteId': clienteId,
+    };
+  }
 
-  factory Endereco.fromMap(Map<String, dynamic> data, {String? id}) {
+  static String _texto(Object? valor) => (valor ?? '').toString().trim();
+
+  factory Endereco.fromMap(
+    Map<String, dynamic> data, {
+    String? id,
+    String? clienteId,
+  }) {
     final ufTexto = _texto(data['uf']).toUpperCase();
 
     return Endereco(
       id: id,
+      clienteId: clienteId,
       cep: _texto(data['cep']),
-      logradouro: _texto(data['logradouro']),
-      numero: _texto(data['numero']),
-      complemento: _texto(data['complemento']),
+      rua: _texto(data['rua']),
       cidade: _texto(data['cidade']),
-      uf: Uf.values.firstWhere((u) => u.name == ufTexto, orElse: () => Uf.PR),
-      createdAt: _ts(data['created_at']),
-      updatedAt: _ts(data['updated_at']),
-      deletedAt: _ts(data['deleted_at']),
+      complemento: _texto(data['complemento']),
+      numero: _texto(data['numero']).isEmpty ? 'S/N' : _texto(data['numero']),
+      // documento com UF inválida não derruba a lista inteira
+      uf: Uf.values.firstWhere(
+        (u) => u.name == ufTexto,
+        orElse: () => Uf.PR,
+      ),
     );
   }
 
-  factory Endereco.fromFirestore(DocumentSnapshot<Map<String, dynamic>> doc) {
-    return Endereco.fromMap(doc.data() ?? <String, dynamic>{}, id: doc.id);
+  factory Endereco.fromFirestore(
+    DocumentSnapshot<Map<String, dynamic>> doc,
+  ) {
+    final data = doc.data()!;
+
+    return Endereco.fromMap(
+      data,
+      id: doc.id,
+      clienteId: data['clienteId'] as String?,
+    );
   }
 
-  bool mesmosDados(Endereco outro) {
-    return cep.trim() == outro.cep.trim() &&
-        logradouro.trim() == outro.logradouro.trim() &&
-        numero.trim() == outro.numero.trim() &&
-        complemento.trim() == outro.complemento.trim() &&
-        cidade.trim() == outro.cidade.trim() &&
-        uf == outro.uf;
+  Endereco copyWith({String? id, String? clienteId}) {
+    return Endereco(
+      id: id ?? this.id,
+      clienteId: clienteId ?? this.clienteId,
+      cep: cep,
+      rua: rua,
+      complemento: complemento,
+      cidade: cidade,
+      numero: numero,
+      uf: uf,
+    );
   }
 }
