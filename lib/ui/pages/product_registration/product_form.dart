@@ -1,26 +1,78 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+
 import 'package:frontend/ui/style/ColorScheme.dart' as custom_colors;
 import 'package:frontend/ui/style/inputDecorationStyles.dart';
 import 'package:frontend/fire_base/Enums/TiposItens.dart' as tipos;
+import 'package:frontend/fire_base/models/item.dart';
 import 'package:frontend/ui/widgets/form/validator.dart';
 import 'package:frontend/ui/widgets/form/form_card.dart';
 import 'package:frontend/ui/widgets/form/form_action_button.dart';
 import 'package:frontend/ui/widgets/form/labeled_form.dart';
 
 class ProductForm extends StatefulWidget {
-  final ValueChanged<bool> onSave;
+  final ValueChanged<Item> onSave;
   final VoidCallback onCancel;
 
-  const ProductForm({super.key, required this.onSave, required this.onCancel});
+  const ProductForm({
+    super.key,
+    required this.onSave,
+    required this.onCancel,
+  });
 
   @override
   State<ProductForm> createState() => _ProductFormState();
 }
 
 class _ProductFormState extends State<ProductForm> {
-  tipos.TipoProduto? tipoSelecionado;
   final _formKey = GlobalKey<FormState>();
+
+  final _nameController = TextEditingController();
+  final _descriptionController = TextEditingController();
+  final _valueController = TextEditingController();
+  final _minimumQuantityController = TextEditingController();
+
+  tipos.TipoProduto? tipoSelecionado;
+
+  @override
+  void dispose() {
+    _nameController.dispose();
+    _descriptionController.dispose();
+    _valueController.dispose();
+    _minimumQuantityController.dispose();
+
+    super.dispose();
+  }
+
+  int _parseValueInCents(String value) {
+    final normalizedValue = value
+        .replaceAll('.', '')
+        .replaceAll(',', '.');
+
+    final double valueInReais = double.parse(normalizedValue);
+
+    return (valueInReais * 100).round();
+  }
+
+  void _save() {
+    final bool isValid = _formKey.currentState!.validate();
+
+    if (!isValid) {
+      return;
+    }
+
+    final String description = _descriptionController.text.trim();
+
+    final item = Item(
+      name: _nameController.text.trim(),
+      description: description.isEmpty ? null : description,
+      valueInCents: _parseValueInCents(_valueController.text),
+      minimumQuantity: int.parse(_minimumQuantityController.text),
+      type: tipoSelecionado!,
+    );
+
+    widget.onSave(item);
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -35,8 +87,11 @@ class _ProductFormState extends State<ProductForm> {
           icon: Icons.inventory_2,
           label: "Nome do Produto",
           field: TextFormField(
+            controller: _nameController,
             validator: requiredValidator,
-            decoration: customInputDecoration(hintText: 'Balança'),
+            decoration: customInputDecoration(
+              hintText: 'Balança',
+            ),
           ),
         ),
 
@@ -44,8 +99,9 @@ class _ProductFormState extends State<ProductForm> {
           icon: Icons.description_outlined,
           label: "Descrição do produto",
           field: TextFormField(
+            controller: _descriptionController,
             maxLines: 4,
-            validator: requiredValidator,
+            maxLength: 50,
             decoration: customInputDecoration(
               hintText: 'Ex.: marca, tamanho, peso máximo...',
             ),
@@ -56,14 +112,22 @@ class _ProductFormState extends State<ProductForm> {
           icon: Icons.payments_outlined,
           label: "Valor",
           field: TextFormField(
+            controller: _valueController,
             validator: requiredValidator,
-            keyboardType: const TextInputType.numberWithOptions(decimal: true),
+            keyboardType: const TextInputType.numberWithOptions(
+              decimal: true,
+            ),
             inputFormatters: [
-              FilteringTextInputFormatter.allow(RegExp(r'[0-9,.]')),
+              FilteringTextInputFormatter.allow(
+                RegExp(r'[0-9,.]'),
+              ),
             ],
             decoration: customInputDecoration(
               hintText: '0,00',
-              prefixIcon: Icon(Icons.attach_money, color: colors.primary),
+              prefixIcon: Icon(
+                Icons.attach_money,
+                color: colors.primary,
+              ),
             ),
           ),
         ),
@@ -72,13 +136,19 @@ class _ProductFormState extends State<ProductForm> {
           icon: Icons.warning_amber_rounded,
           label: "Quantidade mínima",
           field: TextFormField(
+            controller: _minimumQuantityController,
             validator: requiredValidator,
             maxLength: 2,
             keyboardType: TextInputType.number,
-            inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+            inputFormatters: [
+              FilteringTextInputFormatter.digitsOnly,
+            ],
             decoration: customInputDecoration(
               hintText: '10',
-              prefixIcon: Icon(Icons.numbers, color: colors.primary),
+              prefixIcon: Icon(
+                Icons.numbers,
+                color: colors.primary,
+              ),
             ),
           ),
         ),
@@ -89,14 +159,21 @@ class _ProductFormState extends State<ProductForm> {
             if (value == null) {
               return 'Campo obrigatório';
             }
+
             return null;
           },
           decoration: customInputDecoration(
             hintText: "Selecione o tipo",
-            prefixIcon: Icon(Icons.category, color: colors.primary),
+            prefixIcon: Icon(
+              Icons.category,
+              color: colors.primary,
+            ),
           ),
           items: tipos.TipoProduto.values.map((tipo) {
-            return DropdownMenuItem(value: tipo, child: Text(tipo.label));
+            return DropdownMenuItem(
+              value: tipo,
+              child: Text(tipo.label),
+            );
           }).toList(),
           onChanged: (value) {
             setState(() {
@@ -106,10 +183,7 @@ class _ProductFormState extends State<ProductForm> {
         ),
 
         FormActionButtons(
-          onSave: () {
-            bool valido = _formKey.currentState!.validate();
-            widget.onSave(valido);
-          },
+          onSave: _save,
           onCancel: widget.onCancel,
         ),
       ],

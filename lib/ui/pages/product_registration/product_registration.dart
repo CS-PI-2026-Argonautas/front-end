@@ -28,7 +28,10 @@ class ProductRegistration extends StatelessWidget {
 
         child: SafeArea(
           child: SingleChildScrollView(
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 18),
+            padding: const EdgeInsets.symmetric(
+              horizontal: 16,
+              vertical: 18,
+            ),
 
             child: Center(
               child: ConstrainedBox(
@@ -44,76 +47,59 @@ class ProductRegistration extends StatelessWidget {
                         Navigator.pop(context);
                       },
 
-                      onSave: (formValido) {
-                        if (!formValido) {
-                          showDialog(
-                            context: context,
-                            builder: (context) => AlertDialog(
-                              title: const Text("Aviso"),
-                              content: const Text(
-                                "Preencha todos os campos obrigatórios",
+                      onSave: (item) {
+                        showDialog(
+                          context: context,
+
+                          builder: (context) {
+                            return AlertDialog(
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(18),
                               ),
+
+                              title: const Row(
+                                spacing: 6,
+                                children: [
+                                  Icon(
+                                    Icons.check_circle,
+                                    color: Colors.green,
+                                    size: 28,
+                                  ),
+
+                                  Text("Envio confirmado"),
+                                ],
+                              ),
+
+                              content: const Text(
+                                "O produto foi enviado com sucesso.",
+                              ),
+
                               actions: [
                                 TextButton(
-                                  onPressed: () => Navigator.pop(context),
-                                  child: const Text("OK"),
+                                  onPressed: () {
+                                    Navigator.pop(context);
+                                  },
+
+                                  child: const Text("Continuar"),
+                                ),
+
+                                TextButton(
+                                  onPressed: () {
+                                    Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                        builder: (context) =>
+                                            const Dashboard(),
+                                      ),
+                                    );
+                                  },
+
+                                  child: const Text("Cancelar"),
                                 ),
                               ],
-                            ),
-                          );
-                        } else {
-                          showDialog(
-                            context: context,
-
-                            builder: (context) {
-                              return AlertDialog(
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(18),
-                                ),
-
-                                title: const Row(
-                                  spacing: 6,
-                                  children: [
-                                    Icon(
-                                      Icons.check_circle,
-                                      color: Colors.green,
-                                      size: 28,
-                                    ),
-
-                                    Text("Envio confirmado"),
-                                  ],
-                                ),
-
-                                content: const Text(
-                                  "O produto foi enviado com sucesso.",
-                                ),
-
-                                actions: [
-                                  TextButton(
-                                    onPressed: () {
-                                      Navigator.pop(context);
-                                    },
-
-                                    child: const Text("Continuar"),
-                                  ),
-                                  TextButton(
-                                    onPressed: () {
-                                      Navigator.push(
-                                        context,
-                                        MaterialPageRoute(
-                                          builder: (context) =>
-                                              const Dashboard(),
-                                        ),
-                                      );
-                                    },
-
-                                    child: const Text("Cancelar"),
-                                  ),
-                                ],
-                              );
-                            },
-                          );
-                        }
+                            );
+                          },
+                        );
                       },
                     ),
                   ],

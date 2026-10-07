@@ -12,7 +12,6 @@ class ItemService {
     await _repository.create(item);
   }
 
-
   Future<void> update(Item item) async {
     if (item.id == null) {
       throw ArgumentError('Item ID is required for update.');

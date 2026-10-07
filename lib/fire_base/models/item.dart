@@ -8,8 +8,8 @@ class Item {
   final int valueInCents;
   final int minimumQuantity;
   final TipoProduto type;
-  final Timestamp createdAt;
-  final Timestamp updatedAt;
+final Timestamp? createdAt;
+final Timestamp? updatedAt;
   final Timestamp? deletedAt;
 Item({
   this.id,
@@ -18,8 +18,8 @@ Item({
   required this.valueInCents,
   required this.minimumQuantity,
   required this.type,
-  required this.createdAt,
-  required this.updatedAt,
+  this.createdAt,
+  this.updatedAt,
   this.deletedAt,
 });
   factory Item.fromFirestore(
