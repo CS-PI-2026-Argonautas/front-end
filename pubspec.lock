@@ -5,10 +5,9 @@ packages:
     dependency: transitive
     description:
       name: _fe_analyzer_shared
-      sha256: "8d7ff3948166b8ec5da0fbb5962000926b8e02f2ed9b3e51d1738905fbd4c98d"
+      sha256: fdcd9f70f9eb80df3bc5ed0fa67280df2595fd481948df8a9ab082e6a40ad04b
       url: "https://pub.dev"
     source: hosted
-<<<<<<< HEAD
     version: "108.0.0"
   _flutterfire_internals:
     dependency: transitive
@@ -17,7 +16,7 @@ packages:
       sha256: f6966125633a34f82d9be2ee895b755cff3554087b1d00a9eb884e5947f4bca9
       url: "https://pub.dev"
     source: hosted
-    version: "93.0.0"
+    version: "1.3.77"
   analyzer:
     dependency: transitive
     description:
@@ -209,23 +208,15 @@ packages:
       sha256: "12981945ec38931748836cd76f2b38773118d0baef3c68404bdfde9566147876"
       url: "https://pub.dev"
     source: hosted
-    version: "3.1.13"
-  diacritic:
-    dependency: "direct main"
-    description:
-      name: diacritic
-      sha256: "12981945ec38931748836cd76f2b38773118d0baef3c68404bdfde9566147876"
-      url: "https://pub.dev"
-    source: hosted
     version: "0.1.6"
   drift:
     dependency: "direct main"
     description:
       name: drift
-      sha256: e3b6352aa02e60bed6ffc3cc9894c421578dad5fbef21b1f7f57cdc0e4edabcb
+      sha256: bab55d542d63765f6250ee3e2c62e11bfa1145d4ec2ffa05353c8fb4e10b52c1
       url: "https://pub.dev"
     source: hosted
-    version: "2.35.0"
+    version: "2.34.4"
   drift_dev:
     dependency: "direct dev"
     description:
