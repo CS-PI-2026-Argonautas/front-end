@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/foundation.dart';
+import 'package:frontend/fire_base/firestore_paths.dart';
 import 'package:frontend/fire_base/models/endereco.dart';
 import 'package:frontend/fire_base/repositories/leitura_firestore.dart'; 
 
@@ -14,7 +15,7 @@ class EnderecoRepository {
     FirebaseFirestore db,
     String clienteId,
   ) {
-    return db.collection('clientes').doc(clienteId).collection('enderecos');
+    return db.collection(colecaoClientes).doc(clienteId).collection(subcolecaoEnderecos);
   }
 
   CollectionReference<Map<String, dynamic>> _col(String clienteId) =>

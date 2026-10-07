@@ -2,7 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:frontend/fire_base/Enums/TipoPessoa.dart';
 import 'package:frontend/fire_base/models/cliente.dart';
 import 'package:frontend/fire_base/models/contato.dart';
-import 'package:frontend/fire_base/repositories/client_repository.dart';
+import 'package:frontend/fire_base/repositories/client_old_repository.dart';
 
 class MockClientRepository implements ClientRepository {
   static final MockClientRepository _instance =
