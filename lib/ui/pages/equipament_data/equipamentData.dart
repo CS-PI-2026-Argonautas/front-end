@@ -1,11 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:frontend/ui/style/ColorScheme.dart' as custom_colors;
+import 'package:frontend/fire_base/models/equipamento.dart';
+import 'package:frontend/fire_base/services/equipamento_service.dart';
 
 class EquipamentData extends StatefulWidget {
   final VoidCallback? onBack;
   final VoidCallback? onClose;
-  final void Function(Map<String, String> dadosBalanca)? onSubmit;
+  final void Function(Map<String, String> dadosEquipamento)? onSubmit;
 
   const EquipamentData({super.key, this.onBack, this.onClose, this.onSubmit});
 
@@ -51,26 +53,60 @@ class _EquipamentDataState extends State<EquipamentData> {
     super.dispose();
   }
 
-  void _handleCadastrar() {
-    if (_formKey.currentState?.validate() ?? false) {
-      final dados = {
-        'marca': _marcaController.text.trim(),
-        'modelo': _modeloController.text.trim(),
-        'numeroSerie': _numeroSerieController.text.trim(),
-        'portaria': _portariaController.text.trim(),
-        'numeroInmetro': _numeroInmetroController.text.trim(),
-        'numeroVerificacao': _numeroVerificacaoController.text.trim(),
-        'seloAnterior': _seloAnteriorController.text.trim(),
-        'seloAtual': _seloAtualController.text.trim(),
-        'lacreAnterior': _lacreAnteriorController.text.trim(),
-        'lacreAtual': _lacreAtualController.text.trim(),
-      };
+  bool _salvando = false;
 
+  Future<void> _handleCadastrar() async {
+    if (!(_formKey.currentState?.validate() ?? false)) return;
+
+    setState(() => _salvando = true);
+
+    try {
+      final equipamento = Equipamento(
+        marca: _marcaController.text.trim(),
+        modelo: _modeloController.text.trim(),
+        numeroSerie: _numeroSerieController.text.trim(),
+        portaria: _portariaController.text.trim(),
+        numeroInmetro: _numeroInmetroController.text.trim(),
+        numeroVerificacao: _numeroVerificacaoController.text.trim(),
+        seloAnterior: _seloAnteriorController.text.trim(),
+        seloAtual: _seloAtualController.text.trim(),
+        lacreAnterior: _lacreAnteriorController.text.trim(),
+        lacreAtual: _lacreAtualController.text.trim(),
+      );
+
+      final service = EquipamentoService();
+      final idGerado = await service.salvar(equipamento);
+
+      if (!mounted) return;
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Balança salva com sucesso! ID: $idGerado'),
+          backgroundColor: const Color(0xFF1E9E5F),
+          duration: const Duration(seconds: 3),
+        ),
+      );
+
+      // Se tiver passado callback customizado ou apenas voltar:
       if (widget.onSubmit != null) {
-        widget.onSubmit!(dados);
+        widget.onSubmit!({
+          'id': idGerado,
+          'marca': equipamento.marca,
+          'modelo': equipamento.modelo,
+        });
       } else {
         Navigator.maybePop(context);
       }
+    } catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Erro ao salvar no Firestore: $e'),
+          backgroundColor: Colors.red.shade700,
+        ),
+      );
+    } finally {
+      if (mounted) setState(() => _salvando = false);
     }
   }
 

@@ -1,6 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 
-class Balanca {
+class Equipamento {
   String? id;
   final String marca;
   final String modelo;
@@ -14,7 +14,7 @@ class Balanca {
   final String lacreAtual;
   final DateTime createdAt;
 
-  Balanca({
+  Equipamento({
     this.id,
     required this.marca,
     required this.modelo,
@@ -45,9 +45,11 @@ class Balanca {
     };
   }
 
-  factory Balanca.fromFirestore(DocumentSnapshot<Map<String, dynamic>> doc) {
+  factory Equipamento.fromFirestore(
+    DocumentSnapshot<Map<String, dynamic>> doc,
+  ) {
     final data = doc.data() ?? {};
-    return Balanca(
+    return Equipamento(
       id: doc.id,
       marca: (data['marca'] ?? '').toString(),
       modelo: (data['modelo'] ?? '').toString(),
