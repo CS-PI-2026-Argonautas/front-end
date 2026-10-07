@@ -87,7 +87,6 @@ class _EquipamentDataState extends State<EquipamentData> {
         ),
       );
 
-      // Se tiver passado callback customizado ou apenas voltar:
       if (widget.onSubmit != null) {
         widget.onSubmit!({
           'id': idGerado,
