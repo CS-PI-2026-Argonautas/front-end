@@ -1,45 +1,68 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:frontend/fire_base/Enums/TipoPessoa.dart';
+import 'package:frontend/fire_base/models/contato.dart';
 import 'package:frontend/fire_base/models/endereco.dart';
+import 'package:uuid/uuid.dart';
 
 class Cliente {
-  String? id;
-  final String nome;
-  final String info_contato;
+  final String id;
 
-  /// NÃO é gravada no documento do cliente. É preenchida pelo
-  /// ClienteRepository a partir da coleção `addresses`
-  /// (where clienteId == id). Lista mutável de propósito.
+  String nome;
+  TipoPessoa tipoPessoa;
+
+  String documento;
+
+  Contato contato;
+
+  Timestamp? createdAt;
+  Timestamp? updatedAt;
+  Timestamp? deletedAt;
+
   List<Endereco> enderecos;
 
-  // usado para o soft delete
-  bool removido;
-
   Cliente({
-    this.id,
+    String? id,
     required this.nome,
-    required this.info_contato,
+    required this.tipoPessoa,
+    required String documento,
+    required this.contato,
+    this.createdAt,
+    this.updatedAt,
+    this.deletedAt,
     List<Endereco>? enderecos,
-    this.removido = false,
-  }) : enderecos = enderecos ?? [];
+  }) : id = id ?? const Uuid().v4(),
+       documento = somenteDigitos(documento),
+       enderecos = enderecos ?? [];
 
-  Map<String, dynamic> toFirestore() {
+  static String somenteDigitos(String valor) {
+    return valor.replaceAll(RegExp(r'[^0-9]'), '');
+  }
+
+  bool get ativo => deletedAt == null;
+
+  Map<String, dynamic> toMap() {
     return {
-      'nome': nome,
-      'info_contato': info_contato,
-      'removido': removido,
+      'nome': nome.trim(),
+      'tipo_pessoa': tipoPessoa.valor,
+      'documento': documento,
+      ...contato.toMap(),
     };
   }
 
-  factory Cliente.fromFirestore(
-    DocumentSnapshot<Map<String, dynamic>> doc,
-  ) {
-    final data = doc.data()!;
+  static Timestamp? _ts(Object? valor) => valor is Timestamp ? valor : null;
+
+  factory Cliente.fromFirestore(DocumentSnapshot<Map<String, dynamic>> doc) {
+    final data = doc.data() ?? <String, dynamic>{};
 
     return Cliente(
       id: doc.id,
-      nome: (data['nome'] ?? '').toString(),
-      info_contato: (data['info_contato'] ?? '').toString(),
-      removido: data['removido'] == true,
+      nome: (data['nome'] ?? '').toString().trim(),
+      tipoPessoa: TipoPessoa.de(data['tipo_pessoa']?.toString()),
+      documento: (data['documento'] ?? '').toString(),
+      contato: Contato.fromMap(data),
+      createdAt: _ts(data['created_at']),
+      updatedAt: _ts(data['updated_at']),
+      deletedAt: _ts(data['deleted_at']),
     );
   }
 }
