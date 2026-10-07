@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:frontend/ui/style/ColorScheme.dart' as custom_colors;
 
 class EquipamentData extends StatefulWidget {
@@ -33,6 +34,7 @@ class _EquipamentDataState extends State<EquipamentData> {
   static const Color _inputBorderColor = Color(0xFFD3DFE7);
   static const Color _labelTextColor = Color(0xFF263944);
   static const Color _iconBlueColor = Color(0xFF2A92B6);
+  static const Color _requiredRedColor = Color(0xFFD32F2F);
 
   @override
   void dispose() {
@@ -50,7 +52,7 @@ class _EquipamentDataState extends State<EquipamentData> {
   }
 
   void _handleCadastrar() {
-    if (_formKey.currentState?.validate() ?? true) {
+    if (_formKey.currentState?.validate() ?? false) {
       final dados = {
         'marca': _marcaController.text.trim(),
         'modelo': _modeloController.text.trim(),
@@ -75,9 +77,11 @@ class _EquipamentDataState extends State<EquipamentData> {
   @override
   Widget build(BuildContext context) {
     final colors = custom_colors.colorScheme;
+    final bottomInset = MediaQuery.of(context).viewInsets.bottom;
 
     return Scaffold(
       backgroundColor: colors.surface,
+      resizeToAvoidBottomInset: true,
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         foregroundColor: colors.onPrimary,
@@ -118,7 +122,9 @@ class _EquipamentDataState extends State<EquipamentData> {
       ),
       body: SafeArea(
         child: SingleChildScrollView(
-          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 20),
+          keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
+          physics: const BouncingScrollPhysics(),
+          padding: EdgeInsets.fromLTRB(24, 20, 24, 24 + bottomInset),
           child: Column(
             children: [
               Container(
@@ -182,6 +188,7 @@ class _EquipamentDataState extends State<EquipamentData> {
                         icon: Icons.pin_outlined,
                         controller: _numeroSerieController,
                         colors: colors,
+                        isNumeric: true,
                       ),
                       const SizedBox(height: 16),
 
@@ -190,6 +197,7 @@ class _EquipamentDataState extends State<EquipamentData> {
                         icon: Icons.assignment_outlined,
                         controller: _portariaController,
                         colors: colors,
+                        isNumeric: true,
                       ),
                       const SizedBox(height: 16),
 
@@ -198,6 +206,7 @@ class _EquipamentDataState extends State<EquipamentData> {
                         icon: Icons.verified_outlined,
                         controller: _numeroInmetroController,
                         colors: colors,
+                        isNumeric: true,
                       ),
                       const SizedBox(height: 16),
 
@@ -206,10 +215,12 @@ class _EquipamentDataState extends State<EquipamentData> {
                         icon: Icons.fact_check_outlined,
                         controller: _numeroVerificacaoController,
                         colors: colors,
+                        isNumeric: true,
                       ),
                       const SizedBox(height: 16),
 
                       Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Expanded(
                             child: _buildField(
@@ -217,6 +228,7 @@ class _EquipamentDataState extends State<EquipamentData> {
                               icon: Icons.security_outlined,
                               controller: _seloAnteriorController,
                               colors: colors,
+                              isNumeric: true,
                             ),
                           ),
                           const SizedBox(width: 14),
@@ -226,6 +238,7 @@ class _EquipamentDataState extends State<EquipamentData> {
                               icon: Icons.verified_user_outlined,
                               controller: _seloAtualController,
                               colors: colors,
+                              isNumeric: true,
                             ),
                           ),
                         ],
@@ -233,6 +246,7 @@ class _EquipamentDataState extends State<EquipamentData> {
                       const SizedBox(height: 16),
 
                       Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Expanded(
                             child: _buildField(
@@ -240,6 +254,7 @@ class _EquipamentDataState extends State<EquipamentData> {
                               icon: Icons.lock_clock_outlined,
                               controller: _lacreAnteriorController,
                               colors: colors,
+                              isNumeric: true,
                             ),
                           ),
                           const SizedBox(width: 14),
@@ -249,6 +264,7 @@ class _EquipamentDataState extends State<EquipamentData> {
                               icon: Icons.lock_outline,
                               controller: _lacreAtualController,
                               colors: colors,
+                              isNumeric: true,
                             ),
                           ),
                         ],
@@ -322,6 +338,7 @@ class _EquipamentDataState extends State<EquipamentData> {
     required IconData icon,
     required TextEditingController controller,
     required ColorScheme colors,
+    bool isNumeric = false,
   }) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -331,7 +348,7 @@ class _EquipamentDataState extends State<EquipamentData> {
             Icon(icon, size: 16, color: _iconBlueColor),
             const SizedBox(width: 6),
             Text(
-              label,
+              '$label *',
               style: const TextStyle(
                 color: _labelTextColor,
                 fontSize: 14,
@@ -343,6 +360,16 @@ class _EquipamentDataState extends State<EquipamentData> {
         const SizedBox(height: 7),
         TextFormField(
           controller: controller,
+          keyboardType: isNumeric ? TextInputType.number : TextInputType.text,
+          inputFormatters: isNumeric
+              ? [FilteringTextInputFormatter.digitsOnly]
+              : null,
+          validator: (value) {
+            if (value == null || value.trim().isEmpty) {
+              return 'Campo obrigatório';
+            }
+            return null;
+          },
           style: const TextStyle(
             color: _labelTextColor,
             fontSize: 14.5,
@@ -356,6 +383,11 @@ class _EquipamentDataState extends State<EquipamentData> {
               horizontal: 14,
               vertical: 13,
             ),
+            errorStyle: const TextStyle(
+              color: _requiredRedColor,
+              fontSize: 11.5,
+              fontWeight: FontWeight.w500,
+            ),
             enabledBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(12),
               borderSide: const BorderSide(
@@ -366,6 +398,20 @@ class _EquipamentDataState extends State<EquipamentData> {
             focusedBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(12),
               borderSide: BorderSide(color: colors.primary, width: 1.5),
+            ),
+            errorBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(12),
+              borderSide: const BorderSide(
+                color: _requiredRedColor,
+                width: 1.2,
+              ),
+            ),
+            focusedErrorBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(12),
+              borderSide: const BorderSide(
+                color: _requiredRedColor,
+                width: 1.5,
+              ),
             ),
             border: OutlineInputBorder(
               borderRadius: BorderRadius.circular(12),
