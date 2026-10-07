@@ -5,12 +5,12 @@ import 'package:uuid/uuid.dart';
 class Endereco {
   final String id;
 
-  String cep;
-  String logradouro;
+  String cep; 
+  String logradouro; 
   String numero;
-  String complemento;
-  String cidade;
-  Uf uf;
+  String complemento; 
+  String cidade; 
+  Uf uf; 
 
   Timestamp? createdAt;
   Timestamp? updatedAt;

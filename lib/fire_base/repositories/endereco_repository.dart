@@ -2,6 +2,7 @@ import 'dart:async';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/foundation.dart';
 import 'package:frontend/fire_base/models/endereco.dart';
+import 'package:frontend/fire_base/repositories/leitura_firestore.dart'; 
 
 class EnderecoRepository {
   final FirebaseFirestore _db;
@@ -24,7 +25,7 @@ class EnderecoRepository {
   }
 
   Future<List<Endereco>> listar(String clienteId) async {
-    final snapshot = await _col(clienteId).get();
+    final snapshot = await lerComFallback(_col(clienteId));
 
     final lista = snapshot.docs
         .map(Endereco.fromFirestore)

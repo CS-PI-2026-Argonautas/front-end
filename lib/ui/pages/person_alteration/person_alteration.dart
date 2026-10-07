@@ -31,11 +31,10 @@ class _PersonAlterationState extends State<PersonAlteration> {
   final _formKey = GlobalKey<FormState>();
   final colors = custom_colors.colorScheme;
   final ClienteService _service = ClienteService();
-  final EnderecoService _enderecoService = EnderecoService(); // [NOVO]
+  final EnderecoService _enderecoService = EnderecoService(); 
 
   late bool _isPessoaFisica;
-  late Contato _contato;
-
+  late Contato _contato; 
   List<Endereco> _originais = [];
   final List<Endereco> _enderecos = [];
   bool _carregandoEnderecos = true;
@@ -164,7 +163,6 @@ class _PersonAlterationState extends State<PersonAlteration> {
             },
           ),
 
-          // [ALTERADO] enquanto os endereços carregam, mostra um indicador
           if (_carregandoEnderecos)
             const Center(child: CircularProgressIndicator())
           else
@@ -197,7 +195,6 @@ class _PersonAlterationState extends State<PersonAlteration> {
                   size: 26,
                 ),
                 onPressed: () async {
-                  // [ALTERADO] abre pré-preenchido e recebe um Contato
                   final resultadoContato = await Navigator.push<Contato>(
                     context,
                     MaterialPageRoute(
@@ -301,7 +298,6 @@ class _PersonAlterationState extends State<PersonAlteration> {
   Future<void> _salvar() async {
     if (_salvando) return;
 
-    // [NOVO] sem os endereços carregados não dá para saber o que mudou
     if (!_enderecosCarregados) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(

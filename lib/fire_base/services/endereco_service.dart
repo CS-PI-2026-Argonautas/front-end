@@ -26,7 +26,8 @@ class EnderecoService {
   }
 
   void _validar(Endereco endereco) {
-    if (endereco.logradouro.trim().isEmpty || endereco.cidade.trim().isEmpty) {
+    if (endereco.logradouro.trim().isEmpty ||
+        endereco.cidade.trim().isEmpty) {
       throw ArgumentError('Logradouro e cidade são obrigatórios.');
     }
   }

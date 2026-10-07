@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:frontend/fire_base/models/contato.dart'; // [NOVO]
+import 'package:frontend/fire_base/models/contato.dart'; 
 import 'package:frontend/ui/style/ColorScheme.dart' as custom_colors;
 import 'package:frontend/ui/style/inputDecorationStyles.dart';
 import 'package:frontend/ui/widgets/action_buttons.dart';
@@ -60,7 +60,7 @@ class _PersonRegistration3State extends State<PersonRegistrationContact> {
         onBack: () {
           Navigator.pop(context);
         },
-        title: widget.titulo,
+        title: widget.titulo, 
       ),
       body: SafeArea(
         child: SingleChildScrollView(
@@ -75,8 +75,6 @@ class _PersonRegistration3State extends State<PersonRegistrationContact> {
       ),
     );
   }
-
-  // Cabeçalho baseado no ProductHeader[cite: 14]
 
   Widget _buildFormCard() {
     return FormCard(
@@ -107,10 +105,7 @@ class _PersonRegistration3State extends State<PersonRegistrationContact> {
             },
           ),
 
-          FormFieldLabel(
-            icon: Icons.email_outlined,
-            label: "Email",
-          ), // [ALTERADO] opcional na HU
+          FormFieldLabel(icon: Icons.email_outlined, label: "Email"), 
 
           TextFormField(
             controller: _emailController,
@@ -143,9 +138,7 @@ class _PersonRegistration3State extends State<PersonRegistrationContact> {
 
           TextFormField(
             controller: _setorController,
-            decoration: customInputDecoration(
-              hintText: "Financeiro, Compras...",
-            ),
+            decoration: customInputDecoration(hintText: "Financeiro, Compras..."),
             maxLength: 50,
           ),
 
@@ -164,9 +157,7 @@ class _PersonRegistration3State extends State<PersonRegistrationContact> {
           ActionButtons(
             formKey: _formKey,
             colors: colors,
-            textoConfirmar: widget.contatoInicial == null
-                ? 'Cadastrar'
-                : 'Salvar',
+            textoConfirmar: widget.contatoInicial == null ? 'Cadastrar' : 'Salvar',
             onCancel: () => Navigator.pop(context),
             onCadastrar: () {
               Navigator.pop(

@@ -130,13 +130,24 @@ class _DataOsState extends State<DataOs> {
   }
 
   Future<void> _carregarClientes() async {
-    final clientes = await _clienteService.listar();
+    // [ALTERADO] antes não tinha try/catch nem checagem de `mounted`: se a
+    // leitura falhasse (ou a tela fosse fechada antes de terminar), dava erro
+    // não tratado / setState em widget desmontado.
+    try {
+      final clientes = await _clienteService.listar();
 
-    setState(() {
-      clientesDisponiveis = clientes.map((c) {
-        return {'id': c.id, 'nome': c.nome, 'telefone': c.contato.telefone};
-      }).toList();
-    });
+      if (!mounted) return;
+
+      setState(() {
+        clientesDisponiveis = clientes.map((c) {
+          return {'id': c.id, 'nome': c.nome, 'telefone': c.contato.telefone};
+        }).toList();
+      });
+    } catch (e) {
+      debugPrint('Erro ao carregar clientes: $e');
+
+      if (mounted) _mostrarErro('Não foi possível carregar os clientes.');
+    }
   }
 
   String _formatDate(DateTime? date) {

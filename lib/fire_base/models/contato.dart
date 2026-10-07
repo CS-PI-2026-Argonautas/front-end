@@ -1,8 +1,5 @@
-// Se o PO decidir que `contato_adicional` vira subcoleção, a mudança fica
-// concentrada aqui e no ClienteRepository
-
 class Contato {
-  final String telefone;
+  final String telefone; 
   final String? email;
   final String? contatoAdicional;
   final String? setor;

@@ -4,6 +4,7 @@ import 'package:flutter/foundation.dart';
 import 'package:frontend/fire_base/models/cliente.dart';
 import 'package:frontend/fire_base/models/endereco.dart';
 import 'package:frontend/fire_base/repositories/endereco_repository.dart';
+import 'package:frontend/fire_base/repositories/leitura_firestore.dart'; 
 
 class ClienteRepository {
   final FirebaseFirestore _db;
@@ -17,7 +18,6 @@ class ClienteRepository {
   CollectionReference<Map<String, dynamic>> _enderecos(String clienteId) =>
       EnderecoRepository.colecao(_db, clienteId);
 
-  /// Commit sem await (ver nota no topo). Erros vão para o console.
   void _enviar(WriteBatch batch, String operacao) {
     unawaited(
       batch.commit().catchError((Object e) {
@@ -39,7 +39,7 @@ class ClienteRepository {
 
   Stream<List<Cliente>> observar() => _clientes.snapshots().map(_ativos);
 
-  Future<List<Cliente>> listar() async => _ativos(await _clientes.get());
+  Future<List<Cliente>> listar() async => _ativos(await lerComFallback(_clientes));
 
   Future<List<Cliente>> listarDoCache() async {
     try {
@@ -119,7 +119,7 @@ class ClienteRepository {
   }
 
   Future<void> excluir(String id) async {
-    final enderecos = await _enderecos(id).get();
+    final enderecos = await lerComFallback(_enderecos(id));
     final batch = _db.batch();
     final agora = FieldValue.serverTimestamp();
     final exclusao = Timestamp.now();
@@ -142,7 +142,7 @@ class ClienteRepository {
   }
 
   Future<void> restaurar(String id) async {
-    final doc = await _clientes.doc(id).get();
+    final doc = await lerDocumentoComFallback(_clientes.doc(id));
     final exclusao = doc.data()?['deleted_at'];
 
     final batch = _db.batch();
@@ -151,7 +151,7 @@ class ClienteRepository {
     batch.update(_clientes.doc(id), {'deleted_at': null, 'updated_at': agora});
 
     if (exclusao is Timestamp) {
-      final enderecos = await _enderecos(id).get();
+      final enderecos = await lerComFallback(_enderecos(id)); // [ALTERADO]
 
       for (final endereco in enderecos.docs) {
         if (endereco.data()['deleted_at'] == exclusao) {

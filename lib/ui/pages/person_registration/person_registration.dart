@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:frontend/fire_base/models/cliente.dart';
 import 'package:frontend/fire_base/models/endereco.dart';
-import 'package:frontend/fire_base/Enums/TipoPessoa.dart'; // [NOVO]
-import 'package:frontend/fire_base/models/contato.dart'; // [NOVO]
+import 'package:frontend/fire_base/Enums/TipoPessoa.dart'; 
+import 'package:frontend/fire_base/models/contato.dart'; 
 import 'package:frontend/fire_base/services/cliente_service.dart';
 import 'package:frontend/ui/pages/person_registration/person_registration_contact.dart';
 import 'package:frontend/ui/style/ColorScheme.dart' as custom_colors;
@@ -14,7 +14,7 @@ import 'package:frontend/ui/widgets/form_field_label.dart';
 import 'package:mask_text_input_formatter/mask_text_input_formatter.dart';
 import 'package:frontend/ui/pages/dashboard.dart';
 import 'package:frontend/ui/widgets/header.dart';
-import 'package:frontend/ui/widgets/show_dialog/show_duplicate_document_dialog.dart'; // [NOVO]
+import 'package:frontend/ui/widgets/show_dialog/show_duplicate_document_dialog.dart'; 
 import 'package:frontend/ui/widgets/enderecos_editor.dart';
 import 'package:frontend/ui/widgets/form_section_tile.dart';
 
@@ -164,7 +164,9 @@ class _PersonRegistrationState1 extends State<PersonRegistration> {
             builder: (FormFieldState<String> state) {
               return InputDecorator(
                 decoration: customInputDecoration(
-                  hintText: _contato == null ? "Inserir contato" : null,
+                  hintText: _contato == null
+                      ? "Inserir contato"
+                      : null,
                 ).copyWith(errorText: state.errorText),
                 child: Text(
                   _contato == null
@@ -198,7 +200,6 @@ class _PersonRegistrationState1 extends State<PersonRegistration> {
             ),
             keyboardType: TextInputType.number,
             inputFormatters: [_isPessoaFisica ? _cpfFormatter : _cnpjFormatter],
-            // [ALTERADO] validação cruzada tipo_pessoa x tamanho (11 / 14 dígitos)
             validator: (value) =>
                 ClienteService.validarDocumento(value ?? '', _tipoPessoa),
           ),
@@ -207,7 +208,6 @@ class _PersonRegistrationState1 extends State<PersonRegistration> {
             value: _isPessoaFisica,
             onChanged: (value) => setState(() {
               _isPessoaFisica = value ?? false;
-              // a máscara muda, então o texto antigo não vale mais
               _documentoController.clear();
               _cpfFormatter.clear();
               _cnpjFormatter.clear();
@@ -239,7 +239,7 @@ class _PersonRegistrationState1 extends State<PersonRegistration> {
     if (_salvando) return;
 
     final contato = _contato;
-    if (contato == null) return;
+    if (contato == null) return; 
 
     setState(() => _salvando = true);
 
