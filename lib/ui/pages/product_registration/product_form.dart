@@ -45,15 +45,58 @@ class _ProductFormState extends State<ProductForm> {
   }
 
   int _parseValueInCents(String value) {
-    final normalizedValue = value
-        .replaceAll('.', '')
-        .replaceAll(',', '.');
+  final input = value.trim();
 
-    final double valueInReais = double.parse(normalizedValue);
-
-    return (valueInReais * 100).round();
+  if (input.isEmpty) {
+    throw const FormatException('Valor vazio.');
   }
 
+  String integerPart;
+  String decimalPart;
+
+  if (input.contains(',')) {
+    final parts = input.split(',');
+
+    if (parts.length != 2) {
+      throw const FormatException('Valor inválido.');
+    }
+
+    integerPart = parts[0].replaceAll('.', '');
+    decimalPart = parts[1];
+  } else if (input.contains('.')) {
+   
+    final parts = input.split('.');
+
+    if (parts.length == 2 && parts[1].length <= 2) {
+      integerPart = parts[0];
+      decimalPart = parts[1];
+    } else {
+
+      integerPart = input.replaceAll('.', '');
+      decimalPart = '00';
+    }
+  } else {
+  
+    integerPart = input;
+    decimalPart = '00';
+  }
+
+  if (integerPart.isEmpty) {
+    integerPart = '0';
+  }
+
+  if (decimalPart.length == 1) {
+    decimalPart += '0';
+  }
+
+  if (decimalPart.length != 2 ||
+      !RegExp(r'^\d+$').hasMatch(integerPart) ||
+      !RegExp(r'^\d{2}$').hasMatch(decimalPart)) {
+    throw const FormatException('Valor inválido.');
+  }
+
+  return int.parse(integerPart) * 100 + int.parse(decimalPart);
+}
   void _save() {
     final bool isValid = _formKey.currentState!.validate();
 

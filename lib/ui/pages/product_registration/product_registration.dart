@@ -1,4 +1,9 @@
 import 'package:flutter/material.dart';
+
+import 'package:frontend/fire_base/models/item.dart';
+import 'package:frontend/fire_base/repositories/item_repository.dart';
+import 'package:frontend/fire_base/services/item_service.dart';
+
 import 'package:frontend/ui/pages/dashboard.dart';
 import 'package:frontend/ui/pages/product_registration/product_form.dart';
 import 'package:frontend/ui/widgets/header.dart';
@@ -10,6 +15,10 @@ class ProductRegistration extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final colors = custom_colors.colorScheme;
+
+    final ItemService itemService = ItemService(
+      ItemRepository(),
+    );
 
     return Scaffold(
       backgroundColor: colors.surface,
@@ -47,59 +56,83 @@ class ProductRegistration extends StatelessWidget {
                         Navigator.pop(context);
                       },
 
-                      onSave: (item) {
-                        showDialog(
-                          context: context,
+                      onSave: (Item item) async {
+                        try {
+                          await itemService.create(item);
 
-                          builder: (context) {
-                            return AlertDialog(
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(18),
-                              ),
+                          if (!context.mounted) return;
 
-                              title: const Row(
-                                spacing: 6,
-                                children: [
-                                  Icon(
-                                    Icons.check_circle,
-                                    color: Colors.green,
-                                    size: 28,
+                          showDialog(
+                            context: context,
+                            builder: (context) {
+                              return AlertDialog(
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(18),
+                                ),
+
+                                title: const Row(
+                                  spacing: 6,
+                                  children: [
+                                    Icon(
+                                      Icons.check_circle,
+                                      color: Colors.green,
+                                      size: 28,
+                                    ),
+                                    Text("Cadastro realizado"),
+                                  ],
+                                ),
+
+                                content: const Text(
+                                  "O produto foi salvo com sucesso.",
+                                ),
+
+                                actions: [
+                                  TextButton(
+                                    onPressed: () {
+                                      Navigator.pop(context);
+                                    },
+                                    child: const Text("Continuar"),
                                   ),
 
-                                  Text("Envio confirmado"),
+                                  TextButton(
+                                    onPressed: () {
+                                      Navigator.push(
+                                        context,
+                                        MaterialPageRoute(
+                                          builder: (context) =>
+                                              const Dashboard(),
+                                        ),
+                                      );
+                                    },
+                                    child: const Text("Ir para o início"),
+                                  ),
                                 ],
-                              ),
+                              );
+                            },
+                          );
+                        } catch (e) {
+                          if (!context.mounted) return;
 
-                              content: const Text(
-                                "O produto foi enviado com sucesso.",
-                              ),
-
-                              actions: [
-                                TextButton(
-                                  onPressed: () {
-                                    Navigator.pop(context);
-                                  },
-
-                                  child: const Text("Continuar"),
+                          showDialog(
+                            context: context,
+                            builder: (context) {
+                              return AlertDialog(
+                                title: const Text("Erro"),
+                                content: Text(
+                                  "Não foi possível salvar o produto.\n\n$e",
                                 ),
-
-                                TextButton(
-                                  onPressed: () {
-                                    Navigator.push(
-                                      context,
-                                      MaterialPageRoute(
-                                        builder: (context) =>
-                                            const Dashboard(),
-                                      ),
-                                    );
-                                  },
-
-                                  child: const Text("Cancelar"),
-                                ),
-                              ],
-                            );
-                          },
-                        );
+                                actions: [
+                                  TextButton(
+                                    onPressed: () {
+                                      Navigator.pop(context);
+                                    },
+                                    child: const Text("OK"),
+                                  ),
+                                ],
+                              );
+                            },
+                          );
+                        }
                       },
                     ),
                   ],
