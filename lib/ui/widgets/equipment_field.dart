@@ -4,12 +4,14 @@ import 'package:frontend/ui/widgets/selection_field.dart';
 class EquipmentSection extends StatelessWidget {
   final dynamic equipamento;
   final VoidCallback onOpenCadastro;
+  final VoidCallback onBuscar;
   final void Function(dynamic equip) onEdit;
 
   const EquipmentSection({
     super.key,
     required this.equipamento,
     required this.onOpenCadastro,
+    required this.onBuscar,
     required this.onEdit,
   });
 
@@ -35,7 +37,7 @@ class EquipmentSection extends StatelessWidget {
       },
       textoVazio: 'Nenhum equipamento selecionado.',
       permitirExclusao: false,
-      onPressed: onOpenCadastro,
+      onPressed: equipamento == null ? onBuscar : onOpenCadastro,
       onEdit: (equip, index) => onEdit(equip),
     );
   }

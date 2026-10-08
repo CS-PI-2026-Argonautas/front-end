@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:frontend/fire_base/models/cliente.dart';
 import 'package:frontend/fire_base/models/endereco.dart';
-import 'package:frontend/fire_base/Enums/TipoPessoa.dart'; 
-import 'package:frontend/fire_base/models/contato.dart'; 
+import 'package:frontend/fire_base/Enums/TipoPessoa.dart';
+import 'package:frontend/fire_base/models/contato.dart';
 import 'package:frontend/fire_base/services/cliente_service.dart';
 import 'package:frontend/ui/pages/person_registration/person_registration_contact.dart';
 import 'package:frontend/ui/style/ColorScheme.dart' as custom_colors;
@@ -111,7 +111,7 @@ class _PersonRegistrationState1 extends State<PersonRegistration> {
              iconeLabel: Icons.home_outlined,
             itens: _enderecos,
             tituloItem: (endereco) =>
-             '${endereco.logradouro}, ${endereco.numero} - ${endereco.cidade}/${endereco.uf.name}',
+                '${endereco.logradouro}, ${endereco.numero} - ${endereco.cidade}/${endereco.uf.name}',
             textoVazio: 'Nenhum endereço adicionado.',
             permitirExclusao: true,
             onPressed: () async {
@@ -132,9 +132,8 @@ class _PersonRegistrationState1 extends State<PersonRegistration> {
               final enderecoEditado = await Navigator.push<Endereco>(
                 context,
                 MaterialPageRoute(
-                  builder: (context) => PersonRegistrationAddress(
-                    enderecoInicial: endereco,
-                  ),
+                  builder: (context) =>
+                      PersonRegistrationAddress(enderecoInicial: endereco),
                 ),
               );
 
@@ -212,9 +211,7 @@ class _PersonRegistrationState1 extends State<PersonRegistration> {
             builder: (FormFieldState<String> state) {
               return InputDecorator(
                 decoration: customInputDecoration(
-                  hintText: _contato == null
-                      ? "Inserir contato"
-                      : null,
+                  hintText: _contato == null ? "Inserir contato" : null,
                 ).copyWith(errorText: state.errorText),
                 child: Text(
                   _contato == null
@@ -287,7 +284,7 @@ class _PersonRegistrationState1 extends State<PersonRegistration> {
     if (_salvando) return;
 
     final contato = _contato;
-    if (contato == null) return; 
+    if (contato == null) return;
 
     setState(() => _salvando = true);
 
