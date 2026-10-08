@@ -9,7 +9,7 @@ class EquipamentoService {
 
   Future<String> salvar(Equipamento equipamento) async {
     final docRef = await _firestore
-        .collection('equipamentos')
+        .collection('equipaments')
         .add(equipamento.toFirestore());
     return docRef.id;
   }
