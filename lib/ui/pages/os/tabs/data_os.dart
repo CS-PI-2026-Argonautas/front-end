@@ -440,8 +440,7 @@ class _DataOsState extends State<DataOs> {
     final List<Endereco> enderecos;
 
     try {
-      enderecos = await _enderecoService
-          .listByCliente(clienteSelecionado!['id'].toString());
+      enderecos = await _enderecoService.listar(clienteSelecionado!['id'].toString());
     } catch (e) {
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
@@ -469,7 +468,7 @@ class _DataOsState extends State<DataOs> {
           textoBusca: 'Procurar endereço',
           textoAcao: 'Novo endereço',
           tituloItem: (endereco) =>
-              '${endereco.rua}, ${endereco.numero}, ${endereco.complemento}',
+    '${endereco.logradouro}, ${endereco.numero}, ${endereco.complemento}',
           subtituloItem: (endereco) =>
               '${endereco.cidade} - ${endereco.uf.name}'
               '${endereco.cep.isEmpty ? '' : ' • CEP ${endereco.cep}'}',
@@ -484,7 +483,7 @@ class _DataOsState extends State<DataOs> {
               ),
             );
             if (novo == null) return;
-            final salvo = await _enderecoService.saveForCliente(
+            final salvo = await _enderecoService.salvar(
               clienteSelecionado!['id'].toString(),
               novo,
             );
