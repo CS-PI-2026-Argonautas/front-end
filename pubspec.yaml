@@ -10,7 +10,6 @@ dependencies:
   drift_flutter: ^0.3.1
   diacritic: ^0.1.6
   firebase_core: ^4.15.0
-  cloud_firestore: ^6.0.2
   flutter:
     sdk: flutter
   flutter_web_plugins:
@@ -18,10 +17,7 @@ dependencies:
   mask_text_input_formatter: ^2.9.0
   path_provider: ^2.1.6
   zxcvbn: ^1.0.0
-<<<<<<< HEAD
   cloud_firestore: ^6.10.0
-=======
->>>>>>> origin/dev
   uuid: ^4.6.0
 
 dev_dependencies:
