@@ -5,6 +5,8 @@ import 'package:frontend/ui/style/ColorScheme.dart' as custom_colors;
 import 'package:frontend/ui/widgets/bottom_sheet/bottom_sheet.dart';
 import 'package:frontend/ui/widgets/slidable/slidable_delete_card.dart';
 import 'package:frontend/ui/pages/os/tabs/service_registration.dart';
+import 'package:frontend/fire_base/services/servicoService.dart';
+import 'package:frontend/fire_base/models/servico.dart';
 
 class OsServicosTab extends StatefulWidget {
   const OsServicosTab({super.key});
@@ -18,40 +20,47 @@ class _OsServicosTabState extends State<OsServicosTab> {
 
   final TextEditingController _searchController = TextEditingController();
 
-  final List<Map<String, dynamic>> _servicosDisponiveis = [
-    {
-      'id': '1',
-      'nome': 'Troca de sensor',
-      'descricao': 'Substituição do sensor óptico danificado',
-      'preco': 74.00,
-    },
-    {
-      'id': '2',
-      'nome': 'Orçamento',
-      'descricao': 'Análise técnica preventiva e diagnósticos',
-      'preco': 74.00,
-    },
-    {
-      'id': '3',
-      'nome': 'Deslocamento',
-      'descricao': 'Taxa de visita técnica residencial',
-      'preco': 74.00,
-    },
-    {
-      'id': '4',
-      'nome': 'Manutenção Preventiva',
-      'descricao': 'Limpeza e regulagem geral de componentes',
-      'preco': 150.00,
-    },
-    {
-      'id': '5',
-      'nome': 'Formatação e Reinstalação',
-      'descricao': 'Restauração do sistema operacional',
-      'preco': 120.00,
-    },
-  ];
+  List<Map<String, dynamic>> _servicosDisponiveis = [];
+  bool _carregandoServicos = true;
 
   final List<Map<String, dynamic>> _servicosNaOrdem = [];
+
+  @override
+  void initState() {
+    super.initState();
+    _carregarServicosDoBanco();
+  }
+
+  Future<void> _carregarServicosDoBanco() async {
+    try {
+      final servicoService = ServicoService();
+      final servicosDoFirebase = await servicoService
+          .buscarServicosDisponiveis();
+
+      final servicosFormatados = servicosDoFirebase.map((servico) {
+        return {
+          'id': servico.id ?? 'sem_id_${DateTime.now().millisecondsSinceEpoch}',
+          'nome': servico.nome,
+          'descricao': servico.descricao,
+          'preco': servico.valor / 100,
+        };
+      }).toList();
+
+      if (mounted) {
+        setState(() {
+          _servicosDisponiveis = servicosFormatados;
+          _carregandoServicos = false;
+        });
+      }
+    } catch (e) {
+      if (mounted) {
+        setState(() => _carregandoServicos = false);
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Erro ao carregar serviços: $e')),
+        );
+      }
+    }
+  }
 
   @override
   void dispose() {
@@ -112,27 +121,22 @@ class _OsServicosTabState extends State<OsServicosTab> {
       builder: (context) {
         return SelectionBottomSheet<Map<String, dynamic>>(
           titulo: 'Selecionar serviço',
-
           itens: _servicosDisponiveis,
-
           textoBusca: 'Procurar serviço',
-
           textoAcao: 'Novo serviço',
-
           tituloItem: (servico) {
             return servico['nome'].toString();
           },
-
           subtituloItem: (servico) {
             final double preco = (servico['preco'] as double? ?? 0.0);
-
             return 'R\$ ${preco.toStringAsFixed(2).replaceAll('.', ',')}';
           },
-
           iconeItem: Icons.build_outlined,
+          carregando: _carregandoServicos,
 
-          carregando: false,
           onAcao: () async {
+            Navigator.pop(context);
+
             final dadosNovos = await Navigator.push(
               context,
               MaterialPageRoute(
@@ -140,24 +144,21 @@ class _OsServicosTabState extends State<OsServicosTab> {
               ),
             );
 
-            if (dadosNovos != null && dadosNovos is Map<String, dynamic>) {
-              final novoServicoParaLista = {
+            if (dadosNovos != null) {
+              final novoServicoFormatado = {
                 'id': 'novo_${DateTime.now().millisecondsSinceEpoch}',
                 'nome': dadosNovos['nome'],
                 'descricao': dadosNovos['descricao'],
                 'preco': (dadosNovos['valor'] as int) / 100,
               };
 
-              _adicionarServico(novoServicoParaLista);
+              _adicionarServico(novoServicoFormatado);
 
-              if (context.mounted) {
-                Navigator.pop(context);
-              }
+              await _carregarServicosDoBanco();
             }
           },
           onSelecionar: (servico) {
             _adicionarServico(servico);
-
             Navigator.pop(context);
           },
         );
