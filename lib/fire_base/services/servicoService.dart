@@ -3,7 +3,7 @@ import 'package:frontend/fire_base/models/servico.dart';
 
 class ServicoService {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
-  final String _colecao = 'servicos';
+  final String _colecao = 'services';
 
   Future<void> cadastrarServico(Servico servico) async {
     try {
