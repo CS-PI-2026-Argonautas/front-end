@@ -10,7 +10,7 @@ InputDecoration customInputDecoration({String? hintText, Widget? prefixIcon, Str
     contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 16),
     prefixStyle: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
     
-    fillColor: colorScheme.surfaceContainer,
+    fillColor: colorScheme.surfaceContainerHigh,
     filled: true,
     errorStyle: TextStyle(
       color: colorScheme.error,
@@ -18,11 +18,11 @@ InputDecoration customInputDecoration({String? hintText, Widget? prefixIcon, Str
     ),
     border: OutlineInputBorder(
       borderRadius: BorderRadius.circular(14),
-      borderSide: BorderSide(color: colorScheme.surfaceContainerHigh),
+      borderSide: BorderSide.none,
     ),
     enabledBorder: OutlineInputBorder(
       borderRadius: BorderRadius.circular(14),
-      borderSide: BorderSide(color: colorScheme.surfaceContainerHigh),
+      borderSide: BorderSide.none,
     ),
     focusedBorder: OutlineInputBorder(
       borderRadius: BorderRadius.circular(14),
