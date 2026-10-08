@@ -10,6 +10,9 @@ import 'package:frontend/ui/widgets/equipment_field.dart';
 import 'package:frontend/utils/data_os/address_formatter.dart';
 import 'package:frontend/ui/pages/person_registration/person_registration.dart';
 import 'package:frontend/ui/pages/stand_in_page.dart';
+import 'package:frontend/fire_base/models/equipamento.dart';
+import 'package:frontend/fire_base/services/equipamento_service.dart';
+import 'package:frontend/ui/pages/equipament_data/equipamentData.dart';
 
 class DataOs extends StatefulWidget {
   final DateTime? dataEntrada;
@@ -22,7 +25,6 @@ class DataOs extends StatefulWidget {
   final ValueChanged<String>? onRelatorioChanged;
   final ValueChanged<DateTime>? onDataSaidaChanged;
 
-  /// Avança para a próxima aba da TabBar.
   final VoidCallback? avancarTab;
 
   const DataOs({
@@ -43,6 +45,19 @@ class DataOs extends StatefulWidget {
 }
 
 class _DataOsState extends State<DataOs> {
+  Map<String, dynamic> _montarDadosOs() {
+    return {
+      'status': status,
+      'dataEntrada': dataEntrada,
+      'dataSaida': dataSaida,
+      'relatorio': relatorio,
+      'cliente': clienteSelecionado,
+      'endereco': _enderecoSelecionado,
+      'equipamento': _equipamentoSelecionado,
+    };
+  }
+
+  final EquipamentoService _equipamentoService = EquipamentoService();
   final colors = custom_colors.colorScheme;
 
   final EnderecoService _enderecoService = EnderecoService();
@@ -144,7 +159,6 @@ class _DataOsState extends State<DataOs> {
   }
 
   Future<void> _carregarClientes() async {
-
     try {
       final clientes = await _clienteService.listar();
 
@@ -174,15 +188,65 @@ class _DataOsState extends State<DataOs> {
     final resultado = await Navigator.push<dynamic>(
       context,
       MaterialPageRoute(
-        builder: (context) => const StandInPage(),
+        builder: (routeContext) => EquipamentData(
+          osDados: _montarDadosOs(),
+          onSubmit: (dados) => Navigator.pop(routeContext, dados),
+        ),
       ),
     );
 
     if (resultado != null && mounted) {
-      setState(() {
-        _equipamentoSelecionado = resultado;
-      });
+      setState(() => _equipamentoSelecionado = resultado);
     }
+  }
+
+  Future<void> _buscarEquipamento() async {
+    final List<Equipamento> equipamentos;
+
+    try {
+      equipamentos = await _equipamentoService.listar();
+    } catch (e) {
+      if (!mounted) return;
+      _mostrarErro('Não foi possível carregar os equipamentos.');
+      return;
+    }
+
+    if (!mounted) return;
+
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: colors.surface,
+      isScrollControlled: true,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+      ),
+      builder: (context) {
+        return SelectionBottomSheet<Equipamento>(
+          titulo: 'Selecionar equipamento',
+          itens: equipamentos,
+          textoBusca: 'Procurar equipamento',
+          textoAcao: 'Novo equipamento',
+          tituloItem: (e) => '${e.marca} ${e.modelo}',
+          subtituloItem: (e) => 'Nº série ${e.numeroSerie}',
+          iconeItem: Icons.scale_outlined,
+          carregando: false,
+          onAcao: () {
+            Navigator.pop(context);
+            _abrirCadastroEquipamento();
+          },
+          onSelecionar: (e) {
+            setState(() {
+              _equipamentoSelecionado = {
+                'id': e.id,
+                'marca': e.marca,
+                'modelo': e.modelo,
+              };
+            });
+            Navigator.pop(context);
+          },
+        );
+      },
+    );
   }
 
   String _formatDate(DateTime? date) {
@@ -350,14 +414,15 @@ class _DataOsState extends State<DataOs> {
                         maxLines: 7,
                         maxLength: 256,
                         textCapitalization: TextCapitalization.sentences,
-                        decoration: customInputDecoration(
-                          hintText: 'Digite observações sobre a OS...',
-                        ).copyWith(
-                          alignLabelWithHint: true,
-                          counterStyle: TextStyle(
-                            color: colors.onSurfaceVariant,
-                          ),
-                        ),
+                        decoration:
+                            customInputDecoration(
+                              hintText: 'Digite observações sobre a OS...',
+                            ).copyWith(
+                              alignLabelWithHint: true,
+                              counterStyle: TextStyle(
+                                color: colors.onSurfaceVariant,
+                              ),
+                            ),
                         onChanged: (value) {
                           setModalState(() {});
 
@@ -516,8 +581,7 @@ class _DataOsState extends State<DataOs> {
             );
 
             if (novo == null) return;
-
-            await _enderecoService.salvar(
+            final salvo = await _enderecoService.salvar(
               clienteSelecionado!['id'].toString(),
               novo,
             );
@@ -596,10 +660,10 @@ class _DataOsState extends State<DataOs> {
 
             EquipmentSection(
               equipamento: _equipamentoSelecionado,
+              onBuscar: _buscarEquipamento,
               onOpenCadastro: () =>
                   _abrirCadastroEquipamento(_equipamentoSelecionado),
-              onEdit: (equip) =>
-                  _abrirCadastroEquipamento(equip),
+              onEdit: (equip) => _abrirCadastroEquipamento(equip),
             ),
 
             if (!_formHabilitado)
@@ -636,19 +700,20 @@ class _DataOsState extends State<DataOs> {
                                     BorderRadius.circular(14),
                                 onTap: _selecionarDataEntrada,
                                 child: InputDecorator(
-                                  decoration: customInputDecoration(
-                                    hintText: 'Data',
-                                  ).copyWith(
-                                    suffixIcon: const Icon(
-                                      Icons.calendar_month_outlined,
-                                      size: 20,
-                                    ),
-                                    contentPadding:
-                                        const EdgeInsets.symmetric(
-                                      horizontal: 12,
-                                      vertical: 14,
-                                    ),
-                                  ),
+                                  decoration:
+                                      customInputDecoration(
+                                        hintText: 'Data',
+                                      ).copyWith(
+                                        suffixIcon: const Icon(
+                                          Icons.calendar_month_outlined,
+                                          size: 20,
+                                        ),
+                                        contentPadding:
+                                            const EdgeInsets.symmetric(
+                                              horizontal: 12,
+                                              vertical: 14,
+                                            ),
+                                      ),
                                   child: Text(
                                     _formatDate(dataEntrada),
                                     style: const TextStyle(
@@ -675,28 +740,29 @@ class _DataOsState extends State<DataOs> {
                                     BorderRadius.circular(14),
                                 onTap: _alterarDataSaida,
                                 child: InputDecorator(
-                                  decoration: customInputDecoration(
-                                    hintText: 'Automática',
-                                  ).copyWith(
-                                    filled: true,
-                                    fillColor: Colors.grey.shade100,
-                                    suffixIcon: dataSaida == null
-                                        ? const Icon(
-                                            Icons.hourglass_empty,
-                                            color: Colors.grey,
-                                            size: 20,
-                                          )
-                                        : const Icon(
-                                            Icons.edit_calendar_outlined,
-                                            color: Colors.grey,
-                                            size: 20,
-                                          ),
-                                    contentPadding:
-                                        const EdgeInsets.symmetric(
-                                      horizontal: 12,
-                                      vertical: 14,
-                                    ),
-                                  ),
+                                  decoration:
+                                      customInputDecoration(
+                                        hintText: 'Automática',
+                                      ).copyWith(
+                                        filled: true,
+                                        fillColor: Colors.grey.shade100,
+                                        suffixIcon: dataSaida == null
+                                            ? const Icon(
+                                                Icons.hourglass_empty,
+                                                color: Colors.grey,
+                                                size: 20,
+                                              )
+                                            : const Icon(
+                                                Icons.edit_calendar_outlined,
+                                                color: Colors.grey,
+                                                size: 20,
+                                              ),
+                                        contentPadding:
+                                            const EdgeInsets.symmetric(
+                                              horizontal: 12,
+                                              vertical: 14,
+                                            ),
+                                      ),
                                   child: Text(
                                     dataSaida == null
                                         ? 'Indefinida'
