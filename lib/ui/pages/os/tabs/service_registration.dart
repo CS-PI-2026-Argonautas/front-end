@@ -1,6 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:frontend/ui/style/ColorScheme.dart' as custom_colors;
+import 'package:frontend/ui/style/inputDecorationStyles.dart';
+import 'package:frontend/ui/widgets/form/validator.dart';
+import 'package:frontend/ui/widgets/form/form_card.dart';
+import 'package:frontend/ui/widgets/form/form_action_button.dart';
+import 'package:frontend/ui/widgets/form/labeled_form.dart';
 
 class ServiceRegistration extends StatefulWidget {
   final VoidCallback? onBack;
@@ -27,12 +32,6 @@ class _ServiceRegistrationState extends State<ServiceRegistration> {
   final TextEditingController _descricaoController = TextEditingController();
   final TextEditingController _valorController = TextEditingController();
 
-  static const Color _inputFillColor = Color(0xFFF3F6F8);
-  static const Color _inputBorderColor = Color(0xFFD3DFE7);
-  static const Color _labelTextColor = Color(0xFF263944);
-  static const Color _iconBlueColor = Color(0xFF2A92B6);
-  static const Color _requiredRedColor = Color(0xFFD32F2F);
-
   @override
   void dispose() {
     _nomeController.dispose();
@@ -54,7 +53,6 @@ class _ServiceRegistrationState extends State<ServiceRegistration> {
     final dados = {
       'nome': _nomeController.text.trim(),
       'descricao': _descricaoController.text.trim(),
-
       'valor': _converterParaCentavos(_valorController.text.trim()),
     };
 
@@ -69,6 +67,7 @@ class _ServiceRegistrationState extends State<ServiceRegistration> {
   Widget build(BuildContext context) {
     final colors = custom_colors.colorScheme;
     final bottomInset = MediaQuery.of(context).viewInsets.bottom;
+
     return GestureDetector(
       onTap: () {
         FocusScope.of(context).unfocus();
@@ -119,251 +118,65 @@ class _ServiceRegistrationState extends State<ServiceRegistration> {
             keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
             physics: const BouncingScrollPhysics(),
             padding: EdgeInsets.fromLTRB(24, 20, 24, 24 + bottomInset),
-            child: Column(
+
+            child: FormCard(
+              formKey: _formKey,
+              title: 'Dados do Serviço',
+              subtitle: 'Preencha as informações do serviço prestado.',
               children: [
-                Container(
-                  width: double.infinity,
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 22,
-                    vertical: 24,
-                  ),
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(20),
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.black.withOpacity(0.04),
-                        blurRadius: 12,
-                        offset: const Offset(0, 4),
-                      ),
-                    ],
-                  ),
-                  child: Form(
-                    key: _formKey,
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        const Text(
-                          'Dados do Serviço',
-                          style: TextStyle(
-                            color: _labelTextColor,
-                            fontSize: 18,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                        const SizedBox(height: 4),
-                        Text(
-                          'Preencha as informações do serviço prestado.',
-                          style: TextStyle(
-                            color: _labelTextColor.withOpacity(0.65),
-                            fontSize: 13,
-                          ),
-                        ),
-                        const SizedBox(height: 22),
-
-                        _buildField(
-                          label: 'Nome do Serviço',
-                          hintText: 'Ex: troca de bateria',
-                          icon: Icons.work_outline,
-                          controller: _nomeController,
-                          colors: colors,
-                          isRequired: true,
-                        ),
-                        const SizedBox(height: 16),
-
-                        _buildField(
-                          label: 'Descrição',
-                          hintText: 'Descreva o que foi feito...',
-                          icon: Icons.notes_outlined,
-                          controller: _descricaoController,
-                          colors: colors,
-                          isRequired: false,
-                          maxLines: 4,
-                          maxLength: 50,
-                        ),
-                        const SizedBox(height: 16),
-
-                        _buildField(
-                          label: 'Valor',
-                          hintText: '40,00',
-                          icon: Icons.attach_money,
-                          controller: _valorController,
-                          colors: colors,
-                          isRequired: true,
-                          isNumeric: true,
-                        ),
-                      ],
+                LabeledFormField(
+                  icon: Icons.work_outline,
+                  label: "Nome do Serviço",
+                  field: TextFormField(
+                    controller: _nomeController,
+                    validator: requiredValidator,
+                    decoration: customInputDecoration(
+                      hintText: 'Ex: troca de bateria',
                     ),
                   ),
                 ),
-                const SizedBox(height: 24),
-                Row(
-                  children: [
-                    Expanded(
-                      child: OutlinedButton(
-                        onPressed:
-                            widget.onCancel ??
-                            () {
-                              Navigator.maybePop(context);
-                            },
-                        style: OutlinedButton.styleFrom(
-                          padding: const EdgeInsets.symmetric(vertical: 14),
-                          side: const BorderSide(
-                            color: _inputBorderColor,
-                            width: 1.4,
-                          ),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                        ),
-                        child: const Text(
-                          'Cancelar',
-                          style: TextStyle(
-                            color: _labelTextColor,
-                            fontSize: 16,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                      ),
+
+                LabeledFormField(
+                  icon: Icons.notes_outlined,
+                  label: "Descrição",
+                  field: TextFormField(
+                    controller: _descricaoController,
+                    maxLines: 4,
+                    maxLength: 50,
+                    decoration: customInputDecoration(
+                      hintText: 'Descreva o que foi feito...',
+                    ).copyWith(counterText: ''),
+                  ),
+                ),
+
+                LabeledFormField(
+                  icon: Icons.attach_money,
+                  label: "Valor",
+                  field: TextFormField(
+                    controller: _valorController,
+                    validator: requiredValidator,
+                    keyboardType: const TextInputType.numberWithOptions(
+                      decimal: true,
                     ),
-                    const SizedBox(width: 16),
-                    Expanded(
-                      child: ElevatedButton(
-                        onPressed: _handleCadastrar,
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: const Color(0xFF1E9E5F),
-                          foregroundColor: Colors.white,
-                          elevation: 0,
-                          padding: const EdgeInsets.symmetric(vertical: 14),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(10),
-                          ),
-                        ),
-                        child: const Text(
-                          'Cadastrar',
-                          style: TextStyle(
-                            fontSize: 16,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
+                    inputFormatters: [
+                      FilteringTextInputFormatter.allow(
+                        RegExp(r'^\d*\,?\d{0,2}'),
                       ),
-                    ),
-                  ],
+                    ],
+                    decoration: customInputDecoration(hintText: '40,00'),
+                  ),
+                ),
+
+                FormActionButtons(
+                  onSave: _handleCadastrar,
+                  onCancel:
+                      widget.onCancel ?? () => Navigator.maybePop(context),
                 ),
               ],
             ),
           ),
         ),
       ),
-    );
-  }
-
-  Widget _buildField({
-    required String label,
-    required String hintText,
-    required IconData icon,
-    required TextEditingController controller,
-    required ColorScheme colors,
-    bool isRequired = false,
-    bool isNumeric = false,
-    int maxLines = 1,
-    int? maxLength,
-  }) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Row(
-          children: [
-            Icon(icon, size: 16, color: _iconBlueColor),
-            const SizedBox(width: 6),
-            Text(
-              isRequired ? '$label *' : label,
-              style: const TextStyle(
-                color: _labelTextColor,
-                fontSize: 14,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-          ],
-        ),
-        const SizedBox(height: 7),
-        TextFormField(
-          controller: controller,
-          maxLines: maxLines,
-          maxLength: maxLength,
-          keyboardType: isNumeric
-              ? const TextInputType.numberWithOptions(decimal: true)
-              : (maxLines > 1 ? TextInputType.multiline : TextInputType.text),
-          inputFormatters: isNumeric
-              ? [FilteringTextInputFormatter.allow(RegExp(r'^\d*\,?\d{0,2}'))]
-              : null,
-          validator: isRequired
-              ? (value) {
-                  if (value == null || value.trim().isEmpty) {
-                    return 'Campo obrigatório';
-                  }
-                  return null;
-                }
-              : null,
-          style: const TextStyle(
-            color: _labelTextColor,
-            fontSize: 14.5,
-            fontWeight: FontWeight.w500,
-          ),
-          decoration: InputDecoration(
-            hintText: hintText,
-            hintStyle: TextStyle(
-              color: _labelTextColor.withOpacity(0.4),
-              fontSize: 14,
-            ),
-            counterText: '',
-            isDense: true,
-            filled: true,
-            fillColor: _inputFillColor,
-            contentPadding: const EdgeInsets.symmetric(
-              horizontal: 14,
-              vertical: 13,
-            ),
-            errorStyle: const TextStyle(
-              color: _requiredRedColor,
-              fontSize: 11.5,
-              fontWeight: FontWeight.w500,
-            ),
-            enabledBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(12),
-              borderSide: const BorderSide(
-                color: _inputBorderColor,
-                width: 1.1,
-              ),
-            ),
-            focusedBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(12),
-              borderSide: BorderSide(color: colors.primary, width: 1.5),
-            ),
-            errorBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(12),
-              borderSide: const BorderSide(
-                color: _requiredRedColor,
-                width: 1.2,
-              ),
-            ),
-            focusedErrorBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(12),
-              borderSide: const BorderSide(
-                color: _requiredRedColor,
-                width: 1.5,
-              ),
-            ),
-            border: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(12),
-              borderSide: const BorderSide(
-                color: _inputBorderColor,
-                width: 1.1,
-              ),
-            ),
-          ),
-        ),
-      ],
     );
   }
 }
