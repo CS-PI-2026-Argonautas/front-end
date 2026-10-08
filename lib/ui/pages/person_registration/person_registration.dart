@@ -106,9 +106,9 @@ class _PersonRegistrationState1 extends State<PersonRegistration> {
             },
           ),
 
-          SelectionField<Endereco>(
-            label: 'Endereço',
-            iconeLabel: Icons.home_outlined,
+         SelectionField<Endereco>(
+           label: 'Endereço',
+             iconeLabel: Icons.home_outlined,
             itens: _enderecos,
             tituloItem: (endereco) =>
                 '${endereco.logradouro}, ${endereco.numero} - ${endereco.cidade}/${endereco.uf.name}',

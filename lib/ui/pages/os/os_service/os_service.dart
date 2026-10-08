@@ -129,32 +129,32 @@ class _OsServicosTabState extends State<OsServicosTab> {
       ),
       builder: (context) {
         return SelectionBottomSheet<Map<String, dynamic>>(
-          titulo: 'Selecionar serviço',
+          title: 'Selecionar serviço',
 
-          itens: _servicosDisponiveis,
+          items: _servicosDisponiveis,
 
-          textoBusca: 'Procurar serviço',
+          searchText: 'Procurar serviço',
 
-          textoAcao: 'Novo serviço',
+          actionText: 'Novo serviço',
 
-          tituloItem: (servico) {
+          itemTitle: (servico) {
             return servico['nome'].toString();
           },
 
-          subtituloItem: (servico) {
+          itemSubtitle: (servico) {
             final double preco =
                 (servico['preco'] as double? ?? 0.0);
 
             return 'R\$ ${preco.toStringAsFixed(2).replaceAll('.', ',')}';
           },
 
-          iconeItem: Icons.build_outlined,
+          itemIcon: Icons.build_outlined,
 
-          carregando: false,
+          loading: false,
 
-          onAcao: null,
+          onAction: null,
 
-          onSelecionar: (servico) {
+          onSelect: (servico) {
             _adicionarServico(servico);
 
             Navigator.pop(context);

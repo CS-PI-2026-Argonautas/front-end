@@ -25,12 +25,12 @@ class _ClientOsState extends State<ClientOs> {
   Map<String, dynamic>? clienteSelecionado;
   
   final List<Map<String, dynamic>> enderecosDisponiveis = [
-  {"id": 1, "rua": "Rua das Flores, 123", "bairro": "Centro"},
-  {"id": 2, "rua": "Av. Brasil, 456", "bairro": "Jardim América"},
-  {"id": 3, "rua": "Rua XV de Novembro, 789", "bairro": "Vila Nova"},
-];
+    {"id": 1, "rua": "Rua das Flores, 123", "bairro": "Centro"},
+    {"id": 2, "rua": "Av. Brasil, 456", "bairro": "Jardim América"},
+    {"id": 3, "rua": "Rua XV de Novembro, 789", "bairro": "Vila Nova"},
+  ];
 
-Map<String, dynamic>? enderecoSelecionado;
+  Map<String, dynamic>? enderecoSelecionado;
 
   void _abrirListaClientes() {
     final colors = custom_colors.colorScheme;
@@ -40,20 +40,22 @@ Map<String, dynamic>? enderecoSelecionado;
       backgroundColor: colors.surface,
       isScrollControlled: true,
       shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+        borderRadius: BorderRadius.vertical(
+          top: Radius.circular(24),
+        ),
       ),
       builder: (context) {
         return SelectionBottomSheet<Map<String, dynamic>>(
-          titulo: 'Selecionar cliente',
-          itens: clientesDisponiveis,
-          textoBusca: 'Procurar cliente',
-          textoAcao: 'Novo cliente',
-          tituloItem: (cliente) => cliente['nome'].toString(),
-          subtituloItem: (cliente) => cliente['telefone'].toString(),
-          iconeItem: Icons.person_outline,
-          carregando: false,
-          onAcao: null,
-          onSelecionar: (cliente) {
+          title: 'Selecionar cliente',
+          items: clientesDisponiveis,
+          searchText: 'Procurar cliente',
+          actionText: 'Novo cliente',
+          itemTitle: (cliente) => cliente['nome'].toString(),
+          itemSubtitle: (cliente) => cliente['telefone'].toString(),
+          itemIcon: Icons.person_outline,
+          loading: false,
+          onAction: null,
+          onSelect: (cliente) {
             _selecionarCliente(cliente);
             Navigator.pop(context);
           },
@@ -69,40 +71,42 @@ Map<String, dynamic>? enderecoSelecionado;
   }
   
   void _abrirListaEnderecos() {
-  final colors = custom_colors.colorScheme;
+    final colors = custom_colors.colorScheme;
 
-  showModalBottomSheet(
-    context: context,
-    backgroundColor: colors.surface,
-    isScrollControlled: true,
-    shape: const RoundedRectangleBorder(
-      borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
-    ),
-    builder: (context) {
-      return SelectionBottomSheet<Map<String, dynamic>>(
-        titulo: 'Selecionar endereço',
-        itens: enderecosDisponiveis,
-        textoBusca: 'Procurar endereço',
-        textoAcao: 'Novo endereço',
-        tituloItem: (endereco) => endereco['rua'].toString(),
-        subtituloItem: (endereco) => endereco['bairro'].toString(),
-        iconeItem: Icons.location_on_outlined,
-        carregando: false,
-        onAcao: null,
-        onSelecionar: (endereco) {
-          _selecionarEndereco(endereco);
-          Navigator.pop(context);
-        },
-      );
-    },
-  );
-}
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: colors.surface,
+      isScrollControlled: true,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(
+          top: Radius.circular(24),
+        ),
+      ),
+      builder: (context) {
+        return SelectionBottomSheet<Map<String, dynamic>>(
+          title: 'Selecionar endereço',
+          items: enderecosDisponiveis,
+          searchText: 'Procurar endereço',
+          actionText: 'Novo endereço',
+          itemTitle: (endereco) => endereco['rua'].toString(),
+          itemSubtitle: (endereco) => endereco['bairro'].toString(),
+          itemIcon: Icons.location_on_outlined,
+          loading: false,
+          onAction: null,
+          onSelect: (endereco) {
+            _selecionarEndereco(endereco);
+            Navigator.pop(context);
+          },
+        );
+      },
+    );
+  }
 
-void _selecionarEndereco(Map<String, dynamic> endereco) {
-  setState(() {
-    enderecoSelecionado = endereco;
-  });
-}
+  void _selecionarEndereco(Map<String, dynamic> endereco) {
+    setState(() {
+      enderecoSelecionado = endereco;
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -138,147 +142,162 @@ void _selecionarEndereco(Map<String, dynamic> endereco) {
     );
   }
 
-Widget _buildLabel(
-  String text,
-  ColorScheme colors, {
-  VoidCallback? onAdd,
-  String addLabel = 'Adicionar',
-}) {
-  return Container(
-    padding: const EdgeInsets.all(16),
-    decoration: BoxDecoration(
-      color: Colors.white,
-      borderRadius: BorderRadius.circular(14),
-      boxShadow: [
-        BoxShadow(
-          color: Colors.black.withOpacity(0.06),
-          blurRadius: 8,
-          offset: const Offset(0, 2),
-        ),
-      ],
-    ),
-    child: Row(
-      children: [
-        Text(
-          text,
-          style: TextStyle(
-            color: colors.onSurface,
-            fontSize: 18,
-            fontWeight: FontWeight.bold,
+  Widget _buildLabel(
+    String text,
+    ColorScheme colors, {
+    VoidCallback? onAdd,
+    String addLabel = 'Adicionar',
+  }) {
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(14),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.06),
+            blurRadius: 8,
+            offset: const Offset(0, 2),
           ),
-        ),
-        const Spacer(),
-        if (onAdd != null)
-          ElevatedButton.icon(
-            onPressed: onAdd,
-            icon: const Icon(Icons.add, size: 18),
-            label: Text(addLabel),
-            style: ElevatedButton.styleFrom(
-              backgroundColor: const Color(0xFF1E9E5F),
-              foregroundColor: Colors.white,
-              elevation: 0,
-              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(8),
+        ],
+      ),
+      child: Row(
+        children: [
+          Text(
+            text,
+            style: TextStyle(
+              color: colors.onSurface,
+              fontSize: 18,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+          const Spacer(),
+          if (onAdd != null)
+            ElevatedButton.icon(
+              onPressed: onAdd,
+              icon: const Icon(
+                Icons.add,
+                size: 18,
+              ),
+              label: Text(addLabel),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: const Color(0xFF1E9E5F),
+                foregroundColor: Colors.white,
+                elevation: 0,
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 14,
+                  vertical: 10,
+                ),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(8),
+                ),
               ),
             ),
-          ),
-      ],
-    ),
-  );
-}
-Widget _buildEnderecoSelecionado(ColorScheme colors) {
-  if (enderecoSelecionado == null) {
-    return const SizedBox.shrink();
-  }
-
-  return Padding(
-    padding: const EdgeInsets.only(top: 12),
-    child: Container(
-      width: double.infinity,
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: Colors.white.withOpacity(0.6),
-        borderRadius: BorderRadius.circular(14),
-      ),
-      child: Row(
-        children: [
-          Icon(Icons.location_on, color: colors.primary),
-          const SizedBox(width: 12),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  'Endereço selecionado',
-                  style: TextStyle(
-                    color: colors.onSurfaceVariant,
-                    fontSize: 12,
-                  ),
-                ),
-                const SizedBox(height: 2),
-                Text(
-                  enderecoSelecionado!['rua'],
-                  style: TextStyle(
-                    color: colors.onSurface,
-                    fontSize: 16,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-              ],
-            ),
-          ),
         ],
       ),
-    ),
-  );
-}
-
-Widget _buildClienteSelecionado(ColorScheme colors) {
-  if (clienteSelecionado == null) {
-    return const SizedBox.shrink();
+    );
   }
 
-  return Padding(
-    padding: const EdgeInsets.only(top: 12),
-    child: Container(
-      width: double.infinity,
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: Colors.white.withOpacity(0.6),
-        borderRadius: BorderRadius.circular(14),
-        border: Border.all(color: colors.primary.withOpacity(0.3)),
-      ),
-      child: Row(
-        children: [
-          Icon(Icons.person, color: colors.primary),
-          const SizedBox(width: 12),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  'Cliente selecionado',
-                  style: TextStyle(
-                    color: colors.onSurfaceVariant,
-                    fontSize: 12,
-                  ),
-                ),
-                const SizedBox(height: 2),
-                Text(
-                  clienteSelecionado!['nome'],
-                  style: TextStyle(
-                    color: colors.onSurface,
-                    fontSize: 16,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-              ],
+  Widget _buildEnderecoSelecionado(ColorScheme colors) {
+    if (enderecoSelecionado == null) {
+      return const SizedBox.shrink();
+    }
+
+    return Padding(
+      padding: const EdgeInsets.only(top: 12),
+      child: Container(
+        width: double.infinity,
+        padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          color: Colors.white.withOpacity(0.6),
+          borderRadius: BorderRadius.circular(14),
+        ),
+        child: Row(
+          children: [
+            Icon(
+              Icons.location_on,
+              color: colors.primary,
             ),
-          ),
-        ],
+            const SizedBox(width: 12),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'Endereço selecionado',
+                    style: TextStyle(
+                      color: colors.onSurfaceVariant,
+                      fontSize: 12,
+                    ),
+                  ),
+                  const SizedBox(height: 2),
+                  Text(
+                    enderecoSelecionado!['rua'],
+                    style: TextStyle(
+                      color: colors.onSurface,
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
       ),
-    ),
-  );
-}
+    );
+  }
+
+  Widget _buildClienteSelecionado(ColorScheme colors) {
+    if (clienteSelecionado == null) {
+      return const SizedBox.shrink();
+    }
+
+    return Padding(
+      padding: const EdgeInsets.only(top: 12),
+      child: Container(
+        width: double.infinity,
+        padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          color: Colors.white.withOpacity(0.6),
+          borderRadius: BorderRadius.circular(14),
+          border: Border.all(
+            color: colors.primary.withOpacity(0.3),
+          ),
+        ),
+        child: Row(
+          children: [
+            Icon(
+              Icons.person,
+              color: colors.primary,
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'Cliente selecionado',
+                    style: TextStyle(
+                      color: colors.onSurfaceVariant,
+                      fontSize: 12,
+                    ),
+                  ),
+                  const SizedBox(height: 2),
+                  Text(
+                    clienteSelecionado!['nome'],
+                    style: TextStyle(
+                      color: colors.onSurface,
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
 }
