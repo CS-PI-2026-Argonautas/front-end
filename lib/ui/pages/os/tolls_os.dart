@@ -3,6 +3,7 @@ import 'package:frontend/ui/style/ColorScheme.dart' as custom_colors;
 import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:frontend/ui/pages/product_registration/product_registration.dart';
 import 'package:frontend/ui/widgets/bottom_sheet/bottom_sheet.dart';
+import 'package:frontend/fire_base/models/dinheiro.dart';
 
 class TollsOs extends StatefulWidget {
   const TollsOs({super.key});
@@ -15,23 +16,23 @@ class OrderServiceState extends State<TollsOs> {
   final colors = custom_colors.colorScheme;
 
   final List<Map<String, dynamic>> pecasDisponiveis = [
-    {"id": 1, "nome": "Pastilha de freio", "preco": 120.00},
-    {"id": 2, "nome": "Filtro de óleo", "preco": 35.90},
-    {"id": 3, "nome": "Filtro de ar", "preco": 48.50},
-    {"id": 4, "nome": "Correia dentada", "preco": 180.00},
-    {"id": 5, "nome": "Vela de ignição", "preco": 25.00},
+    {"id": 1, "nome": "Pastilha de freio", "preco": Dinheiro.fromReais(120.00)},
+    {"id": 2, "nome": "Filtro de óleo", "preco": Dinheiro.fromReais(35.90)},
+    {"id": 3, "nome": "Filtro de ar", "preco": Dinheiro.fromReais(48.50)},
+    {"id": 4, "nome": "Correia dentada", "preco": Dinheiro.fromReais(180.00)},
+    {"id": 5, "nome": "Vela de ignição", "preco": Dinheiro.fromReais(25.00)},
   ];
 
   final List<Map<String, dynamic>> pecasDaOrdem = [];
 
-  double _calcularSubtotal() {
-    double subtotal = 0;
+  Dinheiro _calcularSubtotal() {
+    Dinheiro subtotal = Dinheiro.zero;
 
     for (final peca in pecasDaOrdem) {
       final int quantidade = peca["quantidade"];
-      final double preco = peca["preco"];
+      final Dinheiro preco = peca["preco"];
 
-      subtotal += quantidade * preco;
+      subtotal += preco * quantidade;
     }
 
     return subtotal;
@@ -39,7 +40,7 @@ class OrderServiceState extends State<TollsOs> {
 
   @override
   Widget build(BuildContext context) {
-    final double subtotal = _calcularSubtotal();
+    final Dinheiro subtotal = _calcularSubtotal();
 
     return Scaffold(
       backgroundColor: colors.surface,
@@ -60,7 +61,7 @@ class OrderServiceState extends State<TollsOs> {
                     ),
                   ),
                   Text(
-                    "R\$${subtotal.toStringAsFixed(2)}",
+                    subtotal.formatado(),
                     style: TextStyle(
                       color: colors.onSurface,
                       fontSize: 18,
@@ -127,8 +128,7 @@ void abrirListaPecas() {
 
   tituloItem: (peca) => peca["nome"],
 
-  subtituloItem: (peca) =>
-      "R\$${peca["preco"].toStringAsFixed(2)}",
+  subtituloItem: (peca) => (peca["preco"] as Dinheiro).formatado(),
 
   onSelecionar: (peca) {
     _adicionarPeca(peca);
@@ -177,8 +177,8 @@ void abrirListaPecas() {
 
   Widget _buildPieceCard(Map<String, dynamic> peca, int index) {
     final int quantidade = peca["quantidade"];
-    final double preco = peca["preco"];
-    final double totalItem = quantidade * preco;
+    final Dinheiro preco = peca["preco"];
+    final Dinheiro totalItem = preco * quantidade;
 
     return Slidable(
       key: ValueKey(peca["id"]),
@@ -226,7 +226,7 @@ void abrirListaPecas() {
                   const SizedBox(height: 6),
 
                   Text(
-                    "$quantidade un x R\$${preco.toStringAsFixed(2)}/un",
+                    "$quantidade un x ${preco.formatado()}/un",
                     style: TextStyle(
                       color: colors.onSurfaceVariant,
                       fontSize: 13,
@@ -236,7 +236,7 @@ void abrirListaPecas() {
                   const SizedBox(height: 2),
 
                   Text(
-                    "R\$${totalItem.toStringAsFixed(2)}",
+                    totalItem.formatado(),
                     style: TextStyle(
                       color: colors.onSurface,
                       fontWeight: FontWeight.bold,

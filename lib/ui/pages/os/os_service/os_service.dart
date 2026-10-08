@@ -1,6 +1,5 @@
-import 'dart:math';
-
 import 'package:flutter/material.dart';
+import 'package:frontend/fire_base/models/dinheiro.dart';
 import 'package:frontend/ui/style/ColorScheme.dart' as custom_colors;
 import 'package:frontend/ui/widgets/bottom_sheet/bottom_sheet.dart';
 import 'package:frontend/ui/widgets/slidable/slidable_delete_card.dart';
@@ -23,31 +22,31 @@ class _OsServicosTabState extends State<OsServicosTab> {
       'id': '1',
       'nome': 'Troca de sensor',
       'descricao': 'Substituição do sensor óptico danificado',
-      'preco': 74.00,
+      'preco': Dinheiro.fromReais(74.00),
     },
     {
       'id': '2',
       'nome': 'Orçamento',
       'descricao': 'Análise técnica preventiva e diagnósticos',
-      'preco': 74.00,
+      'preco': Dinheiro.fromReais(74.00),
     },
     {
       'id': '3',
       'nome': 'Deslocamento',
       'descricao': 'Taxa de visita técnica residencial',
-      'preco': 74.00,
+      'preco': Dinheiro.fromReais(74.00),
     },
     {
       'id': '4',
       'nome': 'Manutenção Preventiva',
       'descricao': 'Limpeza e regulagem geral de componentes',
-      'preco': 150.00,
+      'preco': Dinheiro.fromReais(150.00),
     },
     {
       'id': '5',
       'nome': 'Formatação e Reinstalação',
       'descricao': 'Restauração do sistema operacional',
-      'preco': 120.00,
+      'preco': Dinheiro.fromReais(120.00),
     },
   ];
 
@@ -80,18 +79,16 @@ class _OsServicosTabState extends State<OsServicosTab> {
     }).toList();
   }
 
-  double get _subtotal {
-    final total = _servicosExibidos.fold(
-      0.0,
-      (sum, item) {
-        final double preco =
-            (item['preco'] as double? ?? 0.0);
+  Dinheiro get _subtotal {
+    return _servicosExibidos.fold<Dinheiro>(
+      Dinheiro.zero,
+      (soma, item) {
+        final Dinheiro preco =
+            (item['preco'] as Dinheiro? ?? Dinheiro.zero);
 
-        return sum + max(0.0, preco);
+        return soma + preco;
       },
     );
-
-    return max(0.0, total);
   }
 
   void _adicionarServico(
@@ -142,10 +139,10 @@ class _OsServicosTabState extends State<OsServicosTab> {
           },
 
           subtituloItem: (servico) {
-            final double preco =
-                (servico['preco'] as double? ?? 0.0);
+            final Dinheiro preco =
+                (servico['preco'] as Dinheiro? ?? Dinheiro.zero);
 
-            return 'R\$ ${preco.toStringAsFixed(2).replaceAll('.', ',')}';
+            return preco.formatado();
           },
 
           iconeItem: Icons.build_outlined,
@@ -218,7 +215,7 @@ class _OsServicosTabState extends State<OsServicosTab> {
                         ),
                       ),
                       Text(
-                        'R\$ ${_subtotal.toStringAsFixed(2).replaceAll('.', ',')}',
+                        _subtotal.formatado(),
                         style: TextStyle(
                           color: colors.onSurface,
                           fontSize: 18,
@@ -282,10 +279,8 @@ class _OsServicosTabState extends State<OsServicosTab> {
   Widget _buildServiceCard(
     Map<String, dynamic> servico,
   ) {
-    final double precoCru =
-        (servico['preco'] as double? ?? 0.0);
-
-    final double preco = max(0.0, precoCru);
+    final Dinheiro preco =
+        (servico['preco'] as Dinheiro? ?? Dinheiro.zero);
 
     final String descricao =
         servico['descricao'] ?? '';
@@ -420,7 +415,7 @@ class _OsServicosTabState extends State<OsServicosTab> {
                 const SizedBox(height: 8),
 
                 Text(
-                  'R\$ ${preco.toStringAsFixed(2).replaceAll('.', ',')}',
+                  preco.formatado(),
                   style: TextStyle(
                     color: colors.primary,
                     fontSize: 15,

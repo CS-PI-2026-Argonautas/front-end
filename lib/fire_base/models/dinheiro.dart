@@ -25,6 +25,15 @@ class Dinheiro {
     return Dinheiro.fromReais(valorDouble);
   }
 
+  static final Dinheiro zero = Dinheiro(0);
+
+  Dinheiro operator +(Dinheiro outro) => Dinheiro(centavos + outro.centavos);
+
+  /// O resultado nunca fica negativo (o construtor limita em 0).
+  Dinheiro operator -(Dinheiro outro) => Dinheiro(centavos - outro.centavos);
+
+  Dinheiro operator *(int quantidade) => Dinheiro(centavos * quantidade);
+
   double toReais() => centavos / 100.0;
 
   String formatado() {
