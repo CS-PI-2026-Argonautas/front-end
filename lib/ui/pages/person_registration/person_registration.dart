@@ -106,12 +106,12 @@ class _PersonRegistrationState1 extends State<PersonRegistration> {
             },
           ),
 
-          SelectionField<Endereco>(
-            label: 'Endereço',
-            iconeLabel: Icons.home_outlined,
+         SelectionField<Endereco>(
+           label: 'Endereço',
+             iconeLabel: Icons.home_outlined,
             itens: _enderecos,
             tituloItem: (endereco) =>
-    '${endereco.rua}, ${endereco.numero} - ${endereco.cidade}/${endereco.uf.name}',
+             '${endereco.logradouro}, ${endereco.numero} - ${endereco.cidade}/${endereco.uf.name}',
             textoVazio: 'Nenhum endereço adicionado.',
             permitirExclusao: true,
             onPressed: () async {
