@@ -6,6 +6,8 @@ import 'package:frontend/ui/widgets/form/validator.dart';
 import 'package:frontend/ui/widgets/form/form_card.dart';
 import 'package:frontend/ui/widgets/form/form_action_button.dart';
 import 'package:frontend/ui/widgets/form/labeled_form.dart';
+import 'package:frontend/fire_base/services/servicoService.dart';
+import 'package:frontend/fire_base/models/servico.dart';
 
 class ServiceRegistration extends StatefulWidget {
   final VoidCallback? onBack;
@@ -47,19 +49,28 @@ class _ServiceRegistrationState extends State<ServiceRegistration> {
     return (valorDouble * 100).round();
   }
 
-  void _handleCadastrar() {
+  void _handleCadastrar() async {
     if (!(_formKey.currentState?.validate() ?? false)) return;
 
-    final dados = {
-      'nome': _nomeController.text.trim(),
-      'descricao': _descricaoController.text.trim(),
-      'valor': _converterParaCentavos(_valorController.text.trim()),
-    };
+    final servicoService = ServicoService();
+    final novoServico = Servico(
+      nome: _nomeController.text.trim(),
+      descricao: _descricaoController.text.trim(),
+      valor: _converterParaCentavos(_valorController.text.trim()),
+    );
 
-    if (widget.onSubmit != null) {
-      widget.onSubmit!(dados);
-    } else {
-      Navigator.maybePop(context, dados);
+    try {
+      await servicoService.cadastrarServico(novoServico);
+
+      if (mounted) {
+        Navigator.maybePop(context, novoServico.toMap());
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('Erro ao salvar no banco: $e')));
+      }
     }
   }
 
