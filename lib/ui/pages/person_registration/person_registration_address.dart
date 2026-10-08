@@ -12,7 +12,6 @@ import 'package:frontend/ui/widgets/header.dart';
 import 'package:flutter/services.dart';
 
 class CepInputFormatter extends TextInputFormatter {
-
   @override
   TextEditingValue formatEditUpdate(
     TextEditingValue oldValue,
@@ -74,7 +73,7 @@ class _PersonRegistration2State extends State<PersonRegistrationAddress> {
     }
 
     _cepController.text = endereco.cep;
-    _ruaController.text = endereco.rua;
+    _ruaController.text = endereco.logradouro; 
     _complementoController.text = endereco.complemento;
     _cidadeController.text = endereco.cidade;
     _numeroController.text = endereco.numero;
@@ -117,7 +116,7 @@ class _PersonRegistration2State extends State<PersonRegistrationAddress> {
             subtitle: "Campos obrigatórios estão marcados com *",
           ),
 
-          FormFieldLabel(icon: Icons.pin_drop_outlined, label: "CEP *"),
+          FormFieldLabel(icon: Icons.pin_drop_outlined, label: "CEP *"), 
 
           TextFormField(
             controller: _cepController,
@@ -128,9 +127,8 @@ class _PersonRegistration2State extends State<PersonRegistrationAddress> {
               CepInputFormatter(),
             ],
             validator: (value) {
-
               if (value == null || value.isEmpty) {
-                return 'Informe o CEP';
+                return 'Preencha o CEP';
               }
               if (value.length != 9) {
                 return 'CEP inválido';
@@ -139,7 +137,7 @@ class _PersonRegistration2State extends State<PersonRegistrationAddress> {
             },
           ),
 
-          FormFieldLabel(icon: Icons.home_outlined, label: "Rua *"),
+          FormFieldLabel(icon: Icons.home_outlined, label: "Logradouro *"),
 
           TextFormField(
             controller: _ruaController,
@@ -183,9 +181,7 @@ class _PersonRegistration2State extends State<PersonRegistrationAddress> {
                       controller: _numeroController,
                       decoration: customInputDecoration(hintText: "123"),
                       keyboardType: TextInputType.number,
-                      inputFormatters: [
-                        FilteringTextInputFormatter.digitsOnly,
-                      ],
+                      inputFormatters: [FilteringTextInputFormatter.digitsOnly],
                     ),
                   ],
                 ),
@@ -213,7 +209,9 @@ class _PersonRegistration2State extends State<PersonRegistrationAddress> {
                         if (value == null || value.isEmpty) {
                           return 'Informe a UF';
                         }
-                        if (!Uf.values.any((u) => u.name == value.toUpperCase())) {
+                        if (!Uf.values.any(
+                          (u) => u.name == value.toUpperCase(),
+                        )) {
                           return 'UF inválida';
                         }
                         return null;
@@ -228,8 +226,9 @@ class _PersonRegistration2State extends State<PersonRegistrationAddress> {
           ActionButtons(
             formKey: _formKey,
             colors: colors,
-            textoConfirmar:
-                widget.enderecoInicial == null ? 'Cadastrar' : 'Salvar',
+            textoConfirmar: widget.enderecoInicial == null
+                ? 'Cadastrar'
+                : 'Salvar',
             onCancel: () {
               Navigator.pop(context);
             },
@@ -245,18 +244,15 @@ class _PersonRegistration2State extends State<PersonRegistrationAddress> {
               final numero = _numeroController.text.trim();
               final ufTexto = _ufController.text.trim().toUpperCase();
 
-              final uf = Uf.values.firstWhere(
-                (u) => u.name == ufTexto,
-              );
+              final uf = Uf.values.firstWhere((u) => u.name == ufTexto);
 
               final endereco = Endereco(
                 id: widget.enderecoInicial?.id,
-                clienteId: widget.enderecoInicial?.clienteId,
                 cep: cep,
-                rua: rua,
+                logradouro: rua,
                 complemento: complemento,
                 cidade: cidade,
-                numero: numero.isEmpty ? 'S/N' : numero,
+                numero: numero,
                 uf: uf,
               );
 

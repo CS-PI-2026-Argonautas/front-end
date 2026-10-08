@@ -13,7 +13,7 @@ class FormFieldLabel extends StatelessWidget {
 
     return Row(
       children: [
-        Icon(icon, size: 20, color: colors.primary),
+        Icon(icon, size: 20, color: colors.secondary),
         const SizedBox(width: 8),
         Text(
           label,

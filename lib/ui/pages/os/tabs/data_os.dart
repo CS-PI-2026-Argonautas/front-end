@@ -6,8 +6,13 @@ import 'package:frontend/ui/pages/person_registration/person_registration_addres
 import 'package:frontend/ui/style/ColorScheme.dart' as custom_colors;
 import 'package:frontend/ui/style/inputDecorationStyles.dart';
 import 'package:frontend/ui/widgets/bottom_sheet/bottom_sheet.dart';
+import 'package:frontend/ui/widgets/equipment_field.dart';
 import 'package:frontend/utils/data_os/address_formatter.dart';
 import 'package:frontend/ui/pages/person_registration/person_registration.dart';
+import 'package:frontend/ui/pages/stand_in_page.dart';
+import 'package:frontend/fire_base/models/equipamento.dart';
+import 'package:frontend/fire_base/services/equipamento_service.dart';
+import 'package:frontend/ui/pages/equipament_data/equipamentData.dart';
 
 class DataOs extends StatefulWidget {
   final DateTime? dataEntrada;
@@ -20,7 +25,6 @@ class DataOs extends StatefulWidget {
   final ValueChanged<String>? onRelatorioChanged;
   final ValueChanged<DateTime>? onDataSaidaChanged;
 
-  /// Avança para a próxima aba da TabBar.
   final VoidCallback? avancarTab;
 
   const DataOs({
@@ -41,6 +45,19 @@ class DataOs extends StatefulWidget {
 }
 
 class _DataOsState extends State<DataOs> {
+  Map<String, dynamic> _montarDadosOs() {
+    return {
+      'status': status,
+      'dataEntrada': dataEntrada,
+      'dataSaida': dataSaida,
+      'relatorio': relatorio,
+      'cliente': clienteSelecionado,
+      'endereco': _enderecoSelecionado,
+      'equipamento': _equipamentoSelecionado,
+    };
+  }
+
+  final EquipamentoService _equipamentoService = EquipamentoService();
   final colors = custom_colors.colorScheme;
 
   final EnderecoService _enderecoService = EnderecoService();
@@ -49,6 +66,8 @@ class _DataOsState extends State<DataOs> {
   final ClienteService _clienteService = ClienteService();
   List<Map<String, dynamic>> clientesDisponiveis = [];
   Map<String, dynamic>? clienteSelecionado;
+
+  dynamic _equipamentoSelecionado;
 
   bool get _formHabilitado => clienteSelecionado != null;
   late DateTime dataEntrada;
@@ -61,6 +80,7 @@ class _DataOsState extends State<DataOs> {
   bool get _formValido {
     return clienteSelecionado != null &&
         _enderecoSelecionado != null &&
+        _equipamentoSelecionado != null &&
         relatorio.trim().isNotEmpty;
   }
 
@@ -104,7 +124,7 @@ class _DataOsState extends State<DataOs> {
     }
   }
 
-    bool _validarFormulario() {
+  bool _validarFormulario() {
     if (clienteSelecionado == null) {
       _mostrarErro('Selecione um cliente.');
       return false;
@@ -112,6 +132,11 @@ class _DataOsState extends State<DataOs> {
 
     if (_enderecoSelecionado == null) {
       _mostrarErro('Selecione um endereço.');
+      return false;
+    }
+
+    if (_equipamentoSelecionado == null) {
+      _mostrarErro('Selecione ou cadastre um equipamento.');
       return false;
     }
 
@@ -125,25 +150,91 @@ class _DataOsState extends State<DataOs> {
 
   void _mostrarErro(String mensagem) {
     ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(mensagem),
-        behavior: SnackBarBehavior.floating,
-      ),
+      SnackBar(content: Text(mensagem), behavior: SnackBarBehavior.floating),
     );
   }
 
   Future<void> _carregarClientes() async {
-    final clientes = await _clienteService.listar();
+    try {
+      final clientes = await _clienteService.listar();
 
-    setState(() {
-      clientesDisponiveis = clientes.map((c) {
-        return {
-          'id': c.id,
-          'nome': c.nome,
-          'telefone': c.info_contato,
-        };
-      }).toList();
-    });
+      if (!mounted) return;
+
+      setState(() {
+        clientesDisponiveis = clientes.map((c) {
+          return {'id': c.id, 'nome': c.nome, 'telefone': c.contato.telefone};
+        }).toList();
+      });
+    } catch (e) {
+      debugPrint('Erro ao carregar clientes: $e');
+
+      if (mounted) _mostrarErro('Não foi possível carregar os clientes.');
+    }
+  }
+
+  Future<void> _abrirCadastroEquipamento([dynamic equipamentoInicial]) async {
+    final resultado = await Navigator.push<dynamic>(
+      context,
+      MaterialPageRoute(
+        builder: (routeContext) => EquipamentData(
+          osDados: _montarDadosOs(),
+          onSubmit: (dados) => Navigator.pop(routeContext, dados),
+        ),
+      ),
+    );
+
+    if (resultado != null && mounted) {
+      setState(() => _equipamentoSelecionado = resultado);
+    }
+  }
+
+  Future<void> _buscarEquipamento() async {
+    final List<Equipamento> equipamentos;
+
+    try {
+      equipamentos = await _equipamentoService.listar();
+    } catch (e) {
+      if (!mounted) return;
+      _mostrarErro('Não foi possível carregar os equipamentos.');
+      return;
+    }
+
+    if (!mounted) return;
+
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: colors.surface,
+      isScrollControlled: true,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+      ),
+      builder: (context) {
+        return SelectionBottomSheet<Equipamento>(
+          titulo: 'Selecionar equipamento',
+          itens: equipamentos,
+          textoBusca: 'Procurar equipamento',
+          textoAcao: 'Novo equipamento',
+          tituloItem: (e) => '${e.marca} ${e.modelo}',
+          subtituloItem: (e) => 'Nº série ${e.numeroSerie}',
+          iconeItem: Icons.scale_outlined,
+          carregando: false,
+          onAcao: () {
+            Navigator.pop(context);
+            _abrirCadastroEquipamento();
+          },
+          onSelecionar: (e) {
+            setState(() {
+              _equipamentoSelecionado = {
+                'id': e.id,
+                'marca': e.marca,
+                'modelo': e.modelo,
+              };
+            });
+            Navigator.pop(context);
+          },
+        );
+      },
+    );
   }
 
   String _formatDate(DateTime? date) {
@@ -280,7 +371,6 @@ class _DataOsState extends State<DataOs> {
                           ),
                         ),
                       ),
-
                       Row(
                         spacing: 6,
                         children: [
@@ -297,7 +387,6 @@ class _DataOsState extends State<DataOs> {
                           ),
                         ],
                       ),
-
                       Text(
                         'Adicione observações sobre o andamento do conserto.',
                         style: TextStyle(
@@ -305,7 +394,6 @@ class _DataOsState extends State<DataOs> {
                           color: colors.onSurfaceVariant,
                         ),
                       ),
-
                       TextField(
                         controller: _relatorioController,
                         autofocus: true,
@@ -331,7 +419,6 @@ class _DataOsState extends State<DataOs> {
                           widget.onRelatorioChanged?.call(value);
                         },
                       ),
-
                       SizedBox(
                         width: double.infinity,
                         child: ElevatedButton.icon(
@@ -416,7 +503,9 @@ class _DataOsState extends State<DataOs> {
     final List<Endereco> enderecos;
 
     try {
-      enderecos = await _enderecoService.listByCliente(clienteSelecionado!['id'].toString());
+      enderecos = await _enderecoService.listar(
+        clienteSelecionado!['id'].toString(),
+      );
     } catch (e) {
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
@@ -443,22 +532,28 @@ class _DataOsState extends State<DataOs> {
           itens: enderecos,
           textoBusca: 'Procurar endereço',
           textoAcao: 'Novo endereço',
-          tituloItem: (endereco) => '${endereco.rua}, ${endereco.numero}, ${endereco.complemento}',
+          tituloItem: (endereco) =>
+              '${endereco.logradouro}, ${endereco.numero}, ${endereco.complemento}',
           subtituloItem: (endereco) =>
-              '${endereco.cidade} - ${endereco.uf.name} • CEP ${endereco.cep}',
+              '${endereco.cidade} - ${endereco.uf.name}'
+              '${endereco.cep.isEmpty ? '' : ' • CEP ${endereco.cep}'}',
           iconeItem: Icons.location_on_outlined,
           carregando: false,
           onAcao: () async {
             Navigator.pop(context);
             final novo = await Navigator.push<Endereco>(
               context,
-              MaterialPageRoute(builder: (_) => const PersonRegistrationAddress()),
+              MaterialPageRoute(
+                builder: (_) => const PersonRegistrationAddress(),
+              ),
             );
             if (novo == null) return;
-            final salvo = await _enderecoService
-                .saveForCliente(clienteSelecionado!['id'].toString(), novo);
+            final salvo = await _enderecoService.salvar(
+              clienteSelecionado!['id'].toString(),
+              novo,
+            );
             if (!mounted) return;
-            setState(() => _enderecoSelecionado = salvo);
+            setState(() => _enderecoSelecionado = novo);
           },
           onSelecionar: (endereco) {
             setState(() {
@@ -502,12 +597,21 @@ class _DataOsState extends State<DataOs> {
               addLabel: 'Adicionar cliente',
             ),
             _buildClienteSelecionado(),
+
             _buildClienteEnderecoLabel(
               'Endereço *',
               onAdd: clienteSelecionado == null ? null : _abrirListaEnderecos,
               addLabel: 'Adicionar Endereço',
             ),
             _buildEnderecoSelecionado(),
+
+            EquipmentSection(
+              equipamento: _equipamentoSelecionado,
+              onBuscar: _buscarEquipamento,
+              onOpenCadastro: () =>
+                  _abrirCadastroEquipamento(_equipamentoSelecionado),
+              onEdit: (equip) => _abrirCadastroEquipamento(equip),
+            ),
 
             if (!_formHabilitado) _buildAvisoSelecioneCliente(),
 
@@ -523,7 +627,6 @@ class _DataOsState extends State<DataOs> {
                       'Andamento da OS',
                       'Atualize as informações referentes ao conserto do equipamento.',
                     ),
-
                     Row(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       spacing: 10,
@@ -564,7 +667,6 @@ class _DataOsState extends State<DataOs> {
                             ],
                           ),
                         ),
-
                         Expanded(
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
@@ -619,7 +721,6 @@ class _DataOsState extends State<DataOs> {
                         ),
                       ],
                     ),
-
                     if (dataSaida != null) ...[
                       Row(
                         spacing: 6,
@@ -639,13 +740,9 @@ class _DataOsState extends State<DataOs> {
                         ],
                       ),
                     ],
-
                     _buildFieldLabel(Icons.sync_alt, 'Status'),
-
                     _buildStatusField(),
-
                     _buildFieldLabel(Icons.description_outlined, 'Relatório'),
-
                     InkWell(
                       onTap: _editarRelatorio,
                       borderRadius: BorderRadius.circular(16),
@@ -703,7 +800,6 @@ class _DataOsState extends State<DataOs> {
                               ),
                       ),
                     ),
-
                     Text(
                       '${relatorio.length}/256 caracteres',
                       style: TextStyle(
@@ -711,7 +807,6 @@ class _DataOsState extends State<DataOs> {
                         color: colors.onSurfaceVariant,
                       ),
                     ),
-
                     SizedBox(
                       width: double.infinity,
                       child: ElevatedButton.icon(
@@ -743,7 +838,6 @@ class _DataOsState extends State<DataOs> {
                         ),
                       ),
                     ),
-
                     Center(
                       child: Text(
                         'A conclusão da OS não altera a data de saída.',

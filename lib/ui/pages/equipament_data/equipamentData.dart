@@ -9,13 +9,29 @@ class EquipamentData extends StatefulWidget {
   final VoidCallback? onClose;
   final void Function(Map<String, String> dadosEquipamento)? onSubmit;
 
-  const EquipamentData({super.key, this.onBack, this.onClose, this.onSubmit});
+  final Map<String, dynamic>? osDados;
+
+  const EquipamentData({
+    super.key,
+    this.onBack,
+    this.onClose,
+    this.onSubmit,
+    this.osDados,
+  });
 
   @override
   State<EquipamentData> createState() => _EquipamentDataState();
 }
 
 class _EquipamentDataState extends State<EquipamentData> {
+  static const _statusBloqueados = ['PAGA', 'ENTREGUE'];
+
+  String? get _statusOs => widget.osDados?['status'] as String?;
+
+  bool get _osBloqueada => _statusBloqueados.contains(_statusOs);
+
+  String get _statusLabel => _statusOs == 'PAGA' ? 'paga' : 'entregue';
+
   final _formKey = GlobalKey<FormState>();
 
   final TextEditingController _marcaController = TextEditingController();
@@ -56,6 +72,18 @@ class _EquipamentDataState extends State<EquipamentData> {
   bool _salvando = false;
 
   Future<void> _handleCadastrar() async {
+    if (_osBloqueada) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            'Não é possível cadastrar equipamento: a OS está $_statusLabel.',
+          ),
+          backgroundColor: Colors.red.shade700,
+        ),
+      );
+      return;
+    }
+
     if (!(_formKey.currentState?.validate() ?? false)) return;
 
     setState(() => _salvando = true);
@@ -340,7 +368,9 @@ class _EquipamentDataState extends State<EquipamentData> {
                   const SizedBox(width: 16),
                   Expanded(
                     child: ElevatedButton(
-                      onPressed: _handleCadastrar,
+                      onPressed: (_osBloqueada || _salvando)
+                          ? null
+                          : _handleCadastrar,
                       style: ElevatedButton.styleFrom(
                         backgroundColor: const Color(0xFF1E9E5F),
                         foregroundColor: Colors.white,
