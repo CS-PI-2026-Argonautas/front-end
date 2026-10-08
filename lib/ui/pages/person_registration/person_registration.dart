@@ -1,4 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:frontend/fire_base/models/cliente.dart';
+import 'package:frontend/fire_base/models/endereco.dart';
+import 'package:frontend/fire_base/Enums/TipoPessoa.dart'; 
+import 'package:frontend/fire_base/models/contato.dart'; 
+import 'package:frontend/fire_base/services/cliente_service.dart';
 import 'package:frontend/ui/pages/person_registration/person_registration_contact.dart';
 import 'package:frontend/ui/style/ColorScheme.dart' as custom_colors;
 import 'package:frontend/ui/pages/person_registration/person_registration_address.dart';
@@ -6,17 +11,15 @@ import 'package:frontend/ui/style/inputDecorationStyles.dart';
 import 'package:frontend/ui/widgets/action_buttons.dart';
 import 'package:frontend/ui/widgets/form_card.dart';
 import 'package:frontend/ui/widgets/form_field_label.dart';
+import 'package:frontend/ui/widgets/selection_field.dart';
 import 'package:mask_text_input_formatter/mask_text_input_formatter.dart';
 import 'package:frontend/ui/pages/dashboard.dart';
 import 'package:frontend/ui/widgets/header.dart';
 import 'package:frontend/ui/widgets/form_section_tile.dart';
 
-import 'package:frontend/ui/widgets/slidable/slidable_delete_card.dart';
-import 'package:frontend/ui/widgets/show_dialog/show_delete_client_dialog.dart';
-import 'package:frontend/ui/widgets/show_snackbar/show_delete_client_snackbar.dart';
-
 class PersonRegistration extends StatefulWidget {
-  const PersonRegistration({super.key});
+  final bool retornarDadosAoFechar;
+  const PersonRegistration({super.key, this.retornarDadosAoFechar = false});
 
   @override
   State<PersonRegistration> createState() => _PersonRegistrationState1();
@@ -24,12 +27,16 @@ class PersonRegistration extends StatefulWidget {
 
 class _PersonRegistrationState1 extends State<PersonRegistration> {
   final _formKey = GlobalKey<FormState>();
+
   bool _isPessoaFisica = false;
   final colors = custom_colors.colorScheme;
-  final List<String> _enderecos = [
-    'Paranavaí - PR, Av. Brasil, 123',
-    'Maringá - PR, Rua Santos Dumont, 456',
-  ];
+
+  final List<Endereco> _enderecos = [];
+
+  Contato? _contato;
+
+  TipoPessoa get _tipoPessoa =>
+      _isPessoaFisica ? TipoPessoa.fisica : TipoPessoa.juridica;
 
   final _cpfFormatter = MaskTextInputFormatter(
     mask: '###.###.###-##',
@@ -41,22 +48,21 @@ class _PersonRegistrationState1 extends State<PersonRegistration> {
     filter: {"#": RegExp(r'[0-9]')},
   );
 
-  final _enderecoController = TextEditingController();
-  final _contatoController = TextEditingController();
+  final _nomeController = TextEditingController();
+  final _documentoController = TextEditingController();
 
-  String? _erroEndereco;
-  String? _erroContato;
+  final ClienteService _service = ClienteService();
+  bool _salvando = false;
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: colors.surface,
-      //widget da appbar
       appBar: Header(
         onBack: () {
           Navigator.pop(context);
-        }, //voltar para a tela anterior
-        title: 'Cadastro de clientes', //titulo personalizado
+        },
+        title: 'Cadastro de clientes',
       ),
       body: SafeArea(
         child: SingleChildScrollView(
@@ -79,182 +85,85 @@ class _PersonRegistrationState1 extends State<PersonRegistration> {
         spacing: 18,
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          FormSectionTile(
-            title: "Informações Pessoais", //titulo do card
-            subtitle:
-                "Complete os campos de identificação abaixo.", //subtitulo do card
+          const FormSectionTile(
+            title: "Informações Pessoais",
+            subtitle: "Complete os campos de identificação abaixo.",
           ),
 
-          FormFieldLabel(
-            icon: Icons.person_outline, //icone do campo do input
-            label: "Nome completo *", //label do campo do input
+          const FormFieldLabel(
+            icon: Icons.person_outline,
+            label: "Nome completo *",
           ),
 
           TextFormField(
-            decoration: customInputDecoration(
-              hintText: "Digite o nome aqui", //placeholder do campo do input
-            ),
+            controller: _nomeController,
+            decoration: customInputDecoration(hintText: "Digite o nome aqui"),
             validator: (value) {
               if (value == null || value.isEmpty) {
-                return 'Informe o nome'; //mensagem de erro
+                return 'Informe o nome';
               }
               return null;
             },
           ),
 
-          Row(
-            spacing: 6,
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              const FormFieldLabel(
-                icon: Icons.home_outlined,
-                label: "Endereço",
-              ),
-
-              IconButton(
-                padding: EdgeInsets.zero,
-                constraints: const BoxConstraints(),
-                icon: Icon(
-                  Icons.add_box_rounded,
-                  color: colors.secondary,
-                  size: 26,
+          SelectionField<Endereco>(
+            label: 'Endereço',
+            iconeLabel: Icons.home_outlined,
+            itens: _enderecos,
+            tituloItem: (endereco) =>
+    '${endereco.rua}, ${endereco.numero} - ${endereco.cidade}/${endereco.uf.name}',
+            textoVazio: 'Nenhum endereço adicionado.',
+            permitirExclusao: true,
+            onPressed: () async {
+              final novoEndereco = await Navigator.push<Endereco>(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => const PersonRegistrationAddress(),
                 ),
-                onPressed: () async {
-                  final resultadoEndereco = await Navigator.push<String>(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => const PersonRegistrationAddress(),
-                    ),
-                  );
-                  if (resultadoEndereco != null &&
-                      resultadoEndereco.trim().isNotEmpty &&
-                      mounted) {
-                    setState(() {
-                      _enderecos.add(resultadoEndereco);
-                    });
-                  }
-                },
-              ),
-            ],
-          ),
+              );
 
-          if (_enderecos.isEmpty)
-            Padding(
-              padding: const EdgeInsets.symmetric(vertical: 8.0),
-              child: Text(
-                "Nenhum endereço adicionado.",
-                style: TextStyle(
-                  color: colors.onSurfaceVariant.withOpacity(0.6),
-                  fontSize: 14,
-                ),
-              ),
-            )
-          else
-            ListView.builder(
-              shrinkWrap: true,
-              physics: const NeverScrollableScrollPhysics(),
-              itemCount: _enderecos.length,
-              itemBuilder: (context, index) {
-                final endereco = _enderecos[index];
-
-                return Padding(
-                  padding: const EdgeInsets.only(bottom: 8.0),
-                  child: ClipRRect(
-                    borderRadius: BorderRadius.circular(12),
-                    child: SlidableDeleteCard(
-                      slidableKey: ValueKey('$endereco-$index'),
-                      extentRatio: 0.20,
-                      onDelete: () async {
-                        final confirmarExclusao =
-                            await showDialog<bool>(
-                              context: context,
-                              builder: (_) =>
-                                  ShowDeleteClientDialog(nome: endereco),
-                            ) ??
-                            false;
-
-                        if (!confirmarExclusao) return;
-
-                        setState(() {
-                          _enderecos.removeAt(index);
-                        });
-
-                        if (!mounted) return;
-
-                        final messenger = ScaffoldMessenger.of(context);
-                        messenger.hideCurrentSnackBar();
-                        messenger.showSnackBar(
-                          ShowDeleteClientSnackbar(
-                            color: colors.primary,
-                            onPressed: () {
-                              setState(() {
-                                _enderecos.insert(index, endereco);
-                              });
-                              messenger.hideCurrentSnackBar();
-                            },
-                            duration: const Duration(seconds: 5),
-                          ),
-                        );
-                      },
-                      child: Container(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 16,
-                          vertical: 8,
-                        ),
-                        decoration: BoxDecoration(
-                          color: colors.surfaceContainer,
-                          border: Border.all(
-                            color: colors.primary.withOpacity(0.5),
-                            width: 1,
-                          ),
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                        child: Row(
-                          children: [
-                            Icon(Icons.location_on, color: colors.primary),
-                            const SizedBox(width: 12),
-                            Expanded(
-                              child: Text(
-                                endereco,
-                                style: TextStyle(
-                                  color: colors.onSurface,
-                                  fontSize: 14,
-                                  fontWeight: FontWeight.w500,
-                                ),
-                              ),
-                            ),
-                            // --- BOTÃO DE EDIÇÃO ---
-                            IconButton(
-                              icon: Icon(Icons.edit, color: colors.primary),
-                              onPressed: () async {
-                                final enderecoEditado =
-                                    await Navigator.push<String>(
-                                      context,
-                                      MaterialPageRoute(
-                                        builder: (context) =>
-                                            PersonRegistrationAddress(
-                                              enderecoInicial: endereco,
-                                            ),
-                                      ),
-                                    );
-
-                                if (enderecoEditado != null &&
-                                    enderecoEditado.isNotEmpty &&
-                                    mounted) {
-                                  setState(() {
-                                    _enderecos[index] = enderecoEditado;
-                                  });
-                                }
-                              },
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
+              if (novoEndereco != null && mounted) {
+                setState(() {
+                  _enderecos.add(novoEndereco);
+                });
+              }
+            },
+            onEdit: (endereco, index) async {
+              final enderecoEditado = await Navigator.push<Endereco>(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => PersonRegistrationAddress(
+                    enderecoInicial: endereco,
                   ),
-                );
-              },
-            ),
+                ),
+              );
+
+              if (enderecoEditado != null && mounted) {
+                setState(() {
+                  _enderecos[index] = enderecoEditado;
+                });
+              }
+            },
+            onDelete: (endereco, index) {
+              setState(() {
+                _enderecos.removeAt(index);
+              });
+
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  content: const Text('Endereço removido.'),
+                  action: SnackBarAction(
+                    label: 'Desfazer',
+                    onPressed: () {
+                      setState(() {
+                        _enderecos.insert(index, endereco);
+                      });
+                    },
+                  ),
+                ),
+              );
+            },
+          ),
 
           Row(
             spacing: 6,
@@ -264,7 +173,6 @@ class _PersonRegistrationState1 extends State<PersonRegistration> {
                 icon: Icons.phone_android_outlined,
                 label: "Informações de contato",
               ),
-
               IconButton(
                 padding: EdgeInsets.zero,
                 constraints: const BoxConstraints(),
@@ -274,16 +182,17 @@ class _PersonRegistrationState1 extends State<PersonRegistration> {
                   size: 26,
                 ),
                 onPressed: () async {
-                  final resultadoContato = await Navigator.push<String>(
+                  final resultadoContato = await Navigator.push<Contato>(
                     context,
                     MaterialPageRoute(
-                      builder: (context) => const PersonRegistrationContact(),
+                      builder: (context) =>
+                          PersonRegistrationContact(contatoInicial: _contato),
                     ),
                   );
 
                   if (resultadoContato != null && mounted) {
                     setState(() {
-                      _contatoController.text = resultadoContato;
+                      _contato = resultadoContato;
                     });
                   }
                 },
@@ -292,10 +201,10 @@ class _PersonRegistrationState1 extends State<PersonRegistration> {
           ),
 
           FormField<String>(
-            key: ValueKey('contato_${_contatoController.text}'),
-            initialValue: _contatoController.text,
+            key: ValueKey('contato_${(_contato?.resumo ?? '')}'),
+            initialValue: (_contato?.resumo ?? ''),
             validator: (value) {
-              if (_contatoController.text.isEmpty) {
+              if (_contato == null) {
                 return 'Informe as informações de contato';
               }
               return null;
@@ -303,19 +212,19 @@ class _PersonRegistrationState1 extends State<PersonRegistration> {
             builder: (FormFieldState<String> state) {
               return InputDecorator(
                 decoration: customInputDecoration(
-                  hintText: _contatoController.text.isEmpty
+                  hintText: _contato == null
                       ? "Inserir contato"
                       : null,
                 ).copyWith(errorText: state.errorText),
                 child: Text(
-                  _contatoController.text.isEmpty
+                  _contato == null
                       ? "Inserir contato"
-                      : _contatoController.text,
+                      : (_contato?.resumo ?? ''),
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                   style: TextStyle(
                     fontSize: 16,
-                    color: _contatoController.text.isEmpty
+                    color: _contato == null
                         ? colors.onSurfaceVariant.withOpacity(0.6)
                         : colors.onSurface,
                   ),
@@ -331,21 +240,26 @@ class _PersonRegistrationState1 extends State<PersonRegistration> {
 
           TextFormField(
             key: ValueKey(_isPessoaFisica),
-            decoration: customInputDecoration(hintText: "000.000.000-00"),
+            controller: _documentoController,
+            decoration: customInputDecoration(
+              hintText: _isPessoaFisica
+                  ? "000.000.000-00"
+                  : "00.000.000/0000-00",
+            ),
             keyboardType: TextInputType.number,
             inputFormatters: [_isPessoaFisica ? _cpfFormatter : _cnpjFormatter],
-            validator: (value) {
-              if (value == null || value.isEmpty) {
-                return 'Informe o documento';
-              }
-              return null;
-            },
+            validator: (value) =>
+                ClienteService.validarDocumento(value ?? '', _tipoPessoa),
           ),
 
           CheckboxListTile(
             value: _isPessoaFisica,
-            onChanged: (value) =>
-                setState(() => _isPessoaFisica = value ?? false),
+            onChanged: (value) => setState(() {
+              _isPessoaFisica = value ?? false;
+              _documentoController.clear();
+              _cpfFormatter.clear();
+              _cnpjFormatter.clear();
+            }),
             activeColor: colors.secondary,
             contentPadding: EdgeInsets.zero,
             controlAffinity: ListTileControlAffinity.leading,
@@ -358,28 +272,61 @@ class _PersonRegistrationState1 extends State<PersonRegistration> {
             ),
           ),
 
-          //botões de ação
           ActionButtons(
             formKey: _formKey,
             colors: colors,
-            onCancel: () {
-              //botão de cancelar
-              MaterialPageRoute(builder: (context) => const Dashboard());
-              Navigator.pop(context);
-            },
-            onCadastrar: () {
-              // botão de cadastrar
-              if (_formKey.currentState!.validate()) {
-                Navigator.pushAndRemoveUntil(
-                  context,
-                  MaterialPageRoute(builder: (context) => const Dashboard()),
-                  (route) => false,
-                );
-              }
-            },
+            onCancel: () => Navigator.pop(context),
+            onCadastrar: _salvar,
           ),
         ],
       ),
     );
+  }
+
+  Future<void> _salvar() async {
+    if (_salvando) return;
+
+    final contato = _contato;
+    if (contato == null) return; 
+
+    setState(() => _salvando = true);
+
+    final cliente = Cliente(
+      nome: _nomeController.text.trim(),
+      tipoPessoa: _tipoPessoa,
+      documento: _documentoController.text,
+      contato: contato,
+    );
+
+    try {
+      final id = await _service.cadastrar(cliente, _enderecos);
+
+      if (!mounted) return;
+
+      if (widget.retornarDadosAoFechar) {
+        Navigator.pop(context, {
+          'id': cliente.id,
+          'nome': cliente.nome,
+          'telefone': cliente.contato.telefone,
+        });
+      } else {
+        Navigator.pushAndRemoveUntil(
+          context,
+          MaterialPageRoute(builder: (context) => const Dashboard()),
+          (route) => false,
+        );
+      }
+    } catch (e) {
+      if (!mounted) return;
+
+      debugPrint('Erro ao cadastrar cliente: $e');
+      setState(() => _salvando = false);
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Não foi possível salvar o cliente.'),
+          behavior: SnackBarBehavior.floating,
+        ),
+      );
+    }
   }
 }

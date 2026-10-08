@@ -5,6 +5,7 @@ class ActionButtons extends StatelessWidget {
   final VoidCallback onCancel;
   final VoidCallback onCadastrar;
   final dynamic colors; 
+  final String textoConfirmar;
 
   const ActionButtons({
     super.key,
@@ -12,6 +13,7 @@ class ActionButtons extends StatelessWidget {
     required this.onCancel,
     required this.onCadastrar,
     required this.colors,
+    this.textoConfirmar = 'Cadastrar',
   });
 
   @override
@@ -20,11 +22,11 @@ class ActionButtons extends StatelessWidget {
       children: [
         //Cancelar
         Expanded(
-          child: OutlinedButton.icon(
+          child: ElevatedButton.icon(
             onPressed: onCancel,
-            style: OutlinedButton.styleFrom(
+            style: ElevatedButton.styleFrom(
               foregroundColor: colors.onSurface,
-              side: BorderSide(color: colors.surfaceContainerHigh),
+              backgroundColor: colors.surfaceContainerHigh,
               padding: const EdgeInsets.symmetric(vertical: 18),
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(14),
@@ -55,9 +57,9 @@ class ActionButtons extends StatelessWidget {
               ),
             ),
             icon: const Icon(Icons.check_circle_outline),
-            label: const Text(
-              "Cadastrar",
-              style: TextStyle(
+            label: Text(
+              textoConfirmar,
+              style: const TextStyle(
                 fontWeight: FontWeight.bold,
                 fontSize: 16,
               ),

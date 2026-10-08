@@ -1,18 +1,27 @@
 import 'package:flutter/material.dart';
+import 'package:frontend/fire_base/Enums/TipoPessoa.dart';
+import 'package:frontend/fire_base/models/cliente.dart';
+import 'package:frontend/fire_base/models/contato.dart';
+import 'package:frontend/fire_base/models/endereco.dart';
+import 'package:frontend/fire_base/services/cliente_service.dart';
+import 'package:frontend/fire_base/services/endereco_service.dart';
 import 'package:frontend/ui/pages/person_alteration/person_alteration_address.dart';
 import 'package:frontend/ui/pages/person_alteration/person_alteration_contact.dart';
 import 'package:frontend/ui/style/ColorScheme.dart' as custom_colors;
 import 'package:frontend/ui/style/inputDecorationStyles.dart';
 import 'package:frontend/ui/widgets/action_buttons.dart';
+import 'package:frontend/ui/widgets/enderecos_editor.dart';
 import 'package:frontend/ui/widgets/form_card.dart';
 import 'package:frontend/ui/widgets/form_field_label.dart';
-import 'package:mask_text_input_formatter/mask_text_input_formatter.dart';
-import 'package:frontend/ui/pages/dashboard.dart';
-import 'package:frontend/ui/widgets/header.dart';
 import 'package:frontend/ui/widgets/form_section_tile.dart';
+import 'package:frontend/ui/widgets/header.dart';
+import 'package:frontend/ui/widgets/show_dialog/show_duplicate_document_dialog.dart';
+import 'package:mask_text_input_formatter/mask_text_input_formatter.dart';
 
 class PersonAlteration extends StatefulWidget {
-  const PersonAlteration({super.key});
+  final Cliente cliente;
+
+  const PersonAlteration({super.key, required this.cliente});
 
   @override
   State<PersonAlteration> createState() => _PersonAlterationState();
@@ -20,32 +29,100 @@ class PersonAlteration extends StatefulWidget {
 
 class _PersonAlterationState extends State<PersonAlteration> {
   final _formKey = GlobalKey<FormState>();
-  bool _isPessoaFisica = false;
   final colors = custom_colors.colorScheme;
+  final ClienteService _service = ClienteService();
+  final EnderecoService _enderecoService = EnderecoService(); 
 
-  final _cpfFormatter = MaskTextInputFormatter(
-    mask: '###.###.###-##',
-    filter: {"#": RegExp(r'[0-9]')},
-  );
+  late bool _isPessoaFisica;
+  late Contato _contato; 
+  List<Endereco> _originais = [];
+  final List<Endereco> _enderecos = [];
+  bool _carregandoEnderecos = true;
+  bool _enderecosCarregados = false;
 
-  final _cnpjFormatter = MaskTextInputFormatter(
-    mask: '##.###.###/####-##',
-    filter: {"#": RegExp(r'[0-9]')},
-  );
+  late final TextEditingController _nomeController;
+  late final TextEditingController _documentoController;
+  late final MaskTextInputFormatter _cpfFormatter;
+  late final MaskTextInputFormatter _cnpjFormatter;
 
-  final _enderecoController = TextEditingController();
-  final _contatoController = TextEditingController();
+  bool _salvando = false;
+
+  TipoPessoa get _tipoPessoa =>
+      _isPessoaFisica ? TipoPessoa.fisica : TipoPessoa.juridica;
+
+  @override
+  void initState() {
+    super.initState();
+
+    final cliente = widget.cliente;
+
+    _isPessoaFisica = cliente.tipoPessoa == TipoPessoa.fisica;
+    _contato = cliente.contato;
+
+    _cpfFormatter = MaskTextInputFormatter(
+      mask: '###.###.###-##',
+      filter: {"#": RegExp(r'[0-9]')},
+      initialText: _isPessoaFisica ? cliente.documento : '',
+    );
+    _cnpjFormatter = MaskTextInputFormatter(
+      mask: '##.###.###/####-##',
+      filter: {"#": RegExp(r'[0-9]')},
+      initialText: _isPessoaFisica ? '' : cliente.documento,
+    );
+
+    _nomeController = TextEditingController(text: cliente.nome);
+    _documentoController = TextEditingController(
+      text: (_isPessoaFisica ? _cpfFormatter : _cnpjFormatter).getMaskedText(),
+    );
+
+    _carregarEnderecos();
+  }
+
+  Future<void> _carregarEnderecos() async {
+    try {
+      final lista = await _enderecoService.listar(widget.cliente.id);
+
+      if (!mounted) return;
+
+      setState(() {
+        _originais = List<Endereco>.of(lista);
+        _enderecos
+          ..clear()
+          ..addAll(lista);
+        _enderecosCarregados = true;
+        _carregandoEnderecos = false;
+      });
+    } catch (e) {
+      debugPrint('Erro ao carregar endereços: $e');
+
+      if (!mounted) return;
+
+      setState(() => _carregandoEnderecos = false);
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Não foi possível carregar os endereços do cliente.'),
+          behavior: SnackBarBehavior.floating,
+        ),
+      );
+    }
+  }
+
+  @override
+  void dispose() {
+    _nomeController.dispose();
+    _documentoController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: colors.surface,
-      //widget da appbar
       appBar: Header(
         onBack: () {
           Navigator.pop(context);
-        }, //voltar para a tela anterior
-        title: 'Edição de clientes', //titulo personalizado
+        },
+        title: 'Edição de clientes',
       ),
       body: SafeArea(
         child: SingleChildScrollView(
@@ -69,97 +146,36 @@ class _PersonAlterationState extends State<PersonAlteration> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           FormSectionTile(
-            title: "Informações Pessoais", //titulo do card
-            subtitle:
-                "Complete os campos de identificação abaixo.", //subtitulo do card
+            title: "Informações Pessoais",
+            subtitle: "Complete os campos de identificação abaixo.",
           ),
 
-          FormFieldLabel(
-            icon: Icons.person_outline, //icone do campo do input
-            label: "Nome completo *", //label do campo do input
-          ),
+          FormFieldLabel(icon: Icons.person_outline, label: "Nome completo *"),
 
           TextFormField(
-            decoration: customInputDecoration(
-              hintText: "Digite o nome aqui", //placeholder do campo do input
+            controller: _nomeController,
+            decoration: customInputDecoration(hintText: "Digite o nome aqui"),
+            validator: (value) {
+              if (value == null || value.trim().isEmpty) {
+                return 'Informe o nome';
+              }
+              return null;
+            },
+          ),
+
+          if (_carregandoEnderecos)
+            const Center(child: CircularProgressIndicator())
+          else
+            EnderecosEditor(
+              enderecos: _enderecos,
+              abrirFormulario: (inicial) => Navigator.push<Endereco>(
+                context,
+                MaterialPageRoute(
+                  builder: (context) =>
+                      PersonAlterationAddress(enderecoInicial: inicial),
+                ),
+              ),
             ),
-            validator: (value) {
-              if (value == null || value.isEmpty) {
-                return 'Informe o nome'; //mensagem de erro
-              }
-              return null;
-            },
-          ),
-
-          Row(
-            spacing: 6,
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              const FormFieldLabel(
-                icon: Icons.home_outlined,
-                label: "Endereço",
-              ),
-
-              IconButton(
-                padding: EdgeInsets.zero,
-                constraints: const BoxConstraints(),
-                icon: Icon(
-                  Icons.add_box_rounded,
-                  color: colors.secondary,
-                  size: 26,
-                ),
-                onPressed: () async {
-                  final resultadoEndereco = await Navigator.push<String>(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => const PersonAlterationAddress(),
-                    ),
-                  );
-
-                  if (resultadoEndereco != null && mounted) {
-                    setState(() {
-                      _enderecoController.text = resultadoEndereco;
-                    });
-                  }
-                },
-              ),
-            ],
-          ),
-
-          FormField<String>(
-            key: ValueKey(
-              'endereco_${_enderecoController.text}',
-            ), // Prefixo exclusivo
-            initialValue: _enderecoController.text,
-            validator: (value) {
-              if (_enderecoController.text.isEmpty) {
-                return 'Informe o endereço';
-              }
-              return null;
-            },
-            builder: (FormFieldState<String> state) {
-              return InputDecorator(
-                decoration: customInputDecoration(
-                  hintText: _enderecoController.text.isEmpty
-                      ? "Inserir o endereço"
-                      : null,
-                ).copyWith(errorText: state.errorText),
-                child: Text(
-                  _enderecoController.text.isEmpty
-                      ? "Inserir o endereço"
-                      : _enderecoController.text,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: TextStyle(
-                    fontSize: 16,
-                    color: _enderecoController.text.isEmpty
-                        ? colors.onSurfaceVariant.withOpacity(0.6)
-                        : colors.onSurface,
-                  ),
-                ),
-              );
-            },
-          ),
 
           Row(
             spacing: 6,
@@ -179,16 +195,17 @@ class _PersonAlterationState extends State<PersonAlteration> {
                   size: 26,
                 ),
                 onPressed: () async {
-                  final resultadoContato = await Navigator.push<String>(
+                  final resultadoContato = await Navigator.push<Contato>(
                     context,
                     MaterialPageRoute(
-                      builder: (context) => const PersonAlterationContact(),
+                      builder: (context) =>
+                          PersonAlterationContact(contatoInicial: _contato),
                     ),
                   );
 
                   if (resultadoContato != null && mounted) {
                     setState(() {
-                      _contatoController.text = resultadoContato;
+                      _contato = resultadoContato;
                     });
                   }
                 },
@@ -197,31 +214,29 @@ class _PersonAlterationState extends State<PersonAlteration> {
           ),
 
           FormField<String>(
-            key: ValueKey('contato_${_contatoController.text}'),
-            initialValue: _contatoController.text,
+            key: ValueKey('contato_${_contato.resumo}'),
+            initialValue: _contato.resumo,
             validator: (value) {
-              if (_contatoController.text.isEmpty) {
+              if (_contato.telefone.trim().isEmpty) {
                 return 'Informe as informações de contato';
               }
               return null;
             },
             builder: (FormFieldState<String> state) {
+              final vazio = _contato.resumo.isEmpty;
+
               return InputDecorator(
                 decoration: customInputDecoration(
-                  hintText: _contatoController.text.isEmpty
-                      ? "Inserir contato"
-                      : null,
+                  hintText: vazio ? "Inserir contato" : null,
                 ).copyWith(errorText: state.errorText),
                 child: Text(
-                  _contatoController.text.isEmpty
-                      ? "Inserir contato"
-                      : _contatoController.text,
+                  vazio ? "Inserir contato" : _contato.resumo,
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                   style: TextStyle(
                     fontSize: 16,
-                    color: _contatoController.text.isEmpty
-                        ? colors.onSurfaceVariant.withOpacity(0.6)
+                    color: vazio
+                        ? colors.onSurfaceVariant.withValues(alpha: 0.6)
                         : colors.onSurface,
                   ),
                 ),
@@ -236,22 +251,27 @@ class _PersonAlterationState extends State<PersonAlteration> {
 
           TextFormField(
             key: ValueKey(_isPessoaFisica),
-            decoration: customInputDecoration(hintText: "000.000.000-00"),
+            controller: _documentoController,
+            decoration: customInputDecoration(
+              hintText: _isPessoaFisica
+                  ? "000.000.000-00"
+                  : "00.000.000/0000-00",
+            ),
             keyboardType: TextInputType.number,
             inputFormatters: [_isPessoaFisica ? _cpfFormatter : _cnpjFormatter],
-            validator: (value) {
-              if (value == null || value.isEmpty) {
-                return 'Informe o documento';
-              }
-              return null;
-            },
+            validator: (value) =>
+                ClienteService.validarDocumento(value ?? '', _tipoPessoa),
           ),
 
           CheckboxListTile(
             value: _isPessoaFisica,
-            onChanged: (value) =>
-                setState(() => _isPessoaFisica = value ?? false),
-            activeColor: Colors.green,
+            onChanged: (value) => setState(() {
+              _isPessoaFisica = value ?? false;
+              _documentoController.clear();
+              _cpfFormatter.clear();
+              _cnpjFormatter.clear();
+            }),
+            activeColor: colors.secondary,
             contentPadding: EdgeInsets.zero,
             controlAffinity: ListTileControlAffinity.leading,
             title: Text(
@@ -263,28 +283,85 @@ class _PersonAlterationState extends State<PersonAlteration> {
             ),
           ),
 
-          //botões de ação
           ActionButtons(
             formKey: _formKey,
             colors: colors,
-            onCancel: () {
-              //botão de cancelar
-              MaterialPageRoute(builder: (context) => const Dashboard());
-              Navigator.pop(context);
-            },
-            onCadastrar: () {
-              // botão de cadastrar
-              if (_formKey.currentState!.validate()) {
-                Navigator.pushAndRemoveUntil(
-                  context,
-                  MaterialPageRoute(builder: (context) => const Dashboard()),
-                  (route) => false,
-                );
-              }
-            },
+            textoConfirmar: 'Salvar',
+            onCancel: () => Navigator.pop(context),
+            onCadastrar: _salvar,
           ),
         ],
       ),
     );
+  }
+
+  Future<void> _salvar() async {
+    if (_salvando) return;
+
+    if (!_enderecosCarregados) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Aguarde o carregamento dos endereços.'),
+          behavior: SnackBarBehavior.floating,
+        ),
+      );
+      return;
+    }
+
+    setState(() => _salvando = true);
+
+    final original = widget.cliente;
+
+    final atualizado = Cliente(
+      id: original.id,
+      nome: _nomeController.text.trim(),
+      tipoPessoa: _tipoPessoa,
+      documento: _documentoController.text,
+      contato: _contato,
+    );
+
+    try {
+      final duplicado = await _service.buscarDuplicado(
+        atualizado.documento,
+        ignorarId: original.id,
+      );
+
+      if (duplicado != null) {
+        if (!mounted) return;
+
+        final gravar =
+            await showDialog<bool>(
+              context: context,
+              builder: (_) => ShowDuplicateDocumentDialog(
+                nomeCliente: duplicado.nome,
+                tipo: _tipoPessoa,
+              ),
+            ) ??
+            false;
+
+        if (!gravar) {
+          if (mounted) setState(() => _salvando = false);
+          return;
+        }
+      }
+
+      await _service.atualizar(atualizado, _originais, _enderecos);
+
+      if (!mounted) return;
+
+      Navigator.pop(context, true);
+    } catch (e) {
+      debugPrint('Erro ao salvar cliente: $e');
+
+      if (!mounted) return;
+
+      setState(() => _salvando = false);
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Não foi possível salvar as alterações.'),
+          behavior: SnackBarBehavior.floating,
+        ),
+      );
+    }
   }
 }
