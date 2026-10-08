@@ -6,8 +6,10 @@ import 'package:frontend/ui/pages/person_registration/person_registration_addres
 import 'package:frontend/ui/style/ColorScheme.dart' as custom_colors;
 import 'package:frontend/ui/style/inputDecorationStyles.dart';
 import 'package:frontend/ui/widgets/bottom_sheet/bottom_sheet.dart';
+import 'package:frontend/ui/widgets/equipment_field.dart';
 import 'package:frontend/utils/data_os/address_formatter.dart';
 import 'package:frontend/ui/pages/person_registration/person_registration.dart';
+import 'package:frontend/ui/pages/stand_in_page.dart';
 
 class DataOs extends StatefulWidget {
   final DateTime? dataEntrada;
@@ -50,6 +52,8 @@ class _DataOsState extends State<DataOs> {
   List<Map<String, dynamic>> clientesDisponiveis = [];
   Map<String, dynamic>? clienteSelecionado;
 
+  dynamic _equipamentoSelecionado;
+
   bool get _formHabilitado => clienteSelecionado != null;
   late DateTime dataEntrada;
   DateTime? dataSaida;
@@ -61,6 +65,7 @@ class _DataOsState extends State<DataOs> {
   bool get _formValido {
     return clienteSelecionado != null &&
         _enderecoSelecionado != null &&
+        _equipamentoSelecionado != null &&
         relatorio.trim().isNotEmpty;
   }
 
@@ -115,6 +120,11 @@ class _DataOsState extends State<DataOs> {
       return false;
     }
 
+    if (_equipamentoSelecionado == null) {
+      _mostrarErro('Selecione ou cadastre um equipamento.');
+      return false;
+    }
+
     if (relatorio.trim().isEmpty) {
       _mostrarErro('Preencha o relatório da OS.');
       return false;
@@ -147,6 +157,19 @@ class _DataOsState extends State<DataOs> {
       debugPrint('Erro ao carregar clientes: $e');
 
       if (mounted) _mostrarErro('Não foi possível carregar os clientes.');
+    }
+  }
+
+  Future<void> _abrirCadastroEquipamento([dynamic equipamentoInicial]) async {
+    final resultado = await Navigator.push<dynamic>(
+      context,
+      MaterialPageRoute(builder: (context) => const StandInPage()),
+    );
+
+    if (resultado != null && mounted) {
+      setState(() {
+        _equipamentoSelecionado = resultado;
+      });
     }
   }
 
@@ -284,7 +307,6 @@ class _DataOsState extends State<DataOs> {
                           ),
                         ),
                       ),
-
                       Row(
                         spacing: 6,
                         children: [
@@ -301,7 +323,6 @@ class _DataOsState extends State<DataOs> {
                           ),
                         ],
                       ),
-
                       Text(
                         'Adicione observações sobre o andamento do conserto.',
                         style: TextStyle(
@@ -309,7 +330,6 @@ class _DataOsState extends State<DataOs> {
                           color: colors.onSurfaceVariant,
                         ),
                       ),
-
                       TextField(
                         controller: _relatorioController,
                         autofocus: true,
@@ -335,7 +355,6 @@ class _DataOsState extends State<DataOs> {
                           widget.onRelatorioChanged?.call(value);
                         },
                       ),
-
                       SizedBox(
                         width: double.infinity,
                         child: ElevatedButton.icon(
@@ -449,7 +468,8 @@ class _DataOsState extends State<DataOs> {
           itens: enderecos,
           textoBusca: 'Procurar endereço',
           textoAcao: 'Novo endereço',
-          tituloItem: (endereco) => formatarEndereco(endereco),
+          tituloItem: (endereco) =>
+              '${endereco.logradouro}, ${endereco.numero}, ${endereco.complemento}',
           subtituloItem: (endereco) =>
               '${endereco.cidade} - ${endereco.uf.name}'
               '${endereco.cep.isEmpty ? '' : ' • CEP ${endereco.cep}'}',
@@ -464,7 +484,7 @@ class _DataOsState extends State<DataOs> {
               ),
             );
             if (novo == null) return;
-            await _enderecoService.salvar(
+            final salvo = await _enderecoService.salvar(
               clienteSelecionado!['id'].toString(),
               novo,
             );
@@ -513,12 +533,21 @@ class _DataOsState extends State<DataOs> {
               addLabel: 'Adicionar cliente',
             ),
             _buildClienteSelecionado(),
+
             _buildClienteEnderecoLabel(
               'Endereço *',
               onAdd: clienteSelecionado == null ? null : _abrirListaEnderecos,
               addLabel: 'Adicionar Endereço',
             ),
             _buildEnderecoSelecionado(),
+
+            // Seção modular de Equipamento
+            EquipmentSection(
+              equipamento: _equipamentoSelecionado,
+              onOpenCadastro: () =>
+                  _abrirCadastroEquipamento(_equipamentoSelecionado),
+              onEdit: (equip) => _abrirCadastroEquipamento(equip),
+            ),
 
             if (!_formHabilitado) _buildAvisoSelecioneCliente(),
 
@@ -534,7 +563,6 @@ class _DataOsState extends State<DataOs> {
                       'Andamento da OS',
                       'Atualize as informações referentes ao conserto do equipamento.',
                     ),
-
                     Row(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       spacing: 10,
@@ -575,7 +603,6 @@ class _DataOsState extends State<DataOs> {
                             ],
                           ),
                         ),
-
                         Expanded(
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
@@ -630,7 +657,6 @@ class _DataOsState extends State<DataOs> {
                         ),
                       ],
                     ),
-
                     if (dataSaida != null) ...[
                       Row(
                         spacing: 6,
@@ -650,13 +676,9 @@ class _DataOsState extends State<DataOs> {
                         ],
                       ),
                     ],
-
                     _buildFieldLabel(Icons.sync_alt, 'Status'),
-
                     _buildStatusField(),
-
                     _buildFieldLabel(Icons.description_outlined, 'Relatório'),
-
                     InkWell(
                       onTap: _editarRelatorio,
                       borderRadius: BorderRadius.circular(16),
@@ -714,7 +736,6 @@ class _DataOsState extends State<DataOs> {
                               ),
                       ),
                     ),
-
                     Text(
                       '${relatorio.length}/256 caracteres',
                       style: TextStyle(
@@ -722,7 +743,6 @@ class _DataOsState extends State<DataOs> {
                         color: colors.onSurfaceVariant,
                       ),
                     ),
-
                     SizedBox(
                       width: double.infinity,
                       child: ElevatedButton.icon(
@@ -754,7 +774,6 @@ class _DataOsState extends State<DataOs> {
                         ),
                       ),
                     ),
-
                     Center(
                       child: Text(
                         'A conclusão da OS não altera a data de saída.',
