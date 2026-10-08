@@ -3,7 +3,7 @@ import 'package:frontend/ui/pages/os/tabs/data_os.dart';
 import 'package:frontend/ui/pages/os/os_service/os_service.dart';
 import 'package:frontend/ui/pages/os/tabs/clientOs.dart';
 import 'package:frontend/ui/pages/os/tabs/values_os.dart';
-import 'package:frontend/ui/pages/os/tolls_os.dart';
+import 'package:frontend/ui/pages/os/tabs/tolls_os.dart';
 import 'package:frontend/ui/pages/os_list/os_list_page.dart';
 import 'package:frontend/ui/style/ColorScheme.dart' as custom_colors;
 
