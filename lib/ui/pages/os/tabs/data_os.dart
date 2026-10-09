@@ -238,6 +238,46 @@ class _DataOsState extends State<DataOs> {
         );
       },
     );
+
+    if (!mounted) return;
+
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: colors.surface,
+      isScrollControlled: true,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+      ),
+      builder: (sheetContext) {
+        return SelectionBottomSheet<Equipment>(
+          title: 'Selecionar equipamento',
+          items: equipamentos,
+          searchText: 'Procurar equipamento',
+          actionText: 'Novo equipamento',
+          itemTitle: (e) => '${e.brand} ${e.model}',
+          itemSubtitle: (e) => 'Nº série ${e.serialNumber}',
+          itemIcon: Icons.scale_outlined,
+          loading: false,
+
+          onAction: () {
+            Navigator.pop(sheetContext);
+            _abrirCadastroEquipamento();
+          },
+
+          onSelect: (e) {
+            setState(() {
+              _equipamentoSelecionado = {
+                'id': e.id,
+                'marca': e.brand,
+                'modelo': e.model,
+              };
+            });
+
+            Navigator.pop(sheetContext);
+          },
+        );
+      },
+    );
   }
 
   String _formatDate(DateTime? date) {

@@ -118,23 +118,22 @@ class _OsServicosTabState extends State<OsServicosTab> {
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
       ),
-      builder: (context) {
+      builder: (sheetContext) {
         return SelectionBottomSheet<Map<String, dynamic>>(
           title: 'Selecionar serviço',
           items: _servicosDisponiveis,
           searchText: 'Procurar serviço',
           actionText: 'Novo serviço',
-          itemTitle: (servico) {
-            return servico['nome'].toString();
-          },
+          itemTitle: (servico) => servico['nome'].toString(),
           itemSubtitle: (servico) {
             final double preco = (servico['preco'] as double? ?? 0.0);
+
             return 'R\$ ${preco.toStringAsFixed(2).replaceAll('.', ',')}';
           },
           itemIcon: Icons.build_outlined,
           loading: _carregandoServicos,
           onAction: () async {
-            Navigator.pop(context);
+            Navigator.pop(sheetContext);
 
             final dadosNovos = await Navigator.push(
               context,
@@ -143,22 +142,24 @@ class _OsServicosTabState extends State<OsServicosTab> {
               ),
             );
 
-            if (dadosNovos != null) {
-              final novoServicoFormatado = {
-                'id': 'novo_${DateTime.now().millisecondsSinceEpoch}',
-                'nome': dadosNovos['nome'],
-                'descricao': dadosNovos['descricao'],
-                'preco': (dadosNovos['valor'] as int) / 100,
-              };
-
-              _adicionarServico(novoServicoFormatado);
-
-              await _carregarServicosDoBanco();
+            if (!mounted || dadosNovos == null) {
+              return;
             }
+
+            final novoServicoFormatado = {
+              'id': 'novo_${DateTime.now().millisecondsSinceEpoch}',
+              'nome': dadosNovos['nome'],
+              'descricao': dadosNovos['descricao'],
+              'preco': (dadosNovos['valor'] as int) / 100,
+            };
+
+            _adicionarServico(novoServicoFormatado);
+
+            await _carregarServicosDoBanco();
           },
           onSelect: (servico) {
             _adicionarServico(servico);
-            Navigator.pop(context);
+            Navigator.pop(sheetContext);
           },
         );
       },
