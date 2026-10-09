@@ -6,10 +6,10 @@ import 'package:frontend/ui/widgets/form/validator.dart';
 import 'package:frontend/ui/widgets/form/form_card.dart';
 import 'package:frontend/ui/widgets/form/action_buttons.dart';
 import 'package:frontend/ui/widgets/form/labeled_form.dart';
-import 'package:frontend/fire_base/models/equipamento.dart';
+import 'package:frontend/fire_base/models/equipment.dart';
 import 'package:frontend/fire_base/services/equipamento_service.dart';
 
-class EquipamentData extends StatefulWidget {
+class EquipmentData extends StatefulWidget {
   final VoidCallback? onBack;
   final VoidCallback? onClose;
   final VoidCallback? onCancel;
@@ -17,7 +17,7 @@ class EquipamentData extends StatefulWidget {
 
   final Map<String, dynamic>? osDados;
 
-  const EquipamentData({
+  const EquipmentData({
     super.key,
     this.onBack,
     this.onClose,
@@ -27,10 +27,10 @@ class EquipamentData extends StatefulWidget {
   });
 
   @override
-  State<EquipamentData> createState() => _EquipamentDataState();
+  State<EquipmentData> createState() => _EquipamentDataState();
 }
 
-class _EquipamentDataState extends State<EquipamentData> {
+class _EquipamentDataState extends State<EquipmentData> {
   static const _statusBloqueados = ['PAGA', 'ENTREGUE'];
 
   String? get _statusOs => widget.osDados?['status'] as String?;
@@ -90,17 +90,17 @@ class _EquipamentDataState extends State<EquipamentData> {
     setState(() => _salvando = true);
 
     try {
-      final equipamento = Equipamento(
-        marca: _marcaController.text.trim(),
-        modelo: _modeloController.text.trim(),
-        numeroSerie: _numeroSerieController.text.trim(),
-        portaria: _portariaController.text.trim(),
-        numeroInmetro: _numeroInmetroController.text.trim(),
-        numeroVerificacao: _numeroVerificacaoController.text.trim(),
-        seloAnterior: _seloAnteriorController.text.trim(),
-        seloAtual: _seloAtualController.text.trim(),
-        lacreAnterior: _lacreAnteriorController.text.trim(),
-        lacreAtual: _lacreAtualController.text.trim(),
+      final equipamento = Equipment(
+        brand: _marcaController.text.trim(),
+        model: _modeloController.text.trim(),
+        serialNumber: _numeroSerieController.text.trim(),
+        administrativeOrder: _portariaController.text.trim(),
+        inmetroNumber: _numeroInmetroController.text.trim(),
+        verificationNumber: _numeroVerificacaoController.text.trim(),
+        previousStamp: _seloAnteriorController.text.trim(),
+        currentStamp: _seloAtualController.text.trim(),
+        previousSeal: _lacreAnteriorController.text.trim(),
+        currentSeal: _lacreAtualController.text.trim(),
       );
 
       final service = EquipamentoService();
@@ -119,8 +119,8 @@ class _EquipamentDataState extends State<EquipamentData> {
       if (widget.onSubmit != null) {
         widget.onSubmit!({
           'id': idGerado,
-          'marca': equipamento.marca,
-          'modelo': equipamento.modelo,
+          'marca': equipamento.brand,
+          'modelo': equipamento.model,
         });
       } else {
         Navigator.maybePop(context);

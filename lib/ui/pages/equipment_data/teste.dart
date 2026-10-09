@@ -3,7 +3,7 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:frontend/firebase_options.dart';
 import 'package:frontend/ui/pages/authentication.dart';
-import 'package:frontend/ui/pages/equipament_data/equipamentData.dart';
+import 'package:frontend/ui/pages/equipment_data/equipment_data.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -25,7 +25,7 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       title: 'Bernadelli Balanças',
       debugShowCheckedModeBanner: false,
-      home: const EquipamentData(),
+      home: const EquipmentData(),
       theme: ThemeData(
         colorScheme: ColorScheme.fromSeed(
           seedColor: const Color.fromARGB(255, 64, 126, 207),

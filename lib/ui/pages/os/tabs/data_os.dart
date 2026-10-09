@@ -10,9 +10,9 @@ import 'package:frontend/ui/widgets/fields/equipment_field.dart';
 import 'package:frontend/utils/data_os/address_formatter.dart';
 import 'package:frontend/ui/pages/person_registration/person_registration.dart';
 import 'package:frontend/ui/pages/stand_in_page.dart';
-import 'package:frontend/fire_base/models/equipamento.dart';
+import 'package:frontend/fire_base/models/equipment.dart';
 import 'package:frontend/fire_base/services/equipamento_service.dart';
-import 'package:frontend/ui/pages/equipament_data/equipamentData.dart';
+import 'package:frontend/ui/pages/equipment_data/equipment_data.dart';
 
 class DataOs extends StatefulWidget {
   final DateTime? dataEntrada;
@@ -188,7 +188,7 @@ class _DataOsState extends State<DataOs> {
     final resultado = await Navigator.push<dynamic>(
       context,
       MaterialPageRoute(
-        builder: (routeContext) => EquipamentData(
+        builder: (routeContext) => EquipmentData(
           osDados: _montarDadosOs(),
           onSubmit: (dados) => Navigator.pop(routeContext, dados),
         ),
@@ -200,7 +200,7 @@ class _DataOsState extends State<DataOs> {
     }
   }
 Future<void> _buscarEquipamento() async {
-  final List<Equipamento> equipamentos;
+  final List<Equipment> equipamentos;
 
   try {
     equipamentos = await _equipamentoService.listar();
@@ -223,13 +223,13 @@ Future<void> _buscarEquipamento() async {
       ),
     ),
     builder: (sheetContext) {
-      return SelectionBottomSheet<Equipamento>(
+      return SelectionBottomSheet<Equipment>(
         title: 'Selecionar equipamento',
         items: equipamentos,
         searchText: 'Procurar equipamento',
         actionText: 'Novo equipamento',
-        itemTitle: (e) => '${e.marca} ${e.modelo}',
-        itemSubtitle: (e) => 'Nº série ${e.numeroSerie}',
+        itemTitle: (e) => '${e.brand} ${e.model}',
+        itemSubtitle: (e) => 'Nº série ${e.serialNumber}',
         itemIcon: Icons.scale_outlined,
         loading: false,
 
@@ -242,8 +242,8 @@ Future<void> _buscarEquipamento() async {
           setState(() {
             _equipamentoSelecionado = {
               'id': e.id,
-              'marca': e.marca,
-              'modelo': e.modelo,
+              'marca': e.brand,
+              'modelo': e.model,
             };
           });
 
