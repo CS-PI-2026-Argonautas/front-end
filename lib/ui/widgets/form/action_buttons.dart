@@ -26,7 +26,7 @@ class ActionButtons extends StatelessWidget {
             onPressed: onCancel,
             style: ElevatedButton.styleFrom(
               foregroundColor: colors.onSurface,
-              backgroundColor: colors.surfaceContainerHigh,
+              backgroundColor: colors.surfaceContainerLow,
               padding: const EdgeInsets.symmetric(vertical: 18),
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(14),

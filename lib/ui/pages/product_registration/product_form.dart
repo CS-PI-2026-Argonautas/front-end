@@ -7,8 +7,8 @@ import 'package:frontend/fire_base/Enums/TiposItens.dart' as tipos;
 import 'package:frontend/fire_base/models/item.dart';
 import 'package:frontend/ui/widgets/form/validator.dart';
 import 'package:frontend/ui/widgets/form/form_card.dart';
-import 'package:frontend/ui/widgets/form/form_action_button.dart';
 import 'package:frontend/ui/widgets/form/labeled_form.dart';
+import 'package:frontend/ui/widgets/form/action_buttons.dart';
 
 class ProductForm extends StatefulWidget {
   final ValueChanged<Item> onSave;
@@ -225,9 +225,12 @@ class _ProductFormState extends State<ProductForm> {
           },
         ),
 
-        FormActionButtons(
-          onSave: _save,
+       ActionButtons(
+          formKey: _formKey,
+          colors: colors,
+          textoConfirmar: 'Salvar',
           onCancel: widget.onCancel,
+          onCadastrar: _save,
         ),
       ],
     );

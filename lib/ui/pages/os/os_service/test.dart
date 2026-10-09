@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:frontend/ui/pages/os/os_service/os_service.dart';
-import 'package:frontend/ui/pages/os/os_service/serviceregistration.dart';
+import 'package:frontend/ui/pages/os/tabs/os_service.dart';
+import 'package:frontend/ui/pages/os/tabs/serviceregistration.dart';
 
 void main() {
   runApp(const MyApp());

@@ -73,12 +73,12 @@ class _ValuesOsState extends State<ValuesOs> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             _buildSectionTitle(
-              'Resumo da OS',
+              'Resumo da ordem de serviço',
               'Confira os valores das peças, serviços e ajustes da ordem de serviço.',
             ),
 
             _buildSummarySection(
-              icon: Icons.build_outlined,
+              icon: Icons.build,
               title: 'Peças',
               value: subtotalPecas,
               children: [
@@ -94,7 +94,7 @@ class _ValuesOsState extends State<ValuesOs> {
             ),
 
             _buildSummarySection(
-              icon: Icons.handyman_outlined,
+              icon: Icons.handyman,
               title: 'Serviços',
               value: subtotalServicos,
               children: [
@@ -110,17 +110,17 @@ class _ValuesOsState extends State<ValuesOs> {
             ),
 
             _buildValueRow(
-              icon: Icons.remove_circle_outline,
+              icon: Icons.remove,
               title: 'Descontos',
               value: desconto,
-              color: Colors.redAccent,
+              color: Colors.redAccent.shade400,
             ),
 
             _buildValueRow(
-              icon: Icons.add_circle_outline,
+              icon: Icons.add,
               title: 'Taxas',
               value: taxas,
-              color: Colors.green,
+              color: Colors.green.shade400,
             ),
 
             Divider(
@@ -142,10 +142,10 @@ class _ValuesOsState extends State<ValuesOs> {
                   widget.onConcluir?.call();
                 },
                 icon: const Icon(
-                  Icons.check_circle_outline,
+                  Icons.check,
                 ),
                 label: const Text(
-                  'Concluir OS e voltar',
+                  'Concluir ordem de serviço e voltar',
                   style: TextStyle(
                     fontWeight: FontWeight.bold,
                     fontSize: 16,
@@ -167,11 +167,11 @@ class _ValuesOsState extends State<ValuesOs> {
 
             Center(
               child: Text(
-                'Confira os valores antes de concluir a OS.',
+                'Confira os valores antes de concluir a ordem de serviço.',
                 textAlign: TextAlign.center,
                 style: TextStyle(
                   fontSize: 12,
-                  color: colors.onSurfaceVariant,
+                  color: Colors.blueGrey.shade600,
                 ),
               ),
             ),
@@ -220,11 +220,8 @@ class _ValuesOsState extends State<ValuesOs> {
       width: double.infinity,
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: colors.surface.withOpacity(0.6),
+        color: colors.surfaceContainerLow,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(
-          color: colors.outline.withOpacity(0.18),
-        ),
       ),
       child: Column(
         spacing: 8,
@@ -234,14 +231,14 @@ class _ValuesOsState extends State<ValuesOs> {
               Icon(
                 icon,
                 size: 20,
-                color: colors.primary,
+                color: colors.secondary,
               ),
               const SizedBox(width: 8),
               Expanded(
                 child: Text(
                   title,
                   style: TextStyle(
-                    color: colors.primary,
+                    color: colors.secondary,
                     fontSize: 17,
                     fontWeight: FontWeight.bold,
                   ),
@@ -250,7 +247,7 @@ class _ValuesOsState extends State<ValuesOs> {
               Text(
                 _formatMoney(value),
                 style: TextStyle(
-                  color: colors.primary,
+                  color: colors.secondary,
                   fontSize: 17,
                   fontWeight: FontWeight.bold,
                 ),
@@ -258,10 +255,7 @@ class _ValuesOsState extends State<ValuesOs> {
             ],
           ),
 
-          Divider(
-            color: colors.outline.withOpacity(0.5),
-            height: 1,
-          ),
+         
 
           ...children,
         ],
@@ -284,14 +278,14 @@ class _ValuesOsState extends State<ValuesOs> {
           Icon(
             Icons.chevron_right,
             size: 18,
-            color: colors.onSurface,
+            color: colors.onSurfaceVariant,
           ),
           const SizedBox(width: 4),
           Expanded(
             child: Text(
               name,
               style: TextStyle(
-                color: colors.onSurface,
+                color: colors.onSurfaceVariant,
                 fontSize: 14,
               ),
             ),
@@ -299,7 +293,7 @@ class _ValuesOsState extends State<ValuesOs> {
           Text(
             _formatMoney(value),
             style: TextStyle(
-              color: colors.onSurface,
+              color: colors.onSurfaceVariant,
               fontSize: 14,
             ),
           ),
@@ -321,10 +315,11 @@ class _ValuesOsState extends State<ValuesOs> {
         vertical: 12,
       ),
       decoration: BoxDecoration(
-        color: color.withOpacity(0.06),
+        color: color.withOpacity(0.09),
         borderRadius: BorderRadius.circular(14),
         border: Border.all(
-          color: color.withOpacity(0.18),
+          color: color.withOpacity(0.3),
+          width: 0.8,
         ),
       ),
       child: Row(
@@ -371,9 +366,6 @@ class _ValuesOsState extends State<ValuesOs> {
       decoration: BoxDecoration(
         color: colors.primary.withOpacity(0.08),
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(
-          color: colors.primary.withOpacity(0.25),
-        ),
       ),
       child: Row(
         children: [
@@ -400,7 +392,7 @@ class _ValuesOsState extends State<ValuesOs> {
                 Text(
                   'TOTAL',
                   style: TextStyle(
-                    color: colors.onSurfaceVariant,
+                    color: Colors.blueGrey.shade600,
                     fontSize: 12,
                     fontWeight: FontWeight.bold,
                     letterSpacing: 0.6,
@@ -408,9 +400,9 @@ class _ValuesOsState extends State<ValuesOs> {
                 ),
                 const SizedBox(height: 2),
                 Text(
-                  'Valor final da OS',
+                  'Valor final da ordem de serviço',
                   style: TextStyle(
-                    color: colors.onSurface,
+                    color: colors.onSurfaceVariant,
                     fontSize: 14,
                   ),
                 ),
@@ -421,7 +413,7 @@ class _ValuesOsState extends State<ValuesOs> {
           Text(
             _formatMoney(total),
             style: TextStyle(
-              color: colors.primary,
+              color: colors.secondary,
               fontSize: 20,
               fontWeight: FontWeight.bold,
             ),

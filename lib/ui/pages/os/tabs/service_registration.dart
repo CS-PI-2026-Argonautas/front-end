@@ -2,9 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:frontend/ui/style/ColorScheme.dart' as custom_colors;
 import 'package:frontend/ui/style/inputDecorationStyles.dart';
+import 'package:frontend/ui/widgets/form/action_buttons.dart';
 import 'package:frontend/ui/widgets/form/validator.dart';
 import 'package:frontend/ui/widgets/form/form_card.dart';
-import 'package:frontend/ui/widgets/form/form_action_button.dart';
 import 'package:frontend/ui/widgets/form/labeled_form.dart';
 import 'package:frontend/fire_base/services/servicoService.dart';
 import 'package:frontend/fire_base/models/servico.dart';
@@ -178,8 +178,10 @@ class _ServiceRegistrationState extends State<ServiceRegistration> {
                   ),
                 ),
 
-                FormActionButtons(
-                  onSave: _handleCadastrar,
+                ActionButtons(
+                  formKey: _formKey,
+                  colors: colors,
+                  onCadastrar: _handleCadastrar,
                   onCancel:
                       widget.onCancel ?? () => Navigator.maybePop(context),
                 ),

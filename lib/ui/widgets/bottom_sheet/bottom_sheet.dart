@@ -137,8 +137,8 @@ class _SelectionBottomSheetState<T>
                     IconButton(
                       onPressed: widget.onAction,
                       icon: Icon(
-                        Icons.add,
-                        color: colors.primary,
+                        Icons.add_circle,
+                        color: colors.tertiary,
                         size: 28,
                       ),
                     ),
@@ -154,7 +154,7 @@ class _SelectionBottomSheetState<T>
                     color: colors.onSurfaceVariant,
                   ),
                   filled: true,
-                  fillColor: colors.surfaceContainer,
+                  fillColor: colors.surfaceContainerLow,
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(16),
                     borderSide: BorderSide.none,
@@ -188,72 +188,70 @@ class _SelectionBottomSheetState<T>
                               final item =
                                   _filteredItems[index];
 
-                              return ListTile(
-                                contentPadding:
-                                    EdgeInsets.zero,
-                                leading: widget.itemIcon != null
-                                    ? Icon(
-                                        widget.itemIcon,
-                                        color: colors.primary,
-                                        size: 30,
-                                      )
-                                    : null,
-                                title: Text(
-                                  widget.itemTitle(item),
-                                  style: TextStyle(
-                                    color: colors.onSurface,
-                                    fontSize: 18,
-                                    fontWeight: FontWeight.w500,
-                                  ),
-                                ),
-                                subtitle:
-                                    widget.itemSubtitle != null
-                                        ? Text(
-                                            widget.itemSubtitle!(
-                                              item,
-                                            ),
-                                            style: TextStyle(
-                                              color: colors
-                                                  .onSurfaceVariant,
-                                              fontSize: 15,
-                                            ),
-                                          )
-                                        : null,
-                                trailing: Row(
-                                  mainAxisSize:
-                                      MainAxisSize.min,
-                                  children: [
-                                    if (widget.onEdit != null)
-                                      IconButton(
-                                        onPressed: () {
-                                          widget.onEdit!(item);
-                                        },
-                                        icon: Icon(
-                                          Icons.edit_outlined,
-                                          color: colors.primary,
-                                        ),
-                                      ),
-                                    if (widget.onDelete != null)
-                                      IconButton(
-                                        onPressed: () {
-                                          widget.onDelete!(item);
-                                        },
-                                        icon: Icon(
-                                          Icons.delete_outline,
-                                          color: colors.error,
-                                        ),
-                                      ),
-                                    Icon(
-                                      Icons.chevron_right,
-                                      color:
-                                          colors.onSurfaceVariant,
-                                    ),
-                                  ],
-                                ),
-                                onTap: () {
-                                  widget.onSelect(item);
-                                },
-                              );
+                              return Container(
+  margin: const EdgeInsets.only(bottom: 8), 
+  decoration: BoxDecoration(
+    color: colors.surfaceContainerHigh,
+    borderRadius: BorderRadius.circular(12),
+    border: Border.all(
+      color: colors.surfaceContainerHighest,
+      width: 1,
+    ),
+  ),
+  child: ListTile(
+    contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+    leading: widget.itemIcon != null
+        ? Icon(
+            widget.itemIcon,
+            color: colors.secondary,
+            size: 25,
+          )
+        : null,
+    title: Text(
+      widget.itemTitle(item),
+      style: TextStyle(
+        color: colors.onSurface,
+        fontSize: 18,
+        fontWeight: FontWeight.w500,
+      ),
+    ),
+    subtitle: widget.itemSubtitle != null
+        ? Text(
+            widget.itemSubtitle!(item),
+            style: TextStyle(
+              color: Colors.blueGrey.shade700,
+              fontSize: 15,
+            ),
+          )
+        : null,
+    trailing: Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        if (widget.onEdit != null)
+          IconButton(
+            onPressed: () => widget.onEdit!(item),
+            icon: Icon(
+              Icons.edit,
+              color: colors.secondary,
+            ),
+          ),
+        if (widget.onDelete != null)
+          IconButton(
+            onPressed: () => widget.onDelete!(item),
+            icon: Icon(
+              Icons.delete,
+              color: colors.error,
+            ),
+          ),
+        Icon(
+          Icons.chevron_right,
+          color: colors.onSurfaceVariant,
+        ),
+      ],
+    ),
+    onTap: () => widget.onSelect(item),
+  ),
+);
                             },
                           ),
               ),

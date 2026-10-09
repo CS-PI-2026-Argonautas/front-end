@@ -6,7 +6,7 @@ import 'package:frontend/ui/pages/person_registration/person_registration_addres
 import 'package:frontend/ui/style/ColorScheme.dart' as custom_colors;
 import 'package:frontend/ui/style/inputDecorationStyles.dart';
 import 'package:frontend/ui/widgets/bottom_sheet/bottom_sheet.dart';
-import 'package:frontend/ui/widgets/equipment_field.dart';
+import 'package:frontend/ui/widgets/fields/equipment_field.dart';
 import 'package:frontend/utils/data_os/address_formatter.dart';
 import 'package:frontend/ui/pages/person_registration/person_registration.dart';
 import 'package:frontend/ui/pages/stand_in_page.dart';
@@ -142,7 +142,7 @@ class _DataOsState extends State<DataOs> {
     }
 
     if (relatorio.trim().isEmpty) {
-      _mostrarErro('Preencha o relatório da OS.');
+      _mostrarErro('Preencha o relatório da ordem de serviço.');
       return false;
     }
 
@@ -215,7 +215,7 @@ Future<void> _buscarEquipamento() async {
 
   showModalBottomSheet(
     context: context,
-    backgroundColor: colors.surface,
+    backgroundColor: colors.surfaceContainer,
     isScrollControlled: true,
     shape: const RoundedRectangleBorder(
       borderRadius: BorderRadius.vertical(
@@ -395,10 +395,10 @@ Future<void> _buscarEquipamento() async {
                         children: [
                           Icon(
                             Icons.description_outlined,
-                            color: colors.primary,
+                            color: colors.secondary,
                           ),
                           const Text(
-                            'Relatório da OS',
+                            'Relatório da ordem de serviço',
                             style: TextStyle(
                               fontSize: 20,
                               fontWeight: FontWeight.bold,
@@ -554,7 +554,7 @@ Future<void> _buscarEquipamento() async {
 
     showModalBottomSheet(
       context: context,
-      backgroundColor: colors.surface,
+      backgroundColor: colors.surfaceContainer,
       isScrollControlled: true,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(
@@ -622,6 +622,7 @@ Future<void> _buscarEquipamento() async {
           child: Column(
             spacing: 24,
             children: [
+              
               _buildFormCard(),
             ],
           ),
@@ -647,6 +648,10 @@ Future<void> _buscarEquipamento() async {
           spacing: 18,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
+             _buildSectionTitle(
+              'Informações da ordem de serviço',
+              'Insira os dados da ordem de serviço.',
+            ),
             _buildClienteEnderecoLabel(
               'Cliente *',
               onAdd: _abrirListaClientes,
@@ -745,29 +750,28 @@ Future<void> _buscarEquipamento() async {
                                     BorderRadius.circular(14),
                                 onTap: _alterarDataSaida,
                                 child: InputDecorator(
-                                  decoration:
-                                      customInputDecoration(
-                                        hintText: 'Automática',
-                                      ).copyWith(
-                                        filled: true,
-                                        fillColor: Colors.grey.shade100,
-                                        suffixIcon: dataSaida == null
-                                            ? const Icon(
-                                                Icons.hourglass_empty,
-                                                color: Colors.grey,
-                                                size: 20,
-                                              )
-                                            : const Icon(
-                                                Icons.edit_calendar_outlined,
-                                                color: Colors.grey,
-                                                size: 20,
-                                              ),
-                                        contentPadding:
-                                            const EdgeInsets.symmetric(
-                                              horizontal: 12,
-                                              vertical: 14,
-                                            ),
-                                      ),
+                                  decoration: customInputDecoration(
+                                    hintText: 'Automática',
+                                  ).copyWith(
+                                    filled: true,
+                                    fillColor: colors.surfaceContainerLow,
+                                    suffixIcon: dataSaida == null
+                                        ? Icon(
+                                            Icons.hourglass_empty,
+                                            color: Colors.blueGrey.shade400,
+                                            size: 20,
+                                          )
+                                        : Icon(
+                                            Icons.edit_calendar_outlined,
+                                            color: Colors.blueGrey.shade400,
+                                            size: 20,
+                                          ),
+                                    contentPadding:
+                                        const EdgeInsets.symmetric(
+                                      horizontal: 12,
+                                      vertical: 14,
+                                    ),
+                                  ),
                                   child: Text(
                                     dataSaida == null
                                         ? 'Indefinida'
@@ -775,7 +779,7 @@ Future<void> _buscarEquipamento() async {
                                     style: TextStyle(
                                       fontSize: 14,
                                       color: dataSaida == null
-                                          ? Colors.grey.shade600
+                                          ? Colors.blueGrey.shade600
                                           : colors.onSurface,
                                     ),
                                   ),
@@ -793,7 +797,7 @@ Future<void> _buscarEquipamento() async {
                           const Icon(
                             Icons.info_outline,
                             size: 15,
-                            color: Colors.grey,
+                            color: Colors.blueGrey,
                           ),
                           Text(
                             'Toque para corrigir a data de saída.',
@@ -871,7 +875,7 @@ Future<void> _buscarEquipamento() async {
                                       Icon(
                                         Icons.edit_outlined,
                                         size: 17,
-                                        color: colors.primary,
+                                        color: colors.secondary,
                                       ),
                                     ],
                                   ),
@@ -910,9 +914,9 @@ Future<void> _buscarEquipamento() async {
                           backgroundColor: colors.primary,
                           foregroundColor: colors.onSecondary,
                           disabledBackgroundColor:
-                              Colors.grey.shade300,
+                              colors.surfaceContainerLow,
                           disabledForegroundColor:
-                              Colors.grey.shade600,
+                              colors.onSurfaceVariant,
                           padding: const EdgeInsets.symmetric(
                             vertical: 18,
                           ),
@@ -964,7 +968,7 @@ Future<void> _buscarEquipamento() async {
             icon: const Icon(Icons.add, size: 18),
             label: Text(addLabel),
             style: ElevatedButton.styleFrom(
-              backgroundColor: const Color(0xFF1E9E5F),
+              backgroundColor: colors.secondary,
               foregroundColor: Colors.white,
               elevation: 0,
               padding: const EdgeInsets.symmetric(
@@ -989,17 +993,15 @@ Future<void> _buscarEquipamento() async {
       width: double.infinity,
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: colors.surfaceContainer,
+        color: colors.surfaceContainerHigh,
         borderRadius: BorderRadius.circular(14),
-        border: Border.all(
-          color: colors.surfaceContainerHigh,
-        ),
+        
       ),
       child: Row(
         children: [
           Icon(
             Icons.person,
-            color: colors.primary,
+            color: colors.secondary,
           ),
           const SizedBox(width: 12),
           Expanded(
@@ -1030,7 +1032,7 @@ Future<void> _buscarEquipamento() async {
             onPressed: _abrirListaClientes,
             icon: Icon(
               Icons.sync_alt,
-              color: colors.primary,
+              color: colors.secondary,
             ),
             tooltip: 'Trocar cliente',
           ),
@@ -1050,17 +1052,14 @@ Future<void> _buscarEquipamento() async {
       width: double.infinity,
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: colors.surfaceContainer,
+        color: colors.surfaceContainerHigh,
         borderRadius: BorderRadius.circular(14),
-        border: Border.all(
-          color: colors.surfaceContainerHigh,
-        ),
       ),
       child: Row(
         children: [
           Icon(
             Icons.location_on,
-            color: colors.primary,
+            color: colors.secondary,
           ),
           const SizedBox(width: 12),
           Expanded(
@@ -1107,9 +1106,6 @@ Future<void> _buscarEquipamento() async {
       decoration: BoxDecoration(
         color: Colors.amber.shade50,
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(
-          color: Colors.amber.shade300,
-        ),
       ),
       child: Row(
         children: [
@@ -1260,3 +1256,31 @@ Future<void> _buscarEquipamento() async {
     );
   }
 }
+
+Widget _buildSectionTitle(
+    String title,
+    String subtitle,
+  ) {
+    final colors = custom_colors.colorScheme;
+    return Column(
+      spacing: 6,
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          title,
+          style: TextStyle(
+            fontSize: 20,
+            fontWeight: FontWeight.bold,
+            color: colors.onSurface,
+          ),
+        ),
+        Text(
+          subtitle,
+          style: TextStyle(
+            fontSize: 14,
+            color: colors.onSurfaceVariant,
+          ),
+        ),
+      ],
+    );
+  }

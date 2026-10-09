@@ -2,6 +2,7 @@ import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:frontend/ui/style/ColorScheme.dart' as custom_colors;
+import 'package:frontend/ui/widgets/floatingButton.dart';
 import 'package:frontend/ui/widgets/bottom_sheet/bottom_sheet.dart';
 import 'package:frontend/ui/widgets/slidable/slidable_delete_card.dart';
 import 'package:frontend/ui/pages/os/tabs/service_registration.dart';
@@ -113,7 +114,7 @@ class _OsServicosTabState extends State<OsServicosTab> {
 void _abrirListaServicos() {
   showModalBottomSheet(
     context: context,
-    backgroundColor: colors.surface,
+    backgroundColor: colors.surfaceContainer,
     isScrollControlled: true,
     shape: const RoundedRectangleBorder(
       borderRadius: BorderRadius.vertical(
@@ -138,7 +139,7 @@ void _abrirListaServicos() {
           return 'R\\${preco.toStringAsFixed(2).replaceAll('.', ',')}';
         },
 
-        itemIcon: Icons.build_outlined,
+        itemIcon: Icons.build,
         loading: _carregandoServicos,
 
         onAction: () async {
@@ -191,40 +192,21 @@ void _abrirListaServicos() {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  TextFormField(
-                    controller: _searchController,
-                    onChanged: (_) {
-                      setState(() {});
-                    },
-                    decoration: InputDecoration(
-                      hintText: 'Procurar serviço',
-                      filled: true,
-                      fillColor: Colors.white,
-                      hintStyle: TextStyle(color: colors.onSurface),
-                      prefixIcon: const Icon(Icons.search),
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(14),
-                        borderSide: BorderSide.none,
-                      ),
-                    ),
-                  ),
-
-                  const SizedBox(height: 20),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       Text(
                         'Subtotal de serviços',
                         style: TextStyle(
-                          color: colors.onSurface,
-                          fontSize: 18,
-                          fontWeight: FontWeight.bold,
-                        ),
+                      color: colors.onSurface,
+                      fontSize: 20,
+                      fontWeight: FontWeight.bold,
+                    ),
                       ),
                       Text(
                         'R\$ ${_subtotal.toStringAsFixed(2).replaceAll('.', ',')}',
                         style: TextStyle(
-                          color: colors.onSurface,
+                          color: Colors.blueGrey.shade600,
                           fontSize: 18,
                           fontWeight: FontWeight.bold,
                         ),
@@ -234,10 +216,33 @@ void _abrirListaServicos() {
 
                   const SizedBox(height: 16),
 
+                  TextFormField(
+                    controller: _searchController,
+                    onChanged: (_) {
+                      setState(() {});
+                    },
+                    decoration: InputDecoration(
+                      hintText: 'Procurar serviço',
+                      filled: true,
+                      fillColor: colors.surfaceContainer,
+                      hintStyle: TextStyle(color: colors.onSurface),
+                      prefixIcon: Icon(Icons.search, color: colors.secondary),
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(14),
+                        borderSide: BorderSide.none,
+                      ),
+                    ),
+                  ),
+
+                  const SizedBox(height: 20),
+                  
+
+                  
+
                   if (listaAtual.isEmpty)
-                    const Padding(
+                     Padding(
                       padding: EdgeInsets.symmetric(vertical: 40),
-                      child: Center(child: Text('Nenhum serviço adicionado.')),
+                      child: Center(child: Text('Nenhum serviço adicionado.', style: TextStyle(fontSize: 16, color: colors.onSurfaceVariant),)),
                     )
                   else
                     ListView.builder(
@@ -257,14 +262,8 @@ void _abrirListaServicos() {
         Positioned(
           bottom: 16,
           right: 16,
-          child: FloatingActionButton(
+          child: CustomFloatingButton(
             onPressed: _abrirListaServicos,
-            backgroundColor: colors.primary,
-            foregroundColor: colors.onPrimary,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(12),
-            ),
-            child: const Icon(Icons.add, size: 28),
           ),
         ),
       ],
@@ -358,7 +357,6 @@ void _abrirListaServicos() {
             padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
               color: colors.surfaceContainer,
-              border: Border.all(color: colors.primary, width: 1.5),
               borderRadius: BorderRadius.circular(16),
             ),
             child: Column(
