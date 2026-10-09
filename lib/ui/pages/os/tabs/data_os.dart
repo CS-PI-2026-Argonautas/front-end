@@ -130,9 +130,6 @@ class _DataOsState extends State<DataOs> {
   }
 
   Future<void> _carregarClientes() async {
-    // [ALTERADO] antes não tinha try/catch nem checagem de `mounted`: se a
-    // leitura falhasse (ou a tela fosse fechada antes de terminar), dava erro
-    // não tratado / setState em widget desmontado.
     try {
       final clientes = await _clienteService.listar();
 
