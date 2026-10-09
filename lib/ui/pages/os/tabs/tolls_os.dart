@@ -182,12 +182,14 @@ class TollsOsState extends State<TollsOs>
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: _openPartList,
-        backgroundColor: colors.primary,
         elevation: 3,
+         backgroundColor: colors.tertiary,
+        foregroundColor: colors.onTertiary,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(8),
+        ),
         child: const Icon(
           Icons.add,
-          color: Colors.white,
-          size: 28,
         ),
       ),
     );

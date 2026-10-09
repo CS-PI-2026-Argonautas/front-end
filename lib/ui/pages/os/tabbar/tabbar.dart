@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:frontend/ui/pages/os/tabs/data_os.dart';
-import 'package:frontend/ui/pages/os/os_service/os_service.dart';
+import 'package:frontend/ui/pages/os/tabs/os_service.dart';
 import 'package:frontend/ui/pages/os/tabs/values_os.dart';
 import 'package:frontend/ui/pages/os/tabs/tolls_os.dart';
 import 'package:frontend/ui/style/ColorScheme.dart' as custom_colors;

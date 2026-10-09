@@ -264,14 +264,13 @@ class _OsServicosTabState extends State<OsServicosTab> {
           right: 16,
           child: FloatingActionButton(
             onPressed: _abrirListaServicos,
-            backgroundColor: colors.primary,
-            foregroundColor: colors.onPrimary,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(12),
-            ),
+            backgroundColor: colors.tertiary,
+        foregroundColor: colors.onTertiary,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(8),
+        ),
             child: const Icon(
               Icons.add,
-              size: 28,
             ),
           ),
         ),

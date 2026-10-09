@@ -893,7 +893,7 @@ class _DataOsState extends State<DataOs> {
             icon: const Icon(Icons.add, size: 18),
             label: Text(addLabel),
             style: ElevatedButton.styleFrom(
-              backgroundColor: const Color(0xFF1E9E5F),
+              backgroundColor: colors.secondary,
               foregroundColor: Colors.white,
               elevation: 0,
               padding: const EdgeInsets.symmetric(
