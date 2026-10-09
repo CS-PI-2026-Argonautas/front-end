@@ -1,6 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:uuid/uuid.dart';
-import 'package:frontend/fire_base/Enums/TiposItens.dart';
+import 'package:frontend/fire_base/Enums/ProductType.dart';
 import 'package:frontend/fire_base/models/item.dart';
 
 class ItemRepository {
@@ -88,11 +88,14 @@ class ItemRepository {
 
   String _typeToFirestore(Item item) {
     switch (item.type) {
-      case TipoProduto.pecas:
+      case ProductType.parts:
         return 'PECAS';
 
-      case TipoProduto.balancas:
+      case ProductType.scales:
         return 'BALANCAS';
+
+      default:
+        throw Exception('Tipo de produto não suportado: ${item.type}');
     }
   }
 }

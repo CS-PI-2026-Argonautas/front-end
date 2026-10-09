@@ -1,13 +1,13 @@
-enum TipoProduto {
-  pecas,
-  balancas;
+enum ProductType {
+  parts,
+  scales;
 
   String get label {
     switch (this) {
-      case TipoProduto.pecas:
+      case ProductType.parts:
         return "Peças para consertos";
 
-      case TipoProduto.balancas:
+      case ProductType.scales:
         return "Balanças";
     }
   }

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
 
-import 'package:frontend/fire_base/Enums/TiposItens.dart';
+import 'package:frontend/fire_base/Enums/ProductType.dart';
 import 'package:frontend/fire_base/models/item.dart';
 import 'package:frontend/fire_base/repositories/item_repository.dart';
 import 'package:frontend/fire_base/services/item_service.dart';
@@ -554,7 +554,7 @@ class _EditItemSheetState extends State<_EditItemSheet> {
   late final TextEditingController _valueController;
   late final TextEditingController _minimumQuantityController;
 
-  late TipoProduto _selectedType;
+  late ProductType _selectedType;
   bool _saving = false;
 
   @override
@@ -782,13 +782,13 @@ class _EditItemSheetState extends State<_EditItemSheet> {
                     },
                   ),
                   _buildLabel('Tipo'),
-                  DropdownButtonFormField<TipoProduto>(
+                  DropdownButtonFormField<ProductType>(
                     value: _selectedType,
                     decoration: customInputDecoration(
                       hintText: 'Selecione o tipo',
                     ),
-                    items: TipoProduto.values.map((type) {
-                      return DropdownMenuItem<TipoProduto>(
+                    items: ProductType.values.map((type) {
+                      return DropdownMenuItem<ProductType>(
                         value: type,
                         child: Text(type.label),
                       );
