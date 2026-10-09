@@ -168,8 +168,8 @@ class _DataOsState extends State<DataOs> {
         clientesDisponiveis = clientes.map((c) {
           return {
             'id': c.id,
-            'nome': c.nome,
-            'telefone': c.contato.telefone,
+            'name': c.name,
+            'phone': c.contact.phone,
           };
         }).toList();
       });

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:frontend/fire_base/Enums/PersonType.dart';
 import 'package:frontend/fire_base/models/client.dart';
-import 'package:frontend/fire_base/models/contato.dart';
+import 'package:frontend/fire_base/models/contact.dart';
 import 'package:frontend/fire_base/models/endereco.dart';
 import 'package:frontend/fire_base/services/cliente_service.dart';
 import 'package:frontend/fire_base/services/endereco_service.dart';
@@ -33,7 +33,7 @@ class _PersonAlterationState extends State<PersonAlteration> {
   final EnderecoService _enderecoService = EnderecoService(); 
 
   late bool _isPessoaFisica;
-  late Contato _contato; 
+  late Contact _contato; 
   List<Endereco> _originais = [];
   final List<Endereco> _enderecos = [];
   bool _carregandoEnderecos = true;
@@ -238,7 +238,7 @@ class _PersonAlterationState extends State<PersonAlteration> {
                 size: 26,
               ),
               onPressed: () async {
-                final resultadoContato = await Navigator.push<Contato>(
+                final resultadoContato = await Navigator.push<Contact>(
                   context,
                   MaterialPageRoute(
                     builder: (context) =>
@@ -260,7 +260,7 @@ class _PersonAlterationState extends State<PersonAlteration> {
           key: ValueKey('contato_${_contato.resumo}'),
           initialValue: _contato.resumo,
           validator: (value) {
-            if (_contato.telefone.trim().isEmpty) {
+            if (_contato.phone.trim().isEmpty) {
               return 'Informe as informações de contato';
             }
             return null;
@@ -375,7 +375,7 @@ class _PersonAlterationState extends State<PersonAlteration> {
             await showDialog<bool>(
               context: context,
               builder: (_) => ShowDuplicateDocumentDialog(
-                nomeCliente: duplicado.nome,
+                nomeCliente: duplicado.name,
                 tipo: _tipoPessoa,
               ),
             ) ??

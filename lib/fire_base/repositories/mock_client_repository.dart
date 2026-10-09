@@ -1,7 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:frontend/fire_base/Enums/PersonType.dart';
 import 'package:frontend/fire_base/models/client.dart';
-import 'package:frontend/fire_base/models/contato.dart';
+import 'package:frontend/fire_base/models/contact.dart';
 import 'package:frontend/fire_base/repositories/client_old_repository.dart';
 
 class MockClientRepository implements ClientRepository {
@@ -17,7 +17,7 @@ class MockClientRepository implements ClientRepository {
       name: nome,
       personType: PersonType.physical,
       document: documento,
-      contact: Contato(telefone: telefone),
+      contact: Contact(phone: telefone),
     );
   }
 

@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:frontend/fire_base/models/client.dart';
 import 'package:frontend/fire_base/models/endereco.dart';
 import 'package:frontend/fire_base/Enums/PersonType.dart';
-import 'package:frontend/fire_base/models/contato.dart';
+import 'package:frontend/fire_base/models/contact.dart';
 import 'package:frontend/fire_base/services/cliente_service.dart';
 import 'package:frontend/ui/pages/person_registration/person_registration_contact.dart';
 import 'package:frontend/ui/style/ColorScheme.dart' as custom_colors;
@@ -32,7 +32,7 @@ class _PersonRegistrationState1 extends State<PersonRegistration> {
 
   final List<Endereco> _enderecos = [];
 
-  Contato? _contato;
+  Contact? _contato;
 
   PersonType get _tipoPessoa =>
       _isPessoaFisica ? PersonType.physical : PersonType.legal;
@@ -177,7 +177,7 @@ class _PersonRegistrationState1 extends State<PersonRegistration> {
                 size: 26,
               ),
               onPressed: () async {
-                final resultadoContato = await Navigator.push<Contato>(
+                final resultadoContato = await Navigator.push<Contact>(
                   context,
                   MaterialPageRoute(
                     builder: (context) =>
@@ -301,7 +301,7 @@ class _PersonRegistrationState1 extends State<PersonRegistration> {
         Navigator.pop(context, {
           'id': cliente.id,
           'nome': cliente.name,
-          'telefone': cliente.contact.telefone,
+          'telefone': cliente.contact.phone,
         });
       } else {
         Navigator.pushAndRemoveUntil(

@@ -48,7 +48,7 @@ class ClienteService {
     if (cliente.name.trim().isEmpty) {
       throw ArgumentError('Informe o nome do cliente.');
     }
-    if (cliente.contact.telefone.trim().isEmpty) {
+    if (cliente.contact.phone.trim().isEmpty) {
       throw ArgumentError('Informe o telefone do cliente.');
     }
 

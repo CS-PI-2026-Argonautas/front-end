@@ -1,6 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:frontend/fire_base/Enums/PersonType.dart';
-import 'package:frontend/fire_base/models/contato.dart';
+import 'package:frontend/fire_base/models/contact.dart';
 import 'package:frontend/fire_base/models/endereco.dart';
 import 'package:uuid/uuid.dart';
 
@@ -10,7 +10,7 @@ class Client {
   String name;
   PersonType personType;
   String document;
-  Contato contact;
+  Contact contact;
 
   Timestamp? createdAt;
   Timestamp? updatedAt;
@@ -57,7 +57,7 @@ class Client {
       name: (data['name'] ?? '').toString().trim(),
       personType: PersonType.de(data['person_type']?.toString()),
       document: (data['document'] ?? '').toString(),
-      contact: Contato.fromMap(data),
+      contact: Contact.fromMap(data),
       createdAt: _ts(data['created_at']),
       updatedAt: _ts(data['updated_at']),
       deletedAt: _ts(data['deleted_at']),
