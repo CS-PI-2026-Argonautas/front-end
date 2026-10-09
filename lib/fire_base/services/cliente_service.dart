@@ -1,5 +1,5 @@
 import 'package:frontend/fire_base/Enums/PersonType.dart';
-import 'package:frontend/fire_base/models/cliente.dart';
+import 'package:frontend/fire_base/models/client.dart';
 import 'package:frontend/fire_base/models/endereco.dart';
 import 'package:frontend/fire_base/repositories/cliente_repository.dart';
 
@@ -9,17 +9,17 @@ class ClienteService {
   ClienteService({ClienteRepository? repository})
     : _repository = repository ?? ClienteRepository();
 
-  Stream<List<Cliente>> observar() => _repository.observar();
+  Stream<List<Client>> observar() => _repository.observar();
 
-  Future<List<Cliente>> listar() => _repository.listar();
+  Future<List<Client>> listar() => _repository.listar();
 
-  Future<void> cadastrar(Cliente cliente, List<Endereco> enderecos) async {
+  Future<void> cadastrar(Client cliente, List<Endereco> enderecos) async {
     _validar(cliente);
     await _repository.cadastrar(cliente, enderecos);
   }
 
   Future<void> atualizar(
-    Cliente cliente,
+    Client cliente,
     List<Endereco> originais,
     List<Endereco> atuais,
   ) async {
@@ -32,7 +32,7 @@ class ClienteService {
   Future<void> restaurar(String id) => _repository.restaurar(id);
 
   static String? validarDocumento(String valor, PersonType tipo) {
-    final digitos = Cliente.somenteDigitos(valor);
+    final digitos = Client.somenteDigitos(valor);
 
     if (digitos.isEmpty) return 'Informe o ${tipo.rotuloDocumento}';
 
@@ -44,22 +44,22 @@ class ClienteService {
     return null;
   }
 
-  void _validar(Cliente cliente) {
-    if (cliente.nome.trim().isEmpty) {
+  void _validar(Client cliente) {
+    if (cliente.name.trim().isEmpty) {
       throw ArgumentError('Informe o nome do cliente.');
     }
-    if (cliente.contato.telefone.trim().isEmpty) {
+    if (cliente.contact.telefone.trim().isEmpty) {
       throw ArgumentError('Informe o telefone do cliente.');
     }
 
     final erroDocumento = validarDocumento(
-      cliente.documento,
-      cliente.tipoPessoa,
+      cliente.document,
+      cliente.personType,
     );
     if (erroDocumento != null) throw ArgumentError(erroDocumento);
   }
 
-  Future<Cliente?> buscarDuplicado(
+  Future<Client?> buscarDuplicado(
     String documento, {
     String? ignorarId,
   }) async {
@@ -68,16 +68,16 @@ class ClienteService {
     return encontrarDuplicado(documento, carregados, ignorarId: ignorarId);
   }
 
-  static Cliente? encontrarDuplicado(
+  static Client? encontrarDuplicado(
     String documento,
-    Iterable<Cliente> carregados, {
+    Iterable<Client> carregados, {
     String? ignorarId,
   }) {
-    final digitos = Cliente.somenteDigitos(documento);
+    final digitos = Client.somenteDigitos(documento);
     if (digitos.isEmpty) return null;
 
     for (final cliente in carregados) {
-      if (cliente.id != ignorarId && cliente.documento == digitos) {
+      if (cliente.id != ignorarId && cliente.document == digitos) {
         return cliente;
       }
     }

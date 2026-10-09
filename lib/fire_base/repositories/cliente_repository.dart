@@ -2,7 +2,7 @@ import 'dart:async';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/foundation.dart';
 import 'package:frontend/fire_base/firestore_paths.dart';
-import 'package:frontend/fire_base/models/cliente.dart';
+import 'package:frontend/fire_base/models/client.dart';
 import 'package:frontend/fire_base/models/endereco.dart';
 import 'package:frontend/fire_base/repositories/endereco_repository.dart';
 import 'package:frontend/fire_base/repositories/leitura_firestore.dart'; 
@@ -27,22 +27,22 @@ class ClienteRepository {
     );
   }
 
-  List<Cliente> _ativos(QuerySnapshot<Map<String, dynamic>> snapshot) {
+  List<Client> _ativos(QuerySnapshot<Map<String, dynamic>> snapshot) {
     final lista = snapshot.docs
-        .map(Cliente.fromFirestore)
+        .map(Client.fromFirestore)
         .where((c) => c.ativo)
         .toList();
 
-    lista.sort((a, b) => a.nome.toLowerCase().compareTo(b.nome.toLowerCase()));
+    lista.sort((a, b) => a.name.toLowerCase().compareTo(b.name.toLowerCase()));
 
     return lista;
   }
 
-  Stream<List<Cliente>> observar() => _clientes.snapshots().map(_ativos);
+  Stream<List<Client>> observar() => _clientes.snapshots().map(_ativos);
 
-  Future<List<Cliente>> listar() async => _ativos(await lerComFallback(_clientes));
+  Future<List<Client>> listar() async => _ativos(await lerComFallback(_clientes));
 
-  Future<List<Cliente>> listarDoCache() async {
+  Future<List<Client>> listarDoCache() async {
     try {
       final snapshot = await _clientes.get(
         const GetOptions(source: Source.cache),
@@ -53,7 +53,7 @@ class ClienteRepository {
     }
   }
 
-  Future<void> cadastrar(Cliente cliente, List<Endereco> enderecos) async {
+  Future<void> cadastrar(Client cliente, List<Endereco> enderecos) async {
     final batch = _db.batch();
     final agora = FieldValue.serverTimestamp();
 
@@ -77,7 +77,7 @@ class ClienteRepository {
   }
 
   Future<void> atualizar(
-    Cliente cliente,
+    Client cliente,
     List<Endereco> originais,
     List<Endereco> atuais,
   ) async {

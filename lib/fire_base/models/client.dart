@@ -4,13 +4,13 @@ import 'package:frontend/fire_base/models/contato.dart';
 import 'package:frontend/fire_base/models/endereco.dart';
 import 'package:uuid/uuid.dart';
 
-class Cliente {
+class Client {
   final String id;
 
-  String nome;
-  PersonType tipoPessoa;
-  String documento;
-  Contato contato;
+  String name;
+  PersonType personType;
+  String document;
+  Contato contact;
 
   Timestamp? createdAt;
   Timestamp? updatedAt;
@@ -18,18 +18,18 @@ class Cliente {
 
   List<Endereco> enderecos;
 
-  Cliente({
+  Client({
     String? id,
-    required this.nome,
-    required this.tipoPessoa,
-    required String documento,
-    required this.contato,
+    required this.name,
+    required this.personType,
+    required String document,
+    required this.contact,
     this.createdAt,
     this.updatedAt,
     this.deletedAt,
     List<Endereco>? enderecos,
   }) : id = id ?? const Uuid().v4(),
-       documento = somenteDigitos(documento),
+       document = somenteDigitos(document),
        enderecos = enderecos ?? [];
 
   static String somenteDigitos(String valor) {
@@ -40,24 +40,24 @@ class Cliente {
 
   Map<String, dynamic> toMap() {
     return {
-      'nome': nome.trim(),
-      'tipo_pessoa': tipoPessoa.value,
-      'documento': documento,
-      ...contato.toMap(),
+      'name': name.trim(),
+      'person_type': personType.value,
+      'document': document,
+      ...contact.toMap(),
     };
   }
 
   static Timestamp? _ts(Object? valor) => valor is Timestamp ? valor : null;
 
-  factory Cliente.fromFirestore(DocumentSnapshot<Map<String, dynamic>> doc) {
+  factory Client.fromFirestore(DocumentSnapshot<Map<String, dynamic>> doc) {
     final data = doc.data() ?? <String, dynamic>{};
 
-    return Cliente(
+    return Client(
       id: doc.id,
-      nome: (data['nome'] ?? '').toString().trim(),
-      tipoPessoa: PersonType.de(data['tipo_pessoa']?.toString()),
-      documento: (data['documento'] ?? '').toString(),
-      contato: Contato.fromMap(data),
+      name: (data['name'] ?? '').toString().trim(),
+      personType: PersonType.de(data['person_type']?.toString()),
+      document: (data['document'] ?? '').toString(),
+      contact: Contato.fromMap(data),
       createdAt: _ts(data['created_at']),
       updatedAt: _ts(data['updated_at']),
       deletedAt: _ts(data['deleted_at']),

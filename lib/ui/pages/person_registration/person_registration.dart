@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:frontend/fire_base/models/cliente.dart';
+import 'package:frontend/fire_base/models/client.dart';
 import 'package:frontend/fire_base/models/endereco.dart';
 import 'package:frontend/fire_base/Enums/PersonType.dart';
 import 'package:frontend/fire_base/models/contato.dart';
@@ -285,11 +285,11 @@ class _PersonRegistrationState1 extends State<PersonRegistration> {
 
     setState(() => _salvando = true);
 
-    final cliente = Cliente(
-      nome: _nomeController.text.trim(),
-      tipoPessoa: _tipoPessoa,
-      documento: _documentoController.text,
-      contato: contato,
+    final cliente = Client(
+      name: _nomeController.text.trim(),
+      personType: _tipoPessoa,
+      document: _documentoController.text,
+      contact: contato,
     );
 
     try {
@@ -300,8 +300,8 @@ class _PersonRegistrationState1 extends State<PersonRegistration> {
       if (widget.retornarDadosAoFechar) {
         Navigator.pop(context, {
           'id': cliente.id,
-          'nome': cliente.nome,
-          'telefone': cliente.contato.telefone,
+          'nome': cliente.name,
+          'telefone': cliente.contact.telefone,
         });
       } else {
         Navigator.pushAndRemoveUntil(
