@@ -8,6 +8,7 @@ import 'package:frontend/fire_base/services/item_service.dart';
 
 import 'package:frontend/ui/pages/product_registration/product_registration.dart';
 import 'package:frontend/ui/style/ColorScheme.dart' as custom_colors;
+import 'package:frontend/ui/style/floatingButtonDecoration.dart';
 import 'package:frontend/ui/style/inputDecorationStyles.dart';
 import 'package:frontend/ui/widgets/bottom_sheet/bottom_sheet.dart';
 
@@ -180,17 +181,8 @@ class TollsOsState extends State<TollsOs>
           ),
         ),
       ),
-      floatingActionButton: FloatingActionButton(
+      floatingActionButton: CustomFloatingButton(
         onPressed: _openPartList,
-        elevation: 3,
-         backgroundColor: colors.tertiary,
-        foregroundColor: colors.onTertiary,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(8),
-        ),
-        child: const Icon(
-          Icons.add,
-        ),
       ),
     );
   }

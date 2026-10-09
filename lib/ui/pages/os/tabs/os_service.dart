@@ -2,6 +2,7 @@ import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:frontend/ui/style/ColorScheme.dart' as custom_colors;
+import 'package:frontend/ui/style/floatingButtonDecoration.dart';
 import 'package:frontend/ui/widgets/bottom_sheet/bottom_sheet.dart';
 import 'package:frontend/ui/widgets/slidable/slidable_delete_card.dart';
 
@@ -262,16 +263,8 @@ class _OsServicosTabState extends State<OsServicosTab> {
         Positioned(
           bottom: 16,
           right: 16,
-          child: FloatingActionButton(
+          child: CustomFloatingButton(
             onPressed: _abrirListaServicos,
-            backgroundColor: colors.tertiary,
-        foregroundColor: colors.onTertiary,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(8),
-        ),
-            child: const Icon(
-              Icons.add,
-            ),
           ),
         ),
       ],
