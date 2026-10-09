@@ -3,7 +3,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/foundation.dart';
 import 'package:frontend/fire_base/firestore_paths.dart';
 import 'package:frontend/fire_base/models/client.dart';
-import 'package:frontend/fire_base/models/endereco.dart';
+import 'package:frontend/fire_base/models/address.dart';
 import 'package:frontend/fire_base/repositories/endereco_repository.dart';
 import 'package:frontend/fire_base/repositories/leitura_firestore.dart'; 
 
@@ -22,7 +22,7 @@ class ClienteRepository {
   void _enviar(WriteBatch batch, String operacao) {
     unawaited(
       batch.commit().catchError((Object e) {
-        debugPrint('Firestore (cliente/$operacao): $e');
+        debugPrint('Firestore (client/$operacao): $e');
       }),
     );
   }
@@ -53,7 +53,7 @@ class ClienteRepository {
     }
   }
 
-  Future<void> cadastrar(Client cliente, List<Endereco> enderecos) async {
+  Future<void> cadastrar(Client cliente, List<Address> enderecos) async {
     final batch = _db.batch();
     final agora = FieldValue.serverTimestamp();
 
@@ -78,8 +78,8 @@ class ClienteRepository {
 
   Future<void> atualizar(
     Client cliente,
-    List<Endereco> originais,
-    List<Endereco> atuais,
+    List<Address> originais,
+    List<Address> atuais,
   ) async {
     final batch = _db.batch();
     final agora = FieldValue.serverTimestamp();

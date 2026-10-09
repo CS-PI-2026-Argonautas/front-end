@@ -1,6 +1,6 @@
 import 'package:frontend/fire_base/Enums/PersonType.dart';
 import 'package:frontend/fire_base/models/client.dart';
-import 'package:frontend/fire_base/models/endereco.dart';
+import 'package:frontend/fire_base/models/address.dart';
 import 'package:frontend/fire_base/repositories/cliente_repository.dart';
 
 class ClienteService {
@@ -13,15 +13,15 @@ class ClienteService {
 
   Future<List<Client>> listar() => _repository.listar();
 
-  Future<void> cadastrar(Client cliente, List<Endereco> enderecos) async {
+  Future<void> cadastrar(Client cliente, List<Address> enderecos) async {
     _validar(cliente);
     await _repository.cadastrar(cliente, enderecos);
   }
 
   Future<void> atualizar(
     Client cliente,
-    List<Endereco> originais,
-    List<Endereco> atuais,
+    List<Address> originais,
+    List<Address> atuais,
   ) async {
     _validar(cliente);
     await _repository.atualizar(cliente, originais, atuais);

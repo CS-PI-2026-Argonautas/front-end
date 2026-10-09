@@ -1,4 +1,4 @@
-import 'package:frontend/fire_base/models/endereco.dart';
+import 'package:frontend/fire_base/models/address.dart';
 import 'package:frontend/fire_base/repositories/endereco_repository.dart';
 
 class EnderecoService {
@@ -7,16 +7,16 @@ class EnderecoService {
   EnderecoService({EnderecoRepository? repository})
     : _repository = repository ?? EnderecoRepository();
 
-  Future<List<Endereco>> listar(String clienteId) {
+  Future<List<Address>> listar(String clienteId) {
     return _repository.listar(clienteId);
   }
 
-  Future<void> salvar(String clienteId, Endereco endereco) {
+  Future<void> salvar(String clienteId, Address endereco) {
     _validar(endereco);
     return _repository.salvar(clienteId, endereco);
   }
 
-  Future<void> atualizar(String clienteId, Endereco endereco) {
+  Future<void> atualizar(String clienteId, Address endereco) {
     _validar(endereco);
     return _repository.atualizar(clienteId, endereco);
   }
@@ -25,9 +25,9 @@ class EnderecoService {
     return _repository.excluir(clienteId, enderecoId);
   }
 
-  void _validar(Endereco endereco) {
-    if (endereco.logradouro.trim().isEmpty ||
-        endereco.cidade.trim().isEmpty) {
+  void _validar(Address endereco) {
+    if (endereco.publicPlace.trim().isEmpty ||
+        endereco.city.trim().isEmpty) {
       throw ArgumentError('Logradouro e cidade são obrigatórios.');
     }
   }

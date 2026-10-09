@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:frontend/fire_base/models/client.dart';
-import 'package:frontend/fire_base/models/endereco.dart';
+import 'package:frontend/fire_base/models/address.dart';
 import 'package:frontend/fire_base/Enums/PersonType.dart';
 import 'package:frontend/fire_base/models/contact.dart';
 import 'package:frontend/fire_base/services/cliente_service.dart';
@@ -30,7 +30,7 @@ class _PersonRegistrationState1 extends State<PersonRegistration> {
   bool _isPessoaFisica = false;
   final colors = custom_colors.colorScheme;
 
-  final List<Endereco> _enderecos = [];
+  final List<Address> _enderecos = [];
 
   Contact? _contato;
 
@@ -101,16 +101,16 @@ class _PersonRegistrationState1 extends State<PersonRegistration> {
           },
         ),
 
-       SelectionField<Endereco>(
+       SelectionField<Address>(
          label: 'Endereço',
            iconeLabel: Icons.home_outlined,
           itens: _enderecos,
           tituloItem: (endereco) =>
-           '${endereco.logradouro}, ${endereco.numero} - ${endereco.cidade}/${endereco.uf.name}',
+           '${endereco.publicPlace}, ${endereco.number} - ${endereco.city}/${endereco.uf.name}',
           textoVazio: 'Nenhum endereço adicionado.',
           permitirExclusao: true,
           onPressed: () async {
-            final novoEndereco = await Navigator.push<Endereco>(
+            final novoEndereco = await Navigator.push<Address>(
               context,
               MaterialPageRoute(
                 builder: (context) => const PersonRegistrationAddress(),
@@ -124,7 +124,7 @@ class _PersonRegistrationState1 extends State<PersonRegistration> {
             }
           },
           onEdit: (endereco, index) async {
-            final enderecoEditado = await Navigator.push<Endereco>(
+            final enderecoEditado = await Navigator.push<Address>(
               context,
               MaterialPageRoute(
                 builder: (context) => PersonRegistrationAddress(

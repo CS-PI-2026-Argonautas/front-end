@@ -1,7 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:frontend/fire_base/Enums/PersonType.dart';
 import 'package:frontend/fire_base/models/contact.dart';
-import 'package:frontend/fire_base/models/endereco.dart';
+import 'package:frontend/fire_base/models/address.dart';
 import 'package:uuid/uuid.dart';
 
 class Client {
@@ -16,7 +16,7 @@ class Client {
   Timestamp? updatedAt;
   Timestamp? deletedAt;
 
-  List<Endereco> enderecos;
+  List<Address> enderecos;
 
   Client({
     String? id,
@@ -27,7 +27,7 @@ class Client {
     this.createdAt,
     this.updatedAt,
     this.deletedAt,
-    List<Endereco>? enderecos,
+    List<Address>? enderecos,
   }) : id = id ?? const Uuid().v4(),
        document = somenteDigitos(document),
        enderecos = enderecos ?? [];

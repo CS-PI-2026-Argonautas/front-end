@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:frontend/fire_base/services/cliente_service.dart';
 import 'package:frontend/fire_base/services/endereco_service.dart';
-import 'package:frontend/fire_base/models/endereco.dart';
+import 'package:frontend/fire_base/models/address.dart';
 import 'package:frontend/ui/pages/person_registration/person_registration_address.dart';
 import 'package:frontend/ui/style/ColorScheme.dart' as custom_colors;
 import 'package:frontend/ui/style/inputDecorationStyles.dart';
@@ -61,7 +61,7 @@ class _DataOsState extends State<DataOs> {
   final colors = custom_colors.colorScheme;
 
   final EnderecoService _enderecoService = EnderecoService();
-  Endereco? _enderecoSelecionado;
+  Address? _enderecoSelecionado;
 
   final ClienteService _clienteService = ClienteService();
   List<Map<String, dynamic>> clientesDisponiveis = [];
@@ -529,7 +529,7 @@ Future<void> _buscarEquipamento() async {
   }
 
   Future<void> _abrirListaEnderecos() async {
-    final List<Endereco> enderecos;
+    final List<Address> enderecos;
 
     try {
       enderecos = await _enderecoService.listar(
@@ -562,23 +562,23 @@ Future<void> _buscarEquipamento() async {
         ),
       ),
       builder: (context) {
-        return SelectionBottomSheet<Endereco>(
+        return SelectionBottomSheet<Address>(
           title: 'Selecionar endereço',
           items: enderecos,
           searchText: 'Procurar endereço',
           actionText: 'Novo endereço',
           itemTitle: (endereco) =>
-              '${endereco.logradouro}, ${endereco.numero}, '
-              '${endereco.complemento}',
+              '${endereco.publicPlace}, ${endereco.number}, '
+              '${endereco.complement}',
           itemSubtitle: (endereco) =>
-              '${endereco.cidade} - ${endereco.uf.name}'
-              '${endereco.cep.isEmpty ? '' : ' • CEP ${endereco.cep}'}',
+              '${endereco.city} - ${endereco.uf.name}'
+              '${endereco.zipCode.isEmpty ? '' : ' • CEP ${endereco.zipCode}'}',
           itemIcon: Icons.location_on_outlined,
           loading: false,
           onAction: () async {
             Navigator.pop(context);
 
-            final novo = await Navigator.push<Endereco>(
+            final novo = await Navigator.push<Address>(
               context,
               MaterialPageRoute(
                 builder: (_) => const PersonRegistrationAddress(),

@@ -1,14 +1,14 @@
-import 'package:frontend/fire_base/models/endereco.dart';
+import 'package:frontend/fire_base/models/address.dart';
 
-String formatarEndereco(Endereco endereco) {
-  final numero = endereco.numero.trim().isEmpty
+String formatarEndereco(Address endereco) {
+  final numero = endereco.number.trim().isEmpty
       ? 'S/N'
-      : endereco.numero.trim();
-  final complemento = endereco.complemento.trim();
+      : endereco.number.trim();
+  final complemento = endereco.complement.trim();
 
   final rua = complemento.isEmpty
-      ? '${endereco.logradouro}, $numero'
-      : '${endereco.logradouro}, $numero, $complemento';
+      ? '${endereco.publicPlace}, $numero'
+      : '${endereco.publicPlace}, $numero, $complemento';
 
-  return '$rua - ${endereco.cidade}/${endereco.uf.name}';
+  return '$rua - ${endereco.city}/${endereco.uf.name}';
 }

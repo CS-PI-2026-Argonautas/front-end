@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:frontend/fire_base/Enums/PersonType.dart';
 import 'package:frontend/fire_base/models/client.dart';
 import 'package:frontend/fire_base/models/contact.dart';
-import 'package:frontend/fire_base/models/endereco.dart';
+import 'package:frontend/fire_base/models/address.dart';
 import 'package:frontend/fire_base/services/cliente_service.dart';
 import 'package:frontend/fire_base/services/endereco_service.dart';
 import 'package:frontend/ui/pages/person_alteration/person_alteration_address.dart';
@@ -34,8 +34,8 @@ class _PersonAlterationState extends State<PersonAlteration> {
 
   late bool _isPessoaFisica;
   late Contact _contato; 
-  List<Endereco> _originais = [];
-  final List<Endereco> _enderecos = [];
+  List<Address> _originais = [];
+  final List<Address> _enderecos = [];
   bool _carregandoEnderecos = true;
   bool _enderecosCarregados = false;
 
@@ -84,7 +84,7 @@ class _PersonAlterationState extends State<PersonAlteration> {
       if (!mounted) return;
 
       setState(() {
-        _originais = List<Endereco>.of(lista);
+        _originais = List<Address>.of(lista);
         _enderecos
           ..clear()
           ..addAll(lista);
@@ -161,16 +161,16 @@ class _PersonAlterationState extends State<PersonAlteration> {
         if (_carregandoEnderecos)
           const Center(child: CircularProgressIndicator())
         else
-          SelectionField<Endereco>(
+          SelectionField<Address>(
             label: 'Endereço',
             iconeLabel: Icons.home_outlined,
             itens: _enderecos,
             tituloItem: (endereco) =>
-                '${endereco.logradouro}, ${endereco.numero} - ${endereco.cidade}/${endereco.uf.name}',
+                '${endereco.publicPlace}, ${endereco.number} - ${endereco.city}/${endereco.uf.name}',
             textoVazio: 'Nenhum endereço adicionado.',
             permitirExclusao: true,
             onPressed: () async {
-              final novoEndereco = await Navigator.push<Endereco>(
+              final novoEndereco = await Navigator.push<Address>(
                 context,
                 MaterialPageRoute(
                   builder: (context) => const PersonAlterationAddress(),
@@ -184,7 +184,7 @@ class _PersonAlterationState extends State<PersonAlteration> {
               }
             },
             onEdit: (endereco, index) async {
-              final enderecoEditado = await Navigator.push<Endereco>(
+              final enderecoEditado = await Navigator.push<Address>(
                 context,
                 MaterialPageRoute(
                   builder: (context) => PersonAlterationAddress(
