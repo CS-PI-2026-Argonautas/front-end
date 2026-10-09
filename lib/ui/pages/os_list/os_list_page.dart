@@ -8,7 +8,7 @@ import 'package:frontend/ui/pages/product_registration/product_registration.dart
 import 'package:frontend/ui/pages/stand_in_page.dart';
 import 'package:frontend/fire_base/repositories/mock_os_repository.dart';
 import 'package:frontend/ui/style/ColorScheme.dart' as custom_colors;
-import 'package:frontend/ui/style/floatingButtonDecoration.dart';
+import 'package:frontend/ui/widgets/floatingButton.dart';
 import 'package:frontend/ui/widgets/appBar.dart';
 import 'package:frontend/ui/widgets/menu.dart';
 import 'package:frontend/ui/widgets/show_dialog/show_delete_os.dart';
