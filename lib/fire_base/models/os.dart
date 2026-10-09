@@ -5,7 +5,6 @@ import 'package:frontend/fire_base/models/cliente.dart';
 import 'package:frontend/fire_base/models/endereco.dart';
 import 'package:uuid/uuid.dart';
 
-/// Model principal da Ordem de Serviço.
 class OrdemServico {
   final String id;
 
@@ -14,7 +13,7 @@ class OrdemServico {
   DateTime? dataSaida;
   String relatorio;
 
-  final Timestamp? createdAt;
+  Timestamp? createdAt;
   Timestamp? updatedAt;
   Timestamp? deletedAt;
 
@@ -54,10 +53,7 @@ class OrdemServico {
 
   bool get ativo => deletedAt == null;
 
-  /// Converte a OS para o formato esperado pelo Firestore.
-  ///
-  /// Os timestamps de auditoria do servidor são controlados
-  /// pelo repository durante a criação e atualização.
+  
   Map<String, dynamic> toFirestore() {
     return {
       'status': status.name,
@@ -78,10 +74,6 @@ class OrdemServico {
     };
   }
 
-  /// Calcula os valores com base nas peças, serviços, taxas e descontos.
-  ///
-  /// A validação que impede o salvamento de um total negativo
-  /// será aplicada na camada de serviço.
   OrdemServicoValores get valores => OrdemServicoValores.calcular(
     pecas: pecas,
     servicos: servicos,
@@ -105,8 +97,6 @@ class OrdemServico {
     return texto == null || texto.isEmpty ? null : texto;
   }
 }
-
-/// Snapshot do executor responsável pela OS.
 class ExecutorOrdemServico {
   final String nome;
   final String documentoIdentidade;
@@ -122,7 +112,6 @@ class ExecutorOrdemServico {
   };
 }
 
-/// Snapshot da empresa permissionária.
 class PermissionariaOrdemServico {
   final String nomeEmpresarial;
   final String cnpj;
@@ -144,10 +133,7 @@ class PermissionariaOrdemServico {
     'telefone': telefone,
     'email': email,
     'endereco': endereco,
-  };
-}
-
-/// Snapshot opcional do equipamento.
+  };}
 class EquipamentoOrdemServico {
   final String? marca;
   final String? modelo;
