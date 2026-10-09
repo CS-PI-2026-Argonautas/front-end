@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:frontend/ui/widgets/selection_field.dart';
+import 'package:frontend/ui/widgets/fields/selection_field.dart';
 
 class EquipmentSection extends StatelessWidget {
   final dynamic equipamento;

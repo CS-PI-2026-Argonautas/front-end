@@ -11,7 +11,7 @@ import 'package:frontend/ui/style/inputDecorationStyles.dart';
 import 'package:frontend/ui/widgets/form/action_buttons.dart';
 import 'package:frontend/ui/widgets/form/form_card.dart';
 import 'package:frontend/ui/widgets/form/form_field_label.dart';
-import 'package:frontend/ui/widgets/selection_field.dart';
+import 'package:frontend/ui/widgets/fields/selection_field.dart';
 import 'package:mask_text_input_formatter/mask_text_input_formatter.dart';
 import 'package:frontend/ui/pages/dashboard.dart';
 import 'package:frontend/ui/widgets/appBar.dart';
