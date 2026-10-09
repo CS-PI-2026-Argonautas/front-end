@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:frontend/fire_base/models/cliente.dart';
 import 'package:frontend/fire_base/models/endereco.dart';
-import 'package:frontend/fire_base/Enums/TipoPessoa.dart'; 
-import 'package:frontend/fire_base/models/contato.dart'; 
+import 'package:frontend/fire_base/Enums/TipoPessoa.dart';
+import 'package:frontend/fire_base/models/contato.dart';
 import 'package:frontend/fire_base/services/cliente_service.dart';
 import 'package:frontend/ui/pages/person_registration/person_registration_contact.dart';
 import 'package:frontend/ui/style/ColorScheme.dart' as custom_colors;
@@ -281,7 +281,7 @@ class _PersonRegistrationState1 extends State<PersonRegistration> {
     if (_salvando) return;
 
     final contato = _contato;
-    if (contato == null) return; 
+    if (contato == null) return;
 
     setState(() => _salvando = true);
 

@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/foundation.dart';
+import 'package:frontend/fire_base/firestore_paths.dart';
 import 'package:frontend/fire_base/models/cliente.dart';
 import 'package:frontend/fire_base/models/endereco.dart';
 import 'package:frontend/fire_base/repositories/endereco_repository.dart';
@@ -13,7 +14,7 @@ class ClienteRepository {
     : _db = firestore ?? FirebaseFirestore.instance;
 
   CollectionReference<Map<String, dynamic>> get _clientes =>
-      _db.collection('clientes');
+      _db.collection(colecaoClientes);
 
   CollectionReference<Map<String, dynamic>> _enderecos(String clienteId) =>
       EnderecoRepository.colecao(_db, clienteId);

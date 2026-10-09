@@ -24,7 +24,7 @@ class OsListPage extends StatefulWidget {
 
 class _OsListPageState extends State<OsListPage> {
   final MockOSRepository _repository = MockOSRepository();
-  
+
   late Future<List<Services>> _futureOrdemServicos;
 
   final colors = custom_colors.colorScheme;
@@ -40,7 +40,7 @@ class _OsListPageState extends State<OsListPage> {
 
     setState(() {
       _futureOrdemServicos = os;
-    });   
+    });
   }
 
   Color _obterCorDoStatus(String status) {
@@ -49,7 +49,7 @@ class _OsListPageState extends State<OsListPage> {
         return Colors.green;
       case 'Pendente':
       case 'Em Andamento':
-        return Colors.orange; 
+        return Colors.orange;
       case 'Fechada':
       case 'Cancelada':
         return Colors.red;
@@ -98,18 +98,14 @@ class _OsListPageState extends State<OsListPage> {
           if (index == 3) {
             Navigator.push(
               context,
-              MaterialPageRoute(
-                builder: (context) => const ItemEdition(),
-              ),
+              MaterialPageRoute(builder: (context) => const ItemEdition()),
             );
           }
 
           if (index == 4) {
             Navigator.push(
               context,
-              MaterialPageRoute(
-                builder: (context) => const Dashboard(),
-              ),
+              MaterialPageRoute(builder: (context) => const Dashboard()),
             );
           }
         },
@@ -118,20 +114,15 @@ class _OsListPageState extends State<OsListPage> {
       body: SafeArea(
         child: SingleChildScrollView(
           child: Padding(
-            padding: const EdgeInsets.symmetric(
-              horizontal: 40,
-              vertical: 50,
-            ),
+            padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 50),
             child: Column(
               children: [
                 TextFormField(
                   decoration: InputDecoration(
-                    hintText: 'Procurar OS',
+                    hintText: 'Procurar ordem de serviço',
                     filled: true,
-                    fillColor: Colors.white,
-                    hintStyle: TextStyle(
-                      color: colors.onSurface,
-                    ),
+                    fillColor: colors.surfaceContainer,
+                    hintStyle: TextStyle(color: colors.onSurface),
                     prefixIcon: Icon(Icons.search, color: colors.tertiary),
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(14),
@@ -149,9 +140,9 @@ class _OsListPageState extends State<OsListPage> {
                         onPressed: () {},
                         icon: const Icon(Icons.tune),
                         label: const Text(
-                          'Filtrar', 
+                          'Filtrar',
                           style: TextStyle(
-                            fontWeight: FontWeight.bold, 
+                            fontWeight: FontWeight.bold,
                             fontSize: 14.8,
                           ),
                         ),
@@ -169,7 +160,7 @@ class _OsListPageState extends State<OsListPage> {
                           label: const Text(
                             'Ordenar',
                             style: TextStyle(
-                              fontWeight: FontWeight.bold, 
+                              fontWeight: FontWeight.bold,
                               fontSize: 14.8,
                             ),
                           ),
@@ -184,10 +175,7 @@ class _OsListPageState extends State<OsListPage> {
                 ),
 
                 Padding(
-                  padding: const EdgeInsets.only(
-                    top: 10.0,
-                    bottom: 10.0,
-                  ),
+                  padding: const EdgeInsets.only(top: 10.0, bottom: 10.0),
                   child: Align(
                     alignment: Alignment.centerLeft,
                     child: Text(
@@ -208,25 +196,19 @@ class _OsListPageState extends State<OsListPage> {
                     if (snapshot.connectionState == ConnectionState.waiting) {
                       return const Padding(
                         padding: EdgeInsets.only(top: 20.0),
-                        child: Center(
-                          child: CircularProgressIndicator(),
-                        ),
+                        child: Center(child: CircularProgressIndicator()),
                       );
                     }
 
                     if (snapshot.hasError) {
                       return const Center(
-                        child: Text(
-                          'Erro ao carregar ordens de serviço.',
-                        ),
+                        child: Text('Erro ao carregar ordens de serviço.'),
                       );
                     }
 
                     if (!snapshot.hasData || snapshot.data!.isEmpty) {
                       return const Center(
-                        child: Text(
-                          'Nenhuma ordem de serviço encontrada.',
-                        ),
+                        child: Text('Nenhuma ordem de serviço encontrada.'),
                       );
                     }
 
@@ -237,9 +219,7 @@ class _OsListPageState extends State<OsListPage> {
                       physics: const NeverScrollableScrollPhysics(),
                       itemCount: ordemServicos.length,
                       itemBuilder: (context, index) {
-                        return _buildClientCard(
-                          ordemServicos[index],
-                        );
+                        return _buildClientCard(ordemServicos[index]);
                       },
                     );
                   },
@@ -255,11 +235,12 @@ class _OsListPageState extends State<OsListPage> {
           Navigator.push(
             context,
             MaterialPageRoute(
-              builder: (context) => Tabbar(serviceOrderNumber: -0001),
+              builder: (context) => Tabbar(serviceOrderNumber: -1),
             ),
           );
-        },      ),
-    );
+        },      
+      ),
+        );
   }
 
   // Construo os cards
@@ -273,9 +254,7 @@ class _OsListPageState extends State<OsListPage> {
           final confimarExclusao =
               await showDialog(
                 context: context,
-                builder: (_) => ShowDeleteOsDialog(
-                  nome: os.name,
-                ),
+                builder: (_) => ShowDeleteOsDialog(nome: os.name),
               ) ??
               false;
 
@@ -331,13 +310,11 @@ class _OsListPageState extends State<OsListPage> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      '#${os.id} - ${os.name}', 
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
+                      '#${os.id} - ${os.name}',
                       style: TextStyle(
-                        color: Colors.blueGrey.shade600,
                         fontSize: 18,
                         fontWeight: FontWeight.bold,
+                        color: Colors.blueGrey.shade600,
                       ),
                     ),
 
@@ -348,7 +325,7 @@ class _OsListPageState extends State<OsListPage> {
                         fontSize: 14,
                       ),
                     ),
-                  
+
                     Text(
                       os.status,
                       style: TextStyle(
@@ -361,10 +338,7 @@ class _OsListPageState extends State<OsListPage> {
               ),
 
               IconButton(
-                icon: Icon(
-                  Icons.edit,
-                  color: colors.secondary,
-                ),
+                icon: Icon(Icons.edit, color: colors.secondary),
                 onPressed: () {
                   Navigator.push(
                     context,

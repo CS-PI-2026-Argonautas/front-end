@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:frontend/ui/pages/os/tabbar/tabbar.dart';
+import 'package:frontend/ui/pages/os/tabs/os_service.dart';
+import 'package:frontend/ui/pages/os/tabs/serviceregistration.dart';
 
 void main() {
   runApp(const MyApp());
@@ -7,12 +8,13 @@ void main() {
 
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Ordem de serviço',
+      title: 'Recuperação de Senha',
       debugShowCheckedModeBanner: false,
-      home: Tabbar(serviceOrderNumber: 1233),
+      home: ServiceRegistration(),
       theme: ThemeData(
         colorScheme: ColorScheme.fromSeed(
           seedColor: Color.fromARGB(255, 64, 126, 207),

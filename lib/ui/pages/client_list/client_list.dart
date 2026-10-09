@@ -101,7 +101,7 @@ class _ClientListState extends State<ClientList> {
                   decoration: InputDecoration(
                     hintText: 'Procurar cliente',
                     filled: true,
-                    fillColor: Colors.white,
+                    fillColor: colors.surfaceContainer,
                     hintStyle: TextStyle(
                       color: colors.onSurface,
                     ),

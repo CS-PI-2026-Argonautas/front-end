@@ -5,7 +5,6 @@ import 'package:frontend/ui/pages/os/tabbar/tabbar.dart';
 import 'package:frontend/ui/pages/os_list/os_list_page.dart';
 import 'package:frontend/ui/pages/person_registration/person_registration.dart';
 import 'package:frontend/ui/pages/product_registration/product_registration.dart';
-import 'package:frontend/ui/pages/stand_in_page.dart';
 import 'package:frontend/ui/style/ColorScheme.dart' as custom_Colors;
 import 'package:frontend/ui/widgets/menu.dart';
 
@@ -17,12 +16,7 @@ class Dashboard extends StatelessWidget {
   Widget build(BuildContext context) {
     final colors = custom_Colors.colorScheme;
 
-    void irParaStandIn() {
-      Navigator.push(
-        context,
-        MaterialPageRoute(builder: (context) => const StandInPage()),
-      );
-    }
+   
 
     void irParaCadastroPessoa() {
       Navigator.push(

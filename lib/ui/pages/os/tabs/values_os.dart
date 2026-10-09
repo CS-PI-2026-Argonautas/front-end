@@ -73,7 +73,7 @@ class _ValuesOsState extends State<ValuesOs> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             _buildSectionTitle(
-              'Resumo da OS',
+              'Resumo da ordem de serviço',
               'Confira os valores das peças, serviços e ajustes da ordem de serviço.',
             ),
 

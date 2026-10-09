@@ -190,7 +190,7 @@ class TollsOsState extends State<TollsOs>
   void _openPartList() {
     showModalBottomSheet(
       context: context,
-      backgroundColor: colors.surface,
+      backgroundColor: colors.surfaceContainer,
       isScrollControlled: true,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(
@@ -226,7 +226,7 @@ class TollsOsState extends State<TollsOs>
               items: parts,
               searchText: 'Buscar peça...',
               actionText: 'Nova peça',
-              itemIcon: Icons.build_outlined,
+              itemIcon: Icons.build,
               itemTitle: (part) => part.name,
               itemSubtitle: (part) =>
                   _formatPrice(part.valueInCents),
