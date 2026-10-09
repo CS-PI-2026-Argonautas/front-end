@@ -1,17 +1,27 @@
 import 'package:flutter/material.dart';
 import 'package:frontend/ui/style/ColorScheme.dart';
 
-InputDecoration customInputDecoration({String? hintText, Widget? prefixIcon, String? prefixText}) {
+InputDecoration customInputDecoration({
+  String? hintText,
+  Widget? prefixIcon,
+  String? prefixText,
+}) {
   return InputDecoration(
     hintText: hintText,
     prefixIcon: prefixIcon,
     prefixText: prefixText,
-    isDense: true, 
+    isDense: true,
     contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 16),
     prefixStyle: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
-    
-    fillColor: colorScheme.surfaceContainerHigh,
+
+    fillColor: WidgetStateColor.resolveWith((states) {
+      if (states.contains(WidgetState.focused)) {
+        return colorScheme.surfaceContainerHighest; // Cor quando está focado
+      }
+      return colorScheme.surfaceContainerHigh; // Cor padrão (sem foco)
+    }),
     filled: true,
+
     errorStyle: TextStyle(
       color: colorScheme.error,
       fontWeight: FontWeight.bold,
@@ -26,15 +36,15 @@ InputDecoration customInputDecoration({String? hintText, Widget? prefixIcon, Str
     ),
     focusedBorder: OutlineInputBorder(
       borderRadius: BorderRadius.circular(14),
-      borderSide: BorderSide(color: colorScheme.primary, width: 2),
+      borderSide: BorderSide.none,
     ),
     errorBorder: OutlineInputBorder(
       borderRadius: BorderRadius.circular(14),
-      borderSide: BorderSide(color: colorScheme.error, width: 2),
+      borderSide: BorderSide(color: colorScheme.error, width: 1),
     ),
     focusedErrorBorder: OutlineInputBorder(
       borderRadius: BorderRadius.circular(14),
-      borderSide: colorScheme.error != null ? BorderSide(color: colorScheme.error, width: 2) : BorderSide.none,
+      borderSide: BorderSide(color: colorScheme.error, width: 1),
     ),
   );
 }

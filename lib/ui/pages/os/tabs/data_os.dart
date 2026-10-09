@@ -484,7 +484,7 @@ class _DataOsState extends State<DataOs> {
 
     showModalBottomSheet(
       context: context,
-      backgroundColor: colors.surface,
+      backgroundColor: colors.surfaceContainer,
       isScrollControlled: true,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(
@@ -679,16 +679,16 @@ class _DataOsState extends State<DataOs> {
                                     hintText: 'Automática',
                                   ).copyWith(
                                     filled: true,
-                                    fillColor: Colors.grey.shade100,
+                                    fillColor: colors.surfaceContainerLow,
                                     suffixIcon: dataSaida == null
-                                        ? const Icon(
+                                        ? Icon(
                                             Icons.hourglass_empty,
-                                            color: Colors.grey,
+                                            color: Colors.blueGrey.shade400,
                                             size: 20,
                                           )
-                                        : const Icon(
+                                        : Icon(
                                             Icons.edit_calendar_outlined,
-                                            color: Colors.grey,
+                                            color: Colors.blueGrey.shade400,
                                             size: 20,
                                           ),
                                     contentPadding:
@@ -839,9 +839,9 @@ class _DataOsState extends State<DataOs> {
                           backgroundColor: colors.primary,
                           foregroundColor: colors.onSecondary,
                           disabledBackgroundColor:
-                              Colors.grey.shade300,
+                              colors.surfaceContainerLow,
                           disabledForegroundColor:
-                              Colors.grey.shade600,
+                              colors.onSurfaceVariant,
                           padding: const EdgeInsets.symmetric(
                             vertical: 18,
                           ),
@@ -1036,9 +1036,6 @@ class _DataOsState extends State<DataOs> {
       decoration: BoxDecoration(
         color: Colors.amber.shade50,
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(
-          color: Colors.amber.shade300,
-        ),
       ),
       child: Row(
         children: [
