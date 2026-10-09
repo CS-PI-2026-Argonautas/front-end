@@ -3,7 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:frontend/ui/pages/password_setting/password_setting.dart';
 import 'package:frontend/ui/style/ColorScheme.dart' as custom_colors;
 import 'package:frontend/ui/widgets/form/form_section_tile.dart';
-import 'package:frontend/ui/widgets/header.dart';
+import 'package:frontend/ui/widgets/appBar.dart';
 
 class CreateLoginAccount extends StatefulWidget {
   const CreateLoginAccount({super.key});

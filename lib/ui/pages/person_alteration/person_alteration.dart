@@ -13,7 +13,7 @@ import 'package:frontend/ui/widgets/form/action_buttons.dart';
 import 'package:frontend/ui/widgets/enderecos_editor.dart';
 import 'package:frontend/ui/widgets/form/form_card.dart';
 import 'package:frontend/ui/widgets/form/form_field_label.dart';
-import 'package:frontend/ui/widgets/header.dart';
+import 'package:frontend/ui/widgets/appBar.dart';
 import 'package:frontend/ui/widgets/show_dialog/show_duplicate_document_dialog.dart';
 import 'package:mask_text_input_formatter/mask_text_input_formatter.dart';
 

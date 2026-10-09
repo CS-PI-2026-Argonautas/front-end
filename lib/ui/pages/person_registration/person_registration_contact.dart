@@ -5,7 +5,7 @@ import 'package:frontend/ui/style/inputDecorationStyles.dart';
 import 'package:frontend/ui/widgets/form/action_buttons.dart';
 import 'package:frontend/ui/widgets/form/form_card.dart';
 import 'package:frontend/ui/widgets/form/form_field_label.dart';
-import 'package:frontend/ui/widgets/header.dart';
+import 'package:frontend/ui/widgets/appBar.dart';
 import 'package:mask_text_input_formatter/mask_text_input_formatter.dart';
 
 class PersonRegistrationContact extends StatefulWidget {

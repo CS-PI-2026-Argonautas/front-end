@@ -5,9 +5,12 @@ import 'package:frontend/fire_base/repositories/item_repository.dart';
 import 'package:frontend/fire_base/services/item_service.dart';
 
 import 'package:frontend/ui/pages/dashboard.dart';
+import 'package:frontend/ui/pages/edit_item/item_edition.dart';
 import 'package:frontend/ui/pages/product_registration/product_form.dart';
-import 'package:frontend/ui/widgets/header.dart';
+import 'package:frontend/ui/pages/stand_in_page.dart';
+import 'package:frontend/ui/widgets/appBar.dart';
 import 'package:frontend/ui/style/ColorScheme.dart' as custom_colors;
+import 'package:frontend/ui/widgets/menu.dart';
 
 class ProductRegistration extends StatelessWidget {
   const ProductRegistration({super.key});
@@ -28,6 +31,49 @@ class ProductRegistration extends StatelessWidget {
           Navigator.pop(context);
         },
         title: 'Cadastro de produtos',
+      ),
+
+       endDrawer: Menu(
+        currentIndex: 0,
+        onTap: (index) {
+          Navigator.pop(context);
+
+          if (index == 1) {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => const ProductRegistration(),
+              ),
+            );
+          }
+
+          if (index == 0 || index == 2) {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => StandInPage(),
+              ),
+            );
+          }
+
+          if (index == 3) {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => const ItemEdition(),
+              ),
+            );
+          }
+
+          if (index == 4) {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => const Dashboard(),
+              ),
+            );
+          }
+        },
       ),
 
       body: GestureDetector(
