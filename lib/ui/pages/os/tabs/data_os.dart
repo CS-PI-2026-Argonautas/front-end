@@ -142,7 +142,7 @@ class _DataOsState extends State<DataOs> {
     }
 
     if (relatorio.trim().isEmpty) {
-      _mostrarErro('Preencha o relatório da OS.');
+      _mostrarErro('Preencha o relatório da ordem de serviço.');
       return false;
     }
 
@@ -395,10 +395,10 @@ Future<void> _buscarEquipamento() async {
                         children: [
                           Icon(
                             Icons.description_outlined,
-                            color: colors.primary,
+                            color: colors.secondary,
                           ),
                           const Text(
-                            'Relatório da OS',
+                            'Relatório da ordem de serviço',
                             style: TextStyle(
                               fontSize: 20,
                               fontWeight: FontWeight.bold,
@@ -875,7 +875,7 @@ Future<void> _buscarEquipamento() async {
                                       Icon(
                                         Icons.edit_outlined,
                                         size: 17,
-                                        color: colors.primary,
+                                        color: colors.secondary,
                                       ),
                                     ],
                                   ),
@@ -1052,17 +1052,14 @@ Future<void> _buscarEquipamento() async {
       width: double.infinity,
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: colors.surfaceContainer,
+        color: colors.surfaceContainerHigh,
         borderRadius: BorderRadius.circular(14),
-        border: Border.all(
-          color: colors.surfaceContainerHigh,
-        ),
       ),
       child: Row(
         children: [
           Icon(
             Icons.location_on,
-            color: colors.primary,
+            color: colors.secondary,
           ),
           const SizedBox(width: 12),
           Expanded(

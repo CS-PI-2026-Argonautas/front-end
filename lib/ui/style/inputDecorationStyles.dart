@@ -1,6 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:frontend/ui/style/ColorScheme.dart';
 
+TextStyle customInputTextStyle({Color? color}) {
+  return TextStyle(
+    color: color ?? colorScheme.onSurface,
+    fontSize: 16,
+    fontWeight: FontWeight.w500,
+  );
+}
+
 InputDecoration customInputDecoration({
   String? hintText,
   Widget? prefixIcon,
@@ -8,6 +16,9 @@ InputDecoration customInputDecoration({
 }) {
   return InputDecoration(
     hintText: hintText,
+    hintStyle: TextStyle(
+      color: colorScheme.onSurfaceVariant,
+    ),
     prefixIcon: prefixIcon,
     prefixText: prefixText,
     isDense: true,

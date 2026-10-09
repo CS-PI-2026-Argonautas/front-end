@@ -160,10 +160,10 @@ class Dashboard extends StatelessWidget {
               ),
 
               SizedBox(
-                width: double.infinity,
+                width: 280,
                 child: botaoDashboard(
                   texto: "Criar Ordem de Serviço",
-                  icone: Icons.assignment_outlined,
+                  icone: Icons.assignment,
                   preenchido: true,
                 ),
               ),

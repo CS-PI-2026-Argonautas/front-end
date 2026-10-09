@@ -107,7 +107,7 @@ class _ClientListState extends State<ClientList> {
                     ),
                     prefixIcon: Icon(
                       Icons.search,
-                      color: colors.tertiary,
+                      color: colors.secondary,
                     ),
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(14),

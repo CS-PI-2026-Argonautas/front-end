@@ -224,9 +224,9 @@ void _abrirListaServicos() {
                     decoration: InputDecoration(
                       hintText: 'Procurar serviço',
                       filled: true,
-                      fillColor: Colors.white,
+                      fillColor: colors.surfaceContainer,
                       hintStyle: TextStyle(color: colors.onSurface),
-                      prefixIcon: const Icon(Icons.search),
+                      prefixIcon: Icon(Icons.search, color: colors.secondary),
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(14),
                         borderSide: BorderSide.none,

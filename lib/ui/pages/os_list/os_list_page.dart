@@ -123,7 +123,7 @@ class _OsListPageState extends State<OsListPage> {
                     filled: true,
                     fillColor: colors.surfaceContainer,
                     hintStyle: TextStyle(color: colors.onSurface),
-                    prefixIcon: Icon(Icons.search, color: colors.tertiary),
+                    prefixIcon: Icon(Icons.search, color: colors.secondary),
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(14),
                       borderSide: BorderSide.none,
