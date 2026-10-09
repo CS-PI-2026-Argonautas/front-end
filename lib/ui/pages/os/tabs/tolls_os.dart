@@ -8,6 +8,7 @@ import 'package:frontend/fire_base/services/item_service.dart';
 
 import 'package:frontend/ui/pages/product_registration/product_registration.dart';
 import 'package:frontend/ui/style/ColorScheme.dart' as custom_colors;
+import 'package:frontend/ui/widgets/floatingButton.dart';
 import 'package:frontend/ui/style/inputDecorationStyles.dart';
 import 'package:frontend/ui/widgets/bottom_sheet/bottom_sheet.dart';
 
@@ -144,7 +145,7 @@ class TollsOsState extends State<TollsOs>
                   Text(
                     _formatPrice(subtotal),
                     style: TextStyle(
-                      color: colors.onSurface,
+                      color: Colors.blueGrey.shade600,
                       fontSize: 18,
                       fontWeight: FontWeight.w600,
                     ),
@@ -180,15 +181,8 @@ class TollsOsState extends State<TollsOs>
           ),
         ),
       ),
-      floatingActionButton: FloatingActionButton(
+      floatingActionButton: CustomFloatingButton(
         onPressed: _openPartList,
-        backgroundColor: colors.primary,
-        elevation: 3,
-        child: const Icon(
-          Icons.add,
-          color: Colors.white,
-          size: 28,
-        ),
       ),
     );
   }
@@ -196,7 +190,7 @@ class TollsOsState extends State<TollsOs>
   void _openPartList() {
     showModalBottomSheet(
       context: context,
-      backgroundColor: colors.surface,
+      backgroundColor: colors.surfaceContainer,
       isScrollControlled: true,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(
@@ -232,7 +226,7 @@ class TollsOsState extends State<TollsOs>
               items: parts,
               searchText: 'Buscar peça...',
               actionText: 'Nova peça',
-              itemIcon: Icons.build_outlined,
+              itemIcon: Icons.build,
               itemTitle: (part) => part.name,
               itemSubtitle: (part) =>
                   _formatPrice(part.valueInCents),
@@ -456,10 +450,7 @@ class TollsOsState extends State<TollsOs>
         padding: const EdgeInsets.all(14),
         decoration: BoxDecoration(
           color: colors.surfaceContainer,
-          border: Border.all(
-            color: colors.primary,
-            width: 1.5,
-          ),
+
           borderRadius: BorderRadius.circular(18),
         ),
         child: Row(
@@ -489,7 +480,7 @@ class TollsOsState extends State<TollsOs>
                   Text(
                     _formatPrice(totalItem),
                     style: TextStyle(
-                      color: colors.onSurface,
+                      color: Colors.blueGrey.shade600,
                       fontWeight: FontWeight.bold,
                       fontSize: 17,
                     ),
@@ -504,7 +495,7 @@ class TollsOsState extends State<TollsOs>
                     _increaseQuantity(index);
                   },
                   icon: Icon(
-                    Icons.add_box_outlined,
+                    Icons.add,
                     color: colors.primary,
                   ),
                 ),
@@ -522,7 +513,7 @@ class TollsOsState extends State<TollsOs>
                         }
                       : null,
                   icon: Icon(
-                    Icons.indeterminate_check_box_outlined,
+                    Icons.remove,
                     color: quantity > 1
                         ? colors.primary
                         : colors.onSurfaceVariant,

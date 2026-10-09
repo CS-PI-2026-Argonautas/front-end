@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:frontend/ui/style/ColorScheme.dart' as custom_colors;
-import 'package:frontend/ui/widgets/form_field_label.dart';
+import 'package:frontend/ui/widgets/form/form_field_label.dart';
 import 'package:frontend/ui/widgets/slidable/slidable_delete_card.dart';
 
 class SelectionField<T> extends StatelessWidget {
@@ -43,14 +43,45 @@ class SelectionField<T> extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Row(
-          spacing: 6,
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            FormFieldLabel(icon: iconeLabel, label: label),
-            _buildBotao(colors),
-          ],
+        LayoutBuilder(
+  builder: (context, constraints) {
+    // Se a largura disponível for menor que 320px, muda para Column
+    final bool eTelaPequena = constraints.maxWidth < 320;
+
+    if (eTelaPequena) {
+      return Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          FormFieldLabel(
+            icon: iconeLabel,
+            label: label,
+          ),
+          const SizedBox(height: 6),
+          Align(
+            alignment: Alignment.centerLeft,
+            child: _buildBotao(colors),
+          ),
+        ],
+      );
+    }
+
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        Expanded(
+          child: FormFieldLabel(
+            icon: iconeLabel,
+            label: label,
+          ),
         ),
+        const SizedBox(width: 8),
+        Flexible(
+          child: _buildBotao(colors),
+        ),
+      ],
+    );
+  },
+),
         const SizedBox(height: 8),
         if (itens.isEmpty)
           Padding(
@@ -94,8 +125,6 @@ class SelectionField<T> extends StatelessWidget {
     );
   }
 
-  // Sem texto: so o icone (igual ao de endereco hoje).
-  // Com texto: botao com icone + texto.
   Widget _buildBotao(ColorScheme colors) {
     if (textoBotao == null || textoBotao!.isEmpty) {
       return IconButton(
@@ -107,10 +136,17 @@ class SelectionField<T> extends StatelessWidget {
     }
 
     return TextButton.icon(
+      style: TextButton.styleFrom(
+        padding: const EdgeInsets.symmetric(horizontal: 8),
+        minimumSize: Size.zero,
+        tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+      ),
       onPressed: onPressed,
-      icon: Icon(iconeBotao, color: colors.secondary, size: 22),
+      icon: Icon(iconeBotao, color: colors.secondary, size: 20),
       label: Text(
         textoBotao!,
+        maxLines: 1,
+        overflow: TextOverflow.ellipsis,
         style: TextStyle(
           color: colors.secondary,
           fontWeight: FontWeight.w600,
@@ -123,8 +159,8 @@ class SelectionField<T> extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       decoration: BoxDecoration(
-        color: colors.surfaceContainer,
-        border: Border.all(color: colors.primary.withOpacity(0.5), width: 1),
+        color: colors.surfaceContainerLow,
+        border: Border.all(color: colors.surfaceContainerHigh, width: 1.5),
         borderRadius: BorderRadius.circular(12),
       ),
       child: Row(
@@ -133,12 +169,13 @@ class SelectionField<T> extends StatelessWidget {
           const SizedBox(width: 12),
           Expanded(
             child: Text(
-              titulo,
+              titulo, 
               style: TextStyle(
                 color: colors.onSurface,
-                fontSize: 14,
-                fontWeight: FontWeight.w500,
+                fontSize: 16,
+                fontWeight: FontWeight.w600,
               ),
+              overflow: TextOverflow.ellipsis,
             ),
           ),
           if (onEdit != null)
@@ -147,59 +184,9 @@ class SelectionField<T> extends StatelessWidget {
               onPressed: () => onEdit!(item, index),
             )
           else
-
             const SizedBox(height: 48),
         ],
       ),
     );
   }
 }
-
-/* ---------------------------------------------------------------
-EXEMPLO DE USO (substitui o bloco de endereco em person_registration.dart)
-
-SelectionField<String>(
-  label: 'Endereço',
-  iconeLabel: Icons.home_outlined,
-  itens: _enderecos,
-  tituloItem: (e) => e,
-  textoVazio: 'Nenhum endereço adicionado.',
-  permitirExclusao: true,
-  onPressed: () async {
-    final resultado = await Navigator.push<String>(
-      context,
-      MaterialPageRoute(builder: (_) => const PersonRegistrationAddress()),
-    );
-    if (resultado != null && resultado.trim().isNotEmpty && mounted) {
-      setState(() => _enderecos.add(resultado));
-    }
-  },
-  onEdit: (endereco, index) async {
-    final editado = await Navigator.push<String>(
-      context,
-      MaterialPageRoute(
-        builder: (_) => PersonRegistrationAddress(enderecoInicial: endereco),
-      ),
-    );
-    if (editado != null && editado.isNotEmpty && mounted) {
-      setState(() => _enderecos[index] = editado);
-    }
-  },
-  onDelete: (endereco, index) async {
-    // mesma logica atual: ShowDeleteClientDialog + removeAt + snackbar DESFAZER
-  },
-)
-
-// Issue #139 (equipamento da OS): exclusao desabilitada, edicao mantida
-SelectionField<String>(
-  label: 'Equipamento',
-  iconeLabel: Icons.devices_other_outlined,
-  textoBotao: 'Selecionar',
-  iconeItem: Icons.build,
-  itens: _equipamentos,
-  tituloItem: (e) => e,
-  permitirExclusao: false,
-  onPressed: _abrirSheetEquipamentos, // abre o SelectionBottomSheet (#136)
-  onEdit: (equip, index) => _editarEquipamento(equip, index),
-)
---------------------------------------------------------------- */

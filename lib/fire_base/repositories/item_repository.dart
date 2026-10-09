@@ -18,11 +18,11 @@ class ItemRepository {
     final String id = _uuid.v4();
 
     await _itemsCollection.doc(id).set({
-      'nome': item.name,
-      'descricao': item.description,
-      'valor_centavos': item.valueInCents,
-      'quantidade_minima': item.minimumQuantity,
-      'tipo': _typeToFirestore(item),
+      'name': item.name,
+      'description': item.description,
+      'value_in_cents': item.valueInCents,
+      'minimum_quantity': item.minimumQuantity,
+      'type': _typeToFirestore(item),
       'created_at': FieldValue.serverTimestamp(),
       'updated_at': FieldValue.serverTimestamp(),
       'deleted_at': null,
@@ -35,11 +35,11 @@ class ItemRepository {
     }
 
     await _itemsCollection.doc(item.id).update({
-      'nome': item.name,
-      'descricao': item.description,
-      'valor_centavos': item.valueInCents,
-      'quantidade_minima': item.minimumQuantity,
-      'tipo': _typeToFirestore(item),
+      'name': item.name,
+      'description': item.description,
+      'value_in_cents': item.valueInCents,
+      'minimum_quantity': item.minimumQuantity,
+      'type': _typeToFirestore(item),
       'updated_at': FieldValue.serverTimestamp(),
     });
   }

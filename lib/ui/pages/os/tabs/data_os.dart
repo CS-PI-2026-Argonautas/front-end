@@ -6,7 +6,7 @@ import 'package:frontend/ui/pages/person_registration/person_registration_addres
 import 'package:frontend/ui/style/ColorScheme.dart' as custom_colors;
 import 'package:frontend/ui/style/inputDecorationStyles.dart';
 import 'package:frontend/ui/widgets/bottom_sheet/bottom_sheet.dart';
-import 'package:frontend/ui/widgets/equipment_field.dart';
+import 'package:frontend/ui/widgets/fields/equipment_field.dart';
 import 'package:frontend/utils/data_os/address_formatter.dart';
 import 'package:frontend/ui/pages/person_registration/person_registration.dart';
 import 'package:frontend/ui/pages/stand_in_page.dart';
@@ -142,7 +142,7 @@ class _DataOsState extends State<DataOs> {
     }
 
     if (relatorio.trim().isEmpty) {
-      _mostrarErro('Preencha o relatório da OS.');
+      _mostrarErro('Preencha o relatório da ordem de serviço.');
       return false;
     }
 
@@ -201,43 +201,6 @@ class _DataOsState extends State<DataOs> {
       _mostrarErro('Não foi possível carregar os equipamentos.');
       return;
     }
-
-    if (!mounted) return;
-
-    showModalBottomSheet(
-      context: context,
-      backgroundColor: colors.surface,
-      isScrollControlled: true,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
-      ),
-      builder: (context) {
-        return SelectionBottomSheet<Equipment>(
-          title: 'Selecionar equipamento',
-          items: equipamentos,
-          searchText: 'Procurar equipamento',
-          actionText: 'Novo equipamento',
-          itemTitle: (e) => '${e.brand} ${e.model}',
-          itemSubtitle: (e) => 'Nº série ${e.serialNumber}',
-          itemIcon: Icons.scale_outlined,
-          loading: false,
-          onAction: () {
-            Navigator.pop(context);
-            _abrirCadastroEquipamento();
-          },
-          onSelect: (e) {
-            setState(() {
-              _equipamentoSelecionado = {
-                'id': e.id,
-                'mark': e.brand,
-                'model': e.model,
-              };
-            });
-            Navigator.pop(context);
-          },
-        );
-      },
-    );
 
     if (!mounted) return;
 
@@ -419,10 +382,10 @@ class _DataOsState extends State<DataOs> {
                         children: [
                           Icon(
                             Icons.description_outlined,
-                            color: colors.primary,
+                            color: colors.secondary,
                           ),
                           const Text(
-                            'Relatório da OS',
+                            'Relatório da ordem de serviço',
                             style: TextStyle(
                               fontSize: 20,
                               fontWeight: FontWeight.bold,
@@ -507,8 +470,8 @@ class _DataOsState extends State<DataOs> {
           items: clientesDisponiveis,
           searchText: 'Procurar cliente',
           actionText: 'Novo cliente',
-          itemTitle: (cliente) => cliente['nome'].toString(),
-          itemSubtitle: (cliente) => cliente['telefone'].toString(),
+          itemTitle: (cliente) => cliente['name'].toString(),
+          itemSubtitle: (cliente) => cliente['phone'].toString(),
           itemIcon: Icons.person_outline,
           loading: false,
           onAction: () async {
@@ -567,7 +530,7 @@ class _DataOsState extends State<DataOs> {
 
     showModalBottomSheet(
       context: context,
-      backgroundColor: colors.surface,
+      backgroundColor: colors.surfaceContainer,
       isScrollControlled: true,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
@@ -645,6 +608,10 @@ class _DataOsState extends State<DataOs> {
           spacing: 18,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
+            _buildSectionTitle(
+              'Informações da ordem de serviço',
+              'Insira os dados da ordem de serviço.',
+            ),
             _buildClienteEnderecoLabel(
               'Cliente *',
               onAdd: _abrirListaClientes,
@@ -739,16 +706,16 @@ class _DataOsState extends State<DataOs> {
                                         hintText: 'Automática',
                                       ).copyWith(
                                         filled: true,
-                                        fillColor: Colors.grey.shade100,
+                                        fillColor: colors.surfaceContainerLow,
                                         suffixIcon: dataSaida == null
-                                            ? const Icon(
+                                            ? Icon(
                                                 Icons.hourglass_empty,
-                                                color: Colors.grey,
+                                                color: Colors.blueGrey.shade400,
                                                 size: 20,
                                               )
-                                            : const Icon(
+                                            : Icon(
                                                 Icons.edit_calendar_outlined,
-                                                color: Colors.grey,
+                                                color: Colors.blueGrey.shade400,
                                                 size: 20,
                                               ),
                                         contentPadding:
@@ -764,7 +731,7 @@ class _DataOsState extends State<DataOs> {
                                     style: TextStyle(
                                       fontSize: 14,
                                       color: dataSaida == null
-                                          ? Colors.grey.shade600
+                                          ? Colors.blueGrey.shade600
                                           : colors.onSurface,
                                     ),
                                   ),
@@ -782,7 +749,7 @@ class _DataOsState extends State<DataOs> {
                           const Icon(
                             Icons.info_outline,
                             size: 15,
-                            color: Colors.grey,
+                            color: Colors.blueGrey,
                           ),
                           Text(
                             'Toque para corrigir a data de saída.',
@@ -846,7 +813,7 @@ class _DataOsState extends State<DataOs> {
                                       Icon(
                                         Icons.edit_outlined,
                                         size: 17,
-                                        color: colors.primary,
+                                        color: colors.secondary,
                                       ),
                                     ],
                                   ),
@@ -883,8 +850,8 @@ class _DataOsState extends State<DataOs> {
                           elevation: _formValido ? 3 : 0,
                           backgroundColor: colors.primary,
                           foregroundColor: colors.onSecondary,
-                          disabledBackgroundColor: Colors.grey.shade300,
-                          disabledForegroundColor: Colors.grey.shade600,
+                          disabledBackgroundColor: colors.surfaceContainerLow,
+                          disabledForegroundColor: colors.onSurfaceVariant,
                           padding: const EdgeInsets.symmetric(vertical: 18),
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(14),
@@ -934,7 +901,7 @@ class _DataOsState extends State<DataOs> {
             icon: const Icon(Icons.add, size: 18),
             label: Text(addLabel),
             style: ElevatedButton.styleFrom(
-              backgroundColor: const Color(0xFF1E9E5F),
+              backgroundColor: colors.secondary,
               foregroundColor: Colors.white,
               elevation: 0,
               padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
@@ -956,13 +923,12 @@ class _DataOsState extends State<DataOs> {
       width: double.infinity,
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: colors.surfaceContainer,
+        color: colors.surfaceContainerHigh,
         borderRadius: BorderRadius.circular(14),
-        border: Border.all(color: colors.surfaceContainerHigh),
       ),
       child: Row(
         children: [
-          Icon(Icons.person, color: colors.primary),
+          Icon(Icons.person, color: colors.secondary),
           const SizedBox(width: 12),
           Expanded(
             child: Column(
@@ -977,7 +943,7 @@ class _DataOsState extends State<DataOs> {
                 ),
                 const SizedBox(height: 2),
                 Text(
-                  clienteSelecionado!['nome'],
+                  clienteSelecionado!['name'],
                   style: TextStyle(
                     color: colors.onSurface,
                     fontSize: 16,
@@ -989,7 +955,7 @@ class _DataOsState extends State<DataOs> {
           ),
           IconButton(
             onPressed: _abrirListaClientes,
-            icon: Icon(Icons.sync_alt, color: colors.primary),
+            icon: Icon(Icons.sync_alt, color: colors.secondary),
             tooltip: 'Trocar cliente',
           ),
         ],
@@ -1008,7 +974,7 @@ class _DataOsState extends State<DataOs> {
       width: double.infinity,
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: colors.surfaceContainer,
+        color: colors.surfaceContainerHigh,
         borderRadius: BorderRadius.circular(14),
         border: Border.all(color: colors.surfaceContainerHigh),
       ),
@@ -1179,4 +1145,26 @@ class _DataOsState extends State<DataOs> {
       },
     );
   }
+}
+
+Widget _buildSectionTitle(String title, String subtitle) {
+  final colors = custom_colors.colorScheme;
+  return Column(
+    spacing: 6,
+    crossAxisAlignment: CrossAxisAlignment.start,
+    children: [
+      Text(
+        title,
+        style: TextStyle(
+          fontSize: 20,
+          fontWeight: FontWeight.bold,
+          color: colors.onSurface,
+        ),
+      ),
+      Text(
+        subtitle,
+        style: TextStyle(fontSize: 14, color: colors.onSurfaceVariant),
+      ),
+    ],
+  );
 }

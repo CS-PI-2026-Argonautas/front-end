@@ -16,7 +16,7 @@ class EquipamentoService {
 
   Future<List<Equipment>> listar() async {
     final snapshot = await _firestore
-        .collection('equipamentos')
+        .collection('equipments')
         .orderBy('created_at', descending: true)
         .get();
 
