@@ -9,6 +9,7 @@ import 'package:frontend/ui/pages/person_alteration/person_alteration_address.da
 import 'package:frontend/ui/pages/person_alteration/person_alteration_contact.dart';
 import 'package:frontend/ui/style/ColorScheme.dart' as custom_colors;
 import 'package:frontend/ui/style/inputDecorationStyles.dart';
+import 'package:frontend/ui/widgets/adress_editor.dart';
 import 'package:frontend/ui/widgets/form/action_buttons.dart';
 import 'package:frontend/ui/widgets/form/form_card.dart';
 import 'package:frontend/ui/widgets/form/form_field_label.dart';
@@ -226,8 +227,9 @@ class _PersonAlterationState extends State<PersonAlteration> {
               return 'Informe as informações de contato';
             }
           },
+          builder: ,
           onEdit: (endereco, index) async {
-            final enderecoEditado = await Navigator.push<Endereco>(
+            final enderecoEditado = await Navigator.push<Address>(
               context,
               MaterialPageRoute(
                 builder: (context) =>
@@ -280,7 +282,7 @@ class _PersonAlterationState extends State<PersonAlteration> {
                 size: 26,
               ),
               onPressed: () async {
-                final resultadoContato = await Navigator.push<Contato>(
+                final resultadoContato = await Navigator.push<Contact>(
                   context,
                   MaterialPageRoute(
                     builder: (context) =>
@@ -302,7 +304,7 @@ class _PersonAlterationState extends State<PersonAlteration> {
           key: ValueKey('contato_${_contato.resumo}'),
           initialValue: _contato.resumo,
           validator: (value) {
-            if (_contato.telefone.trim().isEmpty) {
+            if (_contato.phone.trim().isEmpty) {
               return 'Informe as informações de contato';
             }
             return null;
