@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:frontend/fire_base/models/services.dart';
+import 'package:frontend/ui/pages/client_list/client_list.dart';
 import 'package:frontend/ui/pages/dashboard.dart';
 import 'package:frontend/ui/pages/edit_item/item_edition.dart';
 import 'package:frontend/ui/pages/os/tabbar/tabbar.dart';
@@ -7,6 +8,7 @@ import 'package:frontend/ui/pages/product_registration/product_registration.dart
 import 'package:frontend/ui/pages/stand_in_page.dart';
 import 'package:frontend/fire_base/repositories/mock_os_repository.dart';
 import 'package:frontend/ui/style/ColorScheme.dart' as custom_colors;
+import 'package:frontend/ui/widgets/appBar.dart';
 import 'package:frontend/ui/widgets/menu.dart';
 import 'package:frontend/ui/widgets/show_dialog/show_delete_os.dart';
 import 'package:frontend/ui/widgets/show_snackbar/show_delete_os.dart';
@@ -64,37 +66,15 @@ class _OsListPageState extends State<OsListPage> {
     return Scaffold(
       backgroundColor: colors.surface,
 
-      appBar: AppBar(
-        // Remove a cor sólida para permitir o gradiente
-        backgroundColor: Colors.transparent,
-        foregroundColor: colors.onPrimary,
-        centerTitle: true,
-        elevation: 8,
-        shadowColor: Colors.black.withOpacity(0.5),
-        title: const Text(
-          'Listar OS',
-          style: TextStyle(
-            color: Colors.white,
-            fontWeight: FontWeight.bold,
-            fontSize: 20,
-          ),
-        ),
-        flexibleSpace: Container(
-          decoration: BoxDecoration(
-            gradient: LinearGradient(
-              colors: [
-                colors.primary, 
-                colors.tertiary,
-              ],
-              begin: Alignment.centerLeft,
-              end: Alignment.centerRight,
-            ),
-          ),
-        ),
+        appBar: Header(
+        onBack: () {
+          Navigator.pop(context);
+        },
+        title: 'Listagem de ordens de serviço',
       ),
 
       endDrawer: Menu(
-        currentIndex: 0,
+        currentIndex: 2,
         onTap: (index) {
           Navigator.pop(context);
 
@@ -107,8 +87,11 @@ class _OsListPageState extends State<OsListPage> {
             );
           }
 
-          if (index == 0 || index == 2) {
-            StandInPage();
+          if (index == 0) {
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => const ClientList()),
+            );
           }
 
           if (index == 3) {

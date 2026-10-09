@@ -3,10 +3,10 @@ import 'package:frontend/fire_base/models/cliente.dart';
 import 'package:frontend/fire_base/services/cliente_service.dart';
 import 'package:frontend/ui/pages/dashboard.dart';
 import 'package:frontend/ui/pages/edit_item/item_edition.dart';
+import 'package:frontend/ui/pages/os_list/os_list_page.dart';
 import 'package:frontend/ui/pages/person_alteration/person_alteration.dart';
 import 'package:frontend/ui/pages/person_registration/person_registration.dart';
 import 'package:frontend/ui/pages/product_registration/product_registration.dart';
-import 'package:frontend/ui/pages/stand_in_page.dart';
 import 'package:frontend/ui/style/ColorScheme.dart' as custom_colors;
 import 'package:frontend/ui/widgets/appBar.dart';
 import 'package:frontend/ui/widgets/menu.dart';
@@ -58,11 +58,11 @@ class _ClientListState extends State<ClientList> {
             );
           }
 
-          if (index == 0 || index == 2) {
+          if (index == 2) {
             Navigator.push(
               context,
               MaterialPageRoute(
-                builder: (context) => StandInPage(),
+                builder: (context) => const OsListPage(),
               ),
             );
           }
