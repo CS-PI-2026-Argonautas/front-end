@@ -10,7 +10,7 @@ class Item {
   final ItemType type;
   final Timestamp? createdAt;
   final Timestamp? updatedAt;
-    final Timestamp? deletedAt;
+  final Timestamp? deletedAt;
   Item({
     this.id,
     required this.name,
@@ -22,9 +22,7 @@ class Item {
     this.updatedAt,
     this.deletedAt,
   });
-  factory Item.fromFirestore(
-    DocumentSnapshot<Map<String, dynamic>> document,
-  ) {
+  factory Item.fromFirestore(DocumentSnapshot<Map<String, dynamic>> document) {
     final data = document.data()!;
 
     return Item(
@@ -59,7 +57,7 @@ class Item {
         return ItemType.parts;
 
       case 'BALANCAS':
-        return ItemType.balances;
+        return ItemType.scales;
 
       default:
         throw ArgumentError('Invalid product type: $value');
@@ -71,7 +69,7 @@ class Item {
       case ItemType.parts:
         return 'PECAS';
 
-      case ItemType.balances:
+      case ItemType.scales:
         return 'BALANCAS';
     }
   }
@@ -100,4 +98,3 @@ class Item {
     );
   }
 }
-

@@ -3401,7 +3401,7 @@ class PecaData extends DataClass implements Insertable<PecaData> {
     int? id,
     String? nome,
     String? descricao,
-    TipoProduto? tipo,
+    ItemType? tipo,
     double? valor,
     Value<int?> ordemServicoId = const Value.absent(),
   }) => PecaData(
@@ -3459,7 +3459,7 @@ class PecaCompanion extends UpdateCompanion<PecaData> {
   final Value<int> id;
   final Value<String> nome;
   final Value<String> descricao;
-  final Value<TipoProduto> tipo;
+  final Value<ItemType> tipo;
   final Value<double> valor;
   final Value<int?> ordemServicoId;
   const PecaCompanion({
@@ -3474,7 +3474,7 @@ class PecaCompanion extends UpdateCompanion<PecaData> {
     this.id = const Value.absent(),
     required String nome,
     required String descricao,
-    required TipoProduto tipo,
+    required ItemType tipo,
     required double valor,
     this.ordemServicoId = const Value.absent(),
   }) : nome = Value(nome),
@@ -3503,7 +3503,7 @@ class PecaCompanion extends UpdateCompanion<PecaData> {
     Value<int>? id,
     Value<String>? nome,
     Value<String>? descricao,
-    Value<TipoProduto>? tipo,
+    Value<ItemType>? tipo,
     Value<double>? valor,
     Value<int?>? ordemServicoId,
   }) {
@@ -7060,7 +7060,7 @@ typedef $$PecaTableCreateCompanionBuilder =
       Value<int> id,
       required String nome,
       required String descricao,
-      required TipoProduto tipo,
+      required ItemType tipo,
       required double valor,
       Value<int?> ordemServicoId,
     });
@@ -7069,7 +7069,7 @@ typedef $$PecaTableUpdateCompanionBuilder =
       Value<int> id,
       Value<String> nome,
       Value<String> descricao,
-      Value<TipoProduto> tipo,
+      Value<ItemType> tipo,
       Value<double> valor,
       Value<int?> ordemServicoId,
     });
@@ -7120,7 +7120,7 @@ class $$PecaTableFilterComposer extends Composer<_$AppDatabase, $PecaTable> {
     builder: (column) => ColumnFilters(column),
   );
 
-  ColumnWithTypeConverterFilters<TipoProduto, TipoProduto, String> get tipo =>
+  ColumnWithTypeConverterFilters<ItemType, ItemType, String> get tipo =>
       $composableBuilder(
         column: $table.tipo,
         builder: (column) => ColumnWithTypeConverterFilters(column),

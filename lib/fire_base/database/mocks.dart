@@ -195,7 +195,7 @@ Future<void> inserirDadosMock(AppDatabase db) async {
           PecaCompanion.insert(
             nome: 'Placa eletrônica',
             descricao: 'Placa eletrônica para balança',
-            tipo: ItemType.balances,
+            tipo: ItemType.scales,
             valor: 450.00,
             ordemServicoId: Value(ordem2),
           ),

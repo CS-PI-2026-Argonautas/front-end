@@ -90,7 +90,7 @@ class _EquipamentDataState extends State<EquipmentData> {
 
     try {
       final equipamento = Equipment(
-        mark: _marcaController.text.trim(),
+        brand: _marcaController.text.trim(),
         model: _modeloController.text.trim(),
         serialNumber: _numeroSerieController.text.trim(),
         administrativeOrder: _portariaController.text.trim(),
@@ -118,7 +118,7 @@ class _EquipamentDataState extends State<EquipmentData> {
       if (widget.onSubmit != null) {
         widget.onSubmit!({
           'id': idGerado,
-          'marca': equipamento.mark,
+          'marca': equipamento.brand,
           'modelo': equipamento.model,
         });
       } else {

@@ -1,13 +1,13 @@
 enum ItemType {
   parts,
-  balances;
+  scales;
 
   String get label {
     switch (this) {
       case ItemType.parts:
         return "Peças para consertos";
 
-      case ItemType.balances:
+      case ItemType.scales:
         return "Balanças";
     }
   }

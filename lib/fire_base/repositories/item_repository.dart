@@ -7,11 +7,9 @@ class ItemRepository {
   final FirebaseFirestore _firestore;
   final Uuid _uuid;
 
-  ItemRepository({
-    FirebaseFirestore? firestore,
-    Uuid? uuid,
-  })  : _firestore = firestore ?? FirebaseFirestore.instance,
-        _uuid = uuid ?? const Uuid();
+  ItemRepository({FirebaseFirestore? firestore, Uuid? uuid})
+    : _firestore = firestore ?? FirebaseFirestore.instance,
+      _uuid = uuid ?? const Uuid();
 
   CollectionReference<Map<String, dynamic>> get _itemsCollection =>
       _firestore.collection('itens');
@@ -64,13 +62,10 @@ class ItemRepository {
   }
 
   Stream<List<Item>> watchItems() {
-    return _itemsCollection
-        .where('deleted_at', isNull: true)
-        .snapshots()
-        .map((snapshot) {
-      return snapshot.docs
-          .map(Item.fromFirestore)
-          .toList();
+    return _itemsCollection.where('deleted_at', isNull: true).snapshots().map((
+      snapshot,
+    ) {
+      return snapshot.docs.map(Item.fromFirestore).toList();
     });
   }
 
@@ -80,10 +75,8 @@ class ItemRepository {
         .where('deleted_at', isNull: true)
         .snapshots()
         .map((snapshot) {
-      return snapshot.docs
-          .map(Item.fromFirestore)
-          .toList();
-    });
+          return snapshot.docs.map(Item.fromFirestore).toList();
+        });
   }
 
   String _typeToFirestore(Item item) {
@@ -91,7 +84,7 @@ class ItemRepository {
       case ItemType.parts:
         return 'PECAS';
 
-      case ItemType.balances:
+      case ItemType.scales:
         return 'BALANCAS';
     }
   }

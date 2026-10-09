@@ -2,7 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 
 class Equipment {
   String? id;
-  final String mark;
+  final String brand;
   final String model;
   final String serialNumber;
   final String administrativeOrder;
@@ -16,7 +16,7 @@ class Equipment {
 
   Equipment({
     this.id,
-    required this.mark,
+    required this.brand,
     required this.model,
     required this.serialNumber,
     required this.administrativeOrder,
@@ -31,7 +31,7 @@ class Equipment {
 
   Map<String, dynamic> toFirestore() {
     return {
-      'mark': mark,
+      'brand': brand,
       'model': model,
       'serial_number': serialNumber,
       'administrative_order': administrativeOrder,
@@ -45,13 +45,11 @@ class Equipment {
     };
   }
 
-  factory Equipment.fromFirestore(
-    DocumentSnapshot<Map<String, dynamic>> doc,
-  ) {
+  factory Equipment.fromFirestore(DocumentSnapshot<Map<String, dynamic>> doc) {
     final data = doc.data() ?? {};
     return Equipment(
       id: doc.id,
-      mark: (data['mark'] ?? '').toString(),
+      brand: (data['brand'] ?? '').toString(),
       model: (data['model'] ?? '').toString(),
       serialNumber: (data['serial_number'] ?? '').toString(),
       administrativeOrder: (data['administrative_order'] ?? '').toString(),
