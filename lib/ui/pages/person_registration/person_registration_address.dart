@@ -227,7 +227,7 @@ class _PersonRegistration2State extends State<PersonRegistrationAddress> {
           onCancel: () {
             Navigator.pop(context);
           },
-          onCadastrar: () {
+          onSave: () {
             if (!_formKey.currentState!.validate()) {
               return;
             }

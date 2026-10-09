@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 class ActionButtons extends StatelessWidget {
   final GlobalKey<FormState> formKey;
   final VoidCallback onCancel;
-  final VoidCallback onCadastrar;
+  final VoidCallback onSave;
   final dynamic colors; 
   final String textoConfirmar;
 
@@ -11,7 +11,7 @@ class ActionButtons extends StatelessWidget {
     super.key,
     required this.formKey,
     required this.onCancel,
-    required this.onCadastrar,
+    required this.onSave,
     required this.colors,
     this.textoConfirmar = 'Cadastrar',
   });
@@ -44,7 +44,7 @@ class ActionButtons extends StatelessWidget {
           child: ElevatedButton.icon(
             onPressed: () {
               if (formKey.currentState!.validate()) {
-                onCadastrar();
+                onSave();
               }
             },
             style: ElevatedButton.styleFrom(

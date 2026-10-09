@@ -4,7 +4,7 @@ import 'package:frontend/ui/style/ColorScheme.dart' as custom_colors;
 import 'package:frontend/ui/style/inputDecorationStyles.dart';
 import 'package:frontend/ui/widgets/form/validator.dart';
 import 'package:frontend/ui/widgets/form/form_card.dart';
-import 'package:frontend/ui/widgets/form/form_action_button.dart';
+import 'package:frontend/ui/widgets/form/action_buttons.dart';
 import 'package:frontend/ui/widgets/form/labeled_form.dart';
 import 'package:frontend/fire_base/models/equipamento.dart';
 import 'package:frontend/fire_base/services/equipamento_service.dart';
@@ -278,7 +278,9 @@ class _EquipamentDataState extends State<EquipamentData> {
                     ),
                   ],
                 ),
-                FormActionButtons(
+                ActionButtons(
+                  formKey: _formKey,
+                  colors: colors,
                   onSave: () {
                     if (_salvando) return;
                     _handleCadastrar();

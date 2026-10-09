@@ -154,7 +154,7 @@ class _PersonRegistration3State extends State<PersonRegistrationContact> {
           colors: colors,
           textoConfirmar: widget.contatoInicial == null ? 'Cadastrar' : 'Salvar',
           onCancel: () => Navigator.pop(context),
-          onCadastrar: () {
+          onSave: () {
             Navigator.pop(
               context,
               Contato(

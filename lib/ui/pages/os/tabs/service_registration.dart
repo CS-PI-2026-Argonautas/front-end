@@ -181,7 +181,7 @@ class _ServiceRegistrationState extends State<ServiceRegistration> {
                 ActionButtons(
                   formKey: _formKey,
                   colors: colors,
-                  onCadastrar: _handleCadastrar,
+                  onSave: _handleCadastrar,
                   onCancel:
                       widget.onCancel ?? () => Navigator.maybePop(context),
                 ),

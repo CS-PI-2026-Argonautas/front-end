@@ -230,7 +230,7 @@ class _ProductFormState extends State<ProductForm> {
           colors: colors,
           textoConfirmar: 'Salvar',
           onCancel: widget.onCancel,
-          onCadastrar: _save,
+          onSave: _save,
         ),
       ],
     );

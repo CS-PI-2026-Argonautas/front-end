@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:frontend/fire_base/models/cliente.dart';
 import 'package:frontend/fire_base/models/endereco.dart';
-import 'package:frontend/fire_base/Enums/TipoPessoa.dart';
+import 'package:frontend/fire_base/Enums/PersonType.dart';
 import 'package:frontend/fire_base/models/contato.dart';
 import 'package:frontend/fire_base/services/cliente_service.dart';
 import 'package:frontend/ui/pages/person_registration/person_registration_contact.dart';
@@ -34,8 +34,8 @@ class _PersonRegistrationState1 extends State<PersonRegistration> {
 
   Contato? _contato;
 
-  TipoPessoa get _tipoPessoa =>
-      _isPessoaFisica ? TipoPessoa.fisica : TipoPessoa.juridica;
+  PersonType get _tipoPessoa =>
+      _isPessoaFisica ? PersonType.physical : PersonType.legal;
 
   final _cpfFormatter = MaskTextInputFormatter(
     mask: '###.###.###-##',
@@ -271,7 +271,7 @@ class _PersonRegistrationState1 extends State<PersonRegistration> {
           formKey: _formKey,
           colors: colors,
           onCancel: () => Navigator.pop(context),
-          onCadastrar: _salvar,
+          onSave: _salvar,
         ),
       ],
     );

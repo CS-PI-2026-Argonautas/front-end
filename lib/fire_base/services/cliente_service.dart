@@ -1,4 +1,4 @@
-import 'package:frontend/fire_base/Enums/TipoPessoa.dart';
+import 'package:frontend/fire_base/Enums/PersonType.dart';
 import 'package:frontend/fire_base/models/cliente.dart';
 import 'package:frontend/fire_base/models/endereco.dart';
 import 'package:frontend/fire_base/repositories/cliente_repository.dart';
@@ -31,14 +31,14 @@ class ClienteService {
 
   Future<void> restaurar(String id) => _repository.restaurar(id);
 
-  static String? validarDocumento(String valor, TipoPessoa tipo) {
+  static String? validarDocumento(String valor, PersonType tipo) {
     final digitos = Cliente.somenteDigitos(valor);
 
     if (digitos.isEmpty) return 'Informe o ${tipo.rotuloDocumento}';
 
-    if (digitos.length != tipo.tamanhoDocumento) {
+    if (digitos.length != tipo.documentSize) {
       return '${tipo.rotuloDocumento} deve ter '
-          '${tipo.tamanhoDocumento} dígitos';
+          '${tipo.documentSize} dígitos';
     }
 
     return null;

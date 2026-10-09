@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:frontend/fire_base/Enums/TipoPessoa.dart';
+import 'package:frontend/fire_base/Enums/PersonType.dart';
 import 'package:frontend/fire_base/models/cliente.dart';
 import 'package:frontend/fire_base/models/contato.dart';
 import 'package:frontend/fire_base/models/endereco.dart';
@@ -46,8 +46,8 @@ class _PersonAlterationState extends State<PersonAlteration> {
 
   bool _salvando = false;
 
-  TipoPessoa get _tipoPessoa =>
-      _isPessoaFisica ? TipoPessoa.fisica : TipoPessoa.juridica;
+  PersonType get _tipoPessoa =>
+      _isPessoaFisica ? PersonType.physical : PersonType.legal;
 
   @override
   void initState() {
@@ -55,7 +55,7 @@ class _PersonAlterationState extends State<PersonAlteration> {
 
     final cliente = widget.cliente;
 
-    _isPessoaFisica = cliente.tipoPessoa == TipoPessoa.fisica;
+    _isPessoaFisica = cliente.tipoPessoa == PersonType.physical;
     _contato = cliente.contato;
 
     _cpfFormatter = MaskTextInputFormatter(
@@ -331,7 +331,7 @@ class _PersonAlterationState extends State<PersonAlteration> {
           colors: colors,
           textoConfirmar: 'Salvar',
           onCancel: () => Navigator.pop(context),
-          onCadastrar: _salvar,
+          onSave: _salvar,
         ),
       ],
     );

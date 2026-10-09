@@ -1,5 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:frontend/fire_base/Enums/TipoPessoa.dart';
+import 'package:frontend/fire_base/Enums/PersonType.dart';
 import 'package:frontend/fire_base/models/contato.dart';
 import 'package:frontend/fire_base/models/endereco.dart';
 import 'package:uuid/uuid.dart';
@@ -8,10 +8,8 @@ class Cliente {
   final String id;
 
   String nome;
-  TipoPessoa tipoPessoa;
-
+  PersonType tipoPessoa;
   String documento;
-
   Contato contato;
 
   Timestamp? createdAt;
@@ -43,7 +41,7 @@ class Cliente {
   Map<String, dynamic> toMap() {
     return {
       'nome': nome.trim(),
-      'tipo_pessoa': tipoPessoa.valor,
+      'tipo_pessoa': tipoPessoa.value,
       'documento': documento,
       ...contato.toMap(),
     };
@@ -57,7 +55,7 @@ class Cliente {
     return Cliente(
       id: doc.id,
       nome: (data['nome'] ?? '').toString().trim(),
-      tipoPessoa: TipoPessoa.de(data['tipo_pessoa']?.toString()),
+      tipoPessoa: PersonType.de(data['tipo_pessoa']?.toString()),
       documento: (data['documento'] ?? '').toString(),
       contato: Contato.fromMap(data),
       createdAt: _ts(data['created_at']),
