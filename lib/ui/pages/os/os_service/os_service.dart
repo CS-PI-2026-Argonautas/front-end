@@ -120,21 +120,20 @@ class _OsServicosTabState extends State<OsServicosTab> {
       ),
       builder: (context) {
         return SelectionBottomSheet<Map<String, dynamic>>(
-          titulo: 'Selecionar serviço',
-          itens: _servicosDisponiveis,
-          textoBusca: 'Procurar serviço',
-          textoAcao: 'Novo serviço',
-          tituloItem: (servico) {
+          title: 'Selecionar serviço',
+          items: _servicosDisponiveis,
+          searchText: 'Procurar serviço',
+          actionText: 'Novo serviço',
+          itemTitle: (servico) {
             return servico['nome'].toString();
           },
-          subtituloItem: (servico) {
+          itemSubtitle: (servico) {
             final double preco = (servico['preco'] as double? ?? 0.0);
             return 'R\$ ${preco.toStringAsFixed(2).replaceAll('.', ',')}';
           },
-          iconeItem: Icons.build_outlined,
-          carregando: _carregandoServicos,
-
-          onAcao: () async {
+          itemIcon: Icons.build_outlined,
+          loading: _carregandoServicos,
+          onAction: () async {
             Navigator.pop(context);
 
             final dadosNovos = await Navigator.push(
@@ -157,7 +156,7 @@ class _OsServicosTabState extends State<OsServicosTab> {
               await _carregarServicosDoBanco();
             }
           },
-          onSelecionar: (servico) {
+          onSelect: (servico) {
             _adicionarServico(servico);
             Navigator.pop(context);
           },

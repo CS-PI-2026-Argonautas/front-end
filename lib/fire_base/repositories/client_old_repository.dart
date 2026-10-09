@@ -1,9 +1,9 @@
-import 'package:frontend/fire_base/models/cliente.dart';
+import 'package:frontend/fire_base/models/client.dart';
 
 abstract class ClientRepository {
-  Future<List<Cliente>> listarTodos();
+  Future<List<Client>> listarTodos();
 
-  Future<void> salvar(Cliente cliente);
+  Future<void> salvar(Client cliente);
 
   Future<void> deletar(String id);
 }

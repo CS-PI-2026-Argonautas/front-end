@@ -1,6 +1,6 @@
 import 'package:drift/drift.dart';
 import 'package:frontend/fire_base/Enums/StatusOrdemServico.dart';
-import 'package:frontend/fire_base/Enums/TiposItens.dart';
+import 'package:frontend/fire_base/Enums/ItemType.dart';
 import 'package:frontend/fire_base/Enums/Turno.dart';
 import 'package:drift_flutter/drift_flutter.dart';
 import 'package:path_provider/path_provider.dart';
@@ -71,7 +71,7 @@ class Peca extends Table {
   IntColumn get id => integer().autoIncrement()();
   TextColumn get nome => text()();
   TextColumn get descricao => text()();
-  TextColumn get tipo => textEnum<TipoProduto>()();
+  TextColumn get tipo => textEnum<ItemType>()();
   RealColumn get valor => real()();
 
   //nullable permite que uma peça exista sem a OS

@@ -1,7 +1,7 @@
 import 'package:drift/drift.dart';
 import 'package:frontend/fire_base/database/database.dart';
 import 'package:frontend/fire_base/Enums/StatusOrdemServico.dart';
-import 'package:frontend/fire_base/Enums/TiposItens.dart';
+import 'package:frontend/fire_base/Enums/ItemType.dart';
 import 'package:frontend/fire_base/Enums/Turno.dart';
 
 Future<void> inserirDadosMock(AppDatabase db) async {
@@ -183,7 +183,7 @@ Future<void> inserirDadosMock(AppDatabase db) async {
           PecaCompanion.insert(
             nome: 'Célula de carga',
             descricao: 'Célula de carga para balança',
-            tipo: TipoProduto.pecas,
+            tipo: ItemType.parts,
             valor: 250.00,
             ordemServicoId: Value(ordem1),
           ),
@@ -195,7 +195,7 @@ Future<void> inserirDadosMock(AppDatabase db) async {
           PecaCompanion.insert(
             nome: 'Placa eletrônica',
             descricao: 'Placa eletrônica para balança',
-            tipo: TipoProduto.pecas,
+            tipo: ItemType.balances,
             valor: 450.00,
             ordemServicoId: Value(ordem2),
           ),

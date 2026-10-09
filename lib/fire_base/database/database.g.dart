@@ -3189,14 +3189,14 @@ class $PecaTable extends Peca with TableInfo<$PecaTable, PecaData> {
     requiredDuringInsert: true,
   );
   @override
-  late final GeneratedColumnWithTypeConverter<TipoProduto, String> tipo =
+  late final GeneratedColumnWithTypeConverter<ItemType, String> tipo =
       GeneratedColumn<String>(
         'tipo',
         aliasedName,
         false,
         type: DriftSqlType.string,
         requiredDuringInsert: true,
-      ).withConverter<TipoProduto>($PecaTable.$convertertipo);
+      ).withConverter<ItemType>($PecaTable.$convertertipo);
   static const VerificationMeta _valorMeta = const VerificationMeta('valor');
   @override
   late final GeneratedColumn<double> valor = GeneratedColumn<double>(
@@ -3320,15 +3320,15 @@ class $PecaTable extends Peca with TableInfo<$PecaTable, PecaData> {
     return $PecaTable(attachedDatabase, alias);
   }
 
-  static JsonTypeConverter2<TipoProduto, String, String> $convertertipo =
-      const EnumNameConverter<TipoProduto>(TipoProduto.values);
+  static JsonTypeConverter2<ItemType, String, String> $convertertipo =
+      const EnumNameConverter<ItemType>(ItemType.values);
 }
 
 class PecaData extends DataClass implements Insertable<PecaData> {
   final int id;
   final String nome;
   final String descricao;
-  final TipoProduto tipo;
+  final ItemType tipo;
   final double valor;
   final int? ordemServicoId;
   const PecaData({
@@ -7230,7 +7230,7 @@ class $$PecaTableAnnotationComposer
   GeneratedColumn<String> get descricao =>
       $composableBuilder(column: $table.descricao, builder: (column) => column);
 
-  GeneratedColumnWithTypeConverter<TipoProduto, String> get tipo =>
+  GeneratedColumnWithTypeConverter<ItemType, String> get tipo =>
       $composableBuilder(column: $table.tipo, builder: (column) => column);
 
   GeneratedColumn<double> get valor =>
@@ -7291,7 +7291,7 @@ class $$PecaTableTableManager
                 Value<int> id = const Value.absent(),
                 Value<String> nome = const Value.absent(),
                 Value<String> descricao = const Value.absent(),
-                Value<TipoProduto> tipo = const Value.absent(),
+                Value<ItemType> tipo = const Value.absent(),
                 Value<double> valor = const Value.absent(),
                 Value<int?> ordemServicoId = const Value.absent(),
               }) => PecaCompanion(
@@ -7307,7 +7307,7 @@ class $$PecaTableTableManager
                 Value<int> id = const Value.absent(),
                 required String nome,
                 required String descricao,
-                required TipoProduto tipo,
+                required ItemType tipo,
                 required double valor,
                 Value<int?> ordemServicoId = const Value.absent(),
               }) => PecaCompanion.insert(

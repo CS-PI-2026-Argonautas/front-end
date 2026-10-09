@@ -1,6 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:uuid/uuid.dart';
-import 'package:frontend/fire_base/Enums/TiposItens.dart';
+import 'package:frontend/fire_base/Enums/ItemType.dart';
 import 'package:frontend/fire_base/models/item.dart';
 
 class ItemRepository {
@@ -88,10 +88,10 @@ class ItemRepository {
 
   String _typeToFirestore(Item item) {
     switch (item.type) {
-      case TipoProduto.pecas:
+      case ItemType.parts:
         return 'PECAS';
 
-      case TipoProduto.balancas:
+      case ItemType.balances:
         return 'BALANCAS';
     }
   }

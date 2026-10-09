@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:frontend/fire_base/models/cliente.dart';
-import 'package:frontend/fire_base/models/endereco.dart';
-import 'package:frontend/fire_base/Enums/TipoPessoa.dart';
-import 'package:frontend/fire_base/models/contato.dart';
+import 'package:frontend/fire_base/models/client.dart';
+import 'package:frontend/fire_base/models/address.dart';
+import 'package:frontend/fire_base/Enums/PersonType.dart';
+import 'package:frontend/fire_base/models/contact.dart';
 import 'package:frontend/fire_base/services/cliente_service.dart';
 import 'package:frontend/ui/pages/person_registration/person_registration_contact.dart';
 import 'package:frontend/ui/style/ColorScheme.dart' as custom_colors;
@@ -31,12 +31,12 @@ class _PersonRegistrationState1 extends State<PersonRegistration> {
   bool _isPessoaFisica = false;
   final colors = custom_colors.colorScheme;
 
-  final List<Endereco> _enderecos = [];
+  final List<Address> _enderecos = [];
 
-  Contato? _contato;
+  Contact? _contato;
 
-  TipoPessoa get _tipoPessoa =>
-      _isPessoaFisica ? TipoPessoa.fisica : TipoPessoa.juridica;
+  PersonType get _tipoPessoa =>
+      _isPessoaFisica ? PersonType.physical : PersonType.legal;
 
   final _cpfFormatter = MaskTextInputFormatter(
     mask: '###.###.###-##',
@@ -106,16 +106,16 @@ class _PersonRegistrationState1 extends State<PersonRegistration> {
             },
           ),
 
-         SelectionField<Endereco>(
+         SelectionField<Address>(
            label: 'Endereço',
              iconeLabel: Icons.home_outlined,
             itens: _enderecos,
             tituloItem: (endereco) =>
-                '${endereco.logradouro}, ${endereco.numero} - ${endereco.cidade}/${endereco.uf.name}',
+                '${endereco.publicPlace}, ${endereco.number} - ${endereco.city}/${endereco.uf.name}',
             textoVazio: 'Nenhum endereço adicionado.',
             permitirExclusao: true,
             onPressed: () async {
-              final novoEndereco = await Navigator.push<Endereco>(
+              final novoEndereco = await Navigator.push<Address>(
                 context,
                 MaterialPageRoute(
                   builder: (context) => const PersonRegistrationAddress(),
@@ -129,7 +129,7 @@ class _PersonRegistrationState1 extends State<PersonRegistration> {
               }
             },
             onEdit: (endereco, index) async {
-              final enderecoEditado = await Navigator.push<Endereco>(
+              final enderecoEditado = await Navigator.push<Address>(
                 context,
                 MaterialPageRoute(
                   builder: (context) =>
@@ -181,7 +181,7 @@ class _PersonRegistrationState1 extends State<PersonRegistration> {
                   size: 26,
                 ),
                 onPressed: () async {
-                  final resultadoContato = await Navigator.push<Contato>(
+                  final resultadoContato = await Navigator.push<Contact>(
                     context,
                     MaterialPageRoute(
                       builder: (context) =>
@@ -288,11 +288,11 @@ class _PersonRegistrationState1 extends State<PersonRegistration> {
 
     setState(() => _salvando = true);
 
-    final cliente = Cliente(
-      nome: _nomeController.text.trim(),
-      tipoPessoa: _tipoPessoa,
-      documento: _documentoController.text,
-      contato: contato,
+    final cliente = Client(
+      name: _nomeController.text.trim(),
+      personType: _tipoPessoa,
+      document: _documentoController.text,
+      contact: contato,
     );
 
     try {
@@ -303,8 +303,8 @@ class _PersonRegistrationState1 extends State<PersonRegistration> {
       if (widget.retornarDadosAoFechar) {
         Navigator.pop(context, {
           'id': cliente.id,
-          'nome': cliente.nome,
-          'telefone': cliente.contato.telefone,
+          'nome': cliente.name,
+          'telefone': cliente.contact.phone,
         });
       } else {
         Navigator.pushAndRemoveUntil(

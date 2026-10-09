@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:frontend/fire_base/Enums/Uf.dart';
-import 'package:frontend/fire_base/models/endereco.dart';
+import 'package:frontend/fire_base/models/address.dart';
 import 'package:frontend/fire_base/services/person_registration/uppercaser.dart';
 import 'package:frontend/ui/style/ColorScheme.dart' as custom_colors;
 import 'package:frontend/ui/style/inputDecorationStyles.dart';
@@ -35,7 +35,7 @@ class CepInputFormatter extends TextInputFormatter {
 }
 
 class PersonRegistrationAddress extends StatefulWidget {
-  final Endereco? enderecoInicial;
+  final Address? enderecoInicial;
   final String titulo;
 
   const PersonRegistrationAddress({
@@ -72,11 +72,11 @@ class _PersonRegistration2State extends State<PersonRegistrationAddress> {
       return;
     }
 
-    _cepController.text = endereco.cep;
-    _ruaController.text = endereco.logradouro; 
-    _complementoController.text = endereco.complemento;
-    _cidadeController.text = endereco.cidade;
-    _numeroController.text = endereco.numero;
+    _cepController.text = endereco.zipCode;
+    _ruaController.text = endereco.publicPlace; 
+    _complementoController.text = endereco.complement;
+    _cidadeController.text = endereco.city;
+    _numeroController.text = endereco.number;
     _ufController.text = endereco.uf.name;
   }
 
@@ -246,13 +246,13 @@ class _PersonRegistration2State extends State<PersonRegistrationAddress> {
 
               final uf = Uf.values.firstWhere((u) => u.name == ufTexto);
 
-              final endereco = Endereco(
+              final endereco = Address(
                 id: widget.enderecoInicial?.id,
-                cep: cep,
-                logradouro: rua,
-                complemento: complemento,
-                cidade: cidade,
-                numero: numero,
+                zipCode: cep,
+                publicPlace: rua,
+                complement: complemento,
+                city: cidade,
+                number: numero,
                 uf: uf,
               );
 

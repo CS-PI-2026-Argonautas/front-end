@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:frontend/fire_base/Enums/TipoPessoa.dart';
-import 'package:frontend/fire_base/models/cliente.dart';
-import 'package:frontend/fire_base/models/contato.dart';
-import 'package:frontend/fire_base/models/endereco.dart';
+import 'package:frontend/fire_base/Enums/PersonType.dart';
+import 'package:frontend/fire_base/models/client.dart';
+import 'package:frontend/fire_base/models/contact.dart';
+import 'package:frontend/fire_base/models/address.dart';
 import 'package:frontend/fire_base/services/cliente_service.dart';
 import 'package:frontend/fire_base/services/endereco_service.dart';
 import 'package:frontend/ui/pages/person_alteration/person_alteration_address.dart';
@@ -19,7 +19,7 @@ import 'package:frontend/ui/widgets/show_dialog/show_duplicate_document_dialog.d
 import 'package:mask_text_input_formatter/mask_text_input_formatter.dart';
 
 class PersonAlteration extends StatefulWidget {
-  final Cliente cliente;
+  final Client cliente;
 
   const PersonAlteration({super.key, required this.cliente});
 
@@ -34,9 +34,9 @@ class _PersonAlterationState extends State<PersonAlteration> {
   final EnderecoService _enderecoService = EnderecoService(); 
 
   late bool _isPessoaFisica;
-  late Contato _contato; 
-  List<Endereco> _originais = [];
-  final List<Endereco> _enderecos = [];
+  late Contact _contato; 
+  List<Address> _originais = [];
+  final List<Address> _enderecos = [];
   bool _carregandoEnderecos = true;
   bool _enderecosCarregados = false;
 
@@ -47,8 +47,8 @@ class _PersonAlterationState extends State<PersonAlteration> {
 
   bool _salvando = false;
 
-  TipoPessoa get _tipoPessoa =>
-      _isPessoaFisica ? TipoPessoa.fisica : TipoPessoa.juridica;
+  PersonType get _tipoPessoa =>
+      _isPessoaFisica ? PersonType.physical : PersonType.legal;
 
   @override
   void initState() {
@@ -56,21 +56,21 @@ class _PersonAlterationState extends State<PersonAlteration> {
 
     final cliente = widget.cliente;
 
-    _isPessoaFisica = cliente.tipoPessoa == TipoPessoa.fisica;
-    _contato = cliente.contato;
+    _isPessoaFisica = cliente.personType == PersonType.physical;
+    _contato = cliente.contact;
 
     _cpfFormatter = MaskTextInputFormatter(
       mask: '###.###.###-##',
       filter: {"#": RegExp(r'[0-9]')},
-      initialText: _isPessoaFisica ? cliente.documento : '',
+      initialText: _isPessoaFisica ? cliente.document : '',
     );
     _cnpjFormatter = MaskTextInputFormatter(
       mask: '##.###.###/####-##',
       filter: {"#": RegExp(r'[0-9]')},
-      initialText: _isPessoaFisica ? '' : cliente.documento,
+      initialText: _isPessoaFisica ? '' : cliente.document,
     );
 
-    _nomeController = TextEditingController(text: cliente.nome);
+    _nomeController = TextEditingController(text: cliente.name);
     _documentoController = TextEditingController(
       text: (_isPessoaFisica ? _cpfFormatter : _cnpjFormatter).getMaskedText(),
     );
@@ -85,7 +85,7 @@ class _PersonAlterationState extends State<PersonAlteration> {
       if (!mounted) return;
 
       setState(() {
-        _originais = List<Endereco>.of(lista);
+        _originais = List<Address>.of(lista);
         _enderecos
           ..clear()
           ..addAll(lista);
@@ -168,7 +168,7 @@ class _PersonAlterationState extends State<PersonAlteration> {
           else
             EnderecosEditor(
               enderecos: _enderecos,
-              abrirFormulario: (inicial) => Navigator.push<Endereco>(
+              abrirFormulario: (inicial) => Navigator.push<Address>(
                 context,
                 MaterialPageRoute(
                   builder: (context) =>
@@ -195,7 +195,7 @@ class _PersonAlterationState extends State<PersonAlteration> {
                   size: 26,
                 ),
                 onPressed: () async {
-                  final resultadoContato = await Navigator.push<Contato>(
+                  final resultadoContato = await Navigator.push<Contact>(
                     context,
                     MaterialPageRoute(
                       builder: (context) =>
@@ -217,7 +217,7 @@ class _PersonAlterationState extends State<PersonAlteration> {
             key: ValueKey('contato_${_contato.resumo}'),
             initialValue: _contato.resumo,
             validator: (value) {
-              if (_contato.telefone.trim().isEmpty) {
+              if (_contato.phone.trim().isEmpty) {
                 return 'Informe as informações de contato';
               }
               return null;
@@ -312,17 +312,17 @@ class _PersonAlterationState extends State<PersonAlteration> {
 
     final original = widget.cliente;
 
-    final atualizado = Cliente(
+    final atualizado = Client(
       id: original.id,
-      nome: _nomeController.text.trim(),
-      tipoPessoa: _tipoPessoa,
-      documento: _documentoController.text,
-      contato: _contato,
+      name: _nomeController.text.trim(),
+      personType: _tipoPessoa,
+      document: _documentoController.text,
+      contact: _contato,
     );
 
     try {
       final duplicado = await _service.buscarDuplicado(
-        atualizado.documento,
+        atualizado.document,
         ignorarId: original.id,
       );
 
@@ -333,7 +333,7 @@ class _PersonAlterationState extends State<PersonAlteration> {
             await showDialog<bool>(
               context: context,
               builder: (_) => ShowDuplicateDocumentDialog(
-                nomeCliente: duplicado.nome,
+                nomeCliente: duplicado.name,
                 tipo: _tipoPessoa,
               ),
             ) ??

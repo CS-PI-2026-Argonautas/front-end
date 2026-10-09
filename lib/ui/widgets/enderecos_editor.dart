@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:frontend/fire_base/models/endereco.dart';
+import 'package:frontend/fire_base/models/address.dart';
 import 'package:frontend/ui/style/ColorScheme.dart' as custom_colors;
 import 'package:frontend/ui/widgets/form_field_label.dart';
 import 'package:frontend/ui/widgets/show_dialog/show_delete_client_dialog.dart';
@@ -8,9 +8,9 @@ import 'package:frontend/ui/widgets/slidable/slidable_delete_card.dart';
 import 'package:frontend/utils/data_os/address_formatter.dart';
 
 class EnderecosEditor extends StatefulWidget {
-  final List<Endereco> enderecos;
+  final List<Address> enderecos;
 
-  final Future<Endereco?> Function(Endereco? inicial) abrirFormulario;
+  final Future<Address?> Function(Address? inicial) abrirFormulario;
 
   const EnderecosEditor({
     super.key,

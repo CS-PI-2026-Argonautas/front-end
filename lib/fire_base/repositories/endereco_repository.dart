@@ -2,7 +2,7 @@ import 'dart:async';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/foundation.dart';
 import 'package:frontend/fire_base/firestore_paths.dart';
-import 'package:frontend/fire_base/models/endereco.dart';
+import 'package:frontend/fire_base/models/address.dart';
 import 'package:frontend/fire_base/repositories/leitura_firestore.dart'; 
 
 class EnderecoRepository {
@@ -25,23 +25,23 @@ class EnderecoRepository {
     debugPrint('Firestore (endereco/$operacao): $erro');
   }
 
-  Future<List<Endereco>> listar(String clienteId) async {
+  Future<List<Address>> listar(String clienteId) async {
     final snapshot = await lerComFallback(_col(clienteId));
 
     final lista = snapshot.docs
-        .map(Endereco.fromFirestore)
+        .map(Address.fromFirestore)
         .where((e) => e.ativo)
         .toList();
 
     lista.sort(
       (a, b) =>
-          a.logradouro.toLowerCase().compareTo(b.logradouro.toLowerCase()),
+          a.publicPlace.toLowerCase().compareTo(b.publicPlace.toLowerCase()),
     );
 
     return lista;
   }
 
-  Future<void> salvar(String clienteId, Endereco endereco) async {
+  Future<void> salvar(String clienteId, Address endereco) async {
     final agora = FieldValue.serverTimestamp();
 
     unawaited(
@@ -57,7 +57,7 @@ class EnderecoRepository {
     );
   }
 
-  Future<void> atualizar(String clienteId, Endereco endereco) async {
+  Future<void> atualizar(String clienteId, Address endereco) async {
     unawaited(
       _col(clienteId)
           .doc(endereco.id)

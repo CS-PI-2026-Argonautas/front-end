@@ -25,7 +25,7 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       title: 'Bernadelli Balanças',
       debugShowCheckedModeBanner: false,
-      home: const EquipamentData(),
+      home: const EquipmentData(),
       theme: ThemeData(
         colorScheme: ColorScheme.fromSeed(
           seedColor: const Color.fromARGB(255, 64, 126, 207),
