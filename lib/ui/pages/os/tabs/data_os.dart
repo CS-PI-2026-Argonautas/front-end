@@ -199,55 +199,60 @@ class _DataOsState extends State<DataOs> {
       setState(() => _equipamentoSelecionado = resultado);
     }
   }
+Future<void> _buscarEquipamento() async {
+  final List<Equipamento> equipamentos;
 
-  Future<void> _buscarEquipamento() async {
-    final List<Equipamento> equipamentos;
-
-    try {
-      equipamentos = await _equipamentoService.listar();
-    } catch (e) {
-      if (!mounted) return;
-      _mostrarErro('Não foi possível carregar os equipamentos.');
-      return;
-    }
-
+  try {
+    equipamentos = await _equipamentoService.listar();
+  } catch (e) {
     if (!mounted) return;
 
-    showModalBottomSheet(
-      context: context,
-      backgroundColor: colors.surface,
-      isScrollControlled: true,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
-      ),
-      builder: (context) {
-        return SelectionBottomSheet<Equipamento>(
-          titulo: 'Selecionar equipamento',
-          itens: equipamentos,
-          textoBusca: 'Procurar equipamento',
-          textoAcao: 'Novo equipamento',
-          tituloItem: (e) => '${e.marca} ${e.modelo}',
-          subtituloItem: (e) => 'Nº série ${e.numeroSerie}',
-          iconeItem: Icons.scale_outlined,
-          carregando: false,
-          onAcao: () {
-            Navigator.pop(context);
-            _abrirCadastroEquipamento();
-          },
-          onSelecionar: (e) {
-            setState(() {
-              _equipamentoSelecionado = {
-                'id': e.id,
-                'marca': e.marca,
-                'modelo': e.modelo,
-              };
-            });
-            Navigator.pop(context);
-          },
-        );
-      },
-    );
+    _mostrarErro('Não foi possível carregar os equipamentos.');
+    return;
   }
+
+  if (!mounted) return;
+
+  showModalBottomSheet(
+    context: context,
+    backgroundColor: colors.surface,
+    isScrollControlled: true,
+    shape: const RoundedRectangleBorder(
+      borderRadius: BorderRadius.vertical(
+        top: Radius.circular(24),
+      ),
+    ),
+    builder: (sheetContext) {
+      return SelectionBottomSheet<Equipamento>(
+        title: 'Selecionar equipamento',
+        items: equipamentos,
+        searchText: 'Procurar equipamento',
+        actionText: 'Novo equipamento',
+        itemTitle: (e) => '${e.marca} ${e.modelo}',
+        itemSubtitle: (e) => 'Nº série ${e.numeroSerie}',
+        itemIcon: Icons.scale_outlined,
+        loading: false,
+
+        onAction: () {
+          Navigator.pop(sheetContext);
+          _abrirCadastroEquipamento();
+        },
+
+        onSelect: (e) {
+          setState(() {
+            _equipamentoSelecionado = {
+              'id': e.id,
+              'marca': e.marca,
+              'modelo': e.modelo,
+            };
+          });
+
+          Navigator.pop(sheetContext);
+        },
+      );
+    },
+  );
+}
 
   String _formatDate(DateTime? date) {
     if (date == null) return 'Indefinida';

@@ -110,61 +110,73 @@ class _OsServicosTabState extends State<OsServicosTab> {
     });
   }
 
-  void _abrirListaServicos() {
-    showModalBottomSheet(
-      context: context,
-      backgroundColor: colors.surface,
-      isScrollControlled: true,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+void _abrirListaServicos() {
+  showModalBottomSheet(
+    context: context,
+    backgroundColor: colors.surface,
+    isScrollControlled: true,
+    shape: const RoundedRectangleBorder(
+      borderRadius: BorderRadius.vertical(
+        top: Radius.circular(24),
       ),
-      builder: (context) {
-        return SelectionBottomSheet<Map<String, dynamic>>(
-          titulo: 'Selecionar serviço',
-          itens: _servicosDisponiveis,
-          textoBusca: 'Procurar serviço',
-          textoAcao: 'Novo serviço',
-          tituloItem: (servico) {
-            return servico['nome'].toString();
-          },
-          subtituloItem: (servico) {
-            final double preco = (servico['preco'] as double? ?? 0.0);
-            return 'R\$ ${preco.toStringAsFixed(2).replaceAll('.', ',')}';
-          },
-          iconeItem: Icons.build_outlined,
-          carregando: _carregandoServicos,
+    ),
+    builder: (sheetContext) {
+      return SelectionBottomSheet<Map<String, dynamic>>(
+        title: 'Selecionar serviço',
+        items: _servicosDisponiveis,
+        searchText: 'Procurar serviço',
+        actionText: 'Novo serviço',
 
-          onAcao: () async {
-            Navigator.pop(context);
+        itemTitle: (servico) {
+          return servico['nome'].toString();
+        },
 
-            final dadosNovos = await Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (context) => const ServiceRegistration(),
-              ),
-            );
+        itemSubtitle: (servico) {
+          final double preco =
+              (servico['preco'] as double? ?? 0.0);
 
-            if (dadosNovos != null) {
-              final novoServicoFormatado = {
-                'id': 'novo_${DateTime.now().millisecondsSinceEpoch}',
-                'nome': dadosNovos['nome'],
-                'descricao': dadosNovos['descricao'],
-                'preco': (dadosNovos['valor'] as int) / 100,
-              };
+          return 'R\\${preco.toStringAsFixed(2).replaceAll('.', ',')}';
+        },
 
-              _adicionarServico(novoServicoFormatado);
+        itemIcon: Icons.build_outlined,
+        loading: _carregandoServicos,
 
-              await _carregarServicosDoBanco();
-            }
-          },
-          onSelecionar: (servico) {
-            _adicionarServico(servico);
-            Navigator.pop(context);
-          },
-        );
-      },
-    );
-  }
+        onAction: () async {
+          Navigator.pop(sheetContext);
+
+          final dadosNovos = await Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) =>
+                  const ServiceRegistration(),
+            ),
+          );
+
+          if (!mounted || dadosNovos == null) {
+            return;
+          }
+
+          final novoServicoFormatado = {
+            'id': 'novo_${DateTime.now().millisecondsSinceEpoch}',
+            'nome': dadosNovos['nome'],
+            'descricao': dadosNovos['descricao'],
+            'preco': (dadosNovos['valor'] as int) / 100,
+          };
+
+          _adicionarServico(novoServicoFormatado);
+
+          await _carregarServicosDoBanco();
+        },
+
+        onSelect: (servico) {
+          _adicionarServico(servico);
+          Navigator.pop(sheetContext);
+        },
+      );
+    },
+  );
+}
+
 
   @override
   Widget build(BuildContext context) {
