@@ -9,11 +9,10 @@ import 'package:frontend/ui/pages/person_alteration/person_alteration_address.da
 import 'package:frontend/ui/pages/person_alteration/person_alteration_contact.dart';
 import 'package:frontend/ui/style/ColorScheme.dart' as custom_colors;
 import 'package:frontend/ui/style/inputDecorationStyles.dart';
-import 'package:frontend/ui/widgets/action_buttons.dart';
+import 'package:frontend/ui/widgets/form/action_buttons.dart';
 import 'package:frontend/ui/widgets/enderecos_editor.dart';
-import 'package:frontend/ui/widgets/form_card.dart';
-import 'package:frontend/ui/widgets/form_field_label.dart';
-import 'package:frontend/ui/widgets/form_section_tile.dart';
+import 'package:frontend/ui/widgets/form/form_card.dart';
+import 'package:frontend/ui/widgets/form/form_field_label.dart';
 import 'package:frontend/ui/widgets/header.dart';
 import 'package:frontend/ui/widgets/show_dialog/show_duplicate_document_dialog.dart';
 import 'package:mask_text_input_formatter/mask_text_input_formatter.dart';
@@ -141,157 +140,152 @@ class _PersonAlterationState extends State<PersonAlteration> {
   Widget _buildFormCard() {
     return FormCard(
       formKey: _formKey,
-      child: Column(
-        spacing: 18,
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          FormSectionTile(
-            title: "Informações Pessoais",
-            subtitle: "Complete os campos de identificação abaixo.",
-          ),
+      title: "Informações Pessoais",
+      subtitle: "Complete os campos de identificação abaixo.",
+      fieldSpacing: 18,
+      autovalidateMode: AutovalidateMode.disabled,
+      children: [
+        FormFieldLabel(icon: Icons.person_outline, label: "Nome completo *"),
 
-          FormFieldLabel(icon: Icons.person_outline, label: "Nome completo *"),
+        TextFormField(
+          controller: _nomeController,
+          decoration: customInputDecoration(hintText: "Digite o nome aqui"),
+          validator: (value) {
+            if (value == null || value.trim().isEmpty) {
+              return 'Informe o nome';
+            }
+            return null;
+          },
+        ),
 
-          TextFormField(
-            controller: _nomeController,
-            decoration: customInputDecoration(hintText: "Digite o nome aqui"),
-            validator: (value) {
-              if (value == null || value.trim().isEmpty) {
-                return 'Informe o nome';
-              }
-              return null;
-            },
-          ),
-
-          if (_carregandoEnderecos)
-            const Center(child: CircularProgressIndicator())
-          else
-            EnderecosEditor(
-              enderecos: _enderecos,
-              abrirFormulario: (inicial) => Navigator.push<Endereco>(
-                context,
-                MaterialPageRoute(
-                  builder: (context) =>
-                      PersonAlterationAddress(enderecoInicial: inicial),
-                ),
+        if (_carregandoEnderecos)
+          const Center(child: CircularProgressIndicator())
+        else
+          EnderecosEditor(
+            enderecos: _enderecos,
+            abrirFormulario: (inicial) => Navigator.push<Endereco>(
+              context,
+              MaterialPageRoute(
+                builder: (context) =>
+                    PersonAlterationAddress(enderecoInicial: inicial),
               ),
             ),
-
-          Row(
-            spacing: 6,
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              const FormFieldLabel(
-                icon: Icons.phone_android_outlined,
-                label: "Informações de contato",
-              ),
-
-              IconButton(
-                padding: EdgeInsets.zero,
-                constraints: const BoxConstraints(),
-                icon: Icon(
-                  Icons.add_box_rounded,
-                  color: colors.secondary,
-                  size: 26,
-                ),
-                onPressed: () async {
-                  final resultadoContato = await Navigator.push<Contato>(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) =>
-                          PersonAlterationContact(contatoInicial: _contato),
-                    ),
-                  );
-
-                  if (resultadoContato != null && mounted) {
-                    setState(() {
-                      _contato = resultadoContato;
-                    });
-                  }
-                },
-              ),
-            ],
           ),
 
-          FormField<String>(
-            key: ValueKey('contato_${_contato.resumo}'),
-            initialValue: _contato.resumo,
-            validator: (value) {
-              if (_contato.telefone.trim().isEmpty) {
-                return 'Informe as informações de contato';
-              }
-              return null;
-            },
-            builder: (FormFieldState<String> state) {
-              final vazio = _contato.resumo.isEmpty;
+        Row(
+          spacing: 6,
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            const FormFieldLabel(
+              icon: Icons.phone_android_outlined,
+              label: "Informações de contato",
+            ),
 
-              return InputDecorator(
-                decoration: customInputDecoration(
-                  hintText: vazio ? "Inserir contato" : null,
-                ).copyWith(errorText: state.errorText),
-                child: Text(
-                  vazio ? "Inserir contato" : _contato.resumo,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: TextStyle(
-                    fontSize: 16,
-                    color: vazio
-                        ? colors.onSurfaceVariant.withValues(alpha: 0.6)
-                        : colors.onSurface,
+            IconButton(
+              padding: EdgeInsets.zero,
+              constraints: const BoxConstraints(),
+              icon: Icon(
+                Icons.add_box_rounded,
+                color: colors.secondary,
+                size: 26,
+              ),
+              onPressed: () async {
+                final resultadoContato = await Navigator.push<Contato>(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) =>
+                        PersonAlterationContact(contatoInicial: _contato),
                   ),
+                );
+
+                if (resultadoContato != null && mounted) {
+                  setState(() {
+                    _contato = resultadoContato;
+                  });
+                }
+              },
+            ),
+          ],
+        ),
+
+        FormField<String>(
+          key: ValueKey('contato_${_contato.resumo}'),
+          initialValue: _contato.resumo,
+          validator: (value) {
+            if (_contato.telefone.trim().isEmpty) {
+              return 'Informe as informações de contato';
+            }
+            return null;
+          },
+          builder: (FormFieldState<String> state) {
+            final vazio = _contato.resumo.isEmpty;
+
+            return InputDecorator(
+              decoration: customInputDecoration(
+                hintText: vazio ? "Inserir contato" : null,
+              ).copyWith(errorText: state.errorText),
+              child: Text(
+                vazio ? "Inserir contato" : _contato.resumo,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: TextStyle(
+                  fontSize: 16,
+                  color: vazio
+                      ? colors.onSurfaceVariant.withValues(alpha: 0.6)
+                      : colors.onSurface,
                 ),
-              );
-            },
-          ),
-
-          FormFieldLabel(
-            icon: Icons.badge_outlined,
-            label: _isPessoaFisica ? "CPF *" : "CNPJ *",
-          ),
-
-          TextFormField(
-            key: ValueKey(_isPessoaFisica),
-            controller: _documentoController,
-            decoration: customInputDecoration(
-              hintText: _isPessoaFisica
-                  ? "000.000.000-00"
-                  : "00.000.000/0000-00",
-            ),
-            keyboardType: TextInputType.number,
-            inputFormatters: [_isPessoaFisica ? _cpfFormatter : _cnpjFormatter],
-            validator: (value) =>
-                ClienteService.validarDocumento(value ?? '', _tipoPessoa),
-          ),
-
-          CheckboxListTile(
-            value: _isPessoaFisica,
-            onChanged: (value) => setState(() {
-              _isPessoaFisica = value ?? false;
-              _documentoController.clear();
-              _cpfFormatter.clear();
-              _cnpjFormatter.clear();
-            }),
-            activeColor: colors.secondary,
-            contentPadding: EdgeInsets.zero,
-            controlAffinity: ListTileControlAffinity.leading,
-            title: Text(
-              "Pessoa física?",
-              style: TextStyle(
-                color: colors.onSurface,
-                fontWeight: FontWeight.w500,
               ),
+            );
+          },
+        ),
+
+        FormFieldLabel(
+          icon: Icons.badge_outlined,
+          label: _isPessoaFisica ? "CPF *" : "CNPJ *",
+        ),
+
+        TextFormField(
+          key: ValueKey(_isPessoaFisica),
+          controller: _documentoController,
+          decoration: customInputDecoration(
+            hintText: _isPessoaFisica
+                ? "000.000.000-00"
+                : "00.000.000/0000-00",
+          ),
+          keyboardType: TextInputType.number,
+          inputFormatters: [_isPessoaFisica ? _cpfFormatter : _cnpjFormatter],
+          validator: (value) =>
+              ClienteService.validarDocumento(value ?? '', _tipoPessoa),
+        ),
+
+        CheckboxListTile(
+          value: _isPessoaFisica,
+          onChanged: (value) => setState(() {
+            _isPessoaFisica = value ?? false;
+            _documentoController.clear();
+            _cpfFormatter.clear();
+            _cnpjFormatter.clear();
+          }),
+          activeColor: colors.secondary,
+          contentPadding: EdgeInsets.zero,
+          controlAffinity: ListTileControlAffinity.leading,
+          title: Text(
+            "Pessoa física?",
+            style: TextStyle(
+              color: colors.onSurface,
+              fontWeight: FontWeight.w500,
             ),
           ),
+        ),
 
-          ActionButtons(
-            formKey: _formKey,
-            colors: colors,
-            textoConfirmar: 'Salvar',
-            onCancel: () => Navigator.pop(context),
-            onCadastrar: _salvar,
-          ),
-        ],
-      ),
+        ActionButtons(
+          formKey: _formKey,
+          colors: colors,
+          textoConfirmar: 'Salvar',
+          onCancel: () => Navigator.pop(context),
+          onCadastrar: _salvar,
+        ),
+      ],
     );
   }
 

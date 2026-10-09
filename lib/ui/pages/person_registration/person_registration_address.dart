@@ -4,10 +4,9 @@ import 'package:frontend/fire_base/models/endereco.dart';
 import 'package:frontend/fire_base/services/person_registration/uppercaser.dart';
 import 'package:frontend/ui/style/ColorScheme.dart' as custom_colors;
 import 'package:frontend/ui/style/inputDecorationStyles.dart';
-import 'package:frontend/ui/widgets/action_buttons.dart';
-import 'package:frontend/ui/widgets/form_card.dart';
-import 'package:frontend/ui/widgets/form_field_label.dart';
-import 'package:frontend/ui/widgets/form_section_tile.dart';
+import 'package:frontend/ui/widgets/form/action_buttons.dart';
+import 'package:frontend/ui/widgets/form/form_card.dart';
+import 'package:frontend/ui/widgets/form/form_field_label.dart';
 import 'package:frontend/ui/widgets/header.dart';
 import 'package:flutter/services.dart';
 
@@ -107,160 +106,155 @@ class _PersonRegistration2State extends State<PersonRegistrationAddress> {
   Widget _buildFormCard() {
     return FormCard(
       formKey: _formKey,
-      child: Column(
-        spacing: 18,
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          FormSectionTile(
-            title: "Localização",
-            subtitle: "Campos obrigatórios estão marcados com *",
-          ),
+      title: "Localização",
+      subtitle: "Campos obrigatórios estão marcados com *",
+      fieldSpacing: 18,
+      autovalidateMode: AutovalidateMode.disabled,
+      children: [
+        FormFieldLabel(icon: Icons.pin_drop_outlined, label: "CEP *"), 
 
-          FormFieldLabel(icon: Icons.pin_drop_outlined, label: "CEP *"), 
+        TextFormField(
+          controller: _cepController,
+          decoration: customInputDecoration(hintText: "12345-678"),
+          keyboardType: TextInputType.number,
+          inputFormatters: [
+            FilteringTextInputFormatter.digitsOnly,
+            CepInputFormatter(),
+          ],
+          validator: (value) {
+            if (value == null || value.isEmpty) {
+              return 'Preencha o CEP';
+            }
+            if (value.length != 9) {
+              return 'CEP inválido';
+            }
+            return null;
+          },
+        ),
 
-          TextFormField(
-            controller: _cepController,
-            decoration: customInputDecoration(hintText: "12345-678"),
-            keyboardType: TextInputType.number,
-            inputFormatters: [
-              FilteringTextInputFormatter.digitsOnly,
-              CepInputFormatter(),
-            ],
-            validator: (value) {
-              if (value == null || value.isEmpty) {
-                return 'Preencha o CEP';
-              }
-              if (value.length != 9) {
-                return 'CEP inválido';
-              }
-              return null;
-            },
-          ),
+        FormFieldLabel(icon: Icons.home_outlined, label: "Logradouro *"),
 
-          FormFieldLabel(icon: Icons.home_outlined, label: "Logradouro *"),
+        TextFormField(
+          controller: _ruaController,
+          decoration: customInputDecoration(hintText: "Av. Brasil"),
+          validator: (value) =>
+              (value == null || value.isEmpty) ? 'Informe a rua' : null,
+        ),
 
-          TextFormField(
-            controller: _ruaController,
-            decoration: customInputDecoration(hintText: "Av. Brasil"),
-            validator: (value) =>
-                (value == null || value.isEmpty) ? 'Informe a rua' : null,
-          ),
+        FormFieldLabel(icon: Icons.apartment_outlined, label: "Complemento"),
 
-          FormFieldLabel(icon: Icons.apartment_outlined, label: "Complemento"),
+        TextFormField(
+          controller: _complementoController,
+          decoration: customInputDecoration(hintText: "Sala 2, fundos..."),
+        ),
 
-          TextFormField(
-            controller: _complementoController,
-            decoration: customInputDecoration(hintText: "Sala 2, fundos..."),
-          ),
+        FormFieldLabel(icon: Icons.location_city_outlined, label: "Cidade *"),
 
-          FormFieldLabel(icon: Icons.location_city_outlined, label: "Cidade *"),
+        TextFormField(
+          controller: _cidadeController,
+          decoration: customInputDecoration(hintText: "Paranavaí"),
+          validator: (value) =>
+              (value == null || value.isEmpty) ? 'Informe a cidade' : null,
+        ),
 
-          TextFormField(
-            controller: _cidadeController,
-            decoration: customInputDecoration(hintText: "Paranavaí"),
-            validator: (value) =>
-                (value == null || value.isEmpty) ? 'Informe a cidade' : null,
-          ),
+        Row(
+          spacing: 18,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Expanded(
+              flex: 2,
+              child: Column(
+                spacing: 18,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  FormFieldLabel(
+                    icon: Icons.numbers_outlined,
+                    label: "Número",
+                  ),
 
-          Row(
-            spacing: 18,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Expanded(
-                flex: 2,
-                child: Column(
-                  spacing: 18,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    FormFieldLabel(
-                      icon: Icons.numbers_outlined,
-                      label: "Número",
-                    ),
-
-                    TextFormField(
-                      controller: _numeroController,
-                      decoration: customInputDecoration(hintText: "123"),
-                      keyboardType: TextInputType.number,
-                      inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-                    ),
-                  ],
-                ),
+                  TextFormField(
+                    controller: _numeroController,
+                    decoration: customInputDecoration(hintText: "123"),
+                    keyboardType: TextInputType.number,
+                    inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+                  ),
+                ],
               ),
+            ),
 
-              Expanded(
-                flex: 1,
-                child: Column(
-                  spacing: 18,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    FormFieldLabel(icon: Icons.flag_outlined, label: "UF *"),
+            Expanded(
+              flex: 1,
+              child: Column(
+                spacing: 18,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  FormFieldLabel(icon: Icons.flag_outlined, label: "UF *"),
 
-                    TextFormField(
-                      controller: _ufController,
-                      inputFormatters: [
-                        UpperCaseTextFormatter(),
-                        FilteringTextInputFormatter.allow(RegExp(r'[a-zA-Z]')),
-                        LengthLimitingTextInputFormatter(2),
-                      ],
-                      decoration: customInputDecoration(hintText: "PR"),
-                      textCapitalization: TextCapitalization.characters,
+                  TextFormField(
+                    controller: _ufController,
+                    inputFormatters: [
+                      UpperCaseTextFormatter(),
+                      FilteringTextInputFormatter.allow(RegExp(r'[a-zA-Z]')),
+                      LengthLimitingTextInputFormatter(2),
+                    ],
+                    decoration: customInputDecoration(hintText: "PR"),
+                    textCapitalization: TextCapitalization.characters,
 
-                      validator: (value) {
-                        if (value == null || value.isEmpty) {
-                          return 'Informe a UF';
-                        }
-                        if (!Uf.values.any(
-                          (u) => u.name == value.toUpperCase(),
-                        )) {
-                          return 'UF inválida';
-                        }
-                        return null;
-                      },
-                    ),
-                  ],
-                ),
+                    validator: (value) {
+                      if (value == null || value.isEmpty) {
+                        return 'Informe a UF';
+                      }
+                      if (!Uf.values.any(
+                        (u) => u.name == value.toUpperCase(),
+                      )) {
+                        return 'UF inválida';
+                      }
+                      return null;
+                    },
+                  ),
+                ],
               ),
-            ],
-          ),
+            ),
+          ],
+        ),
 
-          ActionButtons(
-            formKey: _formKey,
-            colors: colors,
-            textoConfirmar: widget.enderecoInicial == null
-                ? 'Cadastrar'
-                : 'Salvar',
-            onCancel: () {
-              Navigator.pop(context);
-            },
-            onCadastrar: () {
-              if (!_formKey.currentState!.validate()) {
-                return;
-              }
+        ActionButtons(
+          formKey: _formKey,
+          colors: colors,
+          textoConfirmar: widget.enderecoInicial == null
+              ? 'Cadastrar'
+              : 'Salvar',
+          onCancel: () {
+            Navigator.pop(context);
+          },
+          onCadastrar: () {
+            if (!_formKey.currentState!.validate()) {
+              return;
+            }
 
-              final cep = _cepController.text.trim();
-              final rua = _ruaController.text.trim();
-              final complemento = _complementoController.text.trim();
-              final cidade = _cidadeController.text.trim();
-              final numero = _numeroController.text.trim();
-              final ufTexto = _ufController.text.trim().toUpperCase();
+            final cep = _cepController.text.trim();
+            final rua = _ruaController.text.trim();
+            final complemento = _complementoController.text.trim();
+            final cidade = _cidadeController.text.trim();
+            final numero = _numeroController.text.trim();
+            final ufTexto = _ufController.text.trim().toUpperCase();
 
-              final uf = Uf.values.firstWhere((u) => u.name == ufTexto);
+            final uf = Uf.values.firstWhere((u) => u.name == ufTexto);
 
-              final endereco = Endereco(
-                id: widget.enderecoInicial?.id,
-                cep: cep,
-                logradouro: rua,
-                complemento: complemento,
-                cidade: cidade,
-                numero: numero,
-                uf: uf,
-              );
+            final endereco = Endereco(
+              id: widget.enderecoInicial?.id,
+              cep: cep,
+              logradouro: rua,
+              complemento: complemento,
+              cidade: cidade,
+              numero: numero,
+              uf: uf,
+            );
 
-              Navigator.pop(context, endereco);
-            },
-          ),
-        ],
-      ),
+            Navigator.pop(context, endereco);
+          },
+        ),
+      ],
     );
   }
 }

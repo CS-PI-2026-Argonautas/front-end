@@ -2,10 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:frontend/fire_base/models/contato.dart'; 
 import 'package:frontend/ui/style/ColorScheme.dart' as custom_colors;
 import 'package:frontend/ui/style/inputDecorationStyles.dart';
-import 'package:frontend/ui/widgets/action_buttons.dart';
-import 'package:frontend/ui/widgets/form_card.dart';
-import 'package:frontend/ui/widgets/form_field_label.dart';
-import 'package:frontend/ui/widgets/form_section_tile.dart';
+import 'package:frontend/ui/widgets/form/action_buttons.dart';
+import 'package:frontend/ui/widgets/form/form_card.dart';
+import 'package:frontend/ui/widgets/form/form_field_label.dart';
 import 'package:frontend/ui/widgets/header.dart';
 import 'package:mask_text_input_formatter/mask_text_input_formatter.dart';
 
@@ -79,101 +78,96 @@ class _PersonRegistration3State extends State<PersonRegistrationContact> {
   Widget _buildFormCard() {
     return FormCard(
       formKey: _formKey,
-      child: Column(
-        spacing: 18,
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          FormSectionTile(
-            title: "Canais de Comunicação",
-            subtitle: "Informe pelo menos um contato principal.",
+      title: "Canais de Comunicação",
+      subtitle: "Informe pelo menos um contato principal.",
+      fieldSpacing: 18,
+      autovalidateMode: AutovalidateMode.disabled,
+      children: [
+        FormFieldLabel(
+          icon: Icons.phone_outlined,
+          label: "Telefone principal *",
+        ),
+
+        TextFormField(
+          controller: _telefoneController,
+          decoration: customInputDecoration(hintText: "(44) 98765-4321"),
+          inputFormatters: [_phoneFormatter],
+          keyboardType: TextInputType.phone,
+          validator: (value) {
+            if (value == null || value.isEmpty) return 'Informe o telefone';
+            if (value.length < 15) return 'Telefone incompleto';
+            return null;
+          },
+        ),
+
+        FormFieldLabel(icon: Icons.email_outlined, label: "Email"), 
+
+        TextFormField(
+          controller: _emailController,
+          decoration: customInputDecoration(hintText: "exemplo@email.com"),
+          keyboardType: TextInputType.emailAddress,
+          validator: (value) {
+            if (value == null || value.trim().isEmpty) return null;
+            final bool emailValid = RegExp(
+              r"^[a-zA-Z0-9.a-zA-Z0-9.!#$%&'*+-/=?^_`{|}~]+@[a-zA-Z0-9]+\.[a-zA-Z]+",
+            ).hasMatch(value);
+            if (!emailValid) return 'Informe um email válido';
+            return null;
+          },
+        ),
+
+        FormFieldLabel(
+          icon: Icons.contact_phone_outlined,
+          label: "Contato adicional",
+        ),
+
+        TextFormField(
+          controller: _contatoAdicionalController,
+          decoration: customInputDecoration(
+            hintText: "Nome ou telefone extra",
           ),
+          maxLength: 50,
+        ),
 
-          FormFieldLabel(
-            icon: Icons.phone_outlined,
-            label: "Telefone principal *",
+        FormFieldLabel(icon: Icons.business_outlined, label: "Setor"),
+
+        TextFormField(
+          controller: _setorController,
+          decoration: customInputDecoration(hintText: "Financeiro, Compras..."),
+          maxLength: 50,
+        ),
+
+        FormFieldLabel(icon: Icons.comment_outlined, label: "Observações"),
+
+        TextFormField(
+          controller: _observacoesController,
+          maxLines: 4,
+          maxLength: 255,
+          keyboardType: TextInputType.multiline,
+          decoration: customInputDecoration(
+            hintText: "Digite observações relevantes aqui...",
           ),
+        ),
 
-          TextFormField(
-            controller: _telefoneController,
-            decoration: customInputDecoration(hintText: "(44) 98765-4321"),
-            inputFormatters: [_phoneFormatter],
-            keyboardType: TextInputType.phone,
-            validator: (value) {
-              if (value == null || value.isEmpty) return 'Informe o telefone';
-              if (value.length < 15) return 'Telefone incompleto';
-              return null;
-            },
-          ),
-
-          FormFieldLabel(icon: Icons.email_outlined, label: "Email"), 
-
-          TextFormField(
-            controller: _emailController,
-            decoration: customInputDecoration(hintText: "exemplo@email.com"),
-            keyboardType: TextInputType.emailAddress,
-            validator: (value) {
-              if (value == null || value.trim().isEmpty) return null;
-              final bool emailValid = RegExp(
-                r"^[a-zA-Z0-9.a-zA-Z0-9.!#$%&'*+-/=?^_`{|}~]+@[a-zA-Z0-9]+\.[a-zA-Z]+",
-              ).hasMatch(value);
-              if (!emailValid) return 'Informe um email válido';
-              return null;
-            },
-          ),
-
-          FormFieldLabel(
-            icon: Icons.contact_phone_outlined,
-            label: "Contato adicional",
-          ),
-
-          TextFormField(
-            controller: _contatoAdicionalController,
-            decoration: customInputDecoration(
-              hintText: "Nome ou telefone extra",
-            ),
-            maxLength: 50,
-          ),
-
-          FormFieldLabel(icon: Icons.business_outlined, label: "Setor"),
-
-          TextFormField(
-            controller: _setorController,
-            decoration: customInputDecoration(hintText: "Financeiro, Compras..."),
-            maxLength: 50,
-          ),
-
-          FormFieldLabel(icon: Icons.comment_outlined, label: "Observações"),
-
-          TextFormField(
-            controller: _observacoesController,
-            maxLines: 4,
-            maxLength: 255,
-            keyboardType: TextInputType.multiline,
-            decoration: customInputDecoration(
-              hintText: "Digite observações relevantes aqui...",
-            ),
-          ),
-
-          ActionButtons(
-            formKey: _formKey,
-            colors: colors,
-            textoConfirmar: widget.contatoInicial == null ? 'Cadastrar' : 'Salvar',
-            onCancel: () => Navigator.pop(context),
-            onCadastrar: () {
-              Navigator.pop(
-                context,
-                Contato(
-                  telefone: _telefoneController.text.trim(),
-                  email: _emailController.text.trim(),
-                  contatoAdicional: _contatoAdicionalController.text.trim(),
-                  setor: _setorController.text.trim(),
-                  observacoes: _observacoesController.text.trim(),
-                ),
-              );
-            },
-          ),
-        ],
-      ),
+        ActionButtons(
+          formKey: _formKey,
+          colors: colors,
+          textoConfirmar: widget.contatoInicial == null ? 'Cadastrar' : 'Salvar',
+          onCancel: () => Navigator.pop(context),
+          onCadastrar: () {
+            Navigator.pop(
+              context,
+              Contato(
+                telefone: _telefoneController.text.trim(),
+                email: _emailController.text.trim(),
+                contatoAdicional: _contatoAdicionalController.text.trim(),
+                setor: _setorController.text.trim(),
+                observacoes: _observacoesController.text.trim(),
+              ),
+            );
+          },
+        ),
+      ],
     );
   }
 }

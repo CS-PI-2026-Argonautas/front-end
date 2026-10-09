@@ -8,7 +8,7 @@ import 'package:frontend/fire_base/models/item.dart';
 import 'package:frontend/ui/widgets/form/validator.dart';
 import 'package:frontend/ui/widgets/form/form_card.dart';
 import 'package:frontend/ui/widgets/form/labeled_form.dart';
-import 'package:frontend/ui/widgets/action_buttons.dart';
+import 'package:frontend/ui/widgets/form/action_buttons.dart';
 
 class ProductForm extends StatefulWidget {
   final ValueChanged<Item> onSave;
