@@ -155,7 +155,7 @@ class _OsListPageState extends State<OsListPage> {
                           ),
                         ),
                         style: ElevatedButton.styleFrom(
-                          backgroundColor: colors.secondary,
+                          backgroundColor: colors.primary,
                           foregroundColor: Colors.white,
                         ),
                       ),
@@ -173,7 +173,7 @@ class _OsListPageState extends State<OsListPage> {
                             ),
                           ),
                           style: ElevatedButton.styleFrom(
-                            backgroundColor: colors.secondary,
+                            backgroundColor: colors.primary,
                             foregroundColor: Colors.white,
                           ),
                         ),

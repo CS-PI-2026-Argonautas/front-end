@@ -21,5 +21,5 @@ final colorScheme = ColorScheme(
   onSurfaceVariant: Colors.blueGrey.shade500,
   //textos secundários
   surfaceContainerLow: const Color(0xFFdeecee), //cor de fundo de componentes em baixo destaque
-  surfaceContainerHighest: const Color(0xFFc1d5e7) //cor de fundo de componentes em maior destaque
+  surfaceContainerHighest: const Color.fromARGB(255, 217, 229, 238) //cor de fundo de componentes em maior destaque
 );

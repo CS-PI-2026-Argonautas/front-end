@@ -131,7 +131,7 @@ class _ClientListState extends State<ClientList> {
                           ),
                         ),
                         style: ElevatedButton.styleFrom(
-                          backgroundColor: colors.secondary,
+                          backgroundColor: colors.primary,
                           foregroundColor: Colors.white,
                         ),
                       ),
@@ -149,7 +149,7 @@ class _ClientListState extends State<ClientList> {
                             ),
                           ),
                           style: ElevatedButton.styleFrom(
-                            backgroundColor: colors.secondary,
+                            backgroundColor: colors.primary,
                             foregroundColor: Colors.white,
                           ),
                         ),

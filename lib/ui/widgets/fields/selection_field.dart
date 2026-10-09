@@ -123,8 +123,8 @@ class SelectionField<T> extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       decoration: BoxDecoration(
-        color: colors.surfaceContainer,
-        border: Border.all(color: colors.primary.withOpacity(0.5), width: 1),
+        color: colors.surfaceContainerLow,
+        border: Border.all(color: colors.surfaceContainerHigh, width: 1.5),
         borderRadius: BorderRadius.circular(12),
       ),
       child: Row(
@@ -135,7 +135,7 @@ class SelectionField<T> extends StatelessWidget {
             child: Text(
               titulo,
               style: TextStyle(
-                color: colors.onSurface,
+                color: colors.onSurfaceVariant,
                 fontSize: 14,
                 fontWeight: FontWeight.w500,
               ),

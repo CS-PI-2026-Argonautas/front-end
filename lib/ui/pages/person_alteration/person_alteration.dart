@@ -10,9 +10,9 @@ import 'package:frontend/ui/pages/person_alteration/person_alteration_contact.da
 import 'package:frontend/ui/style/ColorScheme.dart' as custom_colors;
 import 'package:frontend/ui/style/inputDecorationStyles.dart';
 import 'package:frontend/ui/widgets/form/action_buttons.dart';
-import 'package:frontend/ui/widgets/adress_editor.dart';
 import 'package:frontend/ui/widgets/form/form_card.dart';
 import 'package:frontend/ui/widgets/form/form_field_label.dart';
+import 'package:frontend/ui/widgets/fields/selection_field.dart';
 import 'package:frontend/ui/widgets/appBar.dart';
 import 'package:frontend/ui/widgets/show_dialog/show_duplicate_document_dialog.dart';
 import 'package:mask_text_input_formatter/mask_text_input_formatter.dart';
@@ -161,15 +161,63 @@ class _PersonAlterationState extends State<PersonAlteration> {
         if (_carregandoEnderecos)
           const Center(child: CircularProgressIndicator())
         else
-          EnderecosEditor(
-            enderecos: _enderecos,
-            abrirFormulario: (inicial) => Navigator.push<Endereco>(
-              context,
-              MaterialPageRoute(
-                builder: (context) =>
-                    PersonAlterationAddress(enderecoInicial: inicial),
-              ),
-            ),
+          SelectionField<Endereco>(
+            label: 'Endereço',
+            iconeLabel: Icons.home_outlined,
+            itens: _enderecos,
+            tituloItem: (endereco) =>
+                '${endereco.logradouro}, ${endereco.numero} - ${endereco.cidade}/${endereco.uf.name}',
+            textoVazio: 'Nenhum endereço adicionado.',
+            permitirExclusao: true,
+            onPressed: () async {
+              final novoEndereco = await Navigator.push<Endereco>(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => const PersonAlterationAddress(),
+                ),
+              );
+
+              if (novoEndereco != null && mounted) {
+                setState(() {
+                  _enderecos.add(novoEndereco);
+                });
+              }
+            },
+            onEdit: (endereco, index) async {
+              final enderecoEditado = await Navigator.push<Endereco>(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => PersonAlterationAddress(
+                    enderecoInicial: endereco,
+                  ),
+                ),
+              );
+
+              if (enderecoEditado != null && mounted) {
+                setState(() {
+                  _enderecos[index] = enderecoEditado;
+                });
+              }
+            },
+            onDelete: (endereco, index) {
+              setState(() {
+                _enderecos.removeAt(index);
+              });
+
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  content: const Text('Endereço removido.'),
+                  action: SnackBarAction(
+                    label: 'Desfazer',
+                    onPressed: () {
+                      setState(() {
+                        _enderecos.insert(index, endereco);
+                      });
+                    },
+                  ),
+                ),
+              );
+            },
           ),
 
         Row(
