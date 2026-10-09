@@ -22,11 +22,11 @@ class ActionButtons extends StatelessWidget {
       children: [
         //Cancelar
         Expanded(
-          child: OutlinedButton.icon(
+          child: ElevatedButton.icon(
             onPressed: onCancel,
-            style: OutlinedButton.styleFrom(
+            style: ElevatedButton.styleFrom(
               foregroundColor: colors.onSurface,
-              side: BorderSide(color: colors.surfaceContainerHigh),
+              backgroundColor: colors.surfaceContainerHigh,
               padding: const EdgeInsets.symmetric(vertical: 18),
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(14),

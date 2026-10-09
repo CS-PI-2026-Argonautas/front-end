@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:frontend/fire_base/models/cliente.dart';
 import 'package:frontend/fire_base/models/endereco.dart';
-import 'package:frontend/fire_base/Enums/TipoPessoa.dart'; 
-import 'package:frontend/fire_base/models/contato.dart'; 
+import 'package:frontend/fire_base/Enums/TipoPessoa.dart';
+import 'package:frontend/fire_base/models/contato.dart';
 import 'package:frontend/fire_base/services/cliente_service.dart';
 import 'package:frontend/ui/pages/person_registration/person_registration_contact.dart';
 import 'package:frontend/ui/style/ColorScheme.dart' as custom_colors;
@@ -11,11 +11,10 @@ import 'package:frontend/ui/style/inputDecorationStyles.dart';
 import 'package:frontend/ui/widgets/action_buttons.dart';
 import 'package:frontend/ui/widgets/form_card.dart';
 import 'package:frontend/ui/widgets/form_field_label.dart';
+import 'package:frontend/ui/widgets/selection_field.dart';
 import 'package:mask_text_input_formatter/mask_text_input_formatter.dart';
 import 'package:frontend/ui/pages/dashboard.dart';
 import 'package:frontend/ui/widgets/header.dart';
-import 'package:frontend/ui/widgets/show_dialog/show_duplicate_document_dialog.dart'; 
-import 'package:frontend/ui/widgets/enderecos_editor.dart';
 import 'package:frontend/ui/widgets/form_section_tile.dart';
 
 class PersonRegistration extends StatefulWidget {
@@ -59,7 +58,6 @@ class _PersonRegistrationState1 extends State<PersonRegistration> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: colors.surface,
-
       appBar: Header(
         onBack: () {
           Navigator.pop(context);
@@ -87,12 +85,15 @@ class _PersonRegistrationState1 extends State<PersonRegistration> {
         spacing: 18,
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          FormSectionTile(
+          const FormSectionTile(
             title: "Informações Pessoais",
             subtitle: "Complete os campos de identificação abaixo.",
           ),
 
-          FormFieldLabel(icon: Icons.person_outline, label: "Nome completo *"),
+          const FormFieldLabel(
+            icon: Icons.person_outline,
+            label: "Nome completo *",
+          ),
 
           TextFormField(
             controller: _nomeController,
@@ -105,15 +106,62 @@ class _PersonRegistrationState1 extends State<PersonRegistration> {
             },
           ),
 
-          EnderecosEditor(
-            enderecos: _enderecos,
-            abrirFormulario: (inicial) => Navigator.push<Endereco>(
-              context,
-              MaterialPageRoute(
-                builder: (context) =>
-                    PersonRegistrationAddress(enderecoInicial: inicial),
-              ),
-            ),
+         SelectionField<Endereco>(
+           label: 'Endereço',
+             iconeLabel: Icons.home_outlined,
+            itens: _enderecos,
+            tituloItem: (endereco) =>
+                '${endereco.logradouro}, ${endereco.numero} - ${endereco.cidade}/${endereco.uf.name}',
+            textoVazio: 'Nenhum endereço adicionado.',
+            permitirExclusao: true,
+            onPressed: () async {
+              final novoEndereco = await Navigator.push<Endereco>(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => const PersonRegistrationAddress(),
+                ),
+              );
+
+              if (novoEndereco != null && mounted) {
+                setState(() {
+                  _enderecos.add(novoEndereco);
+                });
+              }
+            },
+            onEdit: (endereco, index) async {
+              final enderecoEditado = await Navigator.push<Endereco>(
+                context,
+                MaterialPageRoute(
+                  builder: (context) =>
+                      PersonRegistrationAddress(enderecoInicial: endereco),
+                ),
+              );
+
+              if (enderecoEditado != null && mounted) {
+                setState(() {
+                  _enderecos[index] = enderecoEditado;
+                });
+              }
+            },
+            onDelete: (endereco, index) {
+              setState(() {
+                _enderecos.removeAt(index);
+              });
+
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  content: const Text('Endereço removido.'),
+                  action: SnackBarAction(
+                    label: 'Desfazer',
+                    onPressed: () {
+                      setState(() {
+                        _enderecos.insert(index, endereco);
+                      });
+                    },
+                  ),
+                ),
+              );
+            },
           ),
 
           Row(
@@ -124,7 +172,6 @@ class _PersonRegistrationState1 extends State<PersonRegistration> {
                 icon: Icons.phone_android_outlined,
                 label: "Informações de contato",
               ),
-
               IconButton(
                 padding: EdgeInsets.zero,
                 constraints: const BoxConstraints(),
@@ -164,9 +211,7 @@ class _PersonRegistrationState1 extends State<PersonRegistration> {
             builder: (FormFieldState<String> state) {
               return InputDecorator(
                 decoration: customInputDecoration(
-                  hintText: _contato == null
-                      ? "Inserir contato"
-                      : null,
+                  hintText: _contato == null ? "Inserir contato" : null,
                 ).copyWith(errorText: state.errorText),
                 child: Text(
                   _contato == null
@@ -239,7 +284,7 @@ class _PersonRegistrationState1 extends State<PersonRegistration> {
     if (_salvando) return;
 
     final contato = _contato;
-    if (contato == null) return; 
+    if (contato == null) return;
 
     setState(() => _salvando = true);
 
@@ -251,28 +296,7 @@ class _PersonRegistrationState1 extends State<PersonRegistration> {
     );
 
     try {
-      final duplicado = await _service.buscarDuplicado(cliente.documento);
-
-      if (duplicado != null) {
-        if (!mounted) return;
-
-        final gravar =
-            await showDialog<bool>(
-              context: context,
-              builder: (_) => ShowDuplicateDocumentDialog(
-                nomeCliente: duplicado.nome,
-                tipo: _tipoPessoa,
-              ),
-            ) ??
-            false;
-
-        if (!gravar) {
-          if (mounted) setState(() => _salvando = false);
-          return;
-        }
-      }
-
-      await _service.cadastrar(cliente, _enderecos);
+      final id = await _service.cadastrar(cliente, _enderecos);
 
       if (!mounted) return;
 
