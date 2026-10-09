@@ -110,7 +110,7 @@ class _EquipamentDataState extends State<EquipamentData> {
 
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text('Balança salva com sucesso! ID: $idGerado'),
+          content: Text('Balança salva com sucesso!'),
           backgroundColor: const Color(0xFF1E9E5F),
           duration: const Duration(seconds: 3),
         ),
