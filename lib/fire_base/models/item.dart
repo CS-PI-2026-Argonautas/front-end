@@ -1,5 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:frontend/fire_base/Enums/TiposItens.dart';
+import 'package:frontend/fire_base/Enums/ProductType.dart';
 
 class Item {
   final String? id;
@@ -7,21 +7,21 @@ class Item {
   final String? description;
   final int valueInCents;
   final int minimumQuantity;
-  final TipoProduto type;
-final Timestamp? createdAt;
-final Timestamp? updatedAt;
-  final Timestamp? deletedAt;
-Item({
-  this.id,
-  required this.name,
-  this.description,
-  required this.valueInCents,
-  required this.minimumQuantity,
-  required this.type,
-  this.createdAt,
-  this.updatedAt,
-  this.deletedAt,
-});
+  final ProductType type;
+  final Timestamp? createdAt;
+  final Timestamp? updatedAt;
+    final Timestamp? deletedAt;
+  Item({
+    this.id,
+    required this.name,
+    this.description,
+    required this.valueInCents,
+    required this.minimumQuantity,
+    required this.type,
+    this.createdAt,
+    this.updatedAt,
+    this.deletedAt,
+  });
   factory Item.fromFirestore(
     DocumentSnapshot<Map<String, dynamic>> document,
   ) {
@@ -29,11 +29,11 @@ Item({
 
     return Item(
       id: document.id,
-      name: data['nome'] as String,
-      description: data['descricao'] as String?,
-      valueInCents: data['valor_centavos'] as int,
-      minimumQuantity: data['quantidade_minima'] as int,
-      type: _typeFromFirestore(data['tipo'] as String),
+      name: data['name'] as String,
+      description: data['description'] as String?,
+      valueInCents: data['value_in_cents'] as int,
+      minimumQuantity: data['minimum_quantity'] as int,
+      type: _typeFromFirestore(data['type'] as String),
       createdAt: data['created_at'] as Timestamp,
       updatedAt: data['updated_at'] as Timestamp,
       deletedAt: data['deleted_at'] as Timestamp?,
@@ -42,36 +42,36 @@ Item({
 
   Map<String, dynamic> toFirestore() {
     return {
-      'nome': name,
-      'descricao': description,
-      'valor_centavos': valueInCents,
-      'quantidade_minima': minimumQuantity,
-      'tipo': _typeToFirestore(type),
+      'name': name,
+      'description': description,
+      'value_in_cents': valueInCents,
+      'minimum_quantity': minimumQuantity,
+      'type': _typeToFirestore(type),
       'created_at': createdAt,
       'updated_at': updatedAt,
       'deleted_at': deletedAt,
     };
   }
 
-  static TipoProduto _typeFromFirestore(String value) {
+  static ProductType _typeFromFirestore(String value) {
     switch (value) {
       case 'PECAS':
-        return TipoProduto.pecas;
+        return ProductType.parts;
 
       case 'BALANCAS':
-        return TipoProduto.balancas;
+        return ProductType.scales;
 
       default:
         throw ArgumentError('Invalid product type: $value');
     }
   }
 
-  static String _typeToFirestore(TipoProduto type) {
+  static String _typeToFirestore(ProductType type) {
     switch (type) {
-      case TipoProduto.pecas:
+      case ProductType.parts:
         return 'PECAS';
 
-      case TipoProduto.balancas:
+      case ProductType.scales:
         return 'BALANCAS';
     }
   }
@@ -82,7 +82,7 @@ Item({
     String? description,
     int? valueInCents,
     int? minimumQuantity,
-    TipoProduto? type,
+    ProductType? type,
     Timestamp? createdAt,
     Timestamp? updatedAt,
     Timestamp? deletedAt,

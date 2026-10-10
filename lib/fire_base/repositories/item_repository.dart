@@ -1,6 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:uuid/uuid.dart';
-import 'package:frontend/fire_base/Enums/TiposItens.dart';
+import 'package:frontend/fire_base/Enums/ProductType.dart';
 import 'package:frontend/fire_base/models/item.dart';
 
 class ItemRepository {
@@ -14,17 +14,17 @@ class ItemRepository {
         _uuid = uuid ?? const Uuid();
 
   CollectionReference<Map<String, dynamic>> get _itemsCollection =>
-      _firestore.collection('itens');
+      _firestore.collection('items');
 
   Future<void> create(Item item) async {
     final String id = _uuid.v4();
 
     await _itemsCollection.doc(id).set({
-      'nome': item.name,
-      'descricao': item.description,
-      'valor_centavos': item.valueInCents,
-      'quantidade_minima': item.minimumQuantity,
-      'tipo': _typeToFirestore(item),
+      'name': item.name,
+      'description': item.description,
+      'value_in_cents': item.valueInCents,
+      'minimum_quantity': item.minimumQuantity,
+      'type': _typeToFirestore(item),
       'created_at': FieldValue.serverTimestamp(),
       'updated_at': FieldValue.serverTimestamp(),
       'deleted_at': null,
@@ -37,11 +37,11 @@ class ItemRepository {
     }
 
     await _itemsCollection.doc(item.id).update({
-      'nome': item.name,
-      'descricao': item.description,
-      'valor_centavos': item.valueInCents,
-      'quantidade_minima': item.minimumQuantity,
-      'tipo': _typeToFirestore(item),
+      'name': item.name,
+      'description': item.description,
+      'value_in_cents': item.valueInCents,
+      'minimum_quantity': item.minimumQuantity,
+      'type': _typeToFirestore(item),
       'updated_at': FieldValue.serverTimestamp(),
     });
   }
@@ -76,7 +76,7 @@ class ItemRepository {
 
   Stream<List<Item>> watchParts() {
     return _itemsCollection
-        .where('tipo', isEqualTo: 'PECAS')
+        .where('type', isEqualTo: 'PECAS')
         .where('deleted_at', isNull: true)
         .snapshots()
         .map((snapshot) {
@@ -88,10 +88,10 @@ class ItemRepository {
 
   String _typeToFirestore(Item item) {
     switch (item.type) {
-      case TipoProduto.pecas:
+      case ProductType.parts:
         return 'PECAS';
 
-      case TipoProduto.balancas:
+      case ProductType.scales:
         return 'BALANCAS';
     }
   }

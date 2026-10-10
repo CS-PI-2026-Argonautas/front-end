@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:frontend/fire_base/models/contato.dart'; 
+import 'package:frontend/fire_base/models/contact.dart'; 
 import 'package:frontend/ui/style/ColorScheme.dart' as custom_colors;
 import 'package:frontend/ui/style/inputDecorationStyles.dart';
 import 'package:frontend/ui/widgets/form/action_buttons.dart';
@@ -9,7 +9,7 @@ import 'package:frontend/ui/widgets/appBar.dart';
 import 'package:mask_text_input_formatter/mask_text_input_formatter.dart';
 
 class PersonRegistrationContact extends StatefulWidget {
-  final Contato? contatoInicial;
+  final Contact? contatoInicial;
   final String titulo;
 
   const PersonRegistrationContact({
@@ -29,7 +29,7 @@ class _PersonRegistration3State extends State<PersonRegistrationContact> {
   late final _phoneFormatter = MaskTextInputFormatter(
     mask: '(##) #####-####',
     filter: {"#": RegExp(r'[0-9]')},
-    initialText: (widget.contatoInicial?.telefone ?? '').replaceAll(
+    initialText: (widget.contatoInicial?.phone ?? '').replaceAll(
       RegExp(r'[^0-9]'),
       '',
     ),
@@ -42,13 +42,13 @@ class _PersonRegistration3State extends State<PersonRegistrationContact> {
     text: widget.contatoInicial?.email ?? '',
   );
   late final _contatoAdicionalController = TextEditingController(
-    text: widget.contatoInicial?.contatoAdicional ?? '',
+    text: widget.contatoInicial?.additionalContact ?? '',
   );
   late final _setorController = TextEditingController(
-    text: widget.contatoInicial?.setor ?? '',
+    text: widget.contatoInicial?.sector ?? '',
   );
   late final _observacoesController = TextEditingController(
-    text: widget.contatoInicial?.observacoes ?? '',
+    text: widget.contatoInicial?.observations ?? '',
   );
 
   @override
@@ -154,15 +154,15 @@ class _PersonRegistration3State extends State<PersonRegistrationContact> {
           colors: colors,
           textoConfirmar: widget.contatoInicial == null ? 'Cadastrar' : 'Salvar',
           onCancel: () => Navigator.pop(context),
-          onCadastrar: () {
+          onSave: () {
             Navigator.pop(
               context,
-              Contato(
-                telefone: _telefoneController.text.trim(),
+              Contact(
+                phone: _telefoneController.text.trim(),
                 email: _emailController.text.trim(),
-                contatoAdicional: _contatoAdicionalController.text.trim(),
-                setor: _setorController.text.trim(),
-                observacoes: _observacoesController.text.trim(),
+                additionalContact: _contatoAdicionalController.text.trim(),
+                sector: _setorController.text.trim(),
+                observations: _observacoesController.text.trim(),
               ),
             );
           },

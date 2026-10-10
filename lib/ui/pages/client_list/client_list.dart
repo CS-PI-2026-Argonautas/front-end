@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:frontend/fire_base/models/cliente.dart';
-import 'package:frontend/fire_base/services/cliente_service.dart';
+import 'package:frontend/fire_base/models/client.dart';
+import 'package:frontend/fire_base/services/client_service.dart';
 import 'package:frontend/ui/pages/dashboard.dart';
 import 'package:frontend/ui/pages/edit_item/item_edition.dart';
 import 'package:frontend/ui/pages/os_list/os_list_page.dart';
@@ -23,13 +23,13 @@ class ClientList extends StatefulWidget {
 }
 
 class _ClientListState extends State<ClientList> {
-  final ClienteService _service = ClienteService();
+  final ClientService _service = ClientService();
 
-  late final Stream<List<Cliente>> _clientes = _service.observar();
+  late final Stream<List<Client>> _clientes = _service.observar();
 
   final colors = custom_colors.colorScheme;
 
-  Future<void> _deletarCliente(Cliente cliente) async {
+  Future<void> _deletarCliente(Client cliente) async {
     await _service.excluir(cliente.id);
   }
 
@@ -177,7 +177,7 @@ class _ClientListState extends State<ClientList> {
                   ),
                 ),
 
-                StreamBuilder<List<Cliente>>(
+                StreamBuilder<List<Client>>(
                   stream: _clientes,
                   builder: (context, snapshot) {
                     if (snapshot.connectionState ==
@@ -242,7 +242,7 @@ class _ClientListState extends State<ClientList> {
     );
   }
 
-  Widget _buildClientCard(Cliente cliente) {
+  Widget _buildClientCard(Client cliente) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 16),
       child: SlidableDeleteCard(
@@ -255,7 +255,7 @@ class _ClientListState extends State<ClientList> {
               await showDialog<bool>(
                 context: context,
                 builder: (_) => ShowDeleteClientDialog(
-                  nome: cliente.nome,
+                  nome: cliente.name,
                 ),
               ) ??
               false;
@@ -317,7 +317,7 @@ class _ClientListState extends State<ClientList> {
 
                   children: [
                     Text(
-                      cliente.nome,
+                      cliente.name,
                       maxLines: 1,
                       overflow:
                           TextOverflow.ellipsis,
@@ -332,7 +332,7 @@ class _ClientListState extends State<ClientList> {
                     ),
 
                     Text(
-                      cliente.contato.resumo,
+                      cliente.contact.resumo,
 
                       style: TextStyle(
                         color:

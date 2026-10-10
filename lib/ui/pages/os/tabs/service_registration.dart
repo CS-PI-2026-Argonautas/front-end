@@ -6,8 +6,8 @@ import 'package:frontend/ui/widgets/form/action_buttons.dart';
 import 'package:frontend/ui/widgets/form/validator.dart';
 import 'package:frontend/ui/widgets/form/form_card.dart';
 import 'package:frontend/ui/widgets/form/labeled_form.dart';
-import 'package:frontend/fire_base/services/servicoService.dart';
-import 'package:frontend/fire_base/models/servico.dart';
+import 'package:frontend/fire_base/services/service_service.dart';
+import 'package:frontend/fire_base/models/service.dart';
 
 class ServiceRegistration extends StatefulWidget {
   final VoidCallback? onBack;
@@ -53,10 +53,10 @@ class _ServiceRegistrationState extends State<ServiceRegistration> {
     if (!(_formKey.currentState?.validate() ?? false)) return;
 
     final servicoService = ServicoService();
-    final novoServico = Servico(
-      nome: _nomeController.text.trim(),
-      descricao: _descricaoController.text.trim(),
-      valor: _converterParaCentavos(_valorController.text.trim()),
+    final novoServico = Service(
+      name: _nomeController.text.trim(),
+      description: _descricaoController.text.trim(),
+      valueInCents: _converterParaCentavos(_valorController.text.trim()),
     );
 
     try {
@@ -181,7 +181,7 @@ class _ServiceRegistrationState extends State<ServiceRegistration> {
                 ActionButtons(
                   formKey: _formKey,
                   colors: colors,
-                  onCadastrar: _handleCadastrar,
+                  onSave: _handleCadastrar,
                   onCancel:
                       widget.onCancel ?? () => Navigator.maybePop(context),
                 ),

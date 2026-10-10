@@ -3,7 +3,7 @@ import 'package:flutter/services.dart';
 
 import 'package:frontend/ui/style/ColorScheme.dart' as custom_colors;
 import 'package:frontend/ui/style/inputDecorationStyles.dart';
-import 'package:frontend/fire_base/Enums/TiposItens.dart' as tipos;
+import 'package:frontend/fire_base/Enums/ProductType.dart' as tipos;
 import 'package:frontend/fire_base/models/item.dart';
 import 'package:frontend/ui/widgets/form/validator.dart';
 import 'package:frontend/ui/widgets/form/form_card.dart';
@@ -32,7 +32,7 @@ class _ProductFormState extends State<ProductForm> {
   final _valueController = TextEditingController();
   final _minimumQuantityController = TextEditingController();
 
-  tipos.TipoProduto? tipoSelecionado;
+  tipos.ProductType? tipoSelecionado;
 
   @override
   void dispose() {
@@ -196,7 +196,7 @@ class _ProductFormState extends State<ProductForm> {
           ),
         ),
 
-        DropdownButtonFormField<tipos.TipoProduto>(
+        DropdownButtonFormField<tipos.ProductType>(
           value: tipoSelecionado,
           validator: (value) {
             if (value == null) {
@@ -212,7 +212,7 @@ class _ProductFormState extends State<ProductForm> {
               color: colors.primary,
             ),
           ),
-          items: tipos.TipoProduto.values.map((tipo) {
+          items: tipos.ProductType.values.map((tipo) {
             return DropdownMenuItem(
               value: tipo,
               child: Text(tipo.label),
@@ -230,7 +230,7 @@ class _ProductFormState extends State<ProductForm> {
           colors: colors,
           textoConfirmar: 'Salvar',
           onCancel: widget.onCancel,
-          onCadastrar: _save,
+          onSave: _save,
         ),
       ],
     );

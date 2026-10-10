@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:frontend/fire_base/services/cliente_service.dart';
-import 'package:frontend/fire_base/services/endereco_service.dart';
-import 'package:frontend/fire_base/models/endereco.dart';
+import 'package:frontend/fire_base/services/client_service.dart';
+import 'package:frontend/fire_base/services/address_service.dart';
+import 'package:frontend/fire_base/models/address.dart';
 import 'package:frontend/ui/pages/person_registration/person_registration_address.dart';
 import 'package:frontend/ui/style/ColorScheme.dart' as custom_colors;
 import 'package:frontend/ui/style/inputDecorationStyles.dart';
@@ -10,9 +10,9 @@ import 'package:frontend/ui/widgets/fields/equipment_field.dart';
 import 'package:frontend/utils/data_os/address_formatter.dart';
 import 'package:frontend/ui/pages/person_registration/person_registration.dart';
 import 'package:frontend/ui/pages/stand_in_page.dart';
-import 'package:frontend/fire_base/models/equipamento.dart';
-import 'package:frontend/fire_base/services/equipamento_service.dart';
-import 'package:frontend/ui/pages/equipament_data/equipamentData.dart';
+import 'package:frontend/fire_base/models/equipment.dart';
+import 'package:frontend/fire_base/services/equipment_service.dart';
+import 'package:frontend/ui/pages/equipment_data/equipment_data.dart';
 
 class DataOs extends StatefulWidget {
   final DateTime? dataEntrada;
@@ -57,13 +57,13 @@ class _DataOsState extends State<DataOs> {
     };
   }
 
-  final EquipamentoService _equipamentoService = EquipamentoService();
+  final EquipmentService _equipamentoService = EquipmentService();
   final colors = custom_colors.colorScheme;
 
-  final EnderecoService _enderecoService = EnderecoService();
-  Endereco? _enderecoSelecionado;
+  final AddressService _enderecoService = AddressService();
+  Address? _enderecoSelecionado;
 
-  final ClienteService _clienteService = ClienteService();
+  final ClientService _clienteService = ClientService();
   List<Map<String, dynamic>> clientesDisponiveis = [];
   Map<String, dynamic>? clienteSelecionado;
 
@@ -168,8 +168,8 @@ class _DataOsState extends State<DataOs> {
         clientesDisponiveis = clientes.map((c) {
           return {
             'id': c.id,
-            'nome': c.nome,
-            'telefone': c.contato.telefone,
+            'name': c.name,
+            'phone': c.contact.phone,
           };
         }).toList();
       });
@@ -188,7 +188,7 @@ class _DataOsState extends State<DataOs> {
     final resultado = await Navigator.push<dynamic>(
       context,
       MaterialPageRoute(
-        builder: (routeContext) => EquipamentData(
+        builder: (routeContext) => EquipmentData(
           osDados: _montarDadosOs(),
           onSubmit: (dados) => Navigator.pop(routeContext, dados),
         ),
@@ -200,7 +200,7 @@ class _DataOsState extends State<DataOs> {
     }
   }
 Future<void> _buscarEquipamento() async {
-  final List<Equipamento> equipamentos;
+  final List<Equipment> equipamentos;
 
   try {
     equipamentos = await _equipamentoService.listar();
@@ -223,13 +223,13 @@ Future<void> _buscarEquipamento() async {
       ),
     ),
     builder: (sheetContext) {
-      return SelectionBottomSheet<Equipamento>(
+      return SelectionBottomSheet<Equipment>(
         title: 'Selecionar equipamento',
         items: equipamentos,
         searchText: 'Procurar equipamento',
         actionText: 'Novo equipamento',
-        itemTitle: (e) => '${e.marca} ${e.modelo}',
-        itemSubtitle: (e) => 'Nº série ${e.numeroSerie}',
+        itemTitle: (e) => '${e.brand} ${e.model}',
+        itemSubtitle: (e) => 'Nº série ${e.serialNumber}',
         itemIcon: Icons.scale_outlined,
         loading: false,
 
@@ -242,8 +242,8 @@ Future<void> _buscarEquipamento() async {
           setState(() {
             _equipamentoSelecionado = {
               'id': e.id,
-              'marca': e.marca,
-              'modelo': e.modelo,
+              'marca': e.brand,
+              'modelo': e.model,
             };
           });
 
@@ -489,8 +489,8 @@ Future<void> _buscarEquipamento() async {
           items: clientesDisponiveis,
           searchText: 'Procurar cliente',
           actionText: 'Novo cliente',
-          itemTitle: (cliente) => cliente['nome'].toString(),
-          itemSubtitle: (cliente) => cliente['telefone'].toString(),
+          itemTitle: (cliente) => cliente['name'].toString(),
+          itemSubtitle: (cliente) => cliente['phone'].toString(),
           itemIcon: Icons.person_outline,
           loading: false,
           onAction: () async {
@@ -529,7 +529,7 @@ Future<void> _buscarEquipamento() async {
   }
 
   Future<void> _abrirListaEnderecos() async {
-    final List<Endereco> enderecos;
+    final List<Address> enderecos;
 
     try {
       enderecos = await _enderecoService.listar(
@@ -562,23 +562,23 @@ Future<void> _buscarEquipamento() async {
         ),
       ),
       builder: (context) {
-        return SelectionBottomSheet<Endereco>(
+        return SelectionBottomSheet<Address>(
           title: 'Selecionar endereço',
           items: enderecos,
           searchText: 'Procurar endereço',
           actionText: 'Novo endereço',
           itemTitle: (endereco) =>
-              '${endereco.logradouro}, ${endereco.numero}, '
-              '${endereco.complemento}',
+              '${endereco.publicPlace}, ${endereco.number}, '
+              '${endereco.complement}',
           itemSubtitle: (endereco) =>
-              '${endereco.cidade} - ${endereco.uf.name}'
-              '${endereco.cep.isEmpty ? '' : ' • CEP ${endereco.cep}'}',
+              '${endereco.city} - ${endereco.uf.name}'
+              '${endereco.zipCode.isEmpty ? '' : ' • CEP ${endereco.zipCode}'}',
           itemIcon: Icons.location_on_outlined,
           loading: false,
           onAction: () async {
             Navigator.pop(context);
 
-            final novo = await Navigator.push<Endereco>(
+            final novo = await Navigator.push<Address>(
               context,
               MaterialPageRoute(
                 builder: (_) => const PersonRegistrationAddress(),
@@ -1018,7 +1018,7 @@ Future<void> _buscarEquipamento() async {
                 ),
                 const SizedBox(height: 2),
                 Text(
-                  clienteSelecionado!['nome'],
+                  clienteSelecionado!['name'],
                   style: TextStyle(
                     color: colors.onSurface,
                     fontSize: 16,

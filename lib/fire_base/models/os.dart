@@ -9,7 +9,7 @@ class OrdemServicos {
   final String cidade;
   final String responsavel;
   String relatorio;
-  Statusordemservico statusOrdemServico;
+  StatusOrdemServico statusOrdemServico;
 
   final DateTime criadoEm;
   DateTime dataEntrada;

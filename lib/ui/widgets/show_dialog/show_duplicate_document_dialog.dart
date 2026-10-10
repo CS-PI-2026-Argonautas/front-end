@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:frontend/fire_base/Enums/TipoPessoa.dart';
+import 'package:frontend/fire_base/Enums/PersonType.dart';
 
 class ShowDuplicateDocumentDialog extends StatelessWidget {
   final String nomeCliente;
-  final TipoPessoa tipo;
+  final PersonType tipo;
 
   const ShowDuplicateDocumentDialog({
     super.key,

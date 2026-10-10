@@ -1,7 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:frontend/fire_base/Enums/TipoPessoa.dart';
-import 'package:frontend/fire_base/models/cliente.dart';
-import 'package:frontend/fire_base/models/contato.dart';
+import 'package:frontend/fire_base/Enums/PersonType.dart';
+import 'package:frontend/fire_base/models/client.dart';
+import 'package:frontend/fire_base/models/contact.dart';
 import 'package:frontend/fire_base/repositories/client_old_repository.dart';
 
 class MockClientRepository implements ClientRepository {
@@ -12,16 +12,16 @@ class MockClientRepository implements ClientRepository {
 
   factory MockClientRepository() => _instance;
 
-  static Cliente _fisica(String nome, String documento, String telefone) {
-    return Cliente(
-      nome: nome,
-      tipoPessoa: TipoPessoa.fisica,
-      documento: documento,
-      contato: Contato(telefone: telefone),
+  static Client _fisica(String nome, String documento, String telefone) {
+    return Client(
+      name: nome,
+      personType: PersonType.physical,
+      document: documento,
+      contact: Contact(phone: telefone),
     );
   }
 
-  final List<Cliente> _bd = [
+  final List<Client> _bd = [
     _fisica('Giovanna', '00000000001', '999198999'),
     _fisica('Murilo', '00000000002', '111111111'),
     _fisica('Isaque', '00000000003', '411819111'),
@@ -31,13 +31,13 @@ class MockClientRepository implements ClientRepository {
   ];
 
   @override
-  Future<List<Cliente>> listarTodos() async {
+  Future<List<Client>> listarTodos() async {
     await Future.delayed(const Duration(milliseconds: 300));
     return List.unmodifiable(_bd.where((cliente) => cliente.ativo));
   }
 
   @override
-  Future<void> salvar(Cliente cliente) async {
+  Future<void> salvar(Client cliente) async {
     await Future.delayed(const Duration(milliseconds: 300));
     _bd.add(cliente);
   }
