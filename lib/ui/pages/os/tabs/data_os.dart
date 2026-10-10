@@ -489,8 +489,8 @@ Future<void> _buscarEquipamento() async {
           items: clientesDisponiveis,
           searchText: 'Procurar cliente',
           actionText: 'Novo cliente',
-          itemTitle: (cliente) => cliente['nome'].toString(),
-          itemSubtitle: (cliente) => cliente['telefone'].toString(),
+          itemTitle: (cliente) => cliente['name'].toString(),
+          itemSubtitle: (cliente) => cliente['phone'].toString(),
           itemIcon: Icons.person_outline,
           loading: false,
           onAction: () async {
@@ -1018,7 +1018,7 @@ Future<void> _buscarEquipamento() async {
                 ),
                 const SizedBox(height: 2),
                 Text(
-                  clienteSelecionado!['nome'],
+                  clienteSelecionado!['name'],
                   style: TextStyle(
                     color: colors.onSurface,
                     fontSize: 16,

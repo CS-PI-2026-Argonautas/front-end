@@ -1,21 +1,21 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:frontend/fire_base/models/services.dart';
+import 'package:frontend/fire_base/models/work_order.dart';
 
-class ServicesRepository {
+class WorkOrderRepository {
   final FirebaseFirestore _firestore;
 
-  ServicesRepository({
+  WorkOrderRepository({
     FirebaseFirestore? firestore,
   }) : _firestore = firestore ?? FirebaseFirestore.instance;
 
   CollectionReference<Map<String, dynamic>> get _collection =>
       _firestore.collection('service_orders');
 
-  Future<List<Services>> listAll() async {
+  Future<List<WorkOrder>> listAll() async {
     final snapshot = await _collection.get();
 
     final orders = snapshot.docs
-        .map(Services.fromFirestore)
+        .map(WorkOrder.fromFirestore)
         .where((order) => !order.isDeleted)
         .toList();
 
@@ -33,7 +33,7 @@ class ServicesRepository {
     return orders;
   }
 
-  Future<void> save(Services order) async {
+  Future<void> save(WorkOrder order) async {
     await _collection.doc(order.id).set(
       order.toFirestore(),
     );

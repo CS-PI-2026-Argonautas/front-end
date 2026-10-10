@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:frontend/fire_base/models/services.dart';
+import 'package:frontend/fire_base/models/work_order.dart';
 import 'package:frontend/ui/pages/client_list/client_list.dart';
 import 'package:frontend/ui/pages/dashboard.dart';
 import 'package:frontend/ui/pages/edit_item/item_edition.dart';
@@ -25,7 +25,7 @@ class OsListPage extends StatefulWidget {
 class _OsListPageState extends State<OsListPage> {
   final MockOSRepository _repository = MockOSRepository();
 
-  late Future<List<Services>> _futureOrdemServicos;
+  late Future<List<WorkOrder>> _futureOrdemServicos;
 
   final colors = custom_colors.colorScheme;
 
@@ -36,7 +36,7 @@ class _OsListPageState extends State<OsListPage> {
   }
 
   void _carregarOrdemServicos() {
-    final Future<List<Services>> os = _repository.getAll();
+    final Future<List<WorkOrder>> os = _repository.getAll();
 
     setState(() {
       _futureOrdemServicos = os;
@@ -58,7 +58,7 @@ class _OsListPageState extends State<OsListPage> {
     }
   }
 
-  Future<void> _deletarOrdemServicos(Services os) async {
+  Future<void> _deletarOrdemServicos(WorkOrder os) async {
     await _repository.delete(os.id);
   }
 
@@ -190,7 +190,7 @@ class _OsListPageState extends State<OsListPage> {
                 ),
 
                 // Aqui carrego as ordens de serviço
-                FutureBuilder<List<Services>>(
+                FutureBuilder<List<WorkOrder>>(
                   future: _futureOrdemServicos,
                   builder: (context, snapshot) {
                     if (snapshot.connectionState == ConnectionState.waiting) {
@@ -244,7 +244,7 @@ class _OsListPageState extends State<OsListPage> {
   }
 
   // Construo os cards
-  Widget _buildClientCard(Services os) {
+  Widget _buildClientCard(WorkOrder os) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 16),
       child: SlidableDeleteCard(

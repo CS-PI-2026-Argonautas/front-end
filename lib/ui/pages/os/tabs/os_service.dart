@@ -6,8 +6,8 @@ import 'package:frontend/ui/widgets/floatingButton.dart';
 import 'package:frontend/ui/widgets/bottom_sheet/bottom_sheet.dart';
 import 'package:frontend/ui/widgets/slidable/slidable_delete_card.dart';
 import 'package:frontend/ui/pages/os/tabs/service_registration.dart';
-import 'package:frontend/fire_base/services/servicoService.dart';
-import 'package:frontend/fire_base/models/servico.dart';
+import 'package:frontend/fire_base/services/service_service.dart';
+import 'package:frontend/fire_base/models/service.dart';
 
 class OsServicosTab extends StatefulWidget {
   const OsServicosTab({super.key});
@@ -41,9 +41,9 @@ class _OsServicosTabState extends State<OsServicosTab> {
       final servicosFormatados = servicosDoFirebase.map((servico) {
         return {
           'id': servico.id ?? 'sem_id_${DateTime.now().millisecondsSinceEpoch}',
-          'nome': servico.nome,
-          'descricao': servico.descricao,
-          'preco': servico.valor / 100,
+          'nome': servico.name,
+          'descricao': servico.description,
+          'preco': servico.valueInCents / 100,
         };
       }).toList();
 
