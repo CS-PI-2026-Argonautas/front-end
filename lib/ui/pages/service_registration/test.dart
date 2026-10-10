@@ -3,6 +3,7 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:frontend/firebase_options.dart';
 import 'package:frontend/ui/pages/authentication.dart';
+import 'package:frontend/ui/pages/os/tabs/service_registration.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -24,7 +25,7 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       title: 'Bernadelli Balanças',
       debugShowCheckedModeBanner: false,
-      home: const Authentication(),
+      home: const ServiceRegistration(),
       theme: ThemeData(
         colorScheme: ColorScheme.fromSeed(
           seedColor: const Color.fromARGB(255, 64, 126, 207),

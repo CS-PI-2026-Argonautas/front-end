@@ -1,0 +1,403 @@
+import 'dart:math';
+
+import 'package:flutter/material.dart';
+import 'package:frontend/fire_base/models/dinheiro.dart';
+import 'package:frontend/ui/style/ColorScheme.dart' as custom_colors;
+import 'package:frontend/ui/widgets/floatingButton.dart';
+import 'package:frontend/ui/widgets/bottom_sheet/bottom_sheet.dart';
+import 'package:frontend/ui/widgets/slidable/slidable_delete_card.dart';
+import 'package:frontend/ui/pages/os/tabs/service_registration.dart';
+import 'package:frontend/fire_base/services/servicoService.dart';
+import 'package:frontend/fire_base/models/servico.dart';
+
+class OsServicosTab extends StatefulWidget {
+  const OsServicosTab({super.key});
+
+  @override
+  State<OsServicosTab> createState() => _OsServicosTabState();
+}
+
+class _OsServicosTabState extends State<OsServicosTab> {
+  final colors = custom_colors.colorScheme;
+
+  final TextEditingController _searchController = TextEditingController();
+
+  List<Map<String, dynamic>> _servicosDisponiveis = [];
+  bool _carregandoServicos = true;
+
+  final List<Map<String, dynamic>> _servicosNaOrdem = [];
+
+  @override
+  void initState() {
+    super.initState();
+    _carregarServicosDoBanco();
+  }
+
+  Future<void> _carregarServicosDoBanco() async {
+    try {
+      final servicoService = ServicoService();
+      final servicosDoFirebase = await servicoService
+          .buscarServicosDisponiveis();
+
+      final servicosFormatados = servicosDoFirebase.map((servico) {
+        return {
+          'id': servico.id ?? 'sem_id_${DateTime.now().millisecondsSinceEpoch}',
+          'nome': servico.nome,
+          'descricao': servico.descricao,
+          'preco': servico.valor / 100,
+        };
+      }).toList();
+
+      if (mounted) {
+        setState(() {
+          _servicosDisponiveis = servicosFormatados;
+          _carregandoServicos = false;
+        });
+      }
+    } catch (e) {
+      if (mounted) {
+        setState(() => _carregandoServicos = false);
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Erro ao carregar serviços: $e')),
+        );
+      }
+    }
+  }
+
+  @override
+  void dispose() {
+    _searchController.dispose();
+    super.dispose();
+  }
+
+  List<Map<String, dynamic>> get _servicosExibidos {
+    final query = _searchController.text.toLowerCase();
+
+    return _servicosNaOrdem.where((servico) {
+      final bool naoRemovido = servico['removido'] == false;
+
+      final bool atendeFiltro =
+          servico['nome'].toString().toLowerCase().contains(query) ||
+          servico['descricao'].toString().toLowerCase().contains(query);
+
+      return naoRemovido && atendeFiltro;
+    }).toList();
+  }
+
+  double get _subtotal {
+    final total = _servicosExibidos.fold(0.0, (sum, item) {
+      final double preco = (item['preco'] as double? ?? 0.0);
+
+      return sum + max(0.0, preco);
+    });
+
+    return max(0.0, total);
+  }
+
+  void _adicionarServico(Map<String, dynamic> servico) {
+    setState(() {
+      _servicosNaOrdem.add({
+        'id': '${servico['id']}_${DateTime.now().millisecondsSinceEpoch}',
+        'nome': servico['nome'],
+        'descricao': servico['descricao'],
+        'preco': servico['preco'],
+        'removido': false,
+      });
+    });
+  }
+
+  Future<void> _deletarServico(Map<String, dynamic> servico) async {
+    setState(() {
+      servico['removido'] = true;
+    });
+  }
+
+void _abrirListaServicos() {
+  showModalBottomSheet(
+    context: context,
+    backgroundColor: colors.surfaceContainer,
+    isScrollControlled: true,
+    shape: const RoundedRectangleBorder(
+      borderRadius: BorderRadius.vertical(
+        top: Radius.circular(24),
+      ),
+    ),
+    builder: (sheetContext) {
+      return SelectionBottomSheet<Map<String, dynamic>>(
+        title: 'Selecionar serviço',
+        items: _servicosDisponiveis,
+        searchText: 'Procurar serviço',
+        actionText: 'Novo serviço',
+
+        itemTitle: (servico) {
+          return servico['nome'].toString();
+        },
+
+        itemSubtitle: (servico) {
+          final double preco =
+              (servico['preco'] as double? ?? 0.0);
+
+          return 'R\\${preco.toStringAsFixed(2).replaceAll('.', ',')}';
+        },
+
+        itemIcon: Icons.build,
+        loading: _carregandoServicos,
+
+        onAction: () async {
+          Navigator.pop(sheetContext);
+
+          final dadosNovos = await Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) =>
+                  const ServiceRegistration(),
+            ),
+          );
+
+          if (!mounted || dadosNovos == null) {
+            return;
+          }
+
+          final novoServicoFormatado = {
+            'id': 'novo_${DateTime.now().millisecondsSinceEpoch}',
+            'nome': dadosNovos['nome'],
+            'descricao': dadosNovos['descricao'],
+            'preco': (dadosNovos['valor'] as int) / 100,
+          };
+
+          _adicionarServico(novoServicoFormatado);
+
+          await _carregarServicosDoBanco();
+        },
+
+        onSelect: (servico) {
+          _adicionarServico(servico);
+          Navigator.pop(sheetContext);
+        },
+      );
+    },
+  );
+}
+
+
+  @override
+  Widget build(BuildContext context) {
+    final listaAtual = _servicosExibidos;
+
+    return Stack(
+      children: [
+        SafeArea(
+          child: SingleChildScrollView(
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 20),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(
+                        'Subtotal de serviços',
+                        style: TextStyle(
+                      color: colors.onSurface,
+                      fontSize: 20,
+                      fontWeight: FontWeight.bold,
+                    ),
+                      ),
+                      Text(
+                        Dinheiro(_subtotal as int).formatado(),
+                        style: TextStyle(
+                          color: Colors.blueGrey.shade600,
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ],
+                  ),
+
+                  const SizedBox(height: 16),
+
+                  TextFormField(
+                    controller: _searchController,
+                    onChanged: (_) {
+                      setState(() {});
+                    },
+                    decoration: InputDecoration(
+                      hintText: 'Procurar serviço',
+                      filled: true,
+                      fillColor: colors.surfaceContainer,
+                      hintStyle: TextStyle(color: colors.onSurface),
+                      prefixIcon: Icon(Icons.search, color: colors.secondary),
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(14),
+                        borderSide: BorderSide.none,
+                      ),
+                    ),
+                  ),
+
+                  const SizedBox(height: 20),
+                  
+
+                  
+
+                  if (listaAtual.isEmpty)
+                     Padding(
+                      padding: EdgeInsets.symmetric(vertical: 40),
+                      child: Center(child: Text('Nenhum serviço adicionado.', style: TextStyle(fontSize: 16, color: colors.onSurfaceVariant),)),
+                    )
+                  else
+                    ListView.builder(
+                      shrinkWrap: true,
+                      physics: const NeverScrollableScrollPhysics(),
+                      itemCount: listaAtual.length,
+                      itemBuilder: (context, index) {
+                        return _buildServiceCard(listaAtual[index]);
+                      },
+                    ),
+                ],
+              ),
+            ),
+          ),
+        ),
+
+        Positioned(
+          bottom: 16,
+          right: 16,
+          child: CustomFloatingButton(
+            onPressed: _abrirListaServicos,
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildServiceCard(Map<String, dynamic> servico) {
+    final double precoCru = (servico['preco'] as double? ?? 0.0);
+
+    final double preco = max(0.0, precoCru);
+
+    final String descricao = servico['descricao'] ?? '';
+
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 12),
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(16),
+        child: SlidableDeleteCard(
+          slidableKey: ValueKey(servico['id']),
+
+          onDelete: () async {
+            final confirmarExclusao =
+                await showDialog<bool>(
+                  context: context,
+                  builder: (context) {
+                    return AlertDialog(
+                      title: const Text('Remover Serviço'),
+                      content: Text(
+                        'Deseja remover "${servico['nome']}" da OS?',
+                      ),
+                      actions: [
+                        TextButton(
+                          onPressed: () {
+                            Navigator.pop(context, false);
+                          },
+                          child: const Text('CANCELAR'),
+                        ),
+                        TextButton(
+                          onPressed: () {
+                            Navigator.pop(context, true);
+                          },
+                          child: Text(
+                            'REMOVER',
+                            style: TextStyle(color: colors.error),
+                          ),
+                        ),
+                      ],
+                    );
+                  },
+                ) ??
+                false;
+
+            if (!confirmarExclusao) {
+              return;
+            }
+
+            await _deletarServico(servico);
+
+            if (!mounted) {
+              return;
+            }
+
+            final messenger = ScaffoldMessenger.of(context);
+
+            messenger.hideCurrentSnackBar();
+
+            messenger.showSnackBar(
+              SnackBar(
+                content: Text('${servico['nome']} removido.'),
+                backgroundColor: colors.primary,
+                duration: const Duration(seconds: 5),
+                action: SnackBarAction(
+                  label: 'DESFAZER',
+                  textColor: Colors.white,
+                  onPressed: () {
+                    setState(() {
+                      servico['removido'] = false;
+                    });
+
+                    messenger.hideCurrentSnackBar();
+                  },
+                ),
+              ),
+            );
+          },
+
+          extentRatio: 0.20,
+
+          child: Container(
+            width: double.infinity,
+            padding: const EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              color: colors.surfaceContainer,
+              borderRadius: BorderRadius.circular(16),
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  servico['nome'],
+                  style: TextStyle(
+                    color: colors.onSurface,
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+
+                if (descricao.isNotEmpty) ...[
+                  const SizedBox(height: 4),
+                  Text(
+                    descricao,
+                    style: TextStyle(
+                      color: colors.onSurfaceVariant,
+                      fontSize: 14,
+                    ),
+                  ),
+                ],
+
+                const SizedBox(height: 8),
+
+                Text(
+                  Dinheiro(preco as int).formatado(),
+                  style: TextStyle(
+                    color: colors.primary,
+                    fontSize: 15,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}

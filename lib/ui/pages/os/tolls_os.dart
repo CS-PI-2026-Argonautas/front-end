@@ -118,24 +118,20 @@ void abrirListaPecas() {
     ),
     builder: (context) {
      return SelectionBottomSheet<Map<String, dynamic>>(
-  titulo: "Selecionar peça",
-  itens: pecasDisponiveis,
+  title: "Selecionar peça",
+  items: pecasDisponiveis,
+  searchText: "Buscar peça...",
+  actionText: "Nova peça",
+  itemIcon: Icons.build_outlined,
+  itemTitle: (peca) => peca["nome"],
+  itemSubtitle: (peca) => (peca["preco"] as Dinheiro).formatado(),
 
-  textoBusca: "Buscar peça...",
-  textoAcao: "Nova peça",
-
-  iconeItem: Icons.build_outlined,
-
-  tituloItem: (peca) => peca["nome"],
-
-  subtituloItem: (peca) => (peca["preco"] as Dinheiro).formatado(),
-
-  onSelecionar: (peca) {
+  onSelect: (peca) {
     _adicionarPeca(peca);
     Navigator.pop(context);
   },
 
-  onAcao: () {
+  onAction: () {
     Navigator.push(
       context,
       MaterialPageRoute(

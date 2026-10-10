@@ -7,14 +7,16 @@ class Header extends StatelessWidget implements PreferredSizeWidget {
 
   const Header({super.key, required this.onBack, required this.title});
 
+  // Aumentamos a altura preferida para 70 para acomodar 2 linhas de texto confortavelmente
   @override
-  Size get preferredSize => const Size.fromHeight(kToolbarHeight);
+  Size get preferredSize => const Size.fromHeight(70);
 
   @override
   Widget build(BuildContext context) {
     final colors = custom_colors.colorScheme;
 
     return AppBar(
+      toolbarHeight: 70, // Define a altura da barra
       backgroundColor: Colors.transparent,
       foregroundColor: colors.onPrimary,
       centerTitle: true,
@@ -26,10 +28,13 @@ class Header extends StatelessWidget implements PreferredSizeWidget {
       ),
       title: Text(
         title,
+        softWrap: true,
+        maxLines: 2, 
+        textAlign: TextAlign.center, 
         style: const TextStyle(
           color: Colors.white,
           fontWeight: FontWeight.bold,
-          fontSize: 20,
+          fontSize: 18, 
         ),
       ),
       flexibleSpace: Container(

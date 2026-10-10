@@ -5,7 +5,6 @@ import 'package:frontend/ui/pages/os/tabbar/tabbar.dart';
 import 'package:frontend/ui/pages/os_list/os_list_page.dart';
 import 'package:frontend/ui/pages/person_registration/person_registration.dart';
 import 'package:frontend/ui/pages/product_registration/product_registration.dart';
-import 'package:frontend/ui/pages/stand_in_page.dart';
 import 'package:frontend/ui/style/ColorScheme.dart' as custom_Colors;
 import 'package:frontend/ui/widgets/menu.dart';
 
@@ -17,12 +16,7 @@ class Dashboard extends StatelessWidget {
   Widget build(BuildContext context) {
     final colors = custom_Colors.colorScheme;
 
-    void irParaStandIn() {
-      Navigator.push(
-        context,
-        MaterialPageRoute(builder: (context) => const StandInPage()),
-      );
-    }
+   
 
     void irParaCadastroPessoa() {
       Navigator.push(
@@ -80,18 +74,30 @@ class Dashboard extends StatelessWidget {
     return Scaffold(
       backgroundColor: colors.surface,
       appBar: AppBar(
-        backgroundColor: colors.primary,
-        foregroundColor: colors.onPrimary,
-
-        automaticallyImplyLeading: false,
-
-        title: Row(
+      backgroundColor: Colors.transparent,
+      foregroundColor: colors.onPrimary,
+      centerTitle: true,
+      elevation: 8,
+      shadowColor: Colors.black.withOpacity(0.5),
+      title: Row(
           spacing: 6,
           children: [
             Image.asset('lib/assets/icons/LogoEmpresa.png', width: 200),
           ],
         ),
+      flexibleSpace: Container(
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            colors: [
+              colors.primary,
+              colors.tertiary,
+            ],
+            begin: Alignment.centerLeft,
+            end: Alignment.centerRight,
+          ),
+        ),
       ),
+    ),
       endDrawer: Menu(
         currentIndex: 4,
 
@@ -154,10 +160,10 @@ class Dashboard extends StatelessWidget {
               ),
 
               SizedBox(
-                width: double.infinity,
+                width: 280,
                 child: botaoDashboard(
                   texto: "Criar Ordem de Serviço",
-                  icone: Icons.assignment_outlined,
+                  icone: Icons.assignment,
                   preenchido: true,
                 ),
               ),

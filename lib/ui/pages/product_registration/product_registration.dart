@@ -1,8 +1,17 @@
 import 'package:flutter/material.dart';
+
+import 'package:frontend/fire_base/models/item.dart';
+import 'package:frontend/fire_base/repositories/item_repository.dart';
+import 'package:frontend/fire_base/services/item_service.dart';
+
+import 'package:frontend/ui/pages/client_list/client_list.dart';
 import 'package:frontend/ui/pages/dashboard.dart';
+import 'package:frontend/ui/pages/edit_item/item_edition.dart';
+import 'package:frontend/ui/pages/os_list/os_list_page.dart';
 import 'package:frontend/ui/pages/product_registration/product_form.dart';
-import 'package:frontend/ui/widgets/header.dart';
+import 'package:frontend/ui/widgets/appBar.dart';
 import 'package:frontend/ui/style/ColorScheme.dart' as custom_colors;
+import 'package:frontend/ui/widgets/menu.dart';
 
 class ProductRegistration extends StatelessWidget {
   const ProductRegistration({super.key});
@@ -10,6 +19,10 @@ class ProductRegistration extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final colors = custom_colors.colorScheme;
+
+    final ItemService itemService = ItemService(
+      ItemRepository(),
+    );
 
     return Scaffold(
       backgroundColor: colors.surface,
@@ -21,6 +34,45 @@ class ProductRegistration extends StatelessWidget {
         title: 'Cadastro de produtos',
       ),
 
+      endDrawer: Menu(
+        currentIndex: 1,
+        onTap: (index) {
+          Navigator.pop(context);
+
+          if (index == 0) {
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => const ClientList()),
+            );
+          }
+
+          if (index == 2) {
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => const OsListPage()),
+            );
+          }
+
+          if (index == 3) {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => const ItemEdition(),
+              ),
+            );
+          }
+
+          if (index == 4) {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => const Dashboard(),
+              ),
+            );
+          }
+        },
+      ),
+
       body: GestureDetector(
         onTap: () {
           FocusScope.of(context).unfocus();
@@ -28,7 +80,10 @@ class ProductRegistration extends StatelessWidget {
 
         child: SafeArea(
           child: SingleChildScrollView(
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 18),
+            padding: const EdgeInsets.symmetric(
+              horizontal: 16,
+              vertical: 18,
+            ),
 
             child: Center(
               child: ConstrainedBox(
@@ -44,27 +99,14 @@ class ProductRegistration extends StatelessWidget {
                         Navigator.pop(context);
                       },
 
-                      onSave: (formValido) {
-                        if (!formValido) {
-                          showDialog(
-                            context: context,
-                            builder: (context) => AlertDialog(
-                              title: const Text("Aviso"),
-                              content: const Text(
-                                "Preencha todos os campos obrigatórios",
-                              ),
-                              actions: [
-                                TextButton(
-                                  onPressed: () => Navigator.pop(context),
-                                  child: const Text("OK"),
-                                ),
-                              ],
-                            ),
-                          );
-                        } else {
-                          showDialog(
-                            context: context,
+                      onSave: (Item item) async {
+                        try {
+                          await itemService.create(item);
 
+                          if (!context.mounted) return;
+
+                          showDialog(
+                            context: context,
                             builder: (context) {
                               return AlertDialog(
                                 shape: RoundedRectangleBorder(
@@ -79,13 +121,12 @@ class ProductRegistration extends StatelessWidget {
                                       color: Colors.green,
                                       size: 28,
                                     ),
-
-                                    Text("Envio confirmado"),
+                                    Text("Cadastro realizado"),
                                   ],
                                 ),
 
                                 content: const Text(
-                                  "O produto foi enviado com sucesso.",
+                                  "O produto foi salvo com sucesso.",
                                 ),
 
                                 actions: [
@@ -93,9 +134,9 @@ class ProductRegistration extends StatelessWidget {
                                     onPressed: () {
                                       Navigator.pop(context);
                                     },
-
                                     child: const Text("Continuar"),
                                   ),
+
                                   TextButton(
                                     onPressed: () {
                                       Navigator.push(
@@ -106,8 +147,29 @@ class ProductRegistration extends StatelessWidget {
                                         ),
                                       );
                                     },
+                                    child: const Text("Ir para o início"),
+                                  ),
+                                ],
+                              );
+                            },
+                          );
+                        } catch (e) {
+                          if (!context.mounted) return;
 
-                                    child: const Text("Cancelar"),
+                          showDialog(
+                            context: context,
+                            builder: (context) {
+                              return AlertDialog(
+                                title: const Text("Erro"),
+                                content: Text(
+                                  "Não foi possível salvar o produto.\n\n$e",
+                                ),
+                                actions: [
+                                  TextButton(
+                                    onPressed: () {
+                                      Navigator.pop(context);
+                                    },
+                                    child: const Text("OK"),
                                   ),
                                 ],
                               );

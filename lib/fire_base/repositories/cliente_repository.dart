@@ -1,141 +1,169 @@
+import 'dart:async';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter/foundation.dart';
+import 'package:frontend/fire_base/firestore_paths.dart';
 import 'package:frontend/fire_base/models/cliente.dart';
 import 'package:frontend/fire_base/models/endereco.dart';
-import 'package:frontend/fire_base/models/pessoa_fisica.dart';
-import 'package:frontend/fire_base/models/pessoa_juridica.dart';
+import 'package:frontend/fire_base/repositories/endereco_repository.dart';
+import 'package:frontend/fire_base/repositories/leitura_firestore.dart'; 
 
 class ClienteRepository {
-  final FirebaseFirestore _firestore;
+  final FirebaseFirestore _db;
 
   ClienteRepository({FirebaseFirestore? firestore})
-      : _firestore = firestore ?? FirebaseFirestore.instance;
+    : _db = firestore ?? FirebaseFirestore.instance;
 
   CollectionReference<Map<String, dynamic>> get _clientes =>
-      _firestore.collection('clients');
+      _db.collection(colecaoClientes);
 
-  CollectionReference<Map<String, dynamic>> get _enderecos =>
-      _firestore.collection('addresses');
+  CollectionReference<Map<String, dynamic>> _enderecos(String clienteId) =>
+      EnderecoRepository.colecao(_db, clienteId);
 
-  /// Monta PessoaFisica / PessoaJuridica conforme o campo `tipo` do documento.
-  Cliente _mapear(DocumentSnapshot<Map<String, dynamic>> doc) {
-    final data = doc.data()!;
-    final base = Cliente.fromFirestore(doc);
-
-    switch (data['tipo']) {
-      case 'fisica':
-        return PessoaFisica(
-          id: base.id,
-          nome: base.nome,
-          info_contato: base.info_contato,
-          removido: base.removido,
-          cpf: (data['cpf'] ?? '').toString().trim(),
-        );
-      case 'juridica':
-        return PessoaJuridica(
-          id: base.id,
-          nome: base.nome,
-          info_contato: base.info_contato,
-          removido: base.removido,
-          cnpj: (data['cnpj'] ?? '').toString().trim(),
-          setor: (data['setor'] ?? '').toString().trim(),
-        );
-      default:
-        return base;
-    }
+  void _enviar(WriteBatch batch, String operacao) {
+    unawaited(
+      batch.commit().catchError((Object e) {
+        debugPrint('Firestore (cliente/$operacao): $e');
+      }),
+    );
   }
 
-  /// Lista os clientes ativos já com os endereços preenchidos.
-  /// É um "join" manual: 2 leituras (clients e addresses) e o agrupamento
-  /// por clienteId é feito aqui, em vez de 1 consulta por cliente.
-  Future<List<Cliente>> listar({bool incluirRemovidos = false}) async {
-    final resultados = await Future.wait([_clientes.get(), _enderecos.get()]);
-    final clientesSnap = resultados[0];
-    final enderecosSnap = resultados[1];
-
-    final porCliente = <String, List<Endereco>>{};
-    for (final doc in enderecosSnap.docs) {
-      final endereco = Endereco.fromFirestore(doc);
-      final clienteId = endereco.clienteId;
-      if (clienteId == null || clienteId.isEmpty) continue;
-      porCliente.putIfAbsent(clienteId, () => []).add(endereco);
-    }
-
-    final clientes = clientesSnap.docs
-        .map(_mapear)
-        .where((c) => incluirRemovidos || !c.removido)
+  List<Cliente> _ativos(QuerySnapshot<Map<String, dynamic>> snapshot) {
+    final lista = snapshot.docs
+        .map(Cliente.fromFirestore)
+        .where((c) => c.ativo)
         .toList();
 
-    for (final cliente in clientes) {
-      cliente.enderecos = porCliente[cliente.id] ?? [];
-    }
+    lista.sort((a, b) => a.nome.toLowerCase().compareTo(b.nome.toLowerCase()));
 
-    clientes.sort(
-      (a, b) => a.nome.toLowerCase().compareTo(b.nome.toLowerCase()),
-    );
-
-    return clientes;
+    return lista;
   }
 
-  /// Cadastro novo: cliente + endereços na MESMA operação (batch).
-  /// Os ids são gerados no app com .doc(), então dá para já gravar o
-  /// clienteId em cada endereço; ou salva tudo, ou não salva nada.
-  Future<String> cadastrar(Cliente cliente, List<Endereco> enderecos) async {
-    final clienteRef = _clientes.doc();
-    final batch = _firestore.batch();
+  Stream<List<Cliente>> observar() => _clientes.snapshots().map(_ativos);
 
-    batch.set(clienteRef, cliente.toFirestore());
+  Future<List<Cliente>> listar() async => _ativos(await lerComFallback(_clientes));
+
+  Future<List<Cliente>> listarDoCache() async {
+    try {
+      final snapshot = await _clientes.get(
+        const GetOptions(source: Source.cache),
+      );
+      return _ativos(snapshot);
+    } catch (_) {
+      return [];
+    }
+  }
+
+  Future<void> cadastrar(Cliente cliente, List<Endereco> enderecos) async {
+    final batch = _db.batch();
+    final agora = FieldValue.serverTimestamp();
+
+    batch.set(_clientes.doc(cliente.id), {
+      ...cliente.toMap(),
+      'created_at': agora,
+      'updated_at': agora,
+      'deleted_at': null,
+    });
 
     for (final endereco in enderecos) {
-      batch.set(
-        _enderecos.doc(),
-        endereco.copyWith(clienteId: clienteRef.id).toFirestore(),
-      );
+      batch.set(_enderecos(cliente.id).doc(endereco.id), {
+        ...endereco.toMap(),
+        'created_at': agora,
+        'updated_at': agora,
+        'deleted_at': null,
+      });
     }
 
-    await batch.commit();
-
-    return clienteRef.id;
+    _enviar(batch, 'cadastrar');
   }
 
-  /// Edição: grava o cliente e sincroniza os endereços numa única operação.
-  /// - endereço com id        -> regrava (edição)
-  /// - endereço sem id        -> cria
-  /// - endereço que existe no banco e não está mais na lista -> apaga
-  Future<void> atualizar(Cliente cliente, List<Endereco> enderecos) async {
-    final id = cliente.id;
-    if (id == null) {
-      throw ArgumentError('Cliente sem id não pode ser atualizado.');
-    }
+  Future<void> atualizar(
+    Cliente cliente,
+    List<Endereco> originais,
+    List<Endereco> atuais,
+  ) async {
+    final batch = _db.batch();
+    final agora = FieldValue.serverTimestamp();
 
-    final existentes = await _enderecos.where('clienteId', isEqualTo: id).get();
-    final idsMantidos = enderecos.map((e) => e.id).whereType<String>().toSet();
+    batch.update(_clientes.doc(cliente.id), {
+      ...cliente.toMap(),
+      'updated_at': agora,
+    });
 
-    final batch = _firestore.batch();
+    final antigos = {for (final e in originais) e.id: e};
+    final idsAtuais = {for (final e in atuais) e.id};
 
-    // set (e não update) para não deixar campo antigo, ex.: cpf de quem
-    // virou pessoa jurídica
-    batch.set(_clientes.doc(id), cliente.toFirestore());
+    for (final endereco in atuais) {
+      final ref = _enderecos(cliente.id).doc(endereco.id);
+      final antigo = antigos[endereco.id];
 
-    for (final doc in existentes.docs) {
-      if (!idsMantidos.contains(doc.id)) {
-        batch.delete(doc.reference);
+      if (antigo == null) {
+        batch.set(ref, {
+          ...endereco.toMap(),
+          'created_at': agora,
+          'updated_at': agora,
+          'deleted_at': null,
+        });
+      } else if (!antigo.mesmosDados(endereco)) {
+        batch.update(ref, {...endereco.toMap(), 'updated_at': agora});
       }
     }
 
-    for (final endereco in enderecos) {
-      // doc(null) gera um id novo; doc(id) mira o documento existente
-      batch.set(
-        _enderecos.doc(endereco.id),
-        endereco.copyWith(clienteId: id).toFirestore(),
-      );
+    final exclusao = Timestamp.now();
+    for (final removido in originais.where((e) => !idsAtuais.contains(e.id))) {
+      batch.update(_enderecos(cliente.id).doc(removido.id), {
+        'deleted_at': exclusao,
+        'updated_at': agora,
+      });
     }
 
-    await batch.commit();
+    _enviar(batch, 'atualizar');
   }
 
-  /// Soft delete: o documento continua no banco (as OS antigas precisam do
-  /// histórico) e some da listagem.
-  Future<void> definirRemovido(String id, bool removido) async {
-    await _clientes.doc(id).update({'removido': removido});
+  Future<void> excluir(String id) async {
+    final enderecos = await lerComFallback(_enderecos(id));
+    final batch = _db.batch();
+    final agora = FieldValue.serverTimestamp();
+    final exclusao = Timestamp.now();
+
+    batch.update(_clientes.doc(id), {
+      'deleted_at': exclusao,
+      'updated_at': agora,
+    });
+
+    for (final doc in enderecos.docs) {
+      if (doc.data()['deleted_at'] == null) {
+        batch.update(doc.reference, {
+          'deleted_at': exclusao,
+          'updated_at': agora,
+        });
+      }
+    }
+
+    _enviar(batch, 'excluir');
+  }
+
+  Future<void> restaurar(String id) async {
+    final doc = await lerDocumentoComFallback(_clientes.doc(id));
+    final exclusao = doc.data()?['deleted_at'];
+
+    final batch = _db.batch();
+    final agora = FieldValue.serverTimestamp();
+
+    batch.update(_clientes.doc(id), {'deleted_at': null, 'updated_at': agora});
+
+    if (exclusao is Timestamp) {
+      final enderecos = await lerComFallback(_enderecos(id)); // [ALTERADO]
+
+      for (final endereco in enderecos.docs) {
+        if (endereco.data()['deleted_at'] == exclusao) {
+          batch.update(endereco.reference, {
+            'deleted_at': null,
+            'updated_at': agora,
+          });
+        }
+      }
+    }
+
+    _enviar(batch, 'restaurar');
   }
 }

@@ -1,14 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:frontend/ui/pages/os/tabs/data_os.dart';
-import 'package:frontend/ui/pages/os/os_service/os_service.dart';
-import 'package:frontend/ui/pages/os/tabs/clientOs.dart';
+import 'package:frontend/ui/pages/os/tabs/os_service.dart';
 import 'package:frontend/ui/pages/os/tabs/values_os.dart';
-import 'package:frontend/ui/pages/os/tolls_os.dart';
-import 'package:frontend/ui/pages/os_list/os_list_page.dart';
+import 'package:frontend/ui/pages/os/tabs/tolls_os.dart';
 import 'package:frontend/ui/style/ColorScheme.dart' as custom_colors;
 
 class Tabbar extends StatefulWidget {
-  final serviceOrderNumber;
+  final dynamic serviceOrderNumber;
 
   const Tabbar({super.key, required this.serviceOrderNumber});
 
@@ -17,37 +15,14 @@ class Tabbar extends StatefulWidget {
 }
 
 class _TabbarState extends State<Tabbar> with TickerProviderStateMixin {
-  late final TabController _tabController;
-
   String _status = 'EM_CONSERTO';
 
   final colors = custom_colors.colorScheme;
-
-  void goToNextTab() {
-    if (_tabController.index < _tabController.length - 1) {
-      _tabController.animateTo(_tabController.index + 1);
-    }
-  }
-
-  void goToPreviousTab() {
-    if (_tabController.index > 0) {
-      _tabController.animateTo(_tabController.index - 1);
-    }
-  }
 
   void _concluirOs() {
     setState(() {
       _status = 'CONCLUIDA';
     });
-    
-    // para verificar que a os foi marcada como concluida, comente o trecho abaixo e vá para a aba de dados manualmente. 
-      // caso queira que após a conclusão, seja retornada à listagem de OS, descomente o trecho abaixo.
-      
-    // Navigator.push(
-    //   context, 
-    //   MaterialPageRoute(
-    //     builder: (_) =>OsListPage()),
-    // );
   }
 
   void _alterarStatus(String novoStatus) {
@@ -57,28 +32,46 @@ class _TabbarState extends State<Tabbar> with TickerProviderStateMixin {
   }
 
   @override
-  void dispose() {
-    super.dispose();
-    _tabController.dispose();
-  }
-
-  @override
   Widget build(BuildContext context) {
     return DefaultTabController(
       length: 4,
       child: Scaffold(
         backgroundColor: colors.surface,
-
         appBar: AppBar(
+          backgroundColor: Colors.transparent,
+          foregroundColor: Colors.white,
+          centerTitle: true,
+          elevation: 8,
+          shadowColor: Colors.black.withOpacity(0.5),
+          leading: IconButton(
+            icon: const Icon(Icons.arrow_back),
+            onPressed: () => Navigator.pop(context),
+          ),
           title: Text(
             'OS nº ${widget.serviceOrderNumber}',
+            style: const TextStyle(
+              color: Colors.white,
+              fontWeight: FontWeight.bold,
+              fontSize: 20,
+            ),
           ),
-          backgroundColor: colors.primary,
-          foregroundColor: colors.onSecondary,
-          leading: _onBackAppbar,
-
+          flexibleSpace: Container(
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                colors: [
+                  colors.primary,
+                  colors.tertiary,
+                ],
+                begin: Alignment.centerLeft,
+                end: Alignment.centerRight,
+              ),
+            ),
+          ),
           bottom: TabBar(
-            labelColor: colors.onSecondary,
+            labelColor: Colors.white,
+            unselectedLabelColor: Colors.white70,
+            indicatorColor: Colors.white,
+            indicatorWeight: 3,
             tabs: const [
               Tab(
                 icon: Icon(Icons.description),
@@ -99,37 +92,19 @@ class _TabbarState extends State<Tabbar> with TickerProviderStateMixin {
             ],
           ),
         ),
-
         body: TabBarView(
           children: [
             DataOs(
               status: _status,
               onStatusChanged: _alterarStatus,
             ),
-
             TollsOs(),
-
             OsServicosTab(),
-
             ValuesOs(
               onConcluir: _concluirOs,
             ),
           ],
         ),
-      ),
-    );
-  }
-
-  Widget get _onBackAppbar {
-    return IconButton(
-      onPressed: () => Navigator.pop(context),
-      icon: const Icon(
-        Icons.arrow_back,
-        size: 20,
-      ),
-      style: IconButton.styleFrom(
-        backgroundColor: Colors.white,
-        foregroundColor: Colors.blue,
       ),
     );
   }

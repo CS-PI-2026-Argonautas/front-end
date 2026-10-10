@@ -1,52 +1,83 @@
+import 'dart:async';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter/foundation.dart';
+import 'package:frontend/fire_base/firestore_paths.dart';
 import 'package:frontend/fire_base/models/endereco.dart';
+import 'package:frontend/fire_base/repositories/leitura_firestore.dart'; 
 
 class EnderecoRepository {
-  final FirebaseFirestore _firestore;
+  final FirebaseFirestore _db;
 
-  EnderecoRepository({
-    FirebaseFirestore? firestore,
-  }) : _firestore = firestore ?? FirebaseFirestore.instance;
+  EnderecoRepository({FirebaseFirestore? firestore})
+    : _db = firestore ?? FirebaseFirestore.instance;
 
-  CollectionReference<Map<String, dynamic>> get _collection =>
-      _firestore.collection('addresses');
-
-  Future<List<Endereco>> listAll() async {
-    final snapshot = await _collection.get();
-
-    return snapshot.docs.map(Endereco.fromFirestore).toList();
+  static CollectionReference<Map<String, dynamic>> colecao(
+    FirebaseFirestore db,
+    String clienteId,
+  ) {
+    return db.collection(colecaoClientes).doc(clienteId).collection(subcolecaoEnderecos);
   }
 
-  /// Endereços de um cliente. Filtro por um único campo não exige índice
-  /// composto; a ordenação é feita aqui na memória.
-  Future<List<Endereco>> listByCliente(String clienteId) async {
-    final snapshot = await _collection
-        .where('clienteId', isEqualTo: clienteId)
-        .get();
+  CollectionReference<Map<String, dynamic>> _col(String clienteId) =>
+      colecao(_db, clienteId);
 
-    final lista = snapshot.docs.map(Endereco.fromFirestore).toList();
-    lista.sort((a, b) => a.rua.toLowerCase().compareTo(b.rua.toLowerCase()));
+  void _log(Object erro, String operacao) {
+    debugPrint('Firestore (endereco/$operacao): $erro');
+  }
+
+  Future<List<Endereco>> listar(String clienteId) async {
+    final snapshot = await lerComFallback(_col(clienteId));
+
+    final lista = snapshot.docs
+        .map(Endereco.fromFirestore)
+        .where((e) => e.ativo)
+        .toList();
+
+    lista.sort(
+      (a, b) =>
+          a.logradouro.toLowerCase().compareTo(b.logradouro.toLowerCase()),
+    );
 
     return lista;
   }
 
-  /// Cria o documento e devolve o id gerado.
-  Future<String> save(Endereco endereco) async {
-    final ref = await _collection.add(endereco.toFirestore());
+  Future<void> salvar(String clienteId, Endereco endereco) async {
+    final agora = FieldValue.serverTimestamp();
 
-    return ref.id;
-  }
-
-  Future<void> update(
-    String id,
-    Endereco endereco,
-  ) async {
-    await _collection.doc(id).update(
-      endereco.toFirestore(),
+    unawaited(
+      _col(clienteId)
+          .doc(endereco.id)
+          .set({
+            ...endereco.toMap(),
+            'created_at': agora,
+            'updated_at': agora,
+            'deleted_at': null,
+          })
+          .catchError((Object e) => _log(e, 'salvar')),
     );
   }
 
-  Future<void> delete(String id) async {
-    await _collection.doc(id).delete();
+  Future<void> atualizar(String clienteId, Endereco endereco) async {
+    unawaited(
+      _col(clienteId)
+          .doc(endereco.id)
+          .update({
+            ...endereco.toMap(),
+            'updated_at': FieldValue.serverTimestamp(),
+          })
+          .catchError((Object e) => _log(e, 'atualizar')),
+    );
+  }
+
+  Future<void> excluir(String clienteId, String enderecoId) async {
+    unawaited(
+      _col(clienteId)
+          .doc(enderecoId)
+          .update({
+            'deleted_at': Timestamp.now(),
+            'updated_at': FieldValue.serverTimestamp(),
+          })
+          .catchError((Object e) => _log(e, 'excluir')),
+    );
   }
 }

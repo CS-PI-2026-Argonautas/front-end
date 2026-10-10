@@ -1,20 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:frontend/fire_base/models/endereco.dart';
 import 'package:frontend/ui/style/ColorScheme.dart' as custom_colors;
-import 'package:frontend/ui/widgets/form_field_label.dart';
+import 'package:frontend/ui/widgets/form/form_field_label.dart';
 import 'package:frontend/ui/widgets/show_dialog/show_delete_client_dialog.dart';
 import 'package:frontend/ui/widgets/show_snackbar/show_delete_client_snackbar.dart';
 import 'package:frontend/ui/widgets/slidable/slidable_delete_card.dart';
 import 'package:frontend/utils/data_os/address_formatter.dart';
 
-/// Lista de endereços de um cliente dentro do formulário (cadastro e edição).
-///
-/// Altera [enderecos] diretamente (adiciona, troca, remove). Nada é gravado
-/// no banco aqui: quem salva é a tela, ao confirmar o formulário.
 class EnderecosEditor extends StatefulWidget {
   final List<Endereco> enderecos;
 
-  /// Abre o formulário de endereço; [inicial] é null para "novo".
   final Future<Endereco?> Function(Endereco? inicial) abrirFormulario;
 
   const EnderecosEditor({
@@ -53,7 +48,8 @@ class _EnderecosEditorState extends State<EnderecosEditor> {
   Future<void> _remover(int index) async {
     final endereco = widget.enderecos[index];
 
-    final confirmar = await showDialog<bool>(
+    final confirmar =
+        await showDialog<bool>(
           context: context,
           builder: (_) =>
               ShowDeleteClientDialog(nome: formatarEndereco(endereco)),
@@ -93,10 +89,7 @@ class _EnderecosEditorState extends State<EnderecosEditor> {
           spacing: 6,
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            const FormFieldLabel(
-              icon: Icons.home_outlined,
-              label: "Endereços",
-            ),
+            const FormFieldLabel(icon: Icons.home_outlined, label: "Endereços"),
             IconButton(
               padding: EdgeInsets.zero,
               constraints: const BoxConstraints(),
@@ -134,9 +127,8 @@ class _EnderecosEditorState extends State<EnderecosEditor> {
                 child: ClipRRect(
                   borderRadius: BorderRadius.circular(12),
                   child: SlidableDeleteCard(
-                    slidableKey: ValueKey(
-                      endereco.id ?? '$index-${formatarEndereco(endereco)}',
-                    ),
+                    // [ALTERADO] id agora nunca é nulo (UUID)
+                    slidableKey: ValueKey(endereco.id),
                     extentRatio: 0.20,
                     onDelete: () => _remover(index),
                     child: Container(

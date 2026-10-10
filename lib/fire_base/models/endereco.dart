@@ -1,99 +1,82 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:frontend/fire_base/Enums/Uf.dart';
+import 'package:uuid/uuid.dart';
 
 class Endereco {
-  String? id;
+  final String id;
 
-  /// Id do documento do cliente dono do endereço (coleção `clients`).
-  /// Fica null enquanto o cliente ainda não foi salvo.
-  String? clienteId;
-
-  String cep;
-  String rua;
-  String cidade;
-  String complemento;
+  String cep; 
+  String logradouro; 
   String numero;
-  Uf uf;
+  String complemento; 
+  String cidade; 
+  Uf uf; 
+
+  Timestamp? createdAt;
+  Timestamp? updatedAt;
+  Timestamp? deletedAt;
 
   Endereco({
-    this.id,
-    this.clienteId,
+    String? id,
     required this.cep,
-    required this.rua,
+    required this.logradouro,
+    this.numero = '',
+    this.complemento = '',
     required this.cidade,
-    required this.complemento,
-    this.numero = 'S/N',
     required this.uf,
-  });
+    this.createdAt,
+    this.updatedAt,
+    this.deletedAt,
+  }) : id = id ?? const Uuid().v4();
 
-  /// Só os dados do endereço (sem id e sem clienteId).
-  /// É isso que a OS grava como cópia embutida.
+  bool get ativo => deletedAt == null;
+
+  static String? _nulo(String valor) {
+    final texto = valor.trim();
+    return texto.isEmpty ? null : texto;
+  }
+
   Map<String, dynamic> toMap() {
     return {
-      'cep': cep,
-      'rua': rua,
-      'cidade': cidade,
-      'complemento': complemento,
-      'numero': numero,
+      'cep': _nulo(cep),
+      'logradouro': logradouro.trim(),
+      'numero': _nulo(numero),
+      'complemento': _nulo(complemento),
+      'cidade': cidade.trim(),
       'uf': uf.name,
     };
   }
 
-  /// Documento da coleção `addresses`: dados + vínculo com o cliente.
-  Map<String, dynamic> toFirestore() {
-    return {
-      ...toMap(),
-      'clienteId': clienteId,
-    };
-  }
-
   static String _texto(Object? valor) => (valor ?? '').toString().trim();
+  static Timestamp? _ts(Object? valor) => valor is Timestamp ? valor : null;
 
-  factory Endereco.fromMap(
-    Map<String, dynamic> data, {
-    String? id,
-    String? clienteId,
-  }) {
+  factory Endereco.fromMap(Map<String, dynamic> data, {String? id}) {
     final ufTexto = _texto(data['uf']).toUpperCase();
 
     return Endereco(
       id: id,
-      clienteId: clienteId,
       cep: _texto(data['cep']),
-      rua: _texto(data['rua']),
-      cidade: _texto(data['cidade']),
+      logradouro: _texto(data['logradouro']),
+      numero: _texto(data['numero']),
       complemento: _texto(data['complemento']),
-      numero: _texto(data['numero']).isEmpty ? 'S/N' : _texto(data['numero']),
-      // documento com UF inválida não derruba a lista inteira
-      uf: Uf.values.firstWhere(
-        (u) => u.name == ufTexto,
-        orElse: () => Uf.PR,
-      ),
+      cidade: _texto(data['cidade']),
+      uf: Uf.values.firstWhere((u) => u.name == ufTexto, orElse: () => Uf.PR),
+      createdAt: _ts(data['created_at']),
+      updatedAt: _ts(data['updated_at']),
+      deletedAt: _ts(data['deleted_at']),
     );
   }
 
-  factory Endereco.fromFirestore(
-    DocumentSnapshot<Map<String, dynamic>> doc,
-  ) {
-    final data = doc.data()!;
-
-    return Endereco.fromMap(
-      data,
-      id: doc.id,
-      clienteId: data['clienteId'] as String?,
-    );
+  factory Endereco.fromFirestore(DocumentSnapshot<Map<String, dynamic>> doc) {
+    return Endereco.fromMap(doc.data() ?? <String, dynamic>{}, id: doc.id);
   }
 
-  Endereco copyWith({String? id, String? clienteId}) {
-    return Endereco(
-      id: id ?? this.id,
-      clienteId: clienteId ?? this.clienteId,
-      cep: cep,
-      rua: rua,
-      complemento: complemento,
-      cidade: cidade,
-      numero: numero,
-      uf: uf,
-    );
+  bool mesmosDados(Endereco outro) {
+    return cep.trim() == outro.cep.trim() &&
+        logradouro.trim() == outro.logradouro.trim() &&
+        numero.trim() == outro.numero.trim() &&
+        complemento.trim() == outro.complemento.trim() &&
+        cidade.trim() == outro.cidade.trim() &&
+        uf == outro.uf;
   }
 }
