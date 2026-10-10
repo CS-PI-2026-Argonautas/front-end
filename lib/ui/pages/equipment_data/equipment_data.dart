@@ -27,10 +27,10 @@ class EquipmentData extends StatefulWidget {
   });
 
   @override
-  State<EquipmentData> createState() => _EquipamentDataState();
+  State<EquipmentData> createState() => _EquipmentDataState();
 }
 
-class _EquipamentDataState extends State<EquipmentData> {
+class _EquipmentDataState extends State<EquipmentData> {
   static const _statusBloqueados = ['PAGA', 'ENTREGUE'];
 
   String? get _statusOs => widget.osDados?['status'] as String?;
