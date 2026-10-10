@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:frontend/ui/style/ColorScheme.dart' as custom_colors;
+import 'package:frontend/fire_base/models/dinheiro.dart';
 
 class ValuesOs extends StatefulWidget {
   final VoidCallback? onConcluir;
@@ -18,12 +19,12 @@ class _ValuesOsState extends State<ValuesOs> {
   @override
   Widget build(BuildContext context) {
 
-    const double subtotalPecas = 100.00;
-    const double subtotalServicos = 100.00;
-    const double desconto = 0.00;
-    const double taxas = 0.00;
+    final Dinheiro subtotalPecas = Dinheiro.fromReais(100.00);
+    final Dinheiro subtotalServicos = Dinheiro.fromReais(100.00);
+    final Dinheiro desconto = Dinheiro.fromReais(0.00);
+    final Dinheiro taxas = Dinheiro.fromReais(0.00);
 
-    final double total =
+    final Dinheiro total =
         subtotalPecas + subtotalServicos + taxas - desconto;
 
     return SingleChildScrollView(
@@ -49,11 +50,11 @@ class _ValuesOsState extends State<ValuesOs> {
   }
 
   Widget _buildFormCard({
-    required double subtotalPecas,
-    required double subtotalServicos,
-    required double desconto,
-    required double taxas,
-    required double total,
+    required Dinheiro subtotalPecas,
+    required Dinheiro subtotalServicos,
+    required Dinheiro desconto,
+    required Dinheiro taxas,
+    required Dinheiro total,
   }) {
     final colors = custom_colors.colorScheme;
     return Card(
@@ -84,11 +85,11 @@ class _ValuesOsState extends State<ValuesOs> {
               children: [
                 _buildItem(
                   name: 'Peça',
-                  value: 50.00,
+                  value: Dinheiro.fromReais(50.00),
                 ),
                 _buildItem(
                   name: 'Peça',
-                  value: 50.00,
+                  value: Dinheiro.fromReais(50.00),
                 ),
               ],
             ),
@@ -100,11 +101,11 @@ class _ValuesOsState extends State<ValuesOs> {
               children: [
                 _buildItem(
                   name: 'Serviço',
-                  value: 50.00,
+                  value: Dinheiro.fromReais(50.00),
                 ),
                 _buildItem(
                   name: 'Serviço',
-                  value: 50.00,
+                  value: Dinheiro.fromReais(50.00),
                 ),
               ],
             ),
@@ -212,7 +213,7 @@ class _ValuesOsState extends State<ValuesOs> {
   Widget _buildSummarySection({
     required IconData icon,
     required String title,
-    required double value,
+    required Dinheiro value,
     required List<Widget> children,
   }) {
     final colors = custom_colors.colorScheme;
@@ -245,7 +246,7 @@ class _ValuesOsState extends State<ValuesOs> {
                 ),
               ),
               Text(
-                _formatMoney(value),
+                value.formatado(),
                 style: TextStyle(
                   color: colors.secondary,
                   fontSize: 17,
@@ -265,7 +266,7 @@ class _ValuesOsState extends State<ValuesOs> {
 
   Widget _buildItem({
     required String name,
-    required double value,
+    required Dinheiro value,
   }) {
     final colors = custom_colors.colorScheme;
     return Padding(
@@ -291,7 +292,7 @@ class _ValuesOsState extends State<ValuesOs> {
             ),
           ),
           Text(
-            _formatMoney(value),
+            value.formatado(),
             style: TextStyle(
               color: colors.onSurfaceVariant,
               fontSize: 14,
@@ -305,7 +306,7 @@ class _ValuesOsState extends State<ValuesOs> {
   Widget _buildValueRow({
     required IconData icon,
     required String title,
-    required double value,
+    required Dinheiro value,
     required Color color,
   }) {
     return Container(
@@ -341,7 +342,7 @@ class _ValuesOsState extends State<ValuesOs> {
             ),
           ),
           Text(
-            _formatMoney(value),
+            value.formatado(),
             style: TextStyle(
               color: color,
               fontSize: 15,
@@ -354,7 +355,7 @@ class _ValuesOsState extends State<ValuesOs> {
   }
 
   Widget _buildTotalCard({
-    required double total,
+    required Dinheiro total,
   }) {
     final colors = custom_colors.colorScheme;
     return Container(
@@ -411,7 +412,7 @@ class _ValuesOsState extends State<ValuesOs> {
           ),
 
           Text(
-            _formatMoney(total),
+            total.formatado(),
             style: TextStyle(
               color: colors.secondary,
               fontSize: 20,
@@ -421,10 +422,6 @@ class _ValuesOsState extends State<ValuesOs> {
         ],
       ),
     );
-  }
-
-  String _formatMoney(double value) {
-    return 'R\$${value.toStringAsFixed(2).replaceAll('.', ',')}';
   }
 }
 
