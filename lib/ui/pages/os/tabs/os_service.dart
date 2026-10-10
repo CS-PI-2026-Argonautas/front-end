@@ -1,6 +1,7 @@
 import 'dart:math';
 
 import 'package:flutter/material.dart';
+import 'package:frontend/fire_base/models/dinheiro.dart';
 import 'package:frontend/ui/style/ColorScheme.dart' as custom_colors;
 import 'package:frontend/ui/widgets/floatingButton.dart';
 import 'package:frontend/ui/widgets/bottom_sheet/bottom_sheet.dart';
@@ -204,7 +205,7 @@ void _abrirListaServicos() {
                     ),
                       ),
                       Text(
-                        'R\$ ${_subtotal.toStringAsFixed(2).replaceAll('.', ',')}',
+                        Dinheiro(_subtotal as int).formatado(),
                         style: TextStyle(
                           color: Colors.blueGrey.shade600,
                           fontSize: 18,
@@ -385,7 +386,7 @@ void _abrirListaServicos() {
                 const SizedBox(height: 8),
 
                 Text(
-                  'R\$ ${preco.toStringAsFixed(2).replaceAll('.', ',')}',
+                  Dinheiro(preco as int).formatado(),
                   style: TextStyle(
                     color: colors.primary,
                     fontSize: 15,
