@@ -3,7 +3,7 @@ import 'package:frontend/fire_base/models/client.dart';
 import 'package:frontend/fire_base/models/address.dart';
 import 'package:frontend/fire_base/Enums/PersonType.dart';
 import 'package:frontend/fire_base/models/contact.dart';
-import 'package:frontend/fire_base/services/cliente_service.dart';
+import 'package:frontend/fire_base/services/client_service.dart';
 import 'package:frontend/ui/pages/person_registration/person_registration_contact.dart';
 import 'package:frontend/ui/style/ColorScheme.dart' as custom_colors;
 import 'package:frontend/ui/pages/person_registration/person_registration_address.dart';
@@ -50,7 +50,7 @@ class _PersonRegistrationState1 extends State<PersonRegistration> {
   final _nomeController = TextEditingController();
   final _documentoController = TextEditingController();
 
-  final ClienteService _service = ClienteService();
+  final ClientService _service = ClientService();
   bool _salvando = false;
 
   @override
@@ -244,7 +244,7 @@ class _PersonRegistrationState1 extends State<PersonRegistration> {
           keyboardType: TextInputType.number,
           inputFormatters: [_isPessoaFisica ? _cpfFormatter : _cnpjFormatter],
           validator: (value) =>
-              ClienteService.validarDocumento(value ?? '', _tipoPessoa),
+              ClientService.validarDocumento(value ?? '', _tipoPessoa),
         ),
 
         CheckboxListTile(

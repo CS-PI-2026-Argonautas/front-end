@@ -29,11 +29,11 @@ class Item {
 
     return Item(
       id: document.id,
-      name: data['nome'] as String,
-      description: data['descricao'] as String?,
-      valueInCents: data['valor_centavos'] as int,
-      minimumQuantity: data['quantidade_minima'] as int,
-      type: _typeFromFirestore(data['tipo'] as String),
+      name: data['name'] as String,
+      description: data['description'] as String?,
+      valueInCents: data['value_in_cents'] as int,
+      minimumQuantity: data['minimum_quantity'] as int,
+      type: _typeFromFirestore(data['type'] as String),
       createdAt: data['created_at'] as Timestamp,
       updatedAt: data['updated_at'] as Timestamp,
       deletedAt: data['deleted_at'] as Timestamp?,
@@ -42,11 +42,11 @@ class Item {
 
   Map<String, dynamic> toFirestore() {
     return {
-      'nome': name,
-      'descricao': description,
-      'valor_centavos': valueInCents,
-      'quantidade_minima': minimumQuantity,
-      'tipo': _typeToFirestore(type),
+      'name': name,
+      'description': description,
+      'value_in_cents': valueInCents,
+      'minimum_quantity': minimumQuantity,
+      'type': _typeToFirestore(type),
       'created_at': createdAt,
       'updated_at': updatedAt,
       'deleted_at': deletedAt,

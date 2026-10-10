@@ -3,12 +3,12 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/foundation.dart';
 import 'package:frontend/fire_base/firestore_paths.dart';
 import 'package:frontend/fire_base/models/address.dart';
-import 'package:frontend/fire_base/repositories/leitura_firestore.dart'; 
+import 'package:frontend/fire_base/repositories/firestore_reading.dart'; 
 
-class EnderecoRepository {
+class AddressRepository {
   final FirebaseFirestore _db;
 
-  EnderecoRepository({FirebaseFirestore? firestore})
+  AddressRepository({FirebaseFirestore? firestore})
     : _db = firestore ?? FirebaseFirestore.instance;
 
   static CollectionReference<Map<String, dynamic>> colecao(

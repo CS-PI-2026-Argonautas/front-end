@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:frontend/fire_base/services/cliente_service.dart';
-import 'package:frontend/fire_base/services/endereco_service.dart';
+import 'package:frontend/fire_base/services/client_service.dart';
+import 'package:frontend/fire_base/services/address_service.dart';
 import 'package:frontend/fire_base/models/address.dart';
 import 'package:frontend/ui/pages/person_registration/person_registration_address.dart';
 import 'package:frontend/ui/style/ColorScheme.dart' as custom_colors;
@@ -11,7 +11,7 @@ import 'package:frontend/utils/data_os/address_formatter.dart';
 import 'package:frontend/ui/pages/person_registration/person_registration.dart';
 import 'package:frontend/ui/pages/stand_in_page.dart';
 import 'package:frontend/fire_base/models/equipment.dart';
-import 'package:frontend/fire_base/services/equipamento_service.dart';
+import 'package:frontend/fire_base/services/equipment_service.dart';
 import 'package:frontend/ui/pages/equipment_data/equipment_data.dart';
 
 class DataOs extends StatefulWidget {
@@ -57,13 +57,13 @@ class _DataOsState extends State<DataOs> {
     };
   }
 
-  final EquipamentoService _equipamentoService = EquipamentoService();
+  final EquipmentService _equipamentoService = EquipmentService();
   final colors = custom_colors.colorScheme;
 
-  final EnderecoService _enderecoService = EnderecoService();
+  final AddressService _enderecoService = AddressService();
   Address? _enderecoSelecionado;
 
-  final ClienteService _clienteService = ClienteService();
+  final ClientService _clienteService = ClientService();
   List<Map<String, dynamic>> clientesDisponiveis = [];
   Map<String, dynamic>? clienteSelecionado;
 

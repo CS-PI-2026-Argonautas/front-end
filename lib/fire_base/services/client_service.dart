@@ -1,13 +1,13 @@
 import 'package:frontend/fire_base/Enums/PersonType.dart';
 import 'package:frontend/fire_base/models/client.dart';
 import 'package:frontend/fire_base/models/address.dart';
-import 'package:frontend/fire_base/repositories/cliente_repository.dart';
+import 'package:frontend/fire_base/repositories/client_repository.dart';
 
-class ClienteService {
-  final ClienteRepository _repository;
+class ClientService {
+  final ClientRepository _repository;
 
-  ClienteService({ClienteRepository? repository})
-    : _repository = repository ?? ClienteRepository();
+  ClientService({ClientRepository? repository})
+    : _repository = repository ?? ClientRepository();
 
   Stream<List<Client>> observar() => _repository.observar();
 

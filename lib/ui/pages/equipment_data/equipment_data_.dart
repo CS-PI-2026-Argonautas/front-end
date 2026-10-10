@@ -9,7 +9,7 @@ import 'package:frontend/ui/widgets/form/labeled_form.dart';
 import 'package:frontend/fire_base/models/equipment.dart';
 import 'package:frontend/fire_base/services/equipment_service.dart';
 
-class EquipmentData extends StatefulWidget {
+class EquipmentData_ extends StatefulWidget {
   final VoidCallback? onBack;
   final VoidCallback? onClose;
   final VoidCallback? onCancel;
@@ -17,7 +17,7 @@ class EquipmentData extends StatefulWidget {
 
   final Map<String, dynamic>? osDados;
 
-  const EquipmentData({
+  const EquipmentData_({
     super.key,
     this.onBack,
     this.onClose,
@@ -27,10 +27,10 @@ class EquipmentData extends StatefulWidget {
   });
 
   @override
-  State<EquipmentData> createState() => _EquipamentDataState();
+  State<EquipmentData_> createState() => _EquipmentDataState();
 }
 
-class _EquipamentDataState extends State<EquipmentData> {
+class _EquipmentDataState extends State<EquipmentData_> {
   static const _statusBloqueados = ['PAGA', 'ENTREGUE'];
 
   String? get _statusOs => widget.osDados?['status'] as String?;

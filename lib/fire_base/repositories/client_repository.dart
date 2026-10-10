@@ -4,20 +4,20 @@ import 'package:flutter/foundation.dart';
 import 'package:frontend/fire_base/firestore_paths.dart';
 import 'package:frontend/fire_base/models/client.dart';
 import 'package:frontend/fire_base/models/address.dart';
-import 'package:frontend/fire_base/repositories/endereco_repository.dart';
-import 'package:frontend/fire_base/repositories/leitura_firestore.dart'; 
+import 'package:frontend/fire_base/repositories/address_repository.dart';
+import 'package:frontend/fire_base/repositories/firestore_reading.dart'; 
 
-class ClienteRepository {
+class ClientRepository {
   final FirebaseFirestore _db;
 
-  ClienteRepository({FirebaseFirestore? firestore})
+  ClientRepository({FirebaseFirestore? firestore})
     : _db = firestore ?? FirebaseFirestore.instance;
 
   CollectionReference<Map<String, dynamic>> get _clientes =>
       _db.collection(colecaoClientes);
 
   CollectionReference<Map<String, dynamic>> _enderecos(String clienteId) =>
-      EnderecoRepository.colecao(_db, clienteId);
+      AddressRepository.colecao(_db, clienteId);
 
   void _enviar(WriteBatch batch, String operacao) {
     unawaited(

@@ -3,8 +3,8 @@ import 'package:frontend/fire_base/Enums/PersonType.dart';
 import 'package:frontend/fire_base/models/client.dart';
 import 'package:frontend/fire_base/models/contact.dart';
 import 'package:frontend/fire_base/models/address.dart';
-import 'package:frontend/fire_base/services/cliente_service.dart';
-import 'package:frontend/fire_base/services/endereco_service.dart';
+import 'package:frontend/fire_base/services/client_service.dart';
+import 'package:frontend/fire_base/services/address_service.dart';
 import 'package:frontend/ui/pages/person_alteration/person_alteration_address.dart';
 import 'package:frontend/ui/pages/person_alteration/person_alteration_contact.dart';
 import 'package:frontend/ui/style/ColorScheme.dart' as custom_colors;
@@ -29,8 +29,8 @@ class PersonAlteration extends StatefulWidget {
 class _PersonAlterationState extends State<PersonAlteration> {
   final _formKey = GlobalKey<FormState>();
   final colors = custom_colors.colorScheme;
-  final ClienteService _service = ClienteService();
-  final EnderecoService _enderecoService = EnderecoService(); 
+  final ClientService _service = ClientService();
+  final AddressService _enderecoService = AddressService(); 
 
   late bool _isPessoaFisica;
   late Contact _contato; 
@@ -303,7 +303,7 @@ class _PersonAlterationState extends State<PersonAlteration> {
           keyboardType: TextInputType.number,
           inputFormatters: [_isPessoaFisica ? _cpfFormatter : _cnpjFormatter],
           validator: (value) =>
-              ClienteService.validarDocumento(value ?? '', _tipoPessoa),
+              ClientService.validarDocumento(value ?? '', _tipoPessoa),
         ),
 
         CheckboxListTile(

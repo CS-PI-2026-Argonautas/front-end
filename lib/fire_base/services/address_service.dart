@@ -1,11 +1,11 @@
 import 'package:frontend/fire_base/models/address.dart';
-import 'package:frontend/fire_base/repositories/endereco_repository.dart';
+import 'package:frontend/fire_base/repositories/address_repository.dart';
 
-class EnderecoService {
-  final EnderecoRepository _repository;
+class AddressService {
+  final AddressRepository _repository;
 
-  EnderecoService({EnderecoRepository? repository})
-    : _repository = repository ?? EnderecoRepository();
+  AddressService({AddressRepository? repository})
+    : _repository = repository ?? AddressRepository();
 
   Future<List<Address>> listar(String clienteId) {
     return _repository.listar(clienteId);

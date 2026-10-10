@@ -1,10 +1,10 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:frontend/fire_base/models/equipment.dart';
 
-class EquipamentoService {
+class EquipmentService {
   final FirebaseFirestore _firestore;
 
-  EquipamentoService({FirebaseFirestore? firestore})
+  EquipmentService({FirebaseFirestore? firestore})
     : _firestore = firestore ?? FirebaseFirestore.instance;
 
   Future<String> salvar(Equipment equipamento) async {

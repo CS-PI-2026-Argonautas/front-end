@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:frontend/fire_base/models/client.dart';
-import 'package:frontend/fire_base/services/cliente_service.dart';
+import 'package:frontend/fire_base/services/client_service.dart';
 import 'package:frontend/ui/pages/dashboard.dart';
 import 'package:frontend/ui/pages/edit_item/item_edition.dart';
 import 'package:frontend/ui/pages/os_list/os_list_page.dart';
@@ -23,7 +23,7 @@ class ClientList extends StatefulWidget {
 }
 
 class _ClientListState extends State<ClientList> {
-  final ClienteService _service = ClienteService();
+  final ClientService _service = ClientService();
 
   late final Stream<List<Client>> _clientes = _service.observar();
 
