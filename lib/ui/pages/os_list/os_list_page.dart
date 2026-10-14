@@ -1,0 +1,357 @@
+import 'package:flutter/material.dart';
+import 'package:frontend/fire_base/models/work_order.dart';
+import 'package:frontend/ui/pages/client_list/client_list.dart';
+import 'package:frontend/ui/pages/dashboard.dart';
+import 'package:frontend/ui/pages/edit_item/item_edition.dart';
+import 'package:frontend/ui/pages/os/tabbar/tabbar.dart';
+import 'package:frontend/ui/pages/product_registration/product_registration.dart';
+import 'package:frontend/ui/pages/stand_in_page.dart';
+import 'package:frontend/fire_base/repositories/mock_os_repository.dart';
+import 'package:frontend/ui/style/ColorScheme.dart' as custom_colors;
+import 'package:frontend/ui/widgets/floatingButton.dart';
+import 'package:frontend/ui/widgets/appBar.dart';
+import 'package:frontend/ui/widgets/menu.dart';
+import 'package:frontend/ui/widgets/show_dialog/show_delete_os.dart';
+import 'package:frontend/ui/widgets/show_snackbar/show_delete_os.dart';
+import 'package:frontend/ui/widgets/slidable/slidable_delete_card.dart';
+
+class OsListPage extends StatefulWidget {
+  const OsListPage({super.key});
+
+  @override
+  State<OsListPage> createState() => _OsListPageState();
+}
+
+class _OsListPageState extends State<OsListPage> {
+  final MockOSRepository _repository = MockOSRepository();
+
+  late Future<List<WorkOrder>> _futureOrdemServicos;
+
+  final colors = custom_colors.colorScheme;
+
+  @override
+  void initState() {
+    super.initState();
+    _carregarOrdemServicos();
+  }
+
+  void _carregarOrdemServicos() {
+    final Future<List<WorkOrder>> os = _repository.getAll();
+
+    setState(() {
+      _futureOrdemServicos = os;
+    });
+  }
+
+  Color _obterCorDoStatus(String status) {
+    switch (status) {
+      case 'Concluída':
+        return Colors.green;
+      case 'Pendente':
+      case 'Em Andamento':
+        return Colors.orange;
+      case 'Fechada':
+      case 'Cancelada':
+        return Colors.red;
+      default:
+        return colors.onSurfaceVariant;
+    }
+  }
+
+  Future<void> _deletarOrdemServicos(WorkOrder os) async {
+    await _repository.delete(os.id);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: colors.surface,
+
+        appBar: Header(
+        onBack: () {
+          Navigator.pop(context);
+        },
+        title: 'Listagem de ordens de serviço',
+      ),
+
+      endDrawer: Menu(
+        currentIndex: 2,
+        onTap: (index) {
+          Navigator.pop(context);
+
+          if (index == 1) {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => const ProductRegistration(),
+              ),
+            );
+          }
+
+          if (index == 0) {
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => const ClientList()),
+            );
+          }
+
+          if (index == 3) {
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => const ItemEdition()),
+            );
+          }
+
+          if (index == 4) {
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => const Dashboard()),
+            );
+          }
+        },
+      ),
+
+      body: SafeArea(
+        child: SingleChildScrollView(
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 50),
+            child: Column(
+              children: [
+                TextFormField(
+                  decoration: InputDecoration(
+                    hintText: 'Procurar ordem de serviço',
+                    filled: true,
+                    fillColor: colors.surfaceContainer,
+                    hintStyle: TextStyle(color: colors.onSurface),
+                    prefixIcon: Icon(Icons.search, color: colors.secondary),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(14),
+                      borderSide: BorderSide.none,
+                    ),
+                  ),
+                ),
+
+                Padding(
+                  padding: const EdgeInsets.only(top: 20.0),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.start,
+                    children: [
+                      ElevatedButton.icon(
+                        onPressed: () {},
+                        icon: const Icon(Icons.tune),
+                        label: const Text(
+                          'Filtrar',
+                          style: TextStyle(
+                            fontWeight: FontWeight.bold,
+                            fontSize: 14.8,
+                          ),
+                        ),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: colors.primary,
+                          foregroundColor: Colors.white,
+                        ),
+                      ),
+
+                      Padding(
+                        padding: const EdgeInsets.only(left: 10.0),
+                        child: ElevatedButton.icon(
+                          onPressed: () {},
+                          icon: const Icon(Icons.swap_vert),
+                          label: const Text(
+                            'Ordenar',
+                            style: TextStyle(
+                              fontWeight: FontWeight.bold,
+                              fontSize: 14.8,
+                            ),
+                          ),
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: colors.primary,
+                            foregroundColor: Colors.white,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+
+                Padding(
+                  padding: const EdgeInsets.only(top: 10.0, bottom: 10.0),
+                  child: Align(
+                    alignment: Alignment.centerLeft,
+                    child: Text(
+                      'Recentes',
+                      style: TextStyle(
+                        color: colors.onSurface,
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ),
+                ),
+
+                // Aqui carrego as ordens de serviço
+                FutureBuilder<List<WorkOrder>>(
+                  future: _futureOrdemServicos,
+                  builder: (context, snapshot) {
+                    if (snapshot.connectionState == ConnectionState.waiting) {
+                      return const Padding(
+                        padding: EdgeInsets.only(top: 20.0),
+                        child: Center(child: CircularProgressIndicator()),
+                      );
+                    }
+
+                    if (snapshot.hasError) {
+                      return const Center(
+                        child: Text('Erro ao carregar ordens de serviço.'),
+                      );
+                    }
+
+                    if (!snapshot.hasData || snapshot.data!.isEmpty) {
+                      return const Center(
+                        child: Text('Nenhuma ordem de serviço encontrada.'),
+                      );
+                    }
+
+                    final ordemServicos = snapshot.data!;
+
+                    return ListView.builder(
+                      shrinkWrap: true,
+                      physics: const NeverScrollableScrollPhysics(),
+                      itemCount: ordemServicos.length,
+                      itemBuilder: (context, index) {
+                        return _buildClientCard(ordemServicos[index]);
+                      },
+                    );
+                  },
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+
+      floatingActionButton: CustomFloatingButton(
+        onPressed: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => Tabbar(serviceOrderNumber: -1),
+            ),
+          );
+        },      
+      ),
+        );
+  }
+
+  // Construo os cards
+  Widget _buildClientCard(WorkOrder os) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 16),
+      child: SlidableDeleteCard(
+        slidableKey: ValueKey(os.id),
+
+        onDelete: () async {
+          final confimarExclusao =
+              await showDialog(
+                context: context,
+                builder: (_) => ShowDeleteOsDialog(nome: os.name),
+              ) ??
+              false;
+
+          if (!confimarExclusao) return;
+
+          await _deletarOrdemServicos(os);
+
+          _carregarOrdemServicos();
+
+          if (!mounted) return;
+
+          final messenger = ScaffoldMessenger.of(context);
+
+          messenger.hideCurrentSnackBar();
+
+          messenger.showSnackBar(
+            ShowDeleteOsSnackbar(
+              color: colors.primary,
+              onPressed: () async {
+                await _repository.restore(os.id);
+
+                _carregarOrdemServicos();
+
+                messenger.hideCurrentSnackBar();
+              },
+              duration: const Duration(seconds: 5),
+            ),
+          );
+        },
+
+        extentRatio: 0.20,
+
+        child: Container(
+          padding: const EdgeInsets.all(10.0),
+          decoration: BoxDecoration(
+            color: colors.surfaceContainer,
+            borderRadius: BorderRadius.circular(12),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withOpacity(0.12),
+                blurRadius: 10,
+                spreadRadius: 1,
+                offset: const Offset(0, 5),
+              ),
+            ],
+          ),
+
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      '#${os.id} - ${os.name}',
+                      style: TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.blueGrey.shade600,
+                      ),
+                    ),
+
+                    Text(
+                      os.city,
+                      style: TextStyle(
+                        color: colors.onSurfaceVariant,
+                        fontSize: 14,
+                      ),
+                    ),
+
+                    Text(
+                      os.status,
+                      style: TextStyle(
+                        color: _obterCorDoStatus(os.status),
+                        fontSize: 14,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+
+              IconButton(
+                icon: Icon(Icons.edit, color: colors.secondary),
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => const StandInPage(),
+                    ),
+                  );
+                },
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
