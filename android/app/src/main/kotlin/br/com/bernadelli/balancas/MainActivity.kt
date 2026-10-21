@@ -1,4 +1,4 @@
-package com.example.frontend
+package br.com.bernadelli.balancas
 
 import io.flutter.embedding.android.FlutterActivity
 
