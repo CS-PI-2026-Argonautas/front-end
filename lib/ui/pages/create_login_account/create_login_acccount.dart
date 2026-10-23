@@ -57,7 +57,7 @@ class CreateLoginAccountState extends State<CreateLoginAccount> {
                           children: [
                             Icon(Icons.badge, size: 20, color: colors.primary),
                             Text(
-                              "Nome *",
+                              "Nome*",
                               style: TextStyle(
                                 fontWeight: FontWeight.bold,
                                 fontSize: 16,
@@ -77,7 +77,7 @@ class CreateLoginAccountState extends State<CreateLoginAccount> {
                               ),
                             ),
                             fillColor: colors.surface,
-                            hintText: 'Nome',
+                            hintText: 'Informe seu nome',
                             filled: true,
                             border: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(14),
@@ -91,10 +91,7 @@ class CreateLoginAccountState extends State<CreateLoginAccount> {
                             ),
                           ),
                           validator: (value) {
-                            if (value == null || value.trim().isEmpty) {
-                              return 'preencha o campo  ';
-                            }
-                            return null;
+                            return emptyMandatoryField(value);
                           },
                         ),
 
@@ -103,7 +100,7 @@ class CreateLoginAccountState extends State<CreateLoginAccount> {
                           children: [
                             Icon(Icons.badge, size: 20, color: colors.primary),
                             Text(
-                              "Sobrenome *",
+                              "Sobrenome*",
                               style: TextStyle(
                                 fontWeight: FontWeight.bold,
                                 fontSize: 16,
@@ -123,7 +120,7 @@ class CreateLoginAccountState extends State<CreateLoginAccount> {
                               ),
                             ),
                             fillColor: colors.surface,
-                            hintText: 'Sobrenome ',
+                            hintText: 'Informe seu sobrenome',
                             filled: true,
                             border: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(14),
@@ -137,10 +134,7 @@ class CreateLoginAccountState extends State<CreateLoginAccount> {
                             ),
                           ),
                           validator: (value) {
-                            if (value == null || value.trim().isEmpty) {
-                              return 'preencha o campo';
-                            }
-                            return null;
+                            return emptyMandatoryField(value);
                           },
                         ),
 
@@ -153,7 +147,7 @@ class CreateLoginAccountState extends State<CreateLoginAccount> {
                               color: colors.primary,
                             ),
                             Text(
-                              "Nome usuário *",
+                              "Nome usuário*",
                               style: TextStyle(
                                 fontWeight: FontWeight.bold,
                                 fontSize: 16,
@@ -174,12 +168,8 @@ class CreateLoginAccountState extends State<CreateLoginAccount> {
                           ],
                           maxLength: 25,
                           validator: (value) {
-                            if (value == null || value.trim().isEmpty) {
-                              return 'Preencha o campo';
-                            }
-
-                            if (value.length < 3) {
-                              return 'mínimo 3 caracteres';
+                            if (value!.length < 3) {
+                              return 'Mínimo de 3 caracteres';
                             }
                             return null;
                           },
@@ -200,7 +190,7 @@ class CreateLoginAccountState extends State<CreateLoginAccount> {
                               ),
                             ),
                             fillColor: colors.surface,
-                            hintText: 'nome.sobrenome',
+                            hintText: 'Ex: nome.sobrenome',
                             filled: true,
                             border: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(14),
@@ -213,7 +203,7 @@ class CreateLoginAccountState extends State<CreateLoginAccount> {
                           children: [
                             Icon(Icons.email, size: 20, color: colors.primary),
                             Text(
-                              "Email *",
+                              "Email*",
                               style: TextStyle(
                                 fontWeight: FontWeight.bold,
                                 fontSize: 16,
@@ -240,7 +230,7 @@ class CreateLoginAccountState extends State<CreateLoginAccount> {
                               ),
                             ),
                             fillColor: colors.surface,
-                            hintText: 'nome@exemplo.com',
+                            hintText: 'Ex: nome@exemplo.com',
                             filled: true,
 
                             border: OutlineInputBorder(
@@ -255,14 +245,15 @@ class CreateLoginAccountState extends State<CreateLoginAccount> {
                         Center(
                           child: ElevatedButton.icon(
                             onPressed: () {
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (context) => const PasswordSetting(),
-                                ),
-                              );
+                              if (_formKey.currentState!.validate()){
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) => const PasswordSetting(),
+                                  ),
+                                );
+                              }
 
-                              if (_formKey.currentState!.validate()) ;
                             },
                             style: ElevatedButton.styleFrom(
                               elevation: 3,

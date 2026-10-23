@@ -51,3 +51,10 @@ String? validateEmail(String? value){
 
   return null;
 }
+
+String? emptyMandatoryField(String? value){
+  if(value == null || value.trim().isEmpty){
+    return 'Campo obrigatório';
+  }
+  return null;
+}
