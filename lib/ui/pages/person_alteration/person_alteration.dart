@@ -7,6 +7,7 @@ import 'package:frontend/fire_base/services/client_service.dart';
 import 'package:frontend/fire_base/services/address_service.dart';
 import 'package:frontend/ui/pages/person_alteration/person_alteration_address.dart';
 import 'package:frontend/ui/pages/person_alteration/person_alteration_contact.dart';
+import 'package:frontend/ui/pages/person_registration/person_registration_contact.dart';
 import 'package:frontend/ui/style/ColorScheme.dart' as custom_colors;
 import 'package:frontend/ui/style/inputDecorationStyles.dart';
 import 'package:frontend/ui/widgets/form/action_buttons.dart';
@@ -33,7 +34,7 @@ class _PersonAlterationState extends State<PersonAlteration> {
   final AddressService _enderecoService = AddressService(); 
 
   late bool _isPessoaFisica;
-  late Contact _contato; 
+  Contact? _contato;
   List<Address> _originais = [];
   final List<Address> _enderecos = [];
   bool _carregandoEnderecos = true;
@@ -220,72 +221,68 @@ class _PersonAlterationState extends State<PersonAlteration> {
             },
           ),
 
-        Row(
-          spacing: 6,
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            const FormFieldLabel(
-              icon: Icons.phone_android_outlined,
-              label: "Informações de contato",
-            ),
-
-            IconButton(
-              padding: EdgeInsets.zero,
-              constraints: const BoxConstraints(),
-              icon: Icon(
-                Icons.add_box_rounded,
-                color: colors.secondary,
-                size: 26,
+       SelectionField<Contact>(
+          label: 'Informações de contato',
+          iconeLabel: Icons.phone_android_outlined,
+          itens: _contato != null ? [_contato!] : [],
+          tituloItem: (contato) => contato.resumo,
+          textoVazio: 'Nenhum contato adicionado.',
+          permitirExclusao: true,
+          onPressed: () async {
+            final resultadoContato = await Navigator.push<Contact>(
+              context,
+              MaterialPageRoute(
+                builder: (context) => PersonAlterationContact( // ou PersonRegistrationContact
+                  contatoInicial: _contato,
+                ),
               ),
-              onPressed: () async {
-                final resultadoContato = await Navigator.push<Contact>(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) =>
-                        PersonAlterationContact(contatoInicial: _contato),
-                  ),
-                );
+            );
 
-                if (resultadoContato != null && mounted) {
-                  setState(() {
-                    _contato = resultadoContato;
-                  });
-                }
-              },
-            ),
-          ],
-        ),
-
-        FormField<String>(
-          key: ValueKey('contato_${_contato.resumo}'),
-          initialValue: _contato.resumo,
-          validator: (value) {
-            if (_contato.phone.trim().isEmpty) {
-              return 'Informe as informações de contato';
+            if (resultadoContato != null && mounted) {
+              setState(() {
+                _contato = resultadoContato;
+              });
             }
-            return null;
           },
-          builder: (FormFieldState<String> state) {
-            final vazio = _contato.resumo.isEmpty;
+          onEdit: (contato, index) async {
+            final contatoEditado = await Navigator.push<Contact>(
+              context,
+              MaterialPageRoute(
+                builder: (context) => PersonAlterationContact( // ou PersonRegistrationContact
+                  contatoInicial: contato,
+                ),
+              ),
+            );
 
-            return InputDecorator(
-              decoration: customInputDecoration(
-                hintText: vazio ? "Inserir contato" : null,
-              ).copyWith(errorText: state.errorText),
-              child: Text(
-                vazio ? "Inserir contato" : _contato.resumo,
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-                style: TextStyle(
-                  fontSize: 16,
-                  color: vazio
-                      ? colors.onSurfaceVariant.withValues(alpha: 0.6)
-                      : colors.onSurface,
+            if (contatoEditado != null && mounted) {
+              setState(() {
+                _contato = contatoEditado;
+              });
+            }
+          },
+          onDelete: (contato, index) {
+            final contatoRemovido = _contato;
+            setState(() {
+              _contato = null;
+            });
+
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: const Text('Contato removido.'),
+                action: SnackBarAction(
+                  label: 'Desfazer',
+                  onPressed: () {
+                    setState(() {
+                      _contato = contatoRemovido;
+                    });
+                  },
                 ),
               ),
             );
           },
         ),
+
+        
 
         FormFieldLabel(
           icon: Icons.badge_outlined,
@@ -359,7 +356,7 @@ class _PersonAlterationState extends State<PersonAlteration> {
       name: _nomeController.text.trim(),
       personType: _tipoPessoa,
       document: _documentoController.text,
-      contact: _contato,
+      contact: _contato!,
     );
 
     try {

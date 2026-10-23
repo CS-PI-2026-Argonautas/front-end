@@ -168,11 +168,10 @@ class _PersonRegistrationState1 extends State<PersonRegistration> {
           textoVazio: 'Nenhum contato adicionado.',
           permitirExclusao: true,
           onPressed: () async {
-            // Se já tiver contato, edita ao clicar no "+" ou abre tela de cadastro se estiver vazio
             final resultadoContato = await Navigator.push<Contact>(
               context,
               MaterialPageRoute(
-                builder: (context) => PersonRegistrationContact( // (ou PersonAlterationContact na tela de alteração)
+                builder: (context) => PersonRegistrationContact(
                   contatoInicial: _contato,
                 ),
               ),
@@ -188,7 +187,7 @@ class _PersonRegistrationState1 extends State<PersonRegistration> {
             final contatoEditado = await Navigator.push<Contact>(
               context,
               MaterialPageRoute(
-                builder: (context) => PersonRegistrationContact( // (ou PersonAlterationContact na tela de alteração)
+                builder: (context) => PersonRegistrationContact( 
                   contatoInicial: contato,
                 ),
               ),
@@ -203,7 +202,7 @@ class _PersonRegistrationState1 extends State<PersonRegistration> {
           onDelete: (contato, index) {
             final contatoRemovido = _contato;
             setState(() {
-              _contato = null; // Remove o contato limpando a variável
+              _contato = null; 
             });
 
             ScaffoldMessenger.of(context).showSnackBar(
@@ -222,38 +221,6 @@ class _PersonRegistrationState1 extends State<PersonRegistration> {
           },
         ),
 
-        FormField<String>(
-          key: ValueKey('contato_${(_contato?.resumo ?? '')}'),
-          initialValue: (_contato?.resumo ?? ''),
-          validator: (value) {
-            if (_contato == null) {
-              return 'Informe as informações de contato';
-            }
-            return null;
-          },
-          builder: (FormFieldState<String> state) {
-            return InputDecorator(
-              decoration: customInputDecoration(
-                hintText: _contato == null
-                    ? "Inserir contato"
-                    : null,
-              ).copyWith(errorText: state.errorText),
-              child: Text(
-                _contato == null
-                    ? "Inserir contato"
-                    : (_contato?.resumo ?? ''),
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-                style: TextStyle(
-                  fontSize: 16,
-                  color: _contato == null
-                      ? colors.onSurfaceVariant.withOpacity(0.6)
-                      : colors.onSurface,
-                ),
-              ),
-            );
-          },
-        ),
 
         FormFieldLabel(
           icon: Icons.badge_outlined,
