@@ -65,7 +65,6 @@ class _OsListPageState extends State<OsListPage> {
       backgroundColor: colors.surface,
 
       appBar: AppBar(
-        // Remove a cor sólida para permitir o gradiente
         backgroundColor: Colors.transparent,
         foregroundColor: colors.onPrimary,
         centerTitle: true,
@@ -217,7 +216,6 @@ class _OsListPageState extends State<OsListPage> {
                   ),
                 ),
 
-                // Aqui carrego as ordens de serviço
                 FutureBuilder<List<Services>>(
                   future: _futureOrdemServicos,
                   builder: (context, snapshot) {
@@ -285,7 +283,6 @@ class _OsListPageState extends State<OsListPage> {
     );
   }
 
-  // Construo os cards
   Widget _buildClientCard(Services os) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 16),
