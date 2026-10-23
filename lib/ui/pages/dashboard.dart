@@ -8,15 +8,12 @@ import 'package:frontend/ui/pages/product_registration/product_registration.dart
 import 'package:frontend/ui/style/ColorScheme.dart' as custom_Colors;
 import 'package:frontend/ui/widgets/menu.dart';
 
-
 class Dashboard extends StatelessWidget {
   const Dashboard({super.key});
 
   @override
   Widget build(BuildContext context) {
     final colors = custom_Colors.colorScheme;
-
-   
 
     void irParaCadastroPessoa() {
       Navigator.push(
@@ -26,13 +23,13 @@ class Dashboard extends StatelessWidget {
     }
 
     void irParaOrdemServico() {
-  Navigator.push(
-    context,
-    MaterialPageRoute(
-      builder: (context) => const Tabbar(serviceOrderNumber: '1234'),
-    ),
-  );
-}
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => const Tabbar(serviceOrderNumber: '1234'),
+        ),
+      );
+    }
 
     Widget botaoDashboard({
       required String texto,
@@ -40,20 +37,20 @@ class Dashboard extends StatelessWidget {
       required bool preenchido,
     }) {
       if (preenchido) {
-  return ElevatedButton.icon(
-    onPressed: irParaOrdemServico, // <-- Altere aqui!
-    icon: Icon(icone),
-    label: Text(texto),
-    style: ElevatedButton.styleFrom(
-      backgroundColor: colors.primary,
-      foregroundColor: colors.onSecondary,
-      padding: const EdgeInsets.symmetric(vertical: 16),
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(14),
-      ),
-    ),
-  );
-}
+        return ElevatedButton.icon(
+          onPressed: irParaOrdemServico, // <-- Altere aqui!
+          icon: Icon(icone),
+          label: Text(texto),
+          style: ElevatedButton.styleFrom(
+            backgroundColor: colors.primary,
+            foregroundColor: colors.onSecondary,
+            padding: const EdgeInsets.symmetric(vertical: 16),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(14),
+            ),
+          ),
+        );
+      }
 
       return OutlinedButton.icon(
         onPressed: irParaCadastroPessoa,
@@ -74,30 +71,27 @@ class Dashboard extends StatelessWidget {
     return Scaffold(
       backgroundColor: colors.surface,
       appBar: AppBar(
-      backgroundColor: Colors.transparent,
-      foregroundColor: colors.onPrimary,
-      centerTitle: true,
-      elevation: 8,
-      shadowColor: Colors.black.withOpacity(0.5),
-      title: Row(
+        backgroundColor: Colors.transparent,
+        foregroundColor: colors.onPrimary,
+        centerTitle: true,
+        elevation: 8,
+        shadowColor: Colors.black.withOpacity(0.5),
+        title: Row(
           spacing: 6,
           children: [
             Image.asset('lib/assets/icons/LogoEmpresa.png', width: 200),
           ],
         ),
-      flexibleSpace: Container(
-        decoration: BoxDecoration(
-          gradient: LinearGradient(
-            colors: [
-              colors.primary,
-              colors.tertiary,
-            ],
-            begin: Alignment.centerLeft,
-            end: Alignment.centerRight,
+        flexibleSpace: Container(
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              colors: [colors.primary, colors.tertiary],
+              begin: Alignment.centerLeft,
+              end: Alignment.centerRight,
+            ),
           ),
         ),
       ),
-    ),
       endDrawer: Menu(
         currentIndex: 4,
 
@@ -121,10 +115,8 @@ class Dashboard extends StatelessWidget {
 
           if (index == 2) {
             Navigator.push(
-              context, 
-              MaterialPageRoute(
-                builder: (context) => const OsListPage()
-              )
+              context,
+              MaterialPageRoute(builder: (context) => const OsListPage()),
             );
           }
           if (index == 3) {
@@ -167,7 +159,30 @@ class Dashboard extends StatelessWidget {
                   preenchido: true,
                 ),
               ),
-
+              SizedBox(
+                width: 280,
+                child: botaoDashboard(
+                  texto: "Cadastro de Clientes",
+                  icone: Icons.people_alt,
+                  preenchido: true,
+                ),
+              ),
+              SizedBox(
+                width: 280,
+                child: botaoDashboard(
+                  texto: "Cadastro de peça",
+                  icone: Icons.precision_manufacturing,
+                  preenchido: true,
+                ),
+              ),
+              SizedBox(
+                width: 280,
+                child: botaoDashboard(
+                  texto: "Cadastro de serviço",
+                  icone: Icons.build,
+                  preenchido: true,
+                ),
+              ),
             ],
           ),
         ),
