@@ -209,19 +209,28 @@ class _ClientListState extends State<ClientList> {
 
                     final clientes = snapshot.data!;
 
-                    return ListView.builder(
-                      shrinkWrap: true,
-                      physics:
-                          const NeverScrollableScrollPhysics(),
-                      itemCount: clientes.length,
-                      itemBuilder: (context, index) {
-                        return _buildClientCard(
-                          clientes[index],
-                        );
-                      },
+                    return Card(
+                      elevation: 4,
+      color: colors.surfaceContainer,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(12),
+      ),
+      clipBehavior: Clip.antiAlias,
+                      child: ListView.separated(
+        shrinkWrap: true,
+        physics: const NeverScrollableScrollPhysics(),
+        itemCount: clientes.length,
+        separatorBuilder: (context, index) => Divider(
+          height: 1,
+          color: colors.onSurfaceVariant.withOpacity(0.2),
+        ),
+        itemBuilder: (context, index) {
+          return _buildClientCard(clientes[index]);
+        },
+      ),
                     );
                   },
-                ),
+            ),
               ],
             ),
           ),
@@ -288,22 +297,11 @@ class _ClientListState extends State<ClientList> {
           );
         },
 
-        child: Container(
-          padding: const EdgeInsets.all(10.0),
-
-          decoration: BoxDecoration(
-            color: colors.surfaceContainer,
-            borderRadius: BorderRadius.circular(12),
-
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black.withOpacity(0.12),
-                blurRadius: 10,
-                spreadRadius: 1,
-                offset: const Offset(0, 5),
-              ),
-            ],
-          ),
+        child: Padding(
+          padding: const EdgeInsets.symmetric(
+        horizontal: 16.0,
+        vertical: 12.0,
+      ),
 
           child: Row(
             crossAxisAlignment:
