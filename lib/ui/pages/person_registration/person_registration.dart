@@ -160,39 +160,66 @@ class _PersonRegistrationState1 extends State<PersonRegistration> {
           },
         ),
 
-        Row(
-          spacing: 6,
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            const FormFieldLabel(
-              icon: Icons.phone_android_outlined,
-              label: "Informações de contato",
-            ),
-            IconButton(
-              padding: EdgeInsets.zero,
-              constraints: const BoxConstraints(),
-              icon: Icon(
-                Icons.add_box_rounded,
-                color: colors.secondary,
-                size: 26,
+        SelectionField<Contact>(
+          label: 'Informações de contato',
+          iconeLabel: Icons.phone_android_outlined,
+          itens: _contato != null ? [_contato!] : [],
+          tituloItem: (contato) => contato.resumo,
+          textoVazio: 'Nenhum contato adicionado.',
+          permitirExclusao: true,
+          onPressed: () async {
+            // Se já tiver contato, edita ao clicar no "+" ou abre tela de cadastro se estiver vazio
+            final resultadoContato = await Navigator.push<Contact>(
+              context,
+              MaterialPageRoute(
+                builder: (context) => PersonRegistrationContact( // (ou PersonAlterationContact na tela de alteração)
+                  contatoInicial: _contato,
+                ),
               ),
-              onPressed: () async {
-                final resultadoContato = await Navigator.push<Contact>(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) =>
-                        PersonRegistrationContact(contatoInicial: _contato),
-                  ),
-                );
+            );
 
-                if (resultadoContato != null && mounted) {
-                  setState(() {
-                    _contato = resultadoContato;
-                  });
-                }
-              },
-            ),
-          ],
+            if (resultadoContato != null && mounted) {
+              setState(() {
+                _contato = resultadoContato;
+              });
+            }
+          },
+          onEdit: (contato, index) async {
+            final contatoEditado = await Navigator.push<Contact>(
+              context,
+              MaterialPageRoute(
+                builder: (context) => PersonRegistrationContact( // (ou PersonAlterationContact na tela de alteração)
+                  contatoInicial: contato,
+                ),
+              ),
+            );
+
+            if (contatoEditado != null && mounted) {
+              setState(() {
+                _contato = contatoEditado;
+              });
+            }
+          },
+          onDelete: (contato, index) {
+            final contatoRemovido = _contato;
+            setState(() {
+              _contato = null; // Remove o contato limpando a variável
+            });
+
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: const Text('Contato removido.'),
+                action: SnackBarAction(
+                  label: 'Desfazer',
+                  onPressed: () {
+                    setState(() {
+                      _contato = contatoRemovido;
+                    });
+                  },
+                ),
+              ),
+            );
+          },
         ),
 
         FormField<String>(
