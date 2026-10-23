@@ -4,6 +4,7 @@ import 'package:frontend/ui/pages/password_setting/password_setting.dart';
 import 'package:frontend/ui/style/ColorScheme.dart' as custom_colors;
 import 'package:frontend/ui/widgets/form/form_section_tile.dart';
 import 'package:frontend/ui/widgets/appBar.dart';
+import 'package:frontend/utils/validators/validators.dart';
 
 class CreateLoginAccount extends StatefulWidget {
   const CreateLoginAccount({super.key});
@@ -247,19 +248,7 @@ class CreateLoginAccountState extends State<CreateLoginAccount> {
                             ),
                           ),
                           validator: (value) {
-                            if (value == null || value.trim().isEmpty) {
-                              return 'preencha o campo';
-                            }
-
-                            final bool emailValido = RegExp(
-                              r"^[a-zA-Z0-9.a-zA-Z0-9.!#$%&'*+-/=?^_`{|}~]+@[a-zA-Z0-9]+\.[a-zA-Z]+",
-                            ).hasMatch(value);
-
-                            if (!emailValido) {
-                              return 'Insira um formato de email válido';
-                            }
-
-                            return null;
+                            return validateEmail(value);
                           },
                         ),
 
