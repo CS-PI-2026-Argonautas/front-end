@@ -3,6 +3,7 @@ import 'package:frontend/ui/pages/create_login_account/create_login_acccount.dar
 import 'package:frontend/ui/pages/dashboard.dart';
 import 'package:frontend/ui/pages/password_recovery/user_information.dart';
 import 'package:frontend/ui/style/ColorScheme.dart' as custom_colors;
+import 'package:frontend/ui/style/inputDecorationStyles.dart';
 
 class Authentication extends StatefulWidget {
   const Authentication({super.key});
@@ -24,7 +25,7 @@ class _AuthenticationState extends State<Authentication> {
           width: double.infinity,
           decoration: BoxDecoration(
             gradient: LinearGradient(
-              colors: [colors.primary, const Color.fromARGB(255, 0, 59, 86)],
+              colors: [colors.primary, colors.tertiary],
               begin: Alignment.topCenter,
               end: Alignment.bottomCenter,
             ),
@@ -57,70 +58,53 @@ class _AuthenticationState extends State<Authentication> {
                       ),
 
                       TextFormField(
-                        validator: (value) {
-                          if (value == null || value.isEmpty) {
-                            return 'Campo obrigatório';
-                          }
-                          return null;
-                        },
-                        decoration: InputDecoration(
-                          hintText: 'Usuário',
-                          hintStyle: TextStyle(
-                            color: colors.onSurface, // Defina a cor desejada aqui
-                          ),
-                          filled: true,
-                          fillColor: colors.surfaceContainerHigh,
-                          prefixIcon: Icon(
-                            Icons.person, 
-                            color: colors.primary,
-                            ),
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(14),
-                            borderSide: BorderSide.none,
-                          ),
-                        ),
-                      ),
+  validator: (value) {
+    if (value == null || value.isEmpty) {
+      return 'Campo obrigatório';
+    }
+    return null;
+  },
+  decoration: customInputDecoration(
+    hintText: "Usuário",
+    prefixIcon: Icon(
+      Icons.person,
+      color: colors.primary,
+    ),
+  ),
+),
 
                       TextFormField(
-                        validator: (value) {
-                          if (value == null || value.isEmpty) {
-                            return 'Campo obrigatório';
-                          }
-                          return null;
-                        },
-                        obscureText: !_isPasswordVisible,
-                        decoration: InputDecoration(
-                          hintText: 'Senha',
-                          hintStyle: TextStyle(
-                            color: colors.onSurface, // Defina a cor desejada aqui
-                          ),
-                          filled: true,
-                          fillColor: colors.surfaceContainerHigh,
-                          prefixIcon: Icon(
-                            Icons.password,
-                            color: colors.primary,
-                          ),
-                          suffixIcon: IconButton(
-                            icon: Icon(
-                              _isPasswordVisible
-                                  ? Icons.visibility
-                                  : Icons.visibility_off,
-                                  color: _isPasswordVisible 
-                                  ? colors.secondary
-                                  :colors.onSurfaceVariant,
-                            ),
-                            onPressed: () {
-                              setState(() {
-                                _isPasswordVisible = !_isPasswordVisible;
-                              });
-                            },
-                          ),
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(14),
-                            borderSide: BorderSide.none,
-                          ),
-                        ),
-                      ),
+  validator: (value) {
+    if (value == null || value.isEmpty) {
+      return 'Campo obrigatório';
+    }
+    return null;
+  },
+  obscureText: !_isPasswordVisible,
+  decoration: customInputDecoration(
+    hintText: 'Senha',
+    prefixIcon: Icon(
+      Icons.password,
+      color: colors.primary,
+    ),
+  ).copyWith(
+    suffixIcon: IconButton(
+      icon: Icon(
+        _isPasswordVisible
+            ? Icons.visibility
+            : Icons.visibility_off,
+        color: _isPasswordVisible
+            ? colors.secondary
+            : colors.onSurfaceVariant,
+      ),
+      onPressed: () {
+        setState(() {
+          _isPasswordVisible = !_isPasswordVisible;
+        });
+      },
+    ),
+  ),
+),
 
                       Align(
   alignment: Alignment.centerRight,

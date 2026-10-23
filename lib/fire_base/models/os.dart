@@ -1,7 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:frontend/fire_base/Enums/StatusOrdemServico.dart';
-import 'package:frontend/fire_base/models/cliente.dart';
-import 'package:frontend/fire_base/models/endereco.dart';
+import 'package:frontend/fire_base/Enums/StatusOrderService.dart';
+import 'package:frontend/fire_base/models/client.dart';
+import 'package:frontend/fire_base/models/address.dart';
 import 'package:frontend/fire_base/models/os_exeption.dart';
 import 'package:uuid/uuid.dart';
 
@@ -32,9 +32,9 @@ class OrdemServico {
 
   final String id;
 
-  Statusordemservico status;
+  Statusorderservice status;
 
-  Statusordemservico? statusAntesCancelamento;
+  Statusorderservice? statusAntesCancelamento;
 
   bool equipamentoBloqueado;
 
@@ -66,7 +66,7 @@ class OrdemServico {
 
   OrdemServico({
     String? id,
-    this.status = Statusordemservico.EM_ORCAMENTO,
+    this.status = Statusorderservice.EM_ORCAMENTO,
     this.statusAntesCancelamento,
     this.equipamentoBloqueado = false,
     DateTime? dataEntrada,
@@ -106,10 +106,10 @@ class OrdemServico {
     descontoGlobalCentavos: descontoGlobalCentavos,
   );
 
-  void alterarStatus(Statusordemservico novo) {
+  void alterarStatus(Statusorderservice novo) {
     if (novo == status) return;
 
-    if (novo == Statusordemservico.CANCELADA) {
+    if (novo == Statusorderservice.CANCELADA) {
       statusAntesCancelamento = status;
     }
 
@@ -121,14 +121,14 @@ class OrdemServico {
     status = novo;
   }
 
-  void definirCliente(Cliente novo) {
+  void definirCliente(Client novo) {
     if (cliente?.id != novo.id) {
       enderecoServico = null;
     }
     cliente = ClienteOrdemServico.deCliente(novo);
   }
 
-  void definirEnderecoServico(Endereco endereco) {
+  void definirEnderecoServico(Address endereco) {
     if (cliente == null) {
       throw const EnderecoInvalidoException(
         'Selecione um cliente antes de escolher o endereço de serviço.',
@@ -375,13 +375,13 @@ class ClienteOrdemServico {
     this.email,
   });
 
-  factory ClienteOrdemServico.deCliente(Cliente cliente) {
+  factory ClienteOrdemServico.deCliente(Client cliente) {
     return ClienteOrdemServico(
       id: cliente.id,
       nome: cliente.name,
-      tipoPessoa: cliente.personType.valor,
+      tipoPessoa: cliente.personType.value,
       documento: cliente.document,
-      telefone: cliente.contact.telefone,
+      telefone: cliente.contact.phone,
       email: _textoOuNulo(cliente.contact.email),
     );
   }
@@ -426,15 +426,15 @@ class EnderecoServico {
     this.cep,
   });
 
-  factory EnderecoServico.deEndereco(Endereco endereco) {
+  factory EnderecoServico.deEndereco(Address endereco) {
     return EnderecoServico(
       id: endereco.id,
-      logradouro: endereco.logradouro,
-      numero: _textoOuNulo(endereco.numero),
-      complemento: _textoOuNulo(endereco.complemento),
-      cidade: endereco.cidade,
+      logradouro: endereco.publicPlace,
+      numero: _textoOuNulo(endereco.number),
+      complemento: _textoOuNulo(endereco.complement),
+      cidade: endereco.city,
       uf: endereco.uf.name,
-      cep: _textoOuNulo(endereco.cep),
+      cep: _textoOuNulo(endereco.uf),
     );
   }
 

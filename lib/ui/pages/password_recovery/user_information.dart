@@ -3,7 +3,7 @@ import 'package:frontend/ui/pages/password_recovery/reset_password.dart';
 import 'package:frontend/fire_base/services/password_recovery/code_service.dart';
 import 'package:frontend/ui/style/ColorScheme.dart' as custom_colors;
 import 'package:frontend/ui/style/inputDecorationStyles.dart';
-import 'package:frontend/ui/widgets/header.dart';
+import 'package:frontend/ui/widgets/appBar.dart';
 import 'package:frontend/ui/widgets/password_recovery/modal.dart';
 
 class UserInformation extends StatefulWidget {

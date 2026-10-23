@@ -1,14 +1,12 @@
 import 'package:flutter/material.dart';
-import 'package:frontend/ui/style/ColorScheme.dart' as custom_colors;
-
-// para criar cards de formulario reutilizaveis, passar:
-//a formkey, titulo, subtitulo e os widgets dos campos em children
+import 'package:frontend/ui/widgets/form/form_section_tile.dart';
 class FormCard extends StatelessWidget {
   final GlobalKey<FormState> formKey;
   final String title;
   final String subtitle;
   final List<Widget> children;
   final double fieldSpacing;
+  final AutovalidateMode autovalidateMode;
 
   const FormCard({
     super.key,
@@ -17,12 +15,11 @@ class FormCard extends StatelessWidget {
     required this.subtitle,
     required this.children,
     this.fieldSpacing = 24,
+    this.autovalidateMode = AutovalidateMode.onUserInteraction,
   });
 
   @override
   Widget build(BuildContext context) {
-    final colors = custom_colors.colorScheme;
-
     return Card(
       color: Colors.white,
       elevation: 8,
@@ -37,26 +34,12 @@ class FormCard extends StatelessWidget {
         ),
         child: Form(
           key: formKey,
-          autovalidateMode: AutovalidateMode.onUserInteraction,
+          autovalidateMode: autovalidateMode,
           child: Column(
             spacing: fieldSpacing,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(
-                title,
-                style: TextStyle(
-                  fontSize: 20,
-                  fontWeight: FontWeight.bold,
-                  color: colors.onSurface,
-                ),
-              ),
-              Text(
-                subtitle,
-                style: TextStyle(
-                  fontSize: 14,
-                  color: colors.onSurfaceVariant,
-                ),
-              ),
+              FormSectionTile(title: title, subtitle: subtitle),
               ...children,
             ],
           ),

@@ -3,7 +3,7 @@ import 'package:frontend/utils/password_strength/password_strength.dart';
 import 'package:frontend/ui/pages/authentication.dart';
 import 'package:frontend/ui/style/ColorScheme.dart' as custom_colors;
 import 'package:frontend/utils/password_recovery/validators.dart';
-import 'package:frontend/ui/widgets/header.dart';
+import 'package:frontend/ui/widgets/appBar.dart';
 import 'package:frontend/ui/widgets/password_recovery/typing_text_field.dart';
 
 class PasswordSetting extends StatefulWidget {
