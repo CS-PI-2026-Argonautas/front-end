@@ -1,30 +1,30 @@
-class ServiceOrderException implements Exception {
-  final String message;
 
-  const ServiceOrderException(this.message);
+class OrdemServicoException implements Exception {
+  final String mensagem;
+
+  const OrdemServicoException(this.mensagem);
 
   @override
-  String toString() => message;
+  String toString() => mensagem;
+}
+class OrdemServicoIncompletaException extends OrdemServicoException {
+  final List<String> pendencias;
+
+  OrdemServicoIncompletaException(List<String> pendencias)
+    : pendencias = List.unmodifiable(pendencias),
+      super('Para salvar a OS, preencha: ${pendencias.join(', ')}.');
 }
 
-class IncompleteServiceOrderException extends ServiceOrderException {
-  final List<String> pendingItems;
+class TotalNegativoException extends OrdemServicoException {
+  final int totalCentavos;
 
-  IncompleteServiceOrderException(List<String> pendingItems)
-    : pendingItems = List.unmodifiable(pendingItems),
-      super('Para salvar a OS, preencha: ${pendingItems.join(', ')}.');
-}
-
-class NegativeTotalException extends ServiceOrderException {
-  final int totalCents;
-
-  const NegativeTotalException(this.totalCents)
+  const TotalNegativoException(this.totalCentavos)
     : super(
         'O total da OS não pode ser negativo. '
         'Reduza o desconto ou aumente os valores.',
       );
 }
 
-class InvalidAddressException extends ServiceOrderException {
-  const InvalidAddressException(String message) : super(message);
+class EnderecoInvalidoException extends OrdemServicoException {
+  const EnderecoInvalidoException(String mensagem) : super(mensagem);
 }

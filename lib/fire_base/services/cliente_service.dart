@@ -32,7 +32,7 @@ class ClienteService {
   Future<void> restaurar(String id) => _repository.restaurar(id);
 
   static String? validarDocumento(String valor, TipoPessoa tipo) {
-    final digitos = Cliente.somenteDigitos(valor);
+    final digitos = Cliente.onlyDigits(valor);
 
     if (digitos.isEmpty) return 'Informe o ${tipo.rotuloDocumento}';
 
@@ -45,16 +45,16 @@ class ClienteService {
   }
 
   void _validar(Cliente cliente) {
-    if (cliente.nome.trim().isEmpty) {
+    if (cliente.name.trim().isEmpty) {
       throw ArgumentError('Informe o nome do cliente.');
     }
-    if (cliente.contato.telefone.trim().isEmpty) {
+    if (cliente.contact.telefone.trim().isEmpty) {
       throw ArgumentError('Informe o telefone do cliente.');
     }
 
     final erroDocumento = validarDocumento(
-      cliente.documento,
-      cliente.tipoPessoa,
+      cliente.document,
+      cliente.personType,
     );
     if (erroDocumento != null) throw ArgumentError(erroDocumento);
   }
@@ -73,11 +73,11 @@ class ClienteService {
     Iterable<Cliente> carregados, {
     String? ignorarId,
   }) {
-    final digitos = Cliente.somenteDigitos(documento);
+    final digitos = Cliente.onlyDigits(documento);
     if (digitos.isEmpty) return null;
 
     for (final cliente in carregados) {
-      if (cliente.id != ignorarId && cliente.documento == digitos) {
+      if (cliente.id != ignorarId && cliente.document == digitos) {
         return cliente;
       }
     }

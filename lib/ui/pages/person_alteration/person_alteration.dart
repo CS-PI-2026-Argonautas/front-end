@@ -56,21 +56,21 @@ class _PersonAlterationState extends State<PersonAlteration> {
 
     final cliente = widget.cliente;
 
-    _isPessoaFisica = cliente.tipoPessoa == TipoPessoa.fisica;
-    _contato = cliente.contato;
+    _isPessoaFisica = cliente.personType == TipoPessoa.fisica;
+    _contato = cliente.contact;
 
     _cpfFormatter = MaskTextInputFormatter(
       mask: '###.###.###-##',
       filter: {"#": RegExp(r'[0-9]')},
-      initialText: _isPessoaFisica ? cliente.documento : '',
+      initialText: _isPessoaFisica ? cliente.document : '',
     );
     _cnpjFormatter = MaskTextInputFormatter(
       mask: '##.###.###/####-##',
       filter: {"#": RegExp(r'[0-9]')},
-      initialText: _isPessoaFisica ? '' : cliente.documento,
+      initialText: _isPessoaFisica ? '' : cliente.document,
     );
 
-    _nomeController = TextEditingController(text: cliente.nome);
+    _nomeController = TextEditingController(text: cliente.name);
     _documentoController = TextEditingController(
       text: (_isPessoaFisica ? _cpfFormatter : _cnpjFormatter).getMaskedText(),
     );
@@ -314,15 +314,15 @@ class _PersonAlterationState extends State<PersonAlteration> {
 
     final atualizado = Cliente(
       id: original.id,
-      nome: _nomeController.text.trim(),
-      tipoPessoa: _tipoPessoa,
-      documento: _documentoController.text,
-      contato: _contato,
+      name: _nomeController.text.trim(),
+      personType: _tipoPessoa,
+      document: _documentoController.text,
+      contact: _contato,
     );
 
     try {
       final duplicado = await _service.buscarDuplicado(
-        atualizado.documento,
+        atualizado.document,
         ignorarId: original.id,
       );
 
@@ -333,7 +333,7 @@ class _PersonAlterationState extends State<PersonAlteration> {
             await showDialog<bool>(
               context: context,
               builder: (_) => ShowDuplicateDocumentDialog(
-                nomeCliente: duplicado.nome,
+                nomeCliente: duplicado.name,
                 tipo: _tipoPessoa,
               ),
             ) ??

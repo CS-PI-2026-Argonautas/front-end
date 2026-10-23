@@ -47,6 +47,8 @@ class Endereco {
     };
   }
 
+  Map<String, dynamic> toSnapshot() => {'id': id, ...toFirestore()};
+
   static String _texto(Object? valor) => (valor ?? '').toString().trim();
   static Timestamp? _ts(Object? valor) => valor is Timestamp ? valor : null;
 

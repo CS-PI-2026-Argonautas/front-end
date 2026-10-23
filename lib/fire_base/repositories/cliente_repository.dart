@@ -29,10 +29,10 @@ class ClienteRepository {
   List<Cliente> _ativos(QuerySnapshot<Map<String, dynamic>> snapshot) {
     final lista = snapshot.docs
         .map(Cliente.fromFirestore)
-        .where((c) => c.ativo)
+        .where((c) => c.isActive)
         .toList();
 
-    lista.sort((a, b) => a.nome.toLowerCase().compareTo(b.nome.toLowerCase()));
+    lista.sort((a, b) => a.name.toLowerCase().compareTo(b.name.toLowerCase()));
 
     return lista;
   }

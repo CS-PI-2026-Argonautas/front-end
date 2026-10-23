@@ -14,10 +14,10 @@ class MockClientRepository implements ClientRepository {
 
   static Cliente _fisica(String nome, String documento, String telefone) {
     return Cliente(
-      nome: nome,
-      tipoPessoa: TipoPessoa.fisica,
-      documento: documento,
-      contato: Contato(telefone: telefone),
+      name: nome,
+      personType: TipoPessoa.fisica,
+      document: documento,
+      contact: Contato(telefone: telefone),
     );
   }
 
@@ -33,7 +33,7 @@ class MockClientRepository implements ClientRepository {
   @override
   Future<List<Cliente>> listarTodos() async {
     await Future.delayed(const Duration(milliseconds: 300));
-    return List.unmodifiable(_bd.where((cliente) => cliente.ativo));
+    return List.unmodifiable(_bd.where((cliente) => cliente.isActive));
   }
 
   @override

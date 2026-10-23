@@ -280,7 +280,7 @@ class _ClientListState extends State<ClientList> {
               await showDialog<bool>(
                 context: context,
                 builder: (_) => ShowDeleteClientDialog(
-                  nome: cliente.nome,
+                  nome: cliente.name,
                 ),
               ) ??
               false;
@@ -342,7 +342,7 @@ class _ClientListState extends State<ClientList> {
 
                   children: [
                     Text(
-                      cliente.nome,
+                      cliente.name,
                       maxLines: 1,
                       overflow:
                           TextOverflow.ellipsis,
@@ -357,7 +357,7 @@ class _ClientListState extends State<ClientList> {
                     ),
 
                     Text(
-                      cliente.contato.resumo,
+                      cliente.contact.resumo,
 
                       style: TextStyle(
                         color:

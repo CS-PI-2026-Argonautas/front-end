@@ -7,63 +7,62 @@ import 'package:uuid/uuid.dart';
 class Cliente {
   final String id;
 
-  String nome;
-  TipoPessoa tipoPessoa;
+  String name;
+  TipoPessoa personType;
 
-  String documento;
+  String document;
 
-  Contato contato;
+  Contato contact;
 
   Timestamp? createdAt;
   Timestamp? updatedAt;
   Timestamp? deletedAt;
 
-  List<Endereco> enderecos;
+  List<Endereco> addresses;
 
   Cliente({
     String? id,
-    required this.nome,
-    required this.tipoPessoa,
-    required String documento,
-    required this.contato,
+    required this.name,
+    required this.personType,
+    required String document,
+    required this.contact,
     this.createdAt,
     this.updatedAt,
     this.deletedAt,
-    List<Endereco>? enderecos,
+    List<Endereco>? addresses,
   }) : id = id ?? const Uuid().v4(),
-       documento = somenteDigitos(documento),
-       enderecos = enderecos ?? [];
+       document = onlyDigits(document),
+       addresses = addresses ?? [];
 
-  static String somenteDigitos(String valor) {
-    return valor.replaceAll(RegExp(r'[^0-9]'), '');
+  static String onlyDigits(String value) {
+    return value.replaceAll(RegExp(r'[^0-9]'), '');
   }
 
-  bool get ativo => deletedAt == null;
+  bool get isActive => deletedAt == null;
 
   Map<String, dynamic> toFirestore() {
     return {
-      'nome': nome.trim(),
-      'tipo_pessoa': tipoPessoa.valor,
-      'documento': documento,
-      ...contato.toFirestore(),
+      'nome': name.trim(),
+      'tipo_pessoa': personType.valor,
+      'documento': document,
+      ...contact.toFirestore(),
     };
   }
 
-  static Timestamp? _ts(Object? valor) => valor is Timestamp ? valor : null;
+  static Timestamp? _ts(Object? value) => value is Timestamp ? value : null;
 
   factory Cliente.fromFirestore(DocumentSnapshot<Map<String, dynamic>> doc) {
     final data = doc.data() ?? <String, dynamic>{};
 
     return Cliente(
       id: doc.id,
-      nome: (data['nome'] ?? '').toString().trim(),
-      tipoPessoa: TipoPessoa.de(data['tipo_pessoa']?.toString()),
-      documento: (data['documento'] ?? '').toString(),
-      contato: Contato.fromFirestore(data),
+      name: (data['nome'] ?? '').toString().trim(),
+      personType: TipoPessoa.de(data['tipo_pessoa']?.toString()),
+      document: (data['documento'] ?? '').toString(),
+      contact: Contato.fromFirestore(data),
       createdAt: _ts(data['created_at']),
       updatedAt: _ts(data['updated_at']),
       deletedAt: _ts(data['deleted_at']),
     );
   }
 }
-
