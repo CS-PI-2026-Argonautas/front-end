@@ -36,15 +36,17 @@ class Dashboard extends StatelessWidget {
       required IconData icone,
       required bool preenchido,
     }) {
+      const textStyle = TextStyle(fontSize: 18, fontWeight: FontWeight.bold);
+
       if (preenchido) {
         return ElevatedButton.icon(
-          onPressed: irParaOrdemServico, // <-- Altere aqui!
-          icon: Icon(icone),
-          label: Text(texto),
+          onPressed: irParaOrdemServico,
+          icon: Icon(icone, size: 26),
+          label: Text(texto, style: textStyle),
           style: ElevatedButton.styleFrom(
             backgroundColor: colors.primary,
             foregroundColor: colors.onSecondary,
-            padding: const EdgeInsets.symmetric(vertical: 16),
+            padding: const EdgeInsets.symmetric(vertical: 22),
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(14),
             ),
@@ -54,13 +56,13 @@ class Dashboard extends StatelessWidget {
 
       return OutlinedButton.icon(
         onPressed: irParaCadastroPessoa,
-        icon: Icon(icone),
-        label: Text(texto),
+        icon: Icon(icone, size: 26),
+        label: Text(texto, style: textStyle),
         style: OutlinedButton.styleFrom(
           foregroundColor: colors.primary,
           backgroundColor: colors.surfaceContainer,
           side: BorderSide(color: colors.primary),
-          padding: const EdgeInsets.symmetric(vertical: 16),
+          padding: const EdgeInsets.symmetric(vertical: 22),
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(14),
           ),
@@ -135,55 +137,74 @@ class Dashboard extends StatelessWidget {
       ),
 
       body: Center(
-        child: Padding(
+        child: SingleChildScrollView(
           padding: const EdgeInsets.all(24),
-          child: Column(
-            spacing: 18,
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Text(
-                "Bem-vindo ao Dashboard!",
-                textAlign: TextAlign.center,
-                style: TextStyle(
-                  fontSize: 24,
-                  fontWeight: FontWeight.bold,
-                  color: colors.onSurface,
+          child: ConstrainedBox(
+            constraints: const BoxConstraints(maxWidth: 500),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              spacing: 24,
+              children: [
+                Text(
+                  "Olá, Rodrigo!",
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    fontSize: 24,
+                    fontWeight: FontWeight.bold,
+                    color: colors.onSurface,
+                  ),
                 ),
-              ),
 
-              SizedBox(
-                width: 280,
-                child: botaoDashboard(
-                  texto: "Criar Ordem de Serviço",
-                  icone: Icons.assignment,
-                  preenchido: true,
+                Card(
+                  color: colors.surfaceContainer,
+                  elevation: 8,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(16),
+                  ),
+                  child: Padding(
+                    padding: const EdgeInsets.all(24),
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      spacing: 18,
+                      children: [
+                        SizedBox(
+                          width: double.infinity,
+                          child: botaoDashboard(
+                            texto: "Criar Ordem de Serviço",
+                            icone: Icons.assignment,
+                            preenchido: true,
+                          ),
+                        ),
+                        SizedBox(
+                          width: double.infinity,
+                          child: botaoDashboard(
+                            texto: "Cadastro de Clientes",
+                            icone: Icons.people_alt,
+                            preenchido: true,
+                          ),
+                        ),
+                        SizedBox(
+                          width: double.infinity,
+                          child: botaoDashboard(
+                            texto: "Cadastro de peça",
+                            icone: Icons.precision_manufacturing,
+                            preenchido: true,
+                          ),
+                        ),
+                        SizedBox(
+                          width: double.infinity,
+                          child: botaoDashboard(
+                            texto: "Cadastro de serviço",
+                            icone: Icons.build,
+                            preenchido: true,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
                 ),
-              ),
-              SizedBox(
-                width: 280,
-                child: botaoDashboard(
-                  texto: "Cadastro de Clientes",
-                  icone: Icons.people_alt,
-                  preenchido: true,
-                ),
-              ),
-              SizedBox(
-                width: 280,
-                child: botaoDashboard(
-                  texto: "Cadastro de peça",
-                  icone: Icons.precision_manufacturing,
-                  preenchido: true,
-                ),
-              ),
-              SizedBox(
-                width: 280,
-                child: botaoDashboard(
-                  texto: "Cadastro de serviço",
-                  icone: Icons.build,
-                  preenchido: true,
-                ),
-              ),
-            ],
+              ],
+            ),
           ),
         ),
       ),
