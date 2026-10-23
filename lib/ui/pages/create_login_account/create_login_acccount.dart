@@ -242,7 +242,8 @@ class CreateLoginAccountState extends State<CreateLoginAccount> {
                           },
                         ),
 
-                        Center(
+                        SizedBox(
+                          width: double.infinity,
                           child: ElevatedButton.icon(
                             onPressed: () {
                               if (_formKey.currentState!.validate()){
@@ -253,20 +254,20 @@ class CreateLoginAccountState extends State<CreateLoginAccount> {
                                   ),
                                 );
                               }
-
                             },
                             style: ElevatedButton.styleFrom(
                               elevation: 3,
                               backgroundColor: colors.primary,
                               foregroundColor: colors.onSecondary,
+                              padding: const EdgeInsets.symmetric(vertical: 18),
                               shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(14),
                               ),
                             ),
-                            icon: const Icon(Icons.arrow_forward_outlined),
-                            label: const Text(
+                            icon: Icon(Icons.arrow_forward_outlined),
+                            label: Text(
                               "Prosseguir",
-                              style: TextStyle(fontWeight: FontWeight.bold),
+                              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
                             ),
                           ),
                         ),
