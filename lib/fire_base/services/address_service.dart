@@ -5,29 +5,29 @@ class AddressService {
   final AddressRepository _repository;
 
   AddressService({AddressRepository? repository})
-    : _repository = repository ?? AddressRepository();
+      : _repository = repository ?? AddressRepository();
 
-  Future<List<Address>> listar(String clienteId) {
-    return _repository.listar(clienteId);
+  Future<List<Address>> getByClientId(String clientId) {
+    return _repository.listar(clientId);
   }
 
-  Future<void> salvar(String clienteId, Address endereco) {
-    _validar(endereco);
-    return _repository.salvar(clienteId, endereco);
+  Future<void> save(String clientId, Address address) {
+    _validate(address);
+    return _repository.salvar(clientId, address);
   }
 
-  Future<void> atualizar(String clienteId, Address endereco) {
-    _validar(endereco);
-    return _repository.atualizar(clienteId, endereco);
+  Future<void> update(String clientId, Address address) {
+    _validate(address);
+    return _repository.atualizar(clientId, address);
   }
 
-  Future<void> excluir(String clienteId, String enderecoId) {
-    return _repository.excluir(clienteId, enderecoId);
+  Future<void> delete(String clientId, String addressId) {
+    return _repository.excluir(clientId, addressId);
   }
 
-  void _validar(Address endereco) {
-    if (endereco.publicPlace.trim().isEmpty ||
-        endereco.city.trim().isEmpty) {
+  void _validate(Address address) {
+    if (address.publicPlace.trim().isEmpty ||
+        address.city.trim().isEmpty) {
       throw ArgumentError('Logradouro e cidade são obrigatórios.');
     }
   }

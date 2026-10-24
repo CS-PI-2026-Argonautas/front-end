@@ -4,66 +4,66 @@ import 'package:flutter/foundation.dart';
 import 'package:frontend/fire_base/models/os.dart';
 import 'package:frontend/fire_base/repositories/firestore_reading.dart';
 
-class OrdemServicoRepository {
+class ServiceOrderRepository {
   final FirebaseFirestore _firestore;
 
-  OrdemServicoRepository({FirebaseFirestore? firestore})
-    : _firestore = firestore ?? FirebaseFirestore.instance;
+  ServiceOrderRepository({FirebaseFirestore? firestore})
+      : _firestore = firestore ?? FirebaseFirestore.instance;
 
   CollectionReference<Map<String, dynamic>> get _collection =>
       _firestore.collection('ordens_servico');
 
-  void _log(Object erro, String operacao) {
-    debugPrint('Firestore (ordem_servico/$operacao): $erro');
+  void _log(Object error, String operation) {
+    debugPrint('Firestore (ordem_servico/$operation): $error');
   }
 
-  Future<OrdemServico?> buscarPorId(String id) async {
+  Future<ServiceOrder?> getById(String id) async {
     final doc = await lerDocumentoComFallback(_collection.doc(id));
     if (!doc.exists) return null;
-    return OrdemServico.fromFirestore(doc);
+    return ServiceOrder.fromFirestore(doc);
   }
 
-  Future<void> salvar(OrdemServico os) async {
-    final referencia = _collection.doc(os.id);
-    final dados = os.toFirestore();
-    final agora = FieldValue.serverTimestamp();
-    final primeiroSalvamento = !os.persistida;
+  Future<void> save(ServiceOrder serviceOrder) async {
+    final reference = _collection.doc(serviceOrder.id);
+    final data = serviceOrder.toFirestore();
+    final now = FieldValue.serverTimestamp();
+    final isFirstSave = !serviceOrder.persisted;
 
-    final Future<void> escrita;
+    final Future<void> write;
 
-    if (primeiroSalvamento) {
-      escrita = referencia.set({
-        ...dados,
-        'created_at': agora,
-        'updated_at': agora,
+    if (isFirstSave) {
+      write = reference.set({
+        ...data,
+        'created_at': now,
+        'updated_at': now,
       });
     } else {
-      final atualizacao = <String, dynamic>{
-        ...dados,
-        'updated_at': agora,
+      final update = <String, dynamic>{
+        ...data,
+        'updated_at': now,
       }..remove('deleted_at');
 
-      escrita = referencia.set(
-        atualizacao,
-        SetOptions(mergeFields: atualizacao.keys.toList()),
+      write = reference.set(
+        update,
+        SetOptions(mergeFields: update.keys.toList()),
       );
     }
 
     unawaited(
-      escrita.catchError((Object e) {
-        _log(e, 'salvar');
-        if (primeiroSalvamento) os.persistida = false;
+      write.catchError((Object error) {
+        _log(error, 'save');
+        if (isFirstSave) serviceOrder.persisted = false;
       }),
     );
 
-    os.marcarComoSalva();
+    serviceOrder.persisted = true;
 
     final local = Timestamp.now();
-    os.createdAt ??= local;
-    os.updatedAt = local;
+    serviceOrder.createdAt ??= local;
+    serviceOrder.updatedAt = local;
   }
 
-  Future<void> deletarLogicamente(String id) async {
+  Future<void> softDelete(String id) async {
     unawaited(
       _collection
           .doc(id)
@@ -71,7 +71,7 @@ class OrdemServicoRepository {
             'deleted_at': Timestamp.now(),
             'updated_at': FieldValue.serverTimestamp(),
           }, SetOptions(merge: true))
-          .catchError((Object e) => _log(e, 'deletar')),
+          .catchError((Object error) => _log(error, 'softDelete')),
     );
   }
 }

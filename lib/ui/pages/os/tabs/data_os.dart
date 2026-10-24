@@ -532,7 +532,7 @@ Future<void> _buscarEquipamento() async {
     final List<Address> enderecos;
 
     try {
-      enderecos = await _enderecoService.listar(
+      enderecos = await _enderecoService.getByClientId(
         clienteSelecionado!['id'].toString(),
       );
     } catch (e) {
@@ -586,7 +586,7 @@ Future<void> _buscarEquipamento() async {
             );
 
             if (novo == null) return;
-            final salvo = await _enderecoService.salvar(
+            final salvo = await _enderecoService.save(
               clienteSelecionado!['id'].toString(),
               novo,
             );

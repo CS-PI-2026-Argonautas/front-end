@@ -79,7 +79,7 @@ class _PersonAlterationState extends State<PersonAlteration> {
 
   Future<void> _carregarEnderecos() async {
     try {
-      final lista = await _enderecoService.listar(widget.cliente.id);
+      final lista = await _enderecoService.getByClientId(widget.cliente.id);
 
       if (!mounted) return;
 

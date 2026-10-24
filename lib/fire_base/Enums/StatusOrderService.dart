@@ -1,4 +1,4 @@
-enum Statusorderservice {
+enum ServiceOrderStatus {
   EM_ORCAMENTO,
   EM_CONSERTO,
   CANCELADA,
@@ -7,15 +7,18 @@ enum Statusorderservice {
   PAGA,
 }
 
-extension StatusOrdemServicoX on Statusorderservice {
-  String get valor => name;
-  bool get saiDaOficina =>
-      this == Statusorderservice.ENTREGUE || this == Statusorderservice.PAGA;
+extension ServiceOrderStatusX on ServiceOrderStatus {
+  String get value => name;
 
-  static Statusorderservice de(String? valor) {
-    for (final status in Statusorderservice.values) {
-      if (status.name == valor) return status;
+  bool get leavesWorkshop =>
+      this == ServiceOrderStatus.ENTREGUE ||
+      this == ServiceOrderStatus.PAGA;
+
+  static ServiceOrderStatus from(String? value) {
+    for (final status in ServiceOrderStatus.values) {
+      if (status.name == value) return status;
     }
-    return Statusorderservice.EM_ORCAMENTO;
+
+    return ServiceOrderStatus.EM_ORCAMENTO;
   }
 }

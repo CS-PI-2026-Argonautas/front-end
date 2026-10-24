@@ -103,7 +103,7 @@ class ClienteRepository {
           'updated_at': agora,
           'deleted_at': null,
         });
-      } else if (!antigo.mesmosDados(endereco)) {
+      } else if (!antigo.hasSameData(endereco)) {
         batch.update(ref, {...endereco.toMap(), 'updated_at': agora});
       }
     }

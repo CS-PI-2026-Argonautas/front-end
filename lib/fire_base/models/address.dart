@@ -5,12 +5,12 @@ import 'package:uuid/uuid.dart';
 class Address {
   final String id;
 
-  String zipCode; 
-  String publicPlace; 
+  String zipCode;
+  String publicPlace;
   String number;
-  String complement; 
-  String city; 
-  Uf uf; 
+  String complement;
+  String city;
+  Uf uf;
 
   Timestamp? createdAt;
   Timestamp? updatedAt;
@@ -29,54 +29,65 @@ class Address {
     this.deletedAt,
   }) : id = id ?? const Uuid().v4();
 
-  bool get ativo => deletedAt == null;
+  bool get active => deletedAt == null;
 
-  static String? _nulo(String valor) {
-    final texto = valor.trim();
-    return texto.isEmpty ? null : texto;
+  static String? _nullIfEmpty(String value) {
+    final text = value.trim();
+    return text.isEmpty ? null : text;
   }
 
   Map<String, dynamic> toMap() {
     return {
-      'zip_code': _nulo(zipCode),
+      'zip_code': _nullIfEmpty(zipCode),
       'public_place': publicPlace.trim(),
-      'number': _nulo(number),
-      'complement': _nulo(complement),
+      'number': _nullIfEmpty(number),
+      'complement': _nullIfEmpty(complement),
       'city': city.trim(),
       'uf': uf.name,
     };
   }
 
-  static String _texto(Object? valor) => (valor ?? '').toString().trim();
-  static Timestamp? _ts(Object? valor) => valor is Timestamp ? valor : null;
+  static String _text(Object? value) =>
+      (value ?? '').toString().trim();
+
+  static Timestamp? _timestamp(Object? value) =>
+      value is Timestamp ? value : null;
 
   factory Address.fromMap(Map<String, dynamic> data, {String? id}) {
-    final ufTexto = _texto(data['uf']).toUpperCase();
+    final stateText = _text(data['uf']).toUpperCase();
 
     return Address(
       id: id,
-      zipCode: _texto(data['zip_code']),
-      publicPlace: _texto(data['public_place']),
-      number: _texto(data['number']),
-      complement: _texto(data['complement']),
-      city: _texto(data['city']),
-      uf: Uf.values.firstWhere((u) => u.name == ufTexto, orElse: () => Uf.PR),
-      createdAt: _ts(data['created_at']),
-      updatedAt: _ts(data['updated_at']),
-      deletedAt: _ts(data['deleted_at']),
+      zipCode: _text(data['zip_code']),
+      publicPlace: _text(data['public_place']),
+      number: _text(data['number']),
+      complement: _text(data['complement']),
+      city: _text(data['city']),
+      uf: Uf.values.firstWhere(
+        (state) => state.name == stateText,
+        orElse: () => Uf.PR,
+      ),
+      createdAt: _timestamp(data['created_at']),
+      updatedAt: _timestamp(data['updated_at']),
+      deletedAt: _timestamp(data['deleted_at']),
     );
   }
 
-  factory Address.fromFirestore(DocumentSnapshot<Map<String, dynamic>> doc) {
-    return Address.fromMap(doc.data() ?? <String, dynamic>{}, id: doc.id);
+  factory Address.fromFirestore(
+    DocumentSnapshot<Map<String, dynamic>> doc,
+  ) {
+    return Address.fromMap(
+      doc.data() ?? <String, dynamic>{},
+      id: doc.id,
+    );
   }
 
-  bool mesmosDados(Address outro) {
-    return zipCode.trim() == outro.zipCode.trim() &&
-        publicPlace.trim() == outro.publicPlace.trim() &&
-        number.trim() == outro.number.trim() &&
-        complement.trim() == outro.complement.trim() &&
-        city.trim() == outro.city.trim() &&
-        uf == outro.uf;
+  bool hasSameData(Address other) {
+    return zipCode.trim() == other.zipCode.trim() &&
+        publicPlace.trim() == other.publicPlace.trim() &&
+        number.trim() == other.number.trim() &&
+        complement.trim() == other.complement.trim() &&
+        city.trim() == other.city.trim() &&
+        uf == other.uf;
   }
 }
