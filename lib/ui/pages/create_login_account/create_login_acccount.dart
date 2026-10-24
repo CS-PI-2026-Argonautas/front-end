@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:frontend/ui/pages/password_setting/password_setting.dart';
 import 'package:frontend/ui/style/ColorScheme.dart' as custom_colors;
 import 'package:frontend/ui/widgets/appBar.dart';
+import 'package:frontend/ui/widgets/password_recovery/typing_text_field.dart';
 import 'package:frontend/utils/validators/validators.dart';
 
 class CreateLoginAccount extends StatefulWidget {
@@ -70,21 +71,25 @@ class CreateLoginAccountState extends State<CreateLoginAccount> {
 
               _buildFieldLabel(Icons.badge, 'Nome*'),
 
-              TextFormField(
-                decoration: _buildInputDecoration(
-                  hintText: 'Informe seu nome',
-                ),
-                validator: (value) {
+              TypingTextField(
+                controller: null, 
+                hintText: 'Informe seu nome', 
+                enabled: true, 
+                sensitiveContent: false, 
+                isPassword: false,
+                validator: (value){
                   return emptyMandatoryField(value);
                 },
               ),
 
               _buildFieldLabel(Icons.badge, 'Sobrenome*'),
 
-              TextFormField(
-                decoration: _buildInputDecoration(
-                  hintText: 'Informe seu sobrenome',
-                ),
+              TypingTextField(
+                controller: null, 
+                hintText: 'Informe seu sobrenome', 
+                enabled: true, 
+                sensitiveContent: false, 
+                isPassword: false,
                 validator: (value) {
                   return emptyMandatoryField(value);
                 },
@@ -92,7 +97,18 @@ class CreateLoginAccountState extends State<CreateLoginAccount> {
 
               _buildFieldLabel(Icons.person_3, 'Nome usuário*'),
 
-              TextFormField(
+              TypingTextField(
+                controller: null, 
+                hintText: 'Informe seu sobrenome', 
+                enabled: true, 
+                sensitiveContent: false, 
+                isPassword: false,
+                validator: (value) {
+                  if (value == null || value.length < 3) {
+                    return 'Mínimo de 3 caracteres';
+                  }
+                  return null;
+                },
                 inputFormatters: [
                   FilteringTextInputFormatter.allow(
                     RegExp(r'[a-zA-Z0-9._\-]'),
@@ -102,25 +118,17 @@ class CreateLoginAccountState extends State<CreateLoginAccount> {
                   ),
                 ],
                 maxLength: 25,
-                validator: (value) {
-                  if (value!.length < 3) {
-                    return 'Mínimo de 3 caracteres';
-                  }
-                  return null;
-                },
-                decoration: _buildInputDecoration(
-                  hintText: 'Ex: nome.sobrenome',
-                  counterText: '',
-                ),
               ),
 
               _buildFieldLabel(Icons.email, 'Email*'),
 
-              TextFormField(
-                decoration: _buildInputDecoration(
-                  hintText: 'Ex: nome@exemplo.com',
-                ),
-                validator: (value) {
+              TypingTextField(
+                controller: null, 
+                hintText: 'Ex: nome@exemplo.com', 
+                enabled: true, 
+                sensitiveContent: false, 
+                isPassword: false,
+                validator: (value){
                   return validateEmail(value);
                 },
               ),
