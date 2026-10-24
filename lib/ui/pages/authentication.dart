@@ -31,7 +31,7 @@ class _AuthenticationState extends State<Authentication> {
 
     try {
       await _service.login(email: email, password: password);
-    } on LoginException catch (e) {
+    } on AuthException catch (e) {
       showSnackMessage(e.message);
     } catch (f) {
       showSnackMessage('Erro inesperado! Entre em contato com o suporte');

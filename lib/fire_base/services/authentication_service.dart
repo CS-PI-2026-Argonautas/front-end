@@ -10,9 +10,9 @@ class AuthenticationService {
     } on FirebaseAuthException catch (e) {
       switch (e.code) {
         case 'INVALID_LOGIN_CREDENTIALS':
-          throw LoginException('Email ou senha incorretos');
+          throw AuthException('Email ou senha incorretos');
         default:
-          throw LoginException('Erro ao entrar');
+          throw AuthException('Erro ao entrar');
       }
     }
   }
