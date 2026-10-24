@@ -7,14 +7,12 @@ class ClientOs extends StatefulWidget {
 
   const ClientOs({super.key, required this.onNext});
 
-  
   @override
   State<ClientOs> createState() => _ClientOsState();
 }
 
 /* ISSSO VAI SER RETIRADO APÓS O BD ESTAR PRONTO (GAMBIARRA)*/
 class _ClientOsState extends State<ClientOs> {
-
   final List<Map<String, dynamic>> clientesDisponiveis = [
     {"id": 1, "nome": "João Silva", "telefone": "(44) 99876-5432"},
     {"id": 2, "nome": "Maria Santos", "telefone": "(44) 98765-4321"},
@@ -23,7 +21,7 @@ class _ClientOsState extends State<ClientOs> {
   ];
 
   Map<String, dynamic>? clienteSelecionado;
-  
+
   final List<Map<String, dynamic>> enderecosDisponiveis = [
     {"id": 1, "rua": "Rua das Flores, 123", "bairro": "Centro"},
     {"id": 2, "rua": "Av. Brasil, 456", "bairro": "Jardim América"},
@@ -40,9 +38,7 @@ class _ClientOsState extends State<ClientOs> {
       backgroundColor: colors.surface,
       isScrollControlled: true,
       shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(
-          top: Radius.circular(24),
-        ),
+        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
       ),
       builder: (context) {
         return SelectionBottomSheet<Map<String, dynamic>>(
@@ -69,7 +65,7 @@ class _ClientOsState extends State<ClientOs> {
       clienteSelecionado = cliente;
     });
   }
-  
+
   void _abrirListaEnderecos() {
     final colors = custom_colors.colorScheme;
 
@@ -78,9 +74,7 @@ class _ClientOsState extends State<ClientOs> {
       backgroundColor: colors.surface,
       isScrollControlled: true,
       shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(
-          top: Radius.circular(24),
-        ),
+        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
       ),
       builder: (context) {
         return SelectionBottomSheet<Map<String, dynamic>>(
@@ -175,10 +169,7 @@ class _ClientOsState extends State<ClientOs> {
           if (onAdd != null)
             ElevatedButton.icon(
               onPressed: onAdd,
-              icon: const Icon(
-                Icons.add,
-                size: 18,
-              ),
+              icon: const Icon(Icons.add, size: 18),
               label: Text(addLabel),
               style: ElevatedButton.styleFrom(
                 backgroundColor: const Color(0xFF1E9E5F),
@@ -214,10 +205,7 @@ class _ClientOsState extends State<ClientOs> {
         ),
         child: Row(
           children: [
-            Icon(
-              Icons.location_on,
-              color: colors.primary,
-            ),
+            Icon(Icons.location_on, color: colors.primary),
             const SizedBox(width: 12),
             Expanded(
               child: Column(
@@ -261,16 +249,11 @@ class _ClientOsState extends State<ClientOs> {
         decoration: BoxDecoration(
           color: Colors.white.withOpacity(0.6),
           borderRadius: BorderRadius.circular(14),
-          border: Border.all(
-            color: colors.primary.withOpacity(0.3),
-          ),
+          border: Border.all(color: colors.primary.withOpacity(0.3)),
         ),
         child: Row(
           children: [
-            Icon(
-              Icons.person,
-              color: colors.primary,
-            ),
+            Icon(Icons.person, color: colors.primary),
             const SizedBox(width: 12),
             Expanded(
               child: Column(

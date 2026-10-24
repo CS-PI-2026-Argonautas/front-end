@@ -2,9 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:frontend/ui/pages/client_list/client_list.dart';
 import 'package:frontend/ui/pages/edit_item/item_edition.dart';
 import 'package:frontend/ui/pages/os/tabbar/tabbar.dart';
+import 'package:frontend/ui/pages/os/tabs/clientOs.dart';
+import 'package:frontend/ui/pages/os/tabs/data_os.dart';
+import 'package:frontend/ui/pages/os/tolls_os.dart';
 import 'package:frontend/ui/pages/os_list/os_list_page.dart';
 import 'package:frontend/ui/pages/person_registration/person_registration.dart';
 import 'package:frontend/ui/pages/product_registration/product_registration.dart';
+import 'package:frontend/ui/pages/service-registration/service_registration.dart';
 import 'package:frontend/ui/style/ColorScheme.dart' as custom_Colors;
 import 'package:frontend/ui/widgets/menu.dart';
 
@@ -15,32 +19,17 @@ class Dashboard extends StatelessWidget {
   Widget build(BuildContext context) {
     final colors = custom_Colors.colorScheme;
 
-    void irParaCadastroPessoa() {
-      Navigator.push(
-        context,
-        MaterialPageRoute(builder: (context) => const PersonRegistration()),
-      );
-    }
-
-    void irParaOrdemServico() {
-      Navigator.push(
-        context,
-        MaterialPageRoute(
-          builder: (context) => const Tabbar(serviceOrderNumber: '1234'),
-        ),
-      );
-    }
-
     Widget botaoDashboard({
       required String texto,
       required IconData icone,
       required bool preenchido,
+      required VoidCallback onPressed,
     }) {
       const textStyle = TextStyle(fontSize: 18, fontWeight: FontWeight.bold);
 
       if (preenchido) {
         return ElevatedButton.icon(
-          onPressed: irParaOrdemServico,
+          onPressed: onPressed,
           icon: Icon(icone, size: 26),
           label: Text(texto, style: textStyle),
           style: ElevatedButton.styleFrom(
@@ -55,7 +44,7 @@ class Dashboard extends StatelessWidget {
       }
 
       return OutlinedButton.icon(
-        onPressed: irParaCadastroPessoa,
+        onPressed: onPressed,
         icon: Icon(icone, size: 26),
         label: Text(texto, style: textStyle),
         style: OutlinedButton.styleFrom(
@@ -170,9 +159,16 @@ class Dashboard extends StatelessWidget {
                         SizedBox(
                           width: double.infinity,
                           child: botaoDashboard(
+                            preenchido: true,
                             texto: "Criar Ordem de Serviço",
                             icone: Icons.assignment,
-                            preenchido: true,
+                            onPressed: () => Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) =>
+                                    const Tabbar(serviceOrderNumber: '1234'),
+                              ),
+                            ),
                           ),
                         ),
                         SizedBox(
@@ -181,6 +177,13 @@ class Dashboard extends StatelessWidget {
                             texto: "Cadastro de Clientes",
                             icone: Icons.people_alt,
                             preenchido: true,
+                            onPressed: () => Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) =>
+                                    const PersonRegistration(),
+                              ),
+                            ),
                           ),
                         ),
                         SizedBox(
@@ -189,6 +192,13 @@ class Dashboard extends StatelessWidget {
                             texto: "Cadastro de peça",
                             icone: Icons.precision_manufacturing,
                             preenchido: true,
+                            onPressed: () => Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) =>
+                                    const ProductRegistration(),
+                              ),
+                            ),
                           ),
                         ),
                         SizedBox(
@@ -197,6 +207,13 @@ class Dashboard extends StatelessWidget {
                             texto: "Cadastro de serviço",
                             icone: Icons.build,
                             preenchido: true,
+                            onPressed: () => Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) =>
+                                    const ServiceRegistration(),
+                              ),
+                            ),
                           ),
                         ),
                       ],
