@@ -1,8 +1,8 @@
 import "package:flutter/material.dart";
-import 'package:frontend/utils/password_strength/password_strength.dart';
+import 'package:frontend/utils/validators/password_strength.dart';
 import 'package:frontend/ui/pages/authentication.dart';
 import 'package:frontend/ui/style/ColorScheme.dart' as custom_colors;
-import 'package:frontend/utils/password_recovery/validators.dart';
+import 'package:frontend/utils/validators/validators.dart';
 import 'package:frontend/ui/widgets/appBar.dart';
 import 'package:frontend/ui/widgets/password_recovery/typing_text_field.dart';
 
@@ -80,7 +80,7 @@ class _PasswordSettingState extends State<PasswordSetting> {
                 "${tip.tip}${tip.tipText} \n \n ${tip.example}${tip.exampleText}",
               ),
 
-              _buildFieldLabel(Icons.lock_outline, "Nova Senha *"),
+              _buildFieldLabel(Icons.lock_outline, "Nova Senha*"),
               TypingTextField(
                 controller: passwordController,
                 enabled: true,
@@ -100,6 +100,7 @@ class _PasswordSettingState extends State<PasswordSetting> {
                 hintText: 'Mínimo 8 caracteres...',
                 sensitiveContent: true,
                 isPassword: true,
+                fillColor: colors.surfaceContainerHigh,
                 onChanged: (value) {
                   setState(() {
                     if (value.isEmpty) {
@@ -155,7 +156,7 @@ class _PasswordSettingState extends State<PasswordSetting> {
                 ],
               ),
 
-              _buildFieldLabel(Icons.lock_reset, "Repetir Senha *"),
+              _buildFieldLabel(Icons.lock_reset, "Confirmação da Senha*"),
               TypingTextField(
                 controller: confirmPasswordController,
                 enabled: true,
@@ -176,6 +177,7 @@ class _PasswordSettingState extends State<PasswordSetting> {
                 hintText: 'Confirme sua senha...',
                 sensitiveContent: true,
                 isPassword: true,
+                fillColor: colors.surfaceContainerHigh,
               ),
 
               SizedBox(

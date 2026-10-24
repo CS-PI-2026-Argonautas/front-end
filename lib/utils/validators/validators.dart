@@ -1,3 +1,5 @@
+import 'package:email_validator/email_validator.dart';
+
 String? requiredField(String? value) {
   if(value == null || value.trim().isEmpty) return 'Campo obrigatório';
   return null;
@@ -33,5 +35,26 @@ String? codeFormatValidator(String? value) {
     return 'O código deve ter 6 dígitos';
   }
 
+  return null;
+}
+
+String? validateEmail(String? value){
+  if(value == null || value.trim().isEmpty){
+    return 'O e-mail é obrigatório';
+  }
+
+  final email = value.trim();
+
+  if (!EmailValidator.validate(email)){
+    return 'Informe um e-mail válido';
+  }
+
+  return null;
+}
+
+String? emptyMandatoryField(String? value){
+  if(value == null || value.trim().isEmpty){
+    return 'Campo obrigatório';
+  }
   return null;
 }
