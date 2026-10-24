@@ -9,6 +9,7 @@ class TypingTextField extends StatefulWidget {
   final bool sensitiveContent;
   final bool isPassword;
   final ValueChanged<String>? onChanged;
+  final Color? fillColor;
 
   TypingTextField({
     super.key,
@@ -19,6 +20,7 @@ class TypingTextField extends StatefulWidget {
     required this.isPassword,
     this.validator,
     this.onChanged,
+    this.fillColor
   });
 
   @override
@@ -43,8 +45,8 @@ class _TypingTextFieldState extends State<TypingTextField> {
 
       decoration: InputDecoration(
         hintText: widget.hintText,
-        
-
+        filled: true,
+        fillColor: widget.fillColor ?? Colors.white,
         suffixIcon: widget.sensitiveContent
         ? 
         IconButton(
