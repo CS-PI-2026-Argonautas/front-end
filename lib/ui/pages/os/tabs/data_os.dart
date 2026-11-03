@@ -7,6 +7,9 @@ import 'package:frontend/ui/style/ColorScheme.dart' as custom_colors;
 import 'package:frontend/ui/style/inputDecorationStyles.dart';
 import 'package:frontend/ui/widgets/bottom_sheet/bottom_sheet.dart';
 import 'package:frontend/ui/widgets/fields/equipment_field.dart';
+import 'package:frontend/ui/widgets/fields/selection_field.dart';
+import 'package:frontend/ui/widgets/form/labeled_form.dart';
+import 'package:frontend/ui/widgets/form/section_label.dart';
 import 'package:frontend/utils/formatters/address_formatter.dart';
 import 'package:frontend/ui/pages/person_registration/person_registration.dart';
 import 'package:frontend/ui/pages/stand_in_page.dart';
@@ -616,7 +619,8 @@ class _DataOsState extends State<DataOs> {
             _buildClienteEnderecoLabel(
               'Cliente*',
               onAdd: _abrirListaClientes,
-              addLabel: 'Adicionar cliente',
+              addLabel: 'Adicionar Cliente',
+              icon: Icons.person_outline,
             ),
             _buildClienteSelecionado(),
 
@@ -624,6 +628,7 @@ class _DataOsState extends State<DataOs> {
               'Endereço*',
               onAdd: clienteSelecionado == null ? null : _abrirListaEnderecos,
               addLabel: 'Adicionar Endereço',
+              icon: Icons.home_outlined,
             ),
             _buildEnderecoSelecionado(),
 
@@ -884,17 +889,11 @@ class _DataOsState extends State<DataOs> {
     String text, {
     VoidCallback? onAdd,
     String addLabel = 'Adicionar',
+    required IconData icon,
   }) {
     return Row(
       children: [
-        Text(
-          text,
-          style: TextStyle(
-            color: colors.onSurface,
-            fontSize: 18,
-            fontWeight: FontWeight.bold,
-          ),
-        ),
+        SectionLabel(icon: icon, text: text),
         const Spacer(),
         if (onAdd != null || addLabel.isNotEmpty)
           ElevatedButton.icon(

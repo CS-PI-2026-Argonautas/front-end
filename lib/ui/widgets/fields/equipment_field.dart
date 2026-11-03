@@ -21,9 +21,9 @@ class EquipmentSection extends StatelessWidget {
       label: 'Equipamento*',
       iconeLabel: Icons.devices_other_outlined,
       textoBotao: equipamento == null
-          ? 'Cadastrar equipamento'
-          : 'Editar equipamento',
-      iconeBotao: Icons.build,
+          ? 'Cadastrar Equipamento'
+          : 'Editar Equipamento',
+      iconeBotao: Icons.add,
       iconeItem: Icons.scale,
       itens: equipamento != null ? [equipamento] : [],
       tituloItem: (equip) {
