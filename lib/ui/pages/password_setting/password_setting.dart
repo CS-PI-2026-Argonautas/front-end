@@ -245,7 +245,7 @@ class _PasswordSettingState extends State<PasswordSetting> {
               SizedBox(
                 width: double.infinity,
                 child: ElevatedButton.icon(
-                  onPressed: () => Navigator.pop(context),
+                  onPressed: _isLoading ? null : () => Navigator.pop(context),
                   style: ElevatedButton.styleFrom(
                     elevation: 3,
                     backgroundColor: colors.primary,
@@ -271,15 +271,31 @@ class _PasswordSettingState extends State<PasswordSetting> {
                     elevation: 3,
                     backgroundColor: colors.primary,
                     foregroundColor: colors.onSecondary,
+                    disabledBackgroundColor: colors.primary.withValues(
+                      alpha: 0.7,
+                    ),
+                    disabledForegroundColor: colors.onSecondary,
                     padding: const EdgeInsets.symmetric(vertical: 18),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(14),
                     ),
                   ),
-                  icon: const Icon(Icons.check),
-                  label: const Text(
-                    "Cadastrar Senha",
-                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                  icon: _isLoading
+                      ? SizedBox(
+                          width: 20,
+                          height: 20,
+                          child: CircularProgressIndicator(
+                            strokeWidth: 2.5,
+                            color: colors.onSecondary,
+                          ),
+                        )
+                      : const Icon(Icons.person_add),
+                  label: Text(
+                    _isLoading ? "Criando conta..." : "Criar conta",
+                    style: const TextStyle(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 16,
+                    ),
                   ),
                 ),
               ),
