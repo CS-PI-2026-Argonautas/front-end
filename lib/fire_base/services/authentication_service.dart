@@ -133,4 +133,50 @@ class AuthenticationService {
       }
     }
   }
+
+  Future<void> changePassword({
+    required String currentPassword,
+    required String newPassword,
+  }) async {
+    final user = _auth.currentUser;
+    if (user == null || user.email == null) {
+      throw AuthException('Sessão expirada. Entre novamente');
+    }
+
+    try {
+      await user.reauthenticateWithCredential(
+        EmailAuthProvider.credential(
+          email: user.email!,
+          password: currentPassword,
+        ),
+      );
+    } on FirebaseAuthException catch (e) {
+      switch (e.code) {
+        case 'invalid-credential':
+        case 'wrong-password':
+          throw AuthException('Senha atual incorreta');
+        case 'too-many-requests':
+          throw AuthException('Muitas tentativas. Tente novamente mais tarde');
+        case 'network-request-failed':
+          throw AuthException('Sem conexão com a internet');
+        default:
+          throw AuthException('Erro ao alterar a senha');
+      }
+    }
+
+    try {
+      await user.updatePassword(newPassword);
+    } on FirebaseAuthException catch (e) {
+      switch (e.code) {
+        case 'weak-password':
+          throw AuthException('Senha fraca');
+        case 'requires-recent-login':
+          throw AuthException('Entre novamente para alterar a senha');
+        case 'network-request-failed':
+          throw AuthException('Sem conexão com a internet');
+        default:
+          throw AuthException('Erro ao alterar a senha');
+      }
+    }
+  }
 }

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:frontend/fire_base/services/authentication_service.dart';
 import 'package:frontend/ui/pages/auth_gate.dart';
 import 'package:frontend/ui/pages/create_login_account/create_login_acccount.dart';
+import 'package:frontend/ui/pages/password_change/password_change.dart';
 import 'package:frontend/ui/style/ColorScheme.dart' as custom_colors;
 
 class Menu extends StatelessWidget {
@@ -101,6 +102,26 @@ class Menu extends StatelessWidget {
                     context,
                     MaterialPageRoute(
                       builder: (context) => const CreateLoginAccount(),
+                    ),
+                  );
+                },
+              ),
+
+              ListTile(
+                leading: Icon(
+                  Icons.lock_reset,
+                  color: Colors.white.withValues(alpha: 0.8),
+                ),
+                title: Text(
+                  "Alterar senha",
+                  style: TextStyle(color: Colors.white.withValues(alpha: 0.8)),
+                ),
+                onTap: () {
+                  Navigator.pop(context);
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => const PasswordChange(),
                     ),
                   );
                 },

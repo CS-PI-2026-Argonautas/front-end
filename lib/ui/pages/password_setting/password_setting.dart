@@ -6,9 +6,10 @@ import 'package:frontend/ui/style/ColorScheme.dart' as custom_colors;
 import 'package:frontend/ui/widgets/appBar.dart';
 import 'package:frontend/ui/widgets/form/form_section_tile.dart';
 import 'package:frontend/ui/widgets/form/labeled_form.dart';
+import 'package:frontend/ui/widgets/password_recovery/password_strength_meter.dart';
 import 'package:frontend/ui/widgets/password_recovery/typing_text_field.dart';
+import 'package:frontend/utils/password_recovery/password_tip.dart';
 import 'package:frontend/utils/password_recovery/validators.dart';
-import 'package:frontend/utils/password_strength/password_strength.dart';
 
 class PasswordSetting extends StatefulWidget {
   const PasswordSetting({
@@ -27,12 +28,6 @@ class PasswordSetting extends StatefulWidget {
 }
 
 class _PasswordSettingState extends State<PasswordSetting> {
-  _TipText tip = _TipText();
-
-  final passwordStrength = PasswordStrength();
-  final zxcvbn = PasswordStrength().zxcvbn;
-  int passwordScore = 0;
-
   final passwordController = TextEditingController();
   final confirmPasswordController = TextEditingController();
 
@@ -47,7 +42,7 @@ class _PasswordSettingState extends State<PasswordSetting> {
     if (_isLoading) return;
 
     if (!_formKey.currentState!.validate() ||
-        passwordController.text == tip.exampleText) {
+        passwordController.text == PasswordTip.exampleText) {
       return;
     }
 
@@ -143,8 +138,7 @@ class _PasswordSettingState extends State<PasswordSetting> {
             children: [
               FormSectionTile(
                 title: "Cadastrar Senha",
-                subtitle:
-                    "${tip.tip}${tip.tipText}\n\n${tip.example}${tip.exampleText}",
+                subtitle: PasswordTip.subtitle,
               ),
 
               Column(
@@ -160,7 +154,7 @@ class _PasswordSettingState extends State<PasswordSetting> {
                       validator: (value) {
                         final error = passwordValidator(
                           value,
-                          comparisonValue: tip.exampleText,
+                          comparisonValue: PasswordTip.exampleText,
                           nameComparisonValue: "à frase-passe de exemplo",
                         );
 
@@ -173,61 +167,10 @@ class _PasswordSettingState extends State<PasswordSetting> {
                       hintText: 'Mínimo 8 caracteres...',
                       sensitiveContent: true,
                       isPassword: true,
-                      onChanged: (value) {
-                        setState(() {
-                          if (value.isEmpty) {
-                            passwordScore = 0;
-                            return;
-                          }
-                          final result = zxcvbn.evaluate(value);
-                          passwordScore = result.score!.toInt();
-                        });
-                      },
+                      onChanged: (_) => setState(() {}),
                     ),
                   ),
-                  Column(
-                    spacing: 4,
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      const Text(
-                        "Segurança da Senha",
-                        style: TextStyle(fontSize: 14),
-                      ),
-
-                      Row(
-                        spacing: 6,
-                        children: [
-                          Expanded(
-                            child: LinearProgressIndicator(
-                              value: passwordController.text.isEmpty
-                                  ? 0
-                                  : (passwordScore + 1) / 5,
-                              minHeight: 6,
-                              color: passwordStrength.passwordStrengthColor(
-                                passwordScore,
-                              ),
-                              backgroundColor: Colors.grey,
-                              borderRadius: BorderRadius.circular(8),
-                            ),
-                          ),
-
-                          Text(
-                            passwordController.text.isEmpty
-                                ? "Digite uma senha"
-                                : "${passwordStrength.passwordStrengthText(passwordScore)}",
-                            style: TextStyle(
-                              color: passwordController.text.isEmpty
-                                  ? Colors.grey
-                                  : passwordStrength.passwordStrengthColor(
-                                      passwordScore,
-                                    ),
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ],
-                  ),
+                  PasswordStrengthMeter(password: passwordController.text),
                 ],
               ),
 
@@ -241,7 +184,7 @@ class _PasswordSettingState extends State<PasswordSetting> {
                     final error = confirmPassword(
                       value,
                       passwordController.text,
-                      comparisonValue: tip.exampleText,
+                      comparisonValue: PasswordTip.exampleText,
                       nameComparisonValue: 'à frase-passe de exemplo',
                     );
 
@@ -346,12 +289,4 @@ class _PasswordSettingState extends State<PasswordSetting> {
       ),
     );
   }
-}
-
-class _TipText {
-  String tip = "Dica: ";
-  String tipText =
-      'use frases-passe ao invés de senhas padrões para criar credenciais mais longas, seguras e fáceis de memorizar.';
-  String example = "Exemplo: ";
-  String exampleText = 'cachorro#passeia@parque23';
 }
