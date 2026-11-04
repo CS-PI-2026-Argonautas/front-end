@@ -4,6 +4,8 @@ import 'package:frontend/fire_base/services/authentication_service.dart';
 import 'package:frontend/ui/pages/auth_gate.dart';
 import 'package:frontend/ui/style/ColorScheme.dart' as custom_colors;
 import 'package:frontend/ui/widgets/appBar.dart';
+import 'package:frontend/ui/widgets/form/form_section_tile.dart';
+import 'package:frontend/ui/widgets/form/labeled_form.dart';
 import 'package:frontend/ui/widgets/password_recovery/typing_text_field.dart';
 import 'package:frontend/utils/password_recovery/validators.dart';
 import 'package:frontend/utils/password_strength/password_strength.dart';
@@ -136,227 +138,212 @@ class _PasswordSettingState extends State<PasswordSetting> {
         child: Form(
           key: _formKey,
           child: Column(
-            spacing: 18,
+            spacing: 24,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              _buildSectionTitle(
-                "Cadastrar Senha",
-                "${tip.tip}${tip.tipText} \n \n ${tip.example}${tip.exampleText}",
+              FormSectionTile(
+                title: "Cadastrar Senha",
+                subtitle:
+                    "${tip.tip}${tip.tipText}\n\n${tip.example}${tip.exampleText}",
               ),
 
-              _buildFieldLabel(Icons.lock_outline, "Nova Senha *"),
-              TypingTextField(
-                controller: passwordController,
-                enabled: true,
-                validator: (value) {
-                  final error = passwordValidator(
-                    value,
-                    comparisonValue: tip.exampleText,
-                    nameComparisonValue: "à frase-passe de exemplo",
-                  );
-
-                  if (error != null) {
-                    return error;
-                  }
-
-                  return null;
-                },
-                hintText: 'Mínimo 8 caracteres...',
-                sensitiveContent: true,
-                isPassword: true,
-                onChanged: (value) {
-                  setState(() {
-                    if (value.isEmpty) {
-                      passwordScore = 0;
-                      return;
-                    }
-                    final result = zxcvbn.evaluate(value);
-                    passwordScore = result.score!.toInt();
-                  });
-                },
-              ),
               Column(
-                spacing: 2,
+                spacing: 8,
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Text(
-                    "Segurança da Senha",
-                    style: TextStyle(fontSize: 14),
-                  ),
+                  LabeledFormField(
+                    icon: Icons.lock_outline,
+                    label: "Nova Senha *",
+                    field: TypingTextField(
+                      controller: passwordController,
+                      enabled: true,
+                      validator: (value) {
+                        final error = passwordValidator(
+                          value,
+                          comparisonValue: tip.exampleText,
+                          nameComparisonValue: "à frase-passe de exemplo",
+                        );
 
-                  Row(
-                    spacing: 6,
+                        if (error != null) {
+                          return error;
+                        }
+
+                        return null;
+                      },
+                      hintText: 'Mínimo 8 caracteres...',
+                      sensitiveContent: true,
+                      isPassword: true,
+                      onChanged: (value) {
+                        setState(() {
+                          if (value.isEmpty) {
+                            passwordScore = 0;
+                            return;
+                          }
+                          final result = zxcvbn.evaluate(value);
+                          passwordScore = result.score!.toInt();
+                        });
+                      },
+                    ),
+                  ),
+                  Column(
+                    spacing: 4,
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Expanded(
-                        child: LinearProgressIndicator(
-                          value: passwordController.text.isEmpty
-                              ? 0
-                              : (passwordScore + 1) / 5,
-                          minHeight: 6,
-                          color: passwordStrength.passwordStrengthColor(
-                            passwordScore,
-                          ),
-                          backgroundColor: Colors.grey,
-                          borderRadius: BorderRadius.circular(8),
-                        ),
+                      const Text(
+                        "Segurança da Senha",
+                        style: TextStyle(fontSize: 14),
                       ),
 
-                      Text(
-                        passwordController.text.isEmpty
-                            ? "Digite uma senha"
-                            : "${passwordStrength.passwordStrengthText(passwordScore)}",
-                        style: TextStyle(
-                          color: passwordController.text.isEmpty
-                              ? Colors.grey
-                              : passwordStrength.passwordStrengthColor(
-                                  passwordScore,
-                                ),
-                          fontWeight: FontWeight.bold,
-                        ),
+                      Row(
+                        spacing: 6,
+                        children: [
+                          Expanded(
+                            child: LinearProgressIndicator(
+                              value: passwordController.text.isEmpty
+                                  ? 0
+                                  : (passwordScore + 1) / 5,
+                              minHeight: 6,
+                              color: passwordStrength.passwordStrengthColor(
+                                passwordScore,
+                              ),
+                              backgroundColor: Colors.grey,
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                          ),
+
+                          Text(
+                            passwordController.text.isEmpty
+                                ? "Digite uma senha"
+                                : "${passwordStrength.passwordStrengthText(passwordScore)}",
+                            style: TextStyle(
+                              color: passwordController.text.isEmpty
+                                  ? Colors.grey
+                                  : passwordStrength.passwordStrengthColor(
+                                      passwordScore,
+                                    ),
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ],
                       ),
                     ],
                   ),
                 ],
               ),
 
-              _buildFieldLabel(Icons.lock_reset, "Repetir Senha *"),
-              TypingTextField(
-                controller: confirmPasswordController,
-                enabled: true,
-                validator: (value) {
-                  final error = confirmPassword(
-                    value,
-                    passwordController.text,
-                    comparisonValue: tip.exampleText,
-                    nameComparisonValue: 'à frase-passe de exemplo',
-                  );
+              LabeledFormField(
+                icon: Icons.lock_reset,
+                label: "Repetir Senha *",
+                field: TypingTextField(
+                  controller: confirmPasswordController,
+                  enabled: true,
+                  validator: (value) {
+                    final error = confirmPassword(
+                      value,
+                      passwordController.text,
+                      comparisonValue: tip.exampleText,
+                      nameComparisonValue: 'à frase-passe de exemplo',
+                    );
 
-                  if (error != null) {
-                    return error;
-                  }
+                    if (error != null) {
+                      return error;
+                    }
 
-                  return null;
-                },
-                hintText: 'Confirme sua senha...',
-                sensitiveContent: true,
-                isPassword: true,
-              ),
-
-              SizedBox(
-                width: double.infinity,
-                child: ElevatedButton.icon(
-                  onPressed: _isLoading ? null : () => Navigator.pop(context),
-                  style: ElevatedButton.styleFrom(
-                    elevation: 3,
-                    backgroundColor: colors.primary,
-                    foregroundColor: colors.onSecondary,
-                    padding: const EdgeInsets.symmetric(vertical: 18),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(14),
-                    ),
-                  ),
-                  icon: Icon(Icons.arrow_back),
-                  label: Text(
-                    "Voltar",
-                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
-                  ),
-                ),
-              ),
-
-              SizedBox(
-                width: double.infinity,
-                child: ElevatedButton.icon(
-                  onPressed: _isLoading ? null : _validateAndSignin,
-                  style: ElevatedButton.styleFrom(
-                    elevation: 3,
-                    backgroundColor: colors.primary,
-                    foregroundColor: colors.onSecondary,
-                    disabledBackgroundColor: colors.primary.withValues(
-                      alpha: 0.7,
-                    ),
-                    disabledForegroundColor: colors.onSecondary,
-                    padding: const EdgeInsets.symmetric(vertical: 18),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(14),
-                    ),
-                  ),
-                  icon: _isLoading
-                      ? SizedBox(
-                          width: 20,
-                          height: 20,
-                          child: CircularProgressIndicator(
-                            strokeWidth: 2.5,
-                            color: colors.onSecondary,
-                          ),
-                        )
-                      : const Icon(Icons.person_add),
-                  label: Text(
-                    _isLoading ? "Criando conta..." : "Criar conta",
-                    style: const TextStyle(
-                      fontWeight: FontWeight.bold,
-                      fontSize: 16,
-                    ),
-                  ),
-                ),
-              ),
-
-              Center(
-                child: TextButton(
-                  onPressed: () {
-                    // Lógica de suporte
+                    return null;
                   },
-                  child: Text(
-                    'Dúvidas? Contate nosso suporte',
-                    style: TextStyle(
-                      color: colors.primary,
-                      fontSize: 14,
-                      decoration: TextDecoration.none,
-                    ),
-                  ),
+                  hintText: 'Confirme sua senha...',
+                  sensitiveContent: true,
+                  isPassword: true,
                 ),
               ),
+
+              Padding(
+                padding: const EdgeInsets.only(top: 16),
+                child: Row(
+                  children: [
+                    Expanded(
+                      child: ElevatedButton.icon(
+                        onPressed: _isLoading
+                            ? null
+                            : () => Navigator.pop(context),
+                        style: ElevatedButton.styleFrom(
+                          elevation: 3,
+                          backgroundColor: colors.primary,
+                          foregroundColor: colors.onSecondary,
+                          padding: const EdgeInsets.symmetric(vertical: 18),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(14),
+                          ),
+                        ),
+                        icon: Icon(Icons.arrow_back),
+                        label: Text(
+                          "Voltar",
+                          style: TextStyle(
+                            fontWeight: FontWeight.bold,
+                            fontSize: 16,
+                          ),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: 14),
+                    Expanded(
+                      child: ElevatedButton.icon(
+                        onPressed: _isLoading ? null : _validateAndSignin,
+                        style: ElevatedButton.styleFrom(
+                          elevation: 3,
+                          backgroundColor: colors.primary,
+                          foregroundColor: colors.onSecondary,
+                          disabledBackgroundColor: colors.primary.withValues(
+                            alpha: 0.7,
+                          ),
+                          disabledForegroundColor: colors.onSecondary,
+                          padding: const EdgeInsets.symmetric(vertical: 18),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(14),
+                          ),
+                        ),
+                        icon: _isLoading
+                            ? SizedBox(
+                                width: 20,
+                                height: 20,
+                                child: CircularProgressIndicator(
+                                  strokeWidth: 2.5,
+                                  color: colors.onSecondary,
+                                ),
+                              )
+                            : const Icon(Icons.person_add),
+                        label: Text(
+                          _isLoading ? "Criando conta..." : "Criar conta",
+                          style: const TextStyle(
+                            fontWeight: FontWeight.bold,
+                            fontSize: 16,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              //
+              // Center(
+              //   child: TextButton(
+              //     onPressed: () {
+              //       // Lógica de suporte
+              //     },
+              //     child: Text(
+              //       'Dúvidas? Contate nosso suporte',
+              //       style: TextStyle(
+              //         color: colors.primary,
+              //         fontSize: 14,
+              //         decoration: TextDecoration.none,
+              //       ),
+              //     ),
+              //   ),
+              // ),
             ],
           ),
         ),
       ),
-    );
-  }
-
-  Widget _buildSectionTitle(String title, String subtitle) {
-    return Column(
-      spacing: 20,
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          title,
-          style: TextStyle(
-            fontSize: 20,
-            fontWeight: FontWeight.bold,
-            color: colors.onSurface,
-          ),
-        ),
-        Text(
-          subtitle,
-          style: TextStyle(fontSize: 14, color: colors.onSurfaceVariant),
-        ),
-      ],
-    );
-  }
-
-  Widget _buildFieldLabel(IconData icon, String label) {
-    return Row(
-      spacing: 6,
-      children: [
-        Icon(icon, size: 20, color: colors.primary),
-        Text(
-          label,
-          style: TextStyle(
-            fontWeight: FontWeight.bold,
-            fontSize: 16,
-            color: colors.onSurface,
-          ),
-        ),
-      ],
     );
   }
 }

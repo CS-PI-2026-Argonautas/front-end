@@ -2,7 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:frontend/ui/pages/password_setting/password_setting.dart';
 import 'package:frontend/ui/style/ColorScheme.dart' as custom_colors;
+import 'package:frontend/ui/style/inputDecorationStyles.dart';
 import 'package:frontend/ui/widgets/form/form_section_tile.dart';
+import 'package:frontend/ui/widgets/form/labeled_form.dart';
 import 'package:frontend/ui/widgets/appBar.dart';
 
 class CreateLoginAccount extends StatefulWidget {
@@ -115,111 +117,76 @@ class CreateLoginAccountState extends State<CreateLoginAccount> {
           key: _formKey,
           onChanged: () => setState(() {}),
           child: Column(
-            spacing: 18,
+            spacing: 24,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               FormSectionTile(
                 title: "Cadastro do seu Usuário",
                 subtitle: "Informe seus dados pessoais.",
               ),
-              _buildFieldLabel(Icons.badge, "Nome *"),
-
-              TextFormField(
-                controller: _nameController,
-                decoration: InputDecoration(
-                  enabledBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(14),
-                    borderSide: const BorderSide(
-                      color: Colors.grey,
-                      width: 1.0,
-                    ),
+              LabeledFormField(
+                icon: Icons.badge,
+                label: "Nome *",
+                field: TextFormField(
+                  controller: _nameController,
+                  decoration: customInputDecoration(
+                    hintText: 'Insira seu nome',
                   ),
-                  fillColor: colors.surface,
-                  hintText: 'Insira seu nome',
-                  filled: true,
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(14),
-                  ),
-                  focusedBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(14),
-                    borderSide: BorderSide(color: colors.primary, width: 2.0),
-                  ),
+                  validator: (value) => _nameValidator(value),
                 ),
-                validator: (value) => _nameValidator(value),
               ),
 
-              _buildFieldLabel(Icons.badge, "Sobrenome *"),
-
-              TextFormField(
-                controller: _surnameController,
-                decoration: InputDecoration(
-                  enabledBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(14),
-                    borderSide: const BorderSide(
-                      color: Colors.grey,
-                      width: 1.0,
-                    ),
+              LabeledFormField(
+                icon: Icons.badge,
+                label: "Sobrenome *",
+                field: TextFormField(
+                  controller: _surnameController,
+                  decoration: customInputDecoration(
+                    hintText: 'Insira seu sobrenome',
                   ),
-                  fillColor: colors.surface,
-                  hintText: 'Insira seu sobrenome',
-                  filled: true,
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(14),
-                  ),
-                  focusedBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(14),
-                    borderSide: BorderSide(color: colors.primary, width: 2.0),
-                  ),
+                  validator: (value) => _nameValidator(value),
                 ),
-                validator: (value) => _nameValidator(value),
               ),
 
-              _buildFieldLabel(Icons.email, "Email *"),
-
-              TextFormField(
-                controller: _emailController,
-                decoration: InputDecoration(
-                  enabledBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(14),
-                    borderSide: const BorderSide(
-                      color: Colors.grey,
-                      width: 1.0,
-                    ),
+              LabeledFormField(
+                icon: Icons.email,
+                label: "Email *",
+                field: TextFormField(
+                  controller: _emailController,
+                  keyboardType: TextInputType.emailAddress,
+                  autocorrect: false,
+                  decoration: customInputDecoration(
+                    hintText: 'Ex.: nome@exemplo.com',
                   ),
-                  focusedBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(14),
-                    borderSide: BorderSide(color: colors.primary, width: 2.0),
-                  ),
-                  fillColor: colors.surface,
-                  hintText: 'Ex.: nome@exemplo.com',
-                  filled: true,
-
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(14),
-                  ),
+                  validator: (value) => _emailValidator(value),
                 ),
-                validator: (value) => _emailValidator(value),
               ),
 
-              SizedBox(
-                width: double.infinity,
-                child: ElevatedButton.icon(
-                  onPressed: _formValido ? _proceed : null,
-                  style: ElevatedButton.styleFrom(
-                    elevation: 3,
-                    backgroundColor: colors.primary,
-                    foregroundColor: colors.onSecondary,
-                    disabledBackgroundColor: Colors.grey.shade300,
-                    disabledForegroundColor: Colors.grey.shade600,
-                    padding: const EdgeInsets.symmetric(vertical: 18),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(14),
+              Padding(
+                padding: const EdgeInsets.only(top: 16),
+                child: SizedBox(
+                  width: double.infinity,
+                  child: ElevatedButton.icon(
+                    onPressed: _formValido ? _proceed : null,
+                    style: ElevatedButton.styleFrom(
+                      elevation: 3,
+                      backgroundColor: colors.primary,
+                      foregroundColor: colors.onSecondary,
+                      disabledBackgroundColor: Colors.grey.shade300,
+                      disabledForegroundColor: Colors.grey.shade600,
+                      padding: const EdgeInsets.symmetric(vertical: 18),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(14),
+                      ),
                     ),
-                  ),
-                  icon: const Icon(Icons.arrow_forward_outlined),
-                  label: const Text(
-                    "Prosseguir",
-                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                    icon: const Icon(Icons.arrow_forward_outlined),
+                    label: const Text(
+                      "Prosseguir",
+                      style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 16,
+                      ),
+                    ),
                   ),
                 ),
               ),
@@ -227,23 +194,6 @@ class CreateLoginAccountState extends State<CreateLoginAccount> {
           ),
         ),
       ),
-    );
-  }
-
-  Widget _buildFieldLabel(IconData icon, String label) {
-    return Row(
-      spacing: 6,
-      children: [
-        Icon(icon, size: 20, color: colors.primary),
-        Text(
-          label,
-          style: TextStyle(
-            fontWeight: FontWeight.bold,
-            fontSize: 16,
-            color: colors.onSurface,
-          ),
-        ),
-      ],
     );
   }
 }

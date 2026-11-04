@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-
+import 'package:frontend/ui/style/inputDecorationStyles.dart';
 
 class TypingTextField extends StatefulWidget {
   final TextEditingController? controller;
@@ -26,12 +26,10 @@ class TypingTextField extends StatefulWidget {
 }
 
 class _TypingTextFieldState extends State<TypingTextField> {
-
-
   bool _obscureText = false;
 
   @override
-  Widget build(BuildContext context){
+  Widget build(BuildContext context) {
     return TextFormField(
       controller: widget.controller,
 
@@ -41,31 +39,19 @@ class _TypingTextFieldState extends State<TypingTextField> {
 
       obscureText: widget.isPassword ? !_obscureText : _obscureText,
 
-      decoration: InputDecoration(
-        hintText: widget.hintText,
-        
-
+      decoration: customInputDecoration(hintText: widget.hintText).copyWith(
         suffixIcon: widget.sensitiveContent
-        ? 
-        IconButton(
-          icon: Icon(_obscureText ? Icons.visibility : Icons.visibility_off),
-
-          onPressed: (){
-            setState(() {
-              _obscureText = !_obscureText;
-            });
-          },
-        )
-        : null,
-
-        focusedBorder: OutlineInputBorder(
-          borderSide: BorderSide(width: 2),
-          borderRadius: BorderRadius.circular(12),
-        ),
-        enabledBorder: OutlineInputBorder(
-          borderSide: BorderSide(width: 1),
-          borderRadius: BorderRadius.circular(12),
-        ),
+            ? IconButton(
+                icon: Icon(
+                  _obscureText ? Icons.visibility : Icons.visibility_off,
+                ),
+                onPressed: () {
+                  setState(() {
+                    _obscureText = !_obscureText;
+                  });
+                },
+              )
+            : null,
       ),
       onChanged: widget.onChanged,
     );
