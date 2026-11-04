@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:frontend/ui/pages/authentication.dart';
+import 'package:frontend/fire_base/services/authentication_service.dart';
+import 'package:frontend/ui/pages/auth_gate.dart';
 import 'package:frontend/ui/style/ColorScheme.dart' as custom_colors;
 
 class Menu extends StatelessWidget {
@@ -93,11 +94,14 @@ class Menu extends StatelessWidget {
                     fontWeight: FontWeight.bold,
                   ),
                 ),
-                onTap: () {
+                onTap: () async {
+                  await AuthenticationService().logout();
+                  if (!context.mounted) return;
+
                   Navigator.pushAndRemoveUntil(
                     context,
                     MaterialPageRoute(
-                      builder: (context) => const Authentication(),
+                      builder: (context) => const AuthGate(),
                     ),
                     (route) => false,
                   );

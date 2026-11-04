@@ -10,6 +10,12 @@ class AuthenticationService {
   AuthenticationService({AppUserRepository? userRepository})
     : _userRepository = userRepository ?? AppUserRepository();
 
+  User? get currentUser => _auth.currentUser;
+
+  Stream<User?> authStateChanges() => _auth.authStateChanges();
+
+  Future<void> logout() => _auth.signOut();
+
   Future<void> signin({
     required String name,
     required String surname,

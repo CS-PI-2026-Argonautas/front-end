@@ -1,7 +1,7 @@
 import "package:flutter/material.dart";
 import 'package:frontend/fire_base/exceptions/login_exception.dart';
 import 'package:frontend/fire_base/services/authentication_service.dart';
-import 'package:frontend/ui/pages/authentication.dart';
+import 'package:frontend/ui/pages/auth_gate.dart';
 import 'package:frontend/ui/style/ColorScheme.dart' as custom_colors;
 import 'package:frontend/ui/widgets/appBar.dart';
 import 'package:frontend/ui/widgets/password_recovery/typing_text_field.dart';
@@ -85,7 +85,7 @@ class _PasswordSettingState extends State<PasswordSetting> {
   void redirect() {
     Navigator.pushAndRemoveUntil(
       context,
-      MaterialPageRoute(builder: (context) => const Authentication()),
+      MaterialPageRoute(builder: (context) => const AuthGate()),
       (route) => false,
     );
   }

@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:frontend/fire_base/exceptions/login_exception.dart';
 import 'package:frontend/fire_base/services/authentication_service.dart';
 import 'package:frontend/ui/pages/create_login_account/create_login_acccount.dart';
-import 'package:frontend/ui/pages/dashboard.dart';
 import 'package:frontend/ui/pages/password_recovery/user_information.dart';
 import 'package:frontend/ui/style/ColorScheme.dart' as custom_colors;
 import 'package:frontend/ui/style/inputDecorationStyles.dart';
@@ -31,7 +30,6 @@ class _AuthenticationState extends State<Authentication> {
 
     try {
       await _service.login(email: email, password: password);
-      redirect();
     } on AuthException catch (e) {
       showSnackMessage(e.message);
     } catch (f) {
@@ -51,15 +49,6 @@ class _AuthenticationState extends State<Authentication> {
           behavior: SnackBarBehavior.floating,
         ),
       );
-  }
-
-  void redirect() {
-    if (!mounted) return;
-
-    Navigator.push(
-      context,
-      MaterialPageRoute(builder: (context) => const Dashboard()),
-    );
   }
 
   @override
