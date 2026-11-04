@@ -115,4 +115,22 @@ class AuthenticationService {
       }
     }
   }
+
+  Future<void> sendPasswordResetEmail({required String email}) async {
+    try {
+      await _auth.setLanguageCode('pt');
+      await _auth.sendPasswordResetEmail(email: email);
+    } on FirebaseAuthException catch (e) {
+      switch (e.code) {
+        case 'invalid-email':
+          throw AuthException('Email inválido');
+        case 'too-many-requests':
+          throw AuthException('Muitas tentativas. Tente novamente mais tarde');
+        case 'network-request-failed':
+          throw AuthException('Sem conexão com a internet');
+        default:
+          throw AuthException('Erro ao enviar o e-mail');
+      }
+    }
+  }
 }

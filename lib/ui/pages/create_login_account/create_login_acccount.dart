@@ -6,6 +6,7 @@ import 'package:frontend/ui/style/inputDecorationStyles.dart';
 import 'package:frontend/ui/widgets/form/form_section_tile.dart';
 import 'package:frontend/ui/widgets/form/labeled_form.dart';
 import 'package:frontend/ui/widgets/appBar.dart';
+import 'package:frontend/utils/password_recovery/validators.dart';
 
 class CreateLoginAccount extends StatefulWidget {
   const CreateLoginAccount({super.key});
@@ -26,7 +27,7 @@ class CreateLoginAccountState extends State<CreateLoginAccount> {
   bool get _formValido {
     return _nameValidator(_nameController.text) == null &&
         _nameValidator(_surnameController.text) == null &&
-        _emailValidator(_emailController.text) == null;
+        emailValidator(_emailController.text) == null;
   }
 
   @override
@@ -62,22 +63,6 @@ class CreateLoginAccountState extends State<CreateLoginAccount> {
     if (value.length > 50) {
       return 'Campo não pode ser maior que 50 letras. Caso seja seu nome registrado, contate o suporte';
     }
-    return null;
-  }
-
-  String? _emailValidator(String? value) {
-    if (value == null || value.trim().isEmpty) {
-      return 'Preencha o campo';
-    }
-
-    final bool emailValido = RegExp(
-      r"^[a-zA-Z0-9.a-zA-Z0-9.!#$%&'*+-/=?^_`{|}~]+@[a-zA-Z0-9]+\.[a-zA-Z]+",
-    ).hasMatch(value);
-
-    if (!emailValido) {
-      return 'Insira um formato de email válido';
-    }
-
     return null;
   }
 
@@ -158,7 +143,7 @@ class CreateLoginAccountState extends State<CreateLoginAccount> {
                   decoration: customInputDecoration(
                     hintText: 'Ex.: nome@exemplo.com',
                   ),
-                  validator: (value) => _emailValidator(value),
+                  validator: (value) => emailValidator(value),
                 ),
               ),
 
