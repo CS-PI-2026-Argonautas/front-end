@@ -1,7 +1,5 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
-import 'package:flutter/foundation.dart';
 import 'package:frontend/fire_base/exceptions/login_exception.dart';
 import 'package:frontend/fire_base/models/app_user.dart';
 import 'package:frontend/fire_base/repositories/app_user_repository.dart';
@@ -62,14 +60,11 @@ class AuthenticationService {
         surname: surname,
       );
 
-      final userRepository = AppUserRepository(
-        firestore: FirebaseFirestore.instanceFor(app: app),
-      );
+      final userRepository = AppUserRepository();
 
       try {
         await userRepository.save(user);
-      } on FirebaseException catch (e) {
-        debugPrint('Erro ao salvar users/${user.uid}: ${e.code} ${e.message}');
+      } on FirebaseException {
         try {
           await firebaseUser.delete();
         } on FirebaseAuthException {
