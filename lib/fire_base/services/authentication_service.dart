@@ -1,14 +1,15 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_core/firebase_core.dart';
 import 'package:frontend/fire_base/exceptions/login_exception.dart';
 import 'package:frontend/fire_base/models/app_user.dart';
 import 'package:frontend/fire_base/repositories/app_user_repository.dart';
+import 'package:frontend/firebase_options.dart';
 
 class AuthenticationService {
-  final _auth = FirebaseAuth.instance;
-  final AppUserRepository _userRepository;
+  static const _accountCreationAppName = 'criacao-de-conta';
 
-  AuthenticationService({AppUserRepository? userRepository})
-    : _userRepository = userRepository ?? AppUserRepository();
+  final _auth = FirebaseAuth.instance;
 
   User? get currentUser => _auth.currentUser;
 
@@ -22,48 +23,73 @@ class AuthenticationService {
     required String email,
     required String password,
   }) async {
-    final UserCredential userCredential;
+    final app = await _accountCreationApp();
+    final auth = FirebaseAuth.instanceFor(app: app);
 
     try {
-      userCredential = await _auth.createUserWithEmailAndPassword(
-        email: email,
-        password: password,
-      );
-    } on FirebaseAuthException catch (e) {
-      switch (e.code) {
-        case 'weak-password':
-          throw AuthException('Senha fraca');
-        case 'invalid-email':
-          throw AuthException('Email inválido');
-        case 'email-already-in-use':
-          throw AuthException('Email já cadastrado');
-        default:
-          throw AuthException('Erro ao criar a conta');
-      }
-    }
+      final UserCredential userCredential;
 
-    final firebaseUser = userCredential.user;
-    if (firebaseUser == null) {
-      throw AuthException('Erro ao criar a conta');
-    }
-
-    final user = AppUser(
-      uid: firebaseUser.uid,
-      name: name,
-      email: email,
-      surname: surname,
-    );
-
-    try {
-      await _userRepository.save(user);
-    } on FirebaseException {
       try {
-        await firebaseUser.delete();
-      } on FirebaseAuthException {
-        // Se o delete falhar, a conta fica no Auth sem documento; o erro abaixo ainda avisa o usuário.
+        userCredential = await auth.createUserWithEmailAndPassword(
+          email: email,
+          password: password,
+        );
+      } on FirebaseAuthException catch (e) {
+        switch (e.code) {
+          case 'weak-password':
+            throw AuthException('Senha fraca');
+          case 'invalid-email':
+            throw AuthException('Email inválido');
+          case 'email-already-in-use':
+            throw AuthException('Email já cadastrado');
+          case 'network-request-failed':
+            throw AuthException('Sem conexão com a internet');
+          default:
+            throw AuthException('Erro ao criar a conta');
+        }
       }
-      throw AuthException('Erro ao salvar os dados do usuário');
+
+      final firebaseUser = userCredential.user;
+      if (firebaseUser == null) {
+        throw AuthException('Erro ao criar a conta');
+      }
+
+      final user = AppUser(
+        uid: firebaseUser.uid,
+        name: name,
+        email: email,
+        surname: surname,
+      );
+
+      final userRepository = AppUserRepository(
+        firestore: FirebaseFirestore.instanceFor(app: app),
+      );
+
+      try {
+        await userRepository.save(user);
+      } on FirebaseException {
+        try {
+          await firebaseUser.delete();
+        } on FirebaseAuthException {
+          // Se o delete falhar, a conta fica no Auth sem documento; o erro abaixo ainda avisa o usuário.
+        }
+        throw AuthException('Erro ao salvar os dados do usuário');
+      }
+    } finally {
+      await auth.signOut();
+      await app.delete();
     }
+  }
+
+  Future<FirebaseApp> _accountCreationApp() async {
+    for (final app in Firebase.apps) {
+      if (app.name == _accountCreationAppName) return app;
+    }
+
+    return Firebase.initializeApp(
+      name: _accountCreationAppName,
+      options: DefaultFirebaseOptions.currentPlatform,
+    );
   }
 
   Future<void> login({required String email, required String password}) async {
