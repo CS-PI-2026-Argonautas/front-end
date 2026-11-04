@@ -205,7 +205,7 @@ void _abrirListaServicos() {
                     ),
                       ),
                       Text(
-                        Dinheiro(_subtotal as int).formatado(),
+                        Dinheiro.fromReais(_subtotal).formatado(),
                         style: TextStyle(
                           color: Colors.blueGrey.shade600,
                           fontSize: 18,
@@ -386,7 +386,7 @@ void _abrirListaServicos() {
                 const SizedBox(height: 8),
 
                 Text(
-                  Dinheiro(preco as int).formatado(),
+                  Dinheiro.fromReais(preco).formatado(),
                   style: TextStyle(
                     color: colors.primary,
                     fontSize: 15,
