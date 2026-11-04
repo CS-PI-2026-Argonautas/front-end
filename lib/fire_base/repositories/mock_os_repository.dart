@@ -1,8 +1,7 @@
 import 'package:frontend/fire_base/models/work_order.dart';
 
 class MockOSRepository {
-  static final MockOSRepository _instance =
-      MockOSRepository._internal();
+  static final MockOSRepository _instance = MockOSRepository._internal();
 
   MockOSRepository._internal();
 
@@ -19,8 +18,7 @@ class MockOSRepository {
       assignee: 'Carlos (Técnico)',
       date: DateTime(2026, 8, 1, 9, 30),
       status: 'Concluída',
-      report:
-          'Equipamento calibrado e selado conforme exigências do Inmetro.',
+      report: 'Equipamento calibrado e selado conforme exigências do Inmetro.',
       createdAt: DateTime(2026, 7, 28, 10, 0),
     ),
 
