@@ -4,6 +4,8 @@ import 'package:frontend/ui/pages/auth_gate.dart';
 import 'package:frontend/ui/pages/create_login_account/create_login_acccount.dart';
 import 'package:frontend/ui/pages/password_change/password_change.dart';
 import 'package:frontend/ui/style/ColorScheme.dart' as custom_colors;
+import 'package:frontend/ui/widgets/show_dialog/show_no_connection_dialog.dart';
+import 'package:frontend/utils/connectivity/connectivity_checker.dart';
 
 class Menu extends StatelessWidget {
   final int currentIndex;
@@ -137,6 +139,21 @@ class Menu extends StatelessWidget {
                   ),
                 ),
                 onTap: () async {
+                  if (!await hasConnection()) {
+                    if (!context.mounted) return;
+
+                    final confirmed = await showDialog<bool>(
+                      context: context,
+                      builder: (_) => const ShowNoConnectionDialog(
+                        message:
+                            'Sem internet, você não conseguirá entrar de novo até a conexão voltar.',
+                        confirmLabel: 'Sair mesmo assim',
+                        confirmIcon: Icons.logout,
+                      ),
+                    );
+                    if (confirmed != true) return;
+                  }
+
                   await AuthenticationService().logout();
                   if (!context.mounted) return;
 

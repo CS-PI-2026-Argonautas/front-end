@@ -7,6 +7,7 @@ import 'package:frontend/ui/widgets/form/form_section_tile.dart';
 import 'package:frontend/ui/widgets/form/labeled_form.dart';
 import 'package:frontend/ui/widgets/appBar.dart';
 import 'package:frontend/utils/password_recovery/validators.dart';
+import 'package:frontend/ui/widgets/show_dialog/show_no_connection_dialog.dart';
 
 class CreateLoginAccount extends StatefulWidget {
   const CreateLoginAccount({super.key});
@@ -38,8 +39,16 @@ class CreateLoginAccountState extends State<CreateLoginAccount> {
     super.dispose();
   }
 
-  void _proceed() {
+  Future<void> _proceed() async {
     if (!_formKey.currentState!.validate()) return;
+
+    if (!await ensureConnection(
+      context,
+      message: 'É preciso estar conectado para criar uma conta.',
+    )) {
+      return;
+    }
+    if (!mounted) return;
 
     Navigator.push(
       context,

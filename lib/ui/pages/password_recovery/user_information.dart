@@ -8,6 +8,7 @@ import 'package:frontend/ui/widgets/form/form_section_tile.dart';
 import 'package:frontend/ui/widgets/form/labeled_form.dart';
 import 'package:frontend/ui/widgets/show_dialog/show_confirm_email_dialog.dart';
 import 'package:frontend/utils/password_recovery/validators.dart';
+import 'package:frontend/ui/widgets/show_dialog/show_no_connection_dialog.dart';
 
 class UserInformation extends StatefulWidget {
   const UserInformation({super.key});
@@ -34,6 +35,14 @@ class _UserInformationState extends State<UserInformation> {
     if (_isLoading || !_formKey.currentState!.validate()) return;
 
     final email = _emailController.text.trim();
+
+    if (!await ensureConnection(
+      context,
+      message: 'É preciso estar conectado para enviar o link de redefinição.',
+    )) {
+      return;
+    }
+    if (!mounted) return;
 
     final choice = await showDialog<bool>(
       context: context,

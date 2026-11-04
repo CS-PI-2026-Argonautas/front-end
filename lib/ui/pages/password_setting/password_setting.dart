@@ -10,6 +10,7 @@ import 'package:frontend/ui/widgets/password_recovery/password_strength_meter.da
 import 'package:frontend/ui/widgets/password_recovery/typing_text_field.dart';
 import 'package:frontend/utils/password_recovery/password_tip.dart';
 import 'package:frontend/utils/password_recovery/validators.dart';
+import 'package:frontend/ui/widgets/show_dialog/show_no_connection_dialog.dart';
 
 class PasswordSetting extends StatefulWidget {
   const PasswordSetting({
@@ -45,6 +46,14 @@ class _PasswordSettingState extends State<PasswordSetting> {
         passwordController.text == PasswordTip.exampleText) {
       return;
     }
+
+    if (!await ensureConnection(
+      context,
+      message: 'É preciso estar conectado para salvar a senha e criar a conta.',
+    )) {
+      return;
+    }
+    if (!mounted) return;
 
     setState(() => _isLoading = true);
 
