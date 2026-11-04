@@ -31,13 +31,12 @@ class _AuthenticationState extends State<Authentication> {
 
     try {
       await _service.login(email: email, password: password);
+      redirect();
     } on AuthException catch (e) {
       showSnackMessage(e.message);
     } catch (f) {
       showSnackMessage('Erro inesperado! Entre em contato com o suporte');
     }
-
-    redirect();
   }
 
   void showSnackMessage(String message) {
@@ -55,6 +54,8 @@ class _AuthenticationState extends State<Authentication> {
   }
 
   void redirect() {
+    if (!mounted) return;
+
     Navigator.push(
       context,
       MaterialPageRoute(builder: (context) => const Dashboard()),

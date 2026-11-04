@@ -65,8 +65,18 @@ class AuthenticationService {
       await _auth.signInWithEmailAndPassword(email: email, password: password);
     } on FirebaseAuthException catch (e) {
       switch (e.code) {
-        case 'INVALID_LOGIN_CREDENTIALS':
+        case 'invalid-credential':
+        case 'wrong-password':
+        case 'user-not-found':
           throw AuthException('Email ou senha incorretos');
+        case 'invalid-email':
+          throw AuthException('Email inválido');
+        case 'user-disabled':
+          throw AuthException('Conta desativada');
+        case 'too-many-requests':
+          throw AuthException('Muitas tentativas. Tente novamente mais tarde');
+        case 'network-request-failed':
+          throw AuthException('Sem conexão com a internet');
         default:
           throw AuthException('Erro ao entrar');
       }
