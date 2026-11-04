@@ -4,12 +4,12 @@ class CodeService {
   String? _code;
   DateTime? _expiration;
 
-  String generateCode(){
+  String generateCode() {
     Random random = Random();
-    return(100000 + random.nextInt(900000)).toString();
+    return (100000 + random.nextInt(900000)).toString();
   }
 
-  void createCode(){
+  void createCode() {
     _code = generateCode();
     _expiration = DateTime.now().add(Duration(minutes: 5));
 
@@ -17,25 +17,22 @@ class CodeService {
     print("EXPIRA EM: $_expiration");
   }
 
-  String? validateCode(String value){
-    if(_code == null || _expiration == null) return 'Nenhum código foi gerado';
+  String? validateCode(String value) {
+    if (_code == null || _expiration == null) return 'Nenhum código foi gerado';
 
-    if(DateTime.now().isAfter(_expiration!)) return 'Código expirado. Clique em \'Reenviar\'';
+    if (DateTime.now().isAfter(_expiration!))
+      return 'Código expirado. Clique em \'Reenviar\'';
 
-    if(value != _code) return 'Código incorreto';
+    if (value != _code) return 'Código incorreto';
 
-   
     return null;
   }
 
-  void invalidate(){
+  void invalidate() {
     _code = null;
     _expiration = null;
   }
 
-
   String? get code => _code;
   DateTime? get expiration => _expiration;
-
 }
-

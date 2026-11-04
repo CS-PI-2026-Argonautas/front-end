@@ -59,10 +59,7 @@ class ClientService {
     if (erroDocumento != null) throw ArgumentError(erroDocumento);
   }
 
-  Future<Client?> buscarDuplicado(
-    String documento, {
-    String? ignorarId,
-  }) async {
+  Future<Client?> buscarDuplicado(String documento, {String? ignorarId}) async {
     final carregados = await _repository.listarDoCache();
 
     return encontrarDuplicado(documento, carregados, ignorarId: ignorarId);
