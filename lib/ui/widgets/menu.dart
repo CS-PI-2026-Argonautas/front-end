@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:frontend/fire_base/services/authentication_service.dart';
 import 'package:frontend/ui/pages/auth_gate.dart';
+import 'package:frontend/ui/pages/create_login_account/create_login_acccount.dart';
 import 'package:frontend/ui/style/ColorScheme.dart' as custom_colors;
 
 class Menu extends StatelessWidget {
@@ -15,7 +16,7 @@ class Menu extends StatelessWidget {
 
     return Drawer(
       width: 200,
-      
+
       child: Container(
         decoration: BoxDecoration(
           gradient: LinearGradient(
@@ -72,7 +73,7 @@ class Menu extends StatelessWidget {
                       index: 3,
                       colors: colors,
                     ),
-  
+
                     _buildDrawerItem(
                       icon: Icons.home_outlined,
                       label: "Início",
@@ -84,6 +85,26 @@ class Menu extends StatelessWidget {
               ),
 
               const Divider(color: Colors.white24),
+
+              ListTile(
+                leading: Icon(
+                  Icons.person_add_outlined,
+                  color: Colors.white.withValues(alpha: 0.8),
+                ),
+                title: Text(
+                  "Criar conta nova",
+                  style: TextStyle(color: Colors.white.withValues(alpha: 0.8)),
+                ),
+                onTap: () {
+                  Navigator.pop(context);
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => const CreateLoginAccount(),
+                    ),
+                  );
+                },
+              ),
 
               ListTile(
                 leading: Icon(Icons.logout, color: colors.onTertiary),
@@ -100,9 +121,7 @@ class Menu extends StatelessWidget {
 
                   Navigator.pushAndRemoveUntil(
                     context,
-                    MaterialPageRoute(
-                      builder: (context) => const AuthGate(),
-                    ),
+                    MaterialPageRoute(builder: (context) => const AuthGate()),
                     (route) => false,
                   );
                 },

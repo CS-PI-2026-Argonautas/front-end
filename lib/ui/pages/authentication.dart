@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:frontend/fire_base/exceptions/login_exception.dart';
 import 'package:frontend/fire_base/services/authentication_service.dart';
-import 'package:frontend/ui/pages/create_login_account/create_login_acccount.dart';
 import 'package:frontend/ui/pages/password_recovery/user_information.dart';
 import 'package:frontend/ui/style/ColorScheme.dart' as custom_colors;
 import 'package:frontend/ui/style/inputDecorationStyles.dart';
@@ -216,81 +215,6 @@ class _AuthenticationState extends State<Authentication> {
                                   borderRadius: BorderRadius.circular(14),
                                 ),
                               ),
-                            ),
-                          ),
-
-                          MouseRegion(
-                            cursor: SystemMouseCursors.click,
-                            child: StatefulBuilder(
-                              builder: (context, setStateText) {
-                                bool isHovered = false;
-                                bool isPressed = false;
-
-                                return StatefulBuilder(
-                                  builder: (context, setStateState) {
-                                    Color signUpColor =
-                                        colors.onSurface; // Cor padrão
-
-                                    if (isPressed) {
-                                      signUpColor =
-                                          colors.primary; // Cor ao CLICAR
-                                    } else if (isHovered) {
-                                      signUpColor = colors
-                                          .secondary; // Cor ao PASSAR O MOUSE
-                                    }
-
-                                    return MouseRegion(
-                                      onEnter: (_) =>
-                                          setStateState(() => isHovered = true),
-                                      onExit: (_) => setStateState(
-                                        () => isHovered = false,
-                                      ),
-                                      child: GestureDetector(
-                                        onTapDown: (_) => setStateState(
-                                          () => isPressed = true,
-                                        ),
-                                        onTapUp: (_) => setStateState(
-                                          () => isPressed = false,
-                                        ),
-                                        onTapCancel: () => setStateState(
-                                          () => isPressed = false,
-                                        ),
-                                        onTap: () {
-                                          Navigator.push(
-                                            context,
-                                            MaterialPageRoute(
-                                              builder: (context) =>
-                                                  const CreateLoginAccount(),
-                                            ),
-                                          );
-                                        },
-                                        child: Text.rich(
-                                          TextSpan(
-                                            style: TextStyle(
-                                              color: colors.onSurface,
-                                              fontSize: 16,
-                                            ),
-                                            children: [
-                                              const TextSpan(
-                                                text: "Não tem uma conta? ",
-                                              ),
-                                              TextSpan(
-                                                text: "Cadastre-se",
-                                                style: TextStyle(
-                                                  fontWeight: FontWeight.bold,
-                                                  color:
-                                                      signUpColor, // Apenas a palavra Cadastre-se muda de cor
-                                                ),
-                                              ),
-                                            ],
-                                          ),
-                                          textAlign: TextAlign.center,
-                                        ),
-                                      ),
-                                    );
-                                  },
-                                );
-                              },
                             ),
                           ),
                         ],
