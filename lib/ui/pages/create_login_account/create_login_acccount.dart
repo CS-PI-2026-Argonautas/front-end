@@ -40,7 +40,13 @@ class CreateLoginAccountState extends State<CreateLoginAccount> {
 
     Navigator.push(
       context,
-      MaterialPageRoute(builder: (context) => const PasswordSetting()),
+      MaterialPageRoute(
+        builder: (context) => PasswordSetting(
+          name: _nameController.text,
+          surname: _surnameController.text,
+          email: _emailController.text,
+        ),
+      ),
     );
   }
 

@@ -1,13 +1,24 @@
 import "package:flutter/material.dart";
-import 'package:frontend/utils/password_strength/password_strength.dart';
+import 'package:frontend/fire_base/exceptions/login_exception.dart';
+import 'package:frontend/fire_base/services/authentication_service.dart';
 import 'package:frontend/ui/pages/authentication.dart';
 import 'package:frontend/ui/style/ColorScheme.dart' as custom_colors;
-import 'package:frontend/utils/password_recovery/validators.dart';
 import 'package:frontend/ui/widgets/appBar.dart';
 import 'package:frontend/ui/widgets/password_recovery/typing_text_field.dart';
+import 'package:frontend/utils/password_recovery/validators.dart';
+import 'package:frontend/utils/password_strength/password_strength.dart';
 
 class PasswordSetting extends StatefulWidget {
-  const PasswordSetting({super.key});
+  const PasswordSetting({
+    super.key,
+    required this.name,
+    required this.surname,
+    required this.email,
+  });
+
+  final String name;
+  final String surname;
+  final String email;
 
   @override
   State<PasswordSetting> createState() => _PasswordSettingState();
@@ -25,6 +36,59 @@ class _PasswordSettingState extends State<PasswordSetting> {
 
   final _formKey = GlobalKey<FormState>();
   final colors = custom_colors.colorScheme;
+
+  final _service = AuthenticationService();
+
+  bool _isLoading = false;
+
+  Future<void> _validateAndSignin() async {
+    if (_isLoading) return;
+
+    if (!_formKey.currentState!.validate() ||
+        passwordController.text == tip.exampleText) {
+      return;
+    }
+
+    setState(() => _isLoading = true);
+
+    String message = '';
+
+    try {
+      await _service.signin(
+        name: widget.name,
+        surname: widget.surname,
+        email: widget.email,
+        password: passwordController.text,
+      );
+    } on AuthException catch (e) {
+      message = e.message;
+    } catch (_) {
+      message = 'Erro inesperado! Entre em contato com o suporte';
+    }
+
+    if (!mounted) return;
+    setState(() => _isLoading = false);
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(message.isEmpty ? 'Conta criada com sucesso!' : message),
+        behavior: SnackBarBehavior.floating,
+        duration: Duration(seconds: 3),
+        backgroundColor: message.isEmpty ? Colors.green : Colors.red,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      ),
+    );
+
+    if (message.isEmpty) redirect();
+  }
+
+  void redirect() {
+    Navigator.pushAndRemoveUntil(
+      context,
+      MaterialPageRoute(builder: (context) => const Authentication()),
+      (route) => false,
+    );
+  }
 
   @override
   void dispose() {
@@ -202,44 +266,7 @@ class _PasswordSettingState extends State<PasswordSetting> {
               SizedBox(
                 width: double.infinity,
                 child: ElevatedButton.icon(
-                  onPressed: () {
-                    if (_formKey.currentState!.validate() &&
-                        passwordController.text != tip.exampleText) {
-                      print('senha cadastrada');
-
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(
-                          content: Text('Senha cadastrada com sucesso!'),
-                          behavior: SnackBarBehavior.floating,
-                          duration: Duration(seconds: 3),
-                          backgroundColor: Colors.green,
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                        ),
-                      );
-
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => Authentication(),
-                        ),
-                      );
-                    } else {
-                      print('senha não cadastrada');
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(
-                          content: Text('Não foi possível cadastrar a senha!'),
-                          behavior: SnackBarBehavior.floating,
-                          duration: Duration(seconds: 3),
-                          backgroundColor: Colors.red,
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                        ),
-                      );
-                    }
-                  },
+                  onPressed: _isLoading ? null : _validateAndSignin,
                   style: ElevatedButton.styleFrom(
                     elevation: 3,
                     backgroundColor: colors.primary,

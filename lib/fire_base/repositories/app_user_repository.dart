@@ -11,6 +11,6 @@ class AppUserRepository {
       );
 
   Future<void> save(AppUser user) async {
-    await _db.add(user);
+    await _db.doc(user.uid).set(user);
   }
 }
