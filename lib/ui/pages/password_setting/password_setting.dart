@@ -8,8 +8,8 @@ import 'package:frontend/ui/widgets/form/form_section_tile.dart';
 import 'package:frontend/ui/widgets/form/labeled_form.dart';
 import 'package:frontend/ui/widgets/password_recovery/password_strength_meter.dart';
 import 'package:frontend/ui/widgets/password_recovery/typing_text_field.dart';
-import 'package:frontend/utils/password_recovery/password_tip.dart';
-import 'package:frontend/utils/password_recovery/validators.dart';
+import 'package:frontend/utils/validators/password_tip.dart';
+import 'package:frontend/utils/validators/validators.dart';
 import 'package:frontend/ui/widgets/show_dialog/show_no_connection_dialog.dart';
 
 class PasswordSetting extends StatefulWidget {
@@ -185,7 +185,7 @@ class _PasswordSettingState extends State<PasswordSetting> {
 
               LabeledFormField(
                 icon: Icons.lock_reset,
-                label: "Repetir Senha *",
+                label: "Confirmação da Senha *",
                 field: TypingTextField(
                   controller: confirmPasswordController,
                   enabled: true,

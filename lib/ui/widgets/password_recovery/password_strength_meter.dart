@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:frontend/utils/password_strength/password_strength.dart';
+import 'package:frontend/utils/validators/password_strength.dart';
 
 class PasswordStrengthMeter extends StatelessWidget {
   const PasswordStrengthMeter({super.key, required this.password});

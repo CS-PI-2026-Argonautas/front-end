@@ -1,3 +1,5 @@
+import 'package:email_validator/email_validator.dart';
+
 String? requiredField(String? value) {
   if (value == null || value.trim().isEmpty) return 'Campo obrigatório';
   return null;
@@ -35,18 +37,23 @@ String? confirmPassword(
   return null;
 }
 
-String? emailValidator(String? value) {
-  if (value == null || value.trim().isEmpty) {
-    return 'Preencha o campo';
+String? validateEmail(String? value){
+  if(value == null || value.trim().isEmpty){
+    return 'O e-mail é obrigatório';
   }
 
-  final bool emailValido = RegExp(
-    r"^[a-zA-Z0-9.a-zA-Z0-9.!#$%&'*+-/=?^_`{|}~]+@[a-zA-Z0-9]+\.[a-zA-Z]+",
-  ).hasMatch(value);
+  final email = value.trim();
 
-  if (!emailValido) {
-    return 'Insira um formato de email válido';
+  if (!EmailValidator.validate(email)){
+    return 'Informe um e-mail válido';
   }
 
+  return null;
+}
+
+String? emptyMandatoryField(String? value){
+  if(value == null || value.trim().isEmpty){
+    return 'Campo obrigatório';
+  }
   return null;
 }

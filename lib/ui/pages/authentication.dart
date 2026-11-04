@@ -4,6 +4,7 @@ import 'package:frontend/fire_base/services/authentication_service.dart';
 import 'package:frontend/ui/pages/password_recovery/user_information.dart';
 import 'package:frontend/ui/style/ColorScheme.dart' as custom_colors;
 import 'package:frontend/ui/style/inputDecorationStyles.dart';
+import 'package:frontend/utils/validators/validators.dart';
 
 class Authentication extends StatefulWidget {
   const Authentication({super.key});
@@ -19,13 +20,16 @@ class _AuthenticationState extends State<Authentication> {
   final _passwordController = TextEditingController();
 
   bool _isPasswordVisible = false;
+  bool _isLoading = false;
   final colors = custom_colors.colorScheme;
   final _formKey = GlobalKey<FormState>();
 
   Future<void> login(String email, String password) async {
-    if (!_formKey.currentState!.validate()) {
+    if (_isLoading || !_formKey.currentState!.validate()) {
       return;
     }
+
+    setState(() => _isLoading = true);
 
     try {
       await _service.login(email: email, password: password);
@@ -34,6 +38,8 @@ class _AuthenticationState extends State<Authentication> {
     } catch (f) {
       showSnackMessage('Erro inesperado! Entre em contato com o suporte');
     }
+
+    if (mounted) setState(() => _isLoading = false);
   }
 
   void showSnackMessage(String message) {
@@ -92,14 +98,11 @@ class _AuthenticationState extends State<Authentication> {
 
                           TextFormField(
                             validator: (value) {
-                              if (value == null || value.isEmpty) {
-                                return 'Campo obrigatório';
-                              }
-                              return null;
+                              return emptyMandatoryField(value);
                             },
                             controller: _emailController,
                             decoration: customInputDecoration(
-                              hintText: "Email",
+                              hintText: "Informe seu e-mail",
                               prefixIcon: Icon(
                                 Icons.person,
                                 color: colors.primary,
@@ -109,16 +112,13 @@ class _AuthenticationState extends State<Authentication> {
 
                           TextFormField(
                             validator: (value) {
-                              if (value == null || value.isEmpty) {
-                                return 'Campo obrigatório';
-                              }
-                              return null;
+                              return emptyMandatoryField(value);
                             },
                             controller: _passwordController,
                             obscureText: !_isPasswordVisible,
                             decoration:
                                 customInputDecoration(
-                                  hintText: 'Senha',
+                                  hintText: 'Informe sua senha',
                                   prefixIcon: Icon(
                                     Icons.password,
                                     color: colors.primary,
@@ -195,14 +195,25 @@ class _AuthenticationState extends State<Authentication> {
                             width: double.infinity,
                             height: 55,
                             child: ElevatedButton.icon(
-                              onPressed: () => login(
-                                _emailController.text,
-                                _passwordController.text,
-                              ),
-                              icon: const Icon(Icons.login),
-                              label: const Text(
-                                'Entrar',
-                                style: TextStyle(
+                              onPressed: _isLoading
+                                  ? null
+                                  : () => login(
+                                      _emailController.text,
+                                      _passwordController.text,
+                                    ),
+                              icon: _isLoading
+                                  ? SizedBox(
+                                      width: 20,
+                                      height: 20,
+                                      child: CircularProgressIndicator(
+                                        strokeWidth: 2.5,
+                                        color: colors.onSecondary,
+                                      ),
+                                    )
+                                  : const Icon(Icons.login),
+                              label: Text(
+                                _isLoading ? 'Entrando...' : 'Entrar',
+                                style: const TextStyle(
                                   fontSize: 18,
                                   fontWeight: FontWeight.bold,
                                 ),
@@ -210,6 +221,9 @@ class _AuthenticationState extends State<Authentication> {
                               style: ElevatedButton.styleFrom(
                                 backgroundColor: colors.secondary,
                                 foregroundColor: colors.onSecondary,
+                                disabledBackgroundColor: colors.secondary
+                                    .withValues(alpha: 0.7),
+                                disabledForegroundColor: colors.onSecondary,
                                 elevation: 5,
                                 shape: RoundedRectangleBorder(
                                   borderRadius: BorderRadius.circular(14),

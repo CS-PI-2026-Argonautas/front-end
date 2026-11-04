@@ -7,7 +7,7 @@ import 'package:frontend/ui/widgets/appBar.dart';
 import 'package:frontend/ui/widgets/form/form_section_tile.dart';
 import 'package:frontend/ui/widgets/form/labeled_form.dart';
 import 'package:frontend/ui/widgets/show_dialog/show_confirm_email_dialog.dart';
-import 'package:frontend/utils/password_recovery/validators.dart';
+import 'package:frontend/utils/validators/validators.dart';
 import 'package:frontend/ui/widgets/show_dialog/show_no_connection_dialog.dart';
 
 class UserInformation extends StatefulWidget {
@@ -135,7 +135,7 @@ class _UserInformationState extends State<UserInformation> {
                   decoration: customInputDecoration(
                     hintText: 'Ex.: nome@exemplo.com',
                   ),
-                  validator: (value) => emailValidator(value),
+                  validator: (value) => validateEmail(value),
                 ),
               ),
 

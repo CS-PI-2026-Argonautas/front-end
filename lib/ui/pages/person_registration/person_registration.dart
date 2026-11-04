@@ -160,73 +160,67 @@ class _PersonRegistrationState1 extends State<PersonRegistration> {
           },
         ),
 
-        Row(
-          spacing: 6,
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            const FormFieldLabel(
-              icon: Icons.phone_android_outlined,
-              label: "Informações de contato",
-            ),
-            IconButton(
-              padding: EdgeInsets.zero,
-              constraints: const BoxConstraints(),
-              icon: Icon(
-                Icons.add_box_rounded,
-                color: colors.secondary,
-                size: 26,
+        SelectionField<Contact>(
+          label: 'Informações de contato',
+          iconeLabel: Icons.phone_android_outlined,
+          itens: _contato != null ? [_contato!] : [],
+          tituloItem: (contato) => contato.resumo,
+          textoVazio: 'Nenhum contato adicionado.',
+          permitirExclusao: true,
+          onPressed: () async {
+            final resultadoContato = await Navigator.push<Contact>(
+              context,
+              MaterialPageRoute(
+                builder: (context) => PersonRegistrationContact(
+                  contatoInicial: _contato,
+                ),
               ),
-              onPressed: () async {
-                final resultadoContato = await Navigator.push<Contact>(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) =>
-                        PersonRegistrationContact(contatoInicial: _contato),
-                  ),
-                );
+            );
 
-                if (resultadoContato != null && mounted) {
-                  setState(() {
-                    _contato = resultadoContato;
-                  });
-                }
-              },
-            ),
-          ],
-        ),
-
-        FormField<String>(
-          key: ValueKey('contato_${(_contato?.resumo ?? '')}'),
-          initialValue: (_contato?.resumo ?? ''),
-          validator: (value) {
-            if (_contato == null) {
-              return 'Informe as informações de contato';
+            if (resultadoContato != null && mounted) {
+              setState(() {
+                _contato = resultadoContato;
+              });
             }
-            return null;
           },
-          builder: (FormFieldState<String> state) {
-            return InputDecorator(
-              decoration: customInputDecoration(
-                hintText: _contato == null
-                    ? "Inserir contato"
-                    : null,
-              ).copyWith(errorText: state.errorText),
-              child: Text(
-                _contato == null
-                    ? "Inserir contato"
-                    : (_contato?.resumo ?? ''),
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-                style: TextStyle(
-                  fontSize: 16,
-                  color: _contato == null
-                      ? colors.onSurfaceVariant.withOpacity(0.6)
-                      : colors.onSurface,
+          onEdit: (contato, index) async {
+            final contatoEditado = await Navigator.push<Contact>(
+              context,
+              MaterialPageRoute(
+                builder: (context) => PersonRegistrationContact( 
+                  contatoInicial: contato,
+                ),
+              ),
+            );
+
+            if (contatoEditado != null && mounted) {
+              setState(() {
+                _contato = contatoEditado;
+              });
+            }
+          },
+          onDelete: (contato, index) {
+            final contatoRemovido = _contato;
+            setState(() {
+              _contato = null; 
+            });
+
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: const Text('Contato removido.'),
+                action: SnackBarAction(
+                  label: 'Desfazer',
+                  onPressed: () {
+                    setState(() {
+                      _contato = contatoRemovido;
+                    });
+                  },
                 ),
               ),
             );
           },
         ),
+
 
         FormFieldLabel(
           icon: Icons.badge_outlined,

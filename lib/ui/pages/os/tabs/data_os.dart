@@ -7,7 +7,7 @@ import 'package:frontend/ui/style/ColorScheme.dart' as custom_colors;
 import 'package:frontend/ui/style/inputDecorationStyles.dart';
 import 'package:frontend/ui/widgets/bottom_sheet/bottom_sheet.dart';
 import 'package:frontend/ui/widgets/fields/equipment_field.dart';
-import 'package:frontend/utils/data_os/address_formatter.dart';
+import 'package:frontend/utils/formatters/address_formatter.dart';
 import 'package:frontend/ui/pages/person_registration/person_registration.dart';
 import 'package:frontend/ui/pages/stand_in_page.dart';
 import 'package:frontend/fire_base/models/equipment.dart';

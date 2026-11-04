@@ -1,12 +1,11 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:frontend/ui/pages/password_setting/password_setting.dart';
 import 'package:frontend/ui/style/ColorScheme.dart' as custom_colors;
 import 'package:frontend/ui/style/inputDecorationStyles.dart';
 import 'package:frontend/ui/widgets/form/form_section_tile.dart';
 import 'package:frontend/ui/widgets/form/labeled_form.dart';
 import 'package:frontend/ui/widgets/appBar.dart';
-import 'package:frontend/utils/password_recovery/validators.dart';
+import 'package:frontend/utils/validators/validators.dart';
 import 'package:frontend/ui/widgets/show_dialog/show_no_connection_dialog.dart';
 
 class CreateLoginAccount extends StatefulWidget {
@@ -28,7 +27,7 @@ class CreateLoginAccountState extends State<CreateLoginAccount> {
   bool get _formValido {
     return _nameValidator(_nameController.text) == null &&
         _nameValidator(_surnameController.text) == null &&
-        emailValidator(_emailController.text) == null;
+        validateEmail(_emailController.text) == null;
   }
 
   @override
@@ -78,13 +77,13 @@ class CreateLoginAccountState extends State<CreateLoginAccount> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: colors.surface,
       appBar: Header(
         onBack: () {
           Navigator.pop(context);
         },
         title: 'Cadastrar Usuário',
       ),
+      backgroundColor: colors.surface,
       body: SafeArea(
         child: SingleChildScrollView(
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 18),
@@ -124,7 +123,7 @@ class CreateLoginAccountState extends State<CreateLoginAccount> {
                 field: TextFormField(
                   controller: _nameController,
                   decoration: customInputDecoration(
-                    hintText: 'Insira seu nome',
+                    hintText: 'Informe seu nome',
                   ),
                   validator: (value) => _nameValidator(value),
                 ),
@@ -136,7 +135,7 @@ class CreateLoginAccountState extends State<CreateLoginAccount> {
                 field: TextFormField(
                   controller: _surnameController,
                   decoration: customInputDecoration(
-                    hintText: 'Insira seu sobrenome',
+                    hintText: 'Informe seu sobrenome',
                   ),
                   validator: (value) => _nameValidator(value),
                 ),
@@ -152,7 +151,7 @@ class CreateLoginAccountState extends State<CreateLoginAccount> {
                   decoration: customInputDecoration(
                     hintText: 'Ex.: nome@exemplo.com',
                   ),
-                  validator: (value) => emailValidator(value),
+                  validator: (value) => validateEmail(value),
                 ),
               ),
 
