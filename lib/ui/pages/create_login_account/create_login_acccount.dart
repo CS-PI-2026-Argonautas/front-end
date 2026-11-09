@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:frontend/ui/pages/password_setting/password_setting.dart';
 import 'package:frontend/ui/style/ColorScheme.dart' as custom_colors;
+import 'package:frontend/ui/style/inputDecorationStyles.dart';
+import 'package:frontend/ui/widgets/form/form_section_tile.dart';
+import 'package:frontend/ui/widgets/form/labeled_form.dart';
 import 'package:frontend/ui/widgets/appBar.dart';
-import 'package:frontend/ui/widgets/password_recovery/typing_text_field.dart';
 import 'package:frontend/utils/validators/validators.dart';
+import 'package:frontend/ui/widgets/show_dialog/show_no_connection_dialog.dart';
 
 class CreateLoginAccount extends StatefulWidget {
   const CreateLoginAccount({super.key});
@@ -18,6 +20,60 @@ class CreateLoginAccountState extends State<CreateLoginAccount> {
 
   final _formKey = GlobalKey<FormState>();
 
+  final _nameController = TextEditingController();
+  final _surnameController = TextEditingController();
+  final _emailController = TextEditingController();
+
+  bool get _formValido {
+    return _nameValidator(_nameController.text) == null &&
+        _nameValidator(_surnameController.text) == null &&
+        validateEmail(_emailController.text) == null;
+  }
+
+  @override
+  void dispose() {
+    _nameController.dispose();
+    _surnameController.dispose();
+    _emailController.dispose();
+    super.dispose();
+  }
+
+  Future<void> _proceed() async {
+    if (!_formKey.currentState!.validate()) return;
+
+    if (!await ensureConnection(
+      context,
+      message: 'É preciso estar conectado para criar uma conta.',
+    )) {
+      return;
+    }
+    if (!mounted) return;
+
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => PasswordSetting(
+          name: _nameController.text,
+          surname: _surnameController.text,
+          email: _emailController.text,
+        ),
+      ),
+    );
+  }
+
+  String? _nameValidator(String? value) {
+    if (value == null || value.trim().isEmpty) {
+      return 'Preencha o campo';
+    }
+    if (value.length <= 1) {
+      return 'Campo não pode conter 1 letra. Caso seja seu nome registrado, contate o suporte';
+    }
+    if (value.length > 50) {
+      return 'Campo não pode ser maior que 50 letras. Caso seja seu nome registrado, contate o suporte';
+    }
+    return null;
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -30,10 +86,7 @@ class CreateLoginAccountState extends State<CreateLoginAccount> {
       backgroundColor: colors.surface,
       body: SafeArea(
         child: SingleChildScrollView(
-          padding: const EdgeInsets.symmetric(
-            horizontal: 16,
-            vertical: 18,
-          ),
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 18),
           child: Center(
             child: ConstrainedBox(
               constraints: const BoxConstraints(maxWidth: 650),
@@ -50,117 +103,82 @@ class CreateLoginAccountState extends State<CreateLoginAccount> {
       color: Colors.white,
       elevation: 8,
       shadowColor: Colors.black26,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(22),
-      ),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(22)),
       child: Padding(
-        padding: const EdgeInsets.symmetric(
-          horizontal: 24,
-          vertical: 28,
-        ),
+        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 28),
         child: Form(
           key: _formKey,
+          onChanged: () => setState(() {}),
           child: Column(
-            spacing: 18,
+            spacing: 24,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              _buildSectionTitle(
-                'Cadastro do seu Usuário',
-                'Informe seus dados pessoais.',
+              FormSectionTile(
+                title: "Cadastro do seu Usuário",
+                subtitle: "Informe seus dados pessoais.",
               ),
-
-              _buildFieldLabel(Icons.badge, 'Nome*'),
-
-              TypingTextField(
-                controller: null, 
-                hintText: 'Informe seu nome', 
-                enabled: true, 
-                sensitiveContent: false, 
-                isPassword: false,
-                validator: (value){
-                  return emptyMandatoryField(value);
-                },
-              ),
-
-              _buildFieldLabel(Icons.badge, 'Sobrenome*'),
-
-              TypingTextField(
-                controller: null, 
-                hintText: 'Informe seu sobrenome', 
-                enabled: true, 
-                sensitiveContent: false, 
-                isPassword: false,
-                validator: (value) {
-                  return emptyMandatoryField(value);
-                },
-              ),
-
-              _buildFieldLabel(Icons.person_3, 'Nome usuário*'),
-
-              TypingTextField(
-                controller: null, 
-                hintText: 'Informe seu sobrenome', 
-                enabled: true, 
-                sensitiveContent: false, 
-                isPassword: false,
-                validator: (value) {
-                  if (value == null || value.length < 3) {
-                    return 'Mínimo de 3 caracteres';
-                  }
-                  return null;
-                },
-                inputFormatters: [
-                  FilteringTextInputFormatter.allow(
-                    RegExp(r'[a-zA-Z0-9._\-]'),
+              LabeledFormField(
+                icon: Icons.badge,
+                label: "Nome *",
+                field: TextFormField(
+                  controller: _nameController,
+                  decoration: customInputDecoration(
+                    hintText: 'Informe seu nome',
                   ),
-                  FilteringTextInputFormatter.deny(
-                    RegExp(r'\s'),
+                  validator: (value) => _nameValidator(value),
+                ),
+              ),
+
+              LabeledFormField(
+                icon: Icons.badge,
+                label: "Sobrenome *",
+                field: TextFormField(
+                  controller: _surnameController,
+                  decoration: customInputDecoration(
+                    hintText: 'Informe seu sobrenome',
                   ),
-                ],
-                maxLength: 25,
+                  validator: (value) => _nameValidator(value),
+                ),
               ),
 
-              _buildFieldLabel(Icons.email, 'Email*'),
-
-              TypingTextField(
-                controller: null, 
-                hintText: 'Ex: nome@exemplo.com', 
-                enabled: true, 
-                sensitiveContent: false, 
-                isPassword: false,
-                validator: (value){
-                  return validateEmail(value);
-                },
+              LabeledFormField(
+                icon: Icons.email,
+                label: "Email *",
+                field: TextFormField(
+                  controller: _emailController,
+                  keyboardType: TextInputType.emailAddress,
+                  autocorrect: false,
+                  decoration: customInputDecoration(
+                    hintText: 'Ex.: nome@exemplo.com',
+                  ),
+                  validator: (value) => validateEmail(value),
+                ),
               ),
 
-              SizedBox(
-                width: double.infinity,
-                child: ElevatedButton.icon(
-                  onPressed: () {
-                    if (_formKey.currentState!.validate()) {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => const PasswordSetting(),
-                        ),
-                      );
-                    }
-                  },
-                  style: ElevatedButton.styleFrom(
-                    elevation: 3,
-                    backgroundColor: colors.primary,
-                    foregroundColor: colors.onSecondary,
-                    padding: const EdgeInsets.symmetric(vertical: 18),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(14),
+              Padding(
+                padding: const EdgeInsets.only(top: 16),
+                child: SizedBox(
+                  width: double.infinity,
+                  child: ElevatedButton.icon(
+                    onPressed: _formValido ? _proceed : null,
+                    style: ElevatedButton.styleFrom(
+                      elevation: 3,
+                      backgroundColor: colors.primary,
+                      foregroundColor: colors.onSecondary,
+                      disabledBackgroundColor: Colors.grey.shade300,
+                      disabledForegroundColor: Colors.grey.shade600,
+                      padding: const EdgeInsets.symmetric(vertical: 18),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(14),
+                      ),
                     ),
-                  ),
-                  icon: const Icon(Icons.arrow_forward_outlined),
-                  label: const Text(
-                    'Prosseguir',
-                    style: TextStyle(
-                      fontWeight: FontWeight.bold,
-                      fontSize: 16,
+                    icon: const Icon(Icons.arrow_forward_outlined),
+                    label: const Text(
+                      "Prosseguir",
+                      style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 16,
+                      ),
                     ),
                   ),
                 ),
@@ -168,80 +186,6 @@ class CreateLoginAccountState extends State<CreateLoginAccount> {
             ],
           ),
         ),
-      ),
-    );
-  }
-
-  Widget _buildSectionTitle(String title, String subtitle) {
-    return Column(
-      spacing: 20,
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          title,
-          style: TextStyle(
-            fontSize: 20,
-            fontWeight: FontWeight.bold,
-            color: colors.onSurface,
-          ),
-        ),
-        Text(
-          subtitle,
-          style: TextStyle(
-            fontSize: 14,
-            color: colors.onSurfaceVariant,
-          ),
-        ),
-      ],
-    );
-  }
-
-  Widget _buildFieldLabel(IconData icon, String label) {
-    return Row(
-      spacing: 6,
-      children: [
-        Icon(
-          icon,
-          size: 20,
-          color: colors.primary,
-        ),
-        Text(
-          label,
-          style: TextStyle(
-            fontWeight: FontWeight.bold,
-            fontSize: 16,
-            color: colors.onSurface,
-          ),
-        ),
-      ],
-    );
-  }
-
-  InputDecoration _buildInputDecoration({
-    required String hintText,
-    String? counterText,
-  }) {
-    return InputDecoration(
-      counterText: counterText,
-      enabledBorder: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(14),
-        borderSide: const BorderSide(
-          color: Colors.grey,
-          width: 1,
-        ),
-      ),
-      focusedBorder: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(14),
-        borderSide: BorderSide(
-          color: colors.primary,
-          width: 2,
-        ),
-      ),
-      fillColor: colors.surfaceContainerHigh,
-      hintText: hintText,
-      filled: true,
-      border: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(14),
       ),
     );
   }

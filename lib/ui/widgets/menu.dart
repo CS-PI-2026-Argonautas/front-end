@@ -1,6 +1,11 @@
 import 'package:flutter/material.dart';
-import 'package:frontend/ui/pages/authentication.dart';
+import 'package:frontend/fire_base/services/authentication_service.dart';
+import 'package:frontend/ui/pages/auth_gate.dart';
+import 'package:frontend/ui/pages/create_login_account/create_login_acccount.dart';
+import 'package:frontend/ui/pages/password_change/password_change.dart';
 import 'package:frontend/ui/style/ColorScheme.dart' as custom_colors;
+import 'package:frontend/ui/widgets/show_dialog/show_no_connection_dialog.dart';
+import 'package:frontend/utils/connectivity/connectivity_checker.dart';
 
 class Menu extends StatelessWidget {
   final int currentIndex;
@@ -14,7 +19,7 @@ class Menu extends StatelessWidget {
 
     return Drawer(
       width: 200,
-      
+
       child: Container(
         decoration: BoxDecoration(
           gradient: LinearGradient(
@@ -71,7 +76,7 @@ class Menu extends StatelessWidget {
                       index: 3,
                       colors: colors,
                     ),
-  
+
                     _buildDrawerItem(
                       icon: Icons.home_outlined,
                       label: "Início",
@@ -85,6 +90,46 @@ class Menu extends StatelessWidget {
               const Divider(color: Colors.white24),
 
               ListTile(
+                leading: Icon(
+                  Icons.person_add_outlined,
+                  color: Colors.white.withValues(alpha: 0.8),
+                ),
+                title: Text(
+                  "Criar conta nova",
+                  style: TextStyle(color: Colors.white.withValues(alpha: 0.8)),
+                ),
+                onTap: () {
+                  Navigator.pop(context);
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => const CreateLoginAccount(),
+                    ),
+                  );
+                },
+              ),
+
+              ListTile(
+                leading: Icon(
+                  Icons.lock_reset,
+                  color: Colors.white.withValues(alpha: 0.8),
+                ),
+                title: Text(
+                  "Alterar senha",
+                  style: TextStyle(color: Colors.white.withValues(alpha: 0.8)),
+                ),
+                onTap: () {
+                  Navigator.pop(context);
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => const PasswordChange(),
+                    ),
+                  );
+                },
+              ),
+
+              ListTile(
                 leading: Icon(Icons.logout, color: colors.onTertiary),
                 title: Text(
                   "Sair",
@@ -93,12 +138,28 @@ class Menu extends StatelessWidget {
                     fontWeight: FontWeight.bold,
                   ),
                 ),
-                onTap: () {
+                onTap: () async {
+                  if (!await hasConnection()) {
+                    if (!context.mounted) return;
+
+                    final confirmed = await showDialog<bool>(
+                      context: context,
+                      builder: (_) => const ShowNoConnectionDialog(
+                        message:
+                            'Sem internet, você não conseguirá entrar de novo até a conexão voltar.',
+                        confirmLabel: 'Sair mesmo assim',
+                        confirmIcon: Icons.logout,
+                      ),
+                    );
+                    if (confirmed != true) return;
+                  }
+
+                  await AuthenticationService().logout();
+                  if (!context.mounted) return;
+
                   Navigator.pushAndRemoveUntil(
                     context,
-                    MaterialPageRoute(
-                      builder: (context) => const Authentication(),
-                    ),
+                    MaterialPageRoute(builder: (context) => const AuthGate()),
                     (route) => false,
                   );
                 },
