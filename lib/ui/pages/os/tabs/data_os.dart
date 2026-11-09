@@ -27,6 +27,7 @@ class DataOs extends StatefulWidget {
   final ValueChanged<String>? onStatusChanged;
   final ValueChanged<String>? onRelatorioChanged;
   final ValueChanged<DateTime>? onDataSaidaChanged;
+  final ValueChanged<bool> onDadosObrigatoriosChanged;
 
   final VoidCallback? avancarTab;
 
@@ -41,6 +42,7 @@ class DataOs extends StatefulWidget {
     this.onRelatorioChanged,
     this.onDataSaidaChanged,
     this.avancarTab,
+    required this.onDadosObrigatoriosChanged,
   });
 
   @override
@@ -88,6 +90,16 @@ class _DataOsState extends State<DataOs> {
         relatorio.trim().isNotEmpty;
   }
 
+  bool get _dadosObrigatoriosPreenchidos {
+    return clienteSelecionado != null &&
+        _enderecoSelecionado != null &&
+        _equipamentoSelecionado != null;
+  }
+
+  void _verificarDadosObrigatorios() {
+    widget.onDadosObrigatoriosChanged(_dadosObrigatoriosPreenchidos);
+  }
+
   static const editableStatuses = [
     'CANCELADA',
     'EM_CONSERTO',
@@ -107,6 +119,10 @@ class _DataOsState extends State<DataOs> {
 
     relatorio = widget.relatorio ?? '';
     _relatorioController.text = relatorio;
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _verificarDadosObrigatorios();
+    });
 
     _carregarClientes();
   }
@@ -191,6 +207,8 @@ class _DataOsState extends State<DataOs> {
 
     if (resultado != null && mounted) {
       setState(() => _equipamentoSelecionado = resultado);
+
+      _verificarDadosObrigatorios();
     }
   }
 
@@ -239,6 +257,8 @@ class _DataOsState extends State<DataOs> {
                 'modelo': e.model,
               };
             });
+
+            _verificarDadosObrigatorios();
 
             Navigator.pop(sheetContext);
           },
@@ -495,6 +515,7 @@ class _DataOsState extends State<DataOs> {
                 clienteSelecionado = novoCliente;
                 _enderecoSelecionado = null;
               });
+              _verificarDadosObrigatorios();
             }
           },
           onSelect: (cliente) {
@@ -502,6 +523,8 @@ class _DataOsState extends State<DataOs> {
               clienteSelecionado = cliente;
               _enderecoSelecionado = null;
             });
+
+            _verificarDadosObrigatorios();
 
             Navigator.pop(context);
           },
@@ -574,11 +597,15 @@ class _DataOsState extends State<DataOs> {
             setState(() {
               _enderecoSelecionado = novo;
             });
+
+            _verificarDadosObrigatorios();
           },
           onSelect: (endereco) {
             setState(() {
               _enderecoSelecionado = endereco;
             });
+
+            _verificarDadosObrigatorios();
 
             Navigator.pop(context);
           },
