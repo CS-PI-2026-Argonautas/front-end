@@ -7,6 +7,9 @@ import 'package:frontend/ui/style/ColorScheme.dart' as custom_colors;
 import 'package:frontend/ui/style/inputDecorationStyles.dart';
 import 'package:frontend/ui/widgets/bottom_sheet/bottom_sheet.dart';
 import 'package:frontend/ui/widgets/fields/equipment_field.dart';
+import 'package:frontend/ui/widgets/fields/selection_field.dart';
+import 'package:frontend/ui/widgets/form/labeled_form.dart';
+import 'package:frontend/ui/widgets/form/section_label.dart';
 import 'package:frontend/utils/formatters/address_formatter.dart';
 import 'package:frontend/ui/pages/person_registration/person_registration.dart';
 import 'package:frontend/ui/pages/stand_in_page.dart';
@@ -24,6 +27,7 @@ class DataOs extends StatefulWidget {
   final ValueChanged<String>? onStatusChanged;
   final ValueChanged<String>? onRelatorioChanged;
   final ValueChanged<DateTime>? onDataSaidaChanged;
+  final ValueChanged<bool> onDadosObrigatoriosChanged;
 
   final VoidCallback? avancarTab;
 
@@ -38,6 +42,7 @@ class DataOs extends StatefulWidget {
     this.onRelatorioChanged,
     this.onDataSaidaChanged,
     this.avancarTab,
+    required this.onDadosObrigatoriosChanged,
   });
 
   @override
@@ -85,6 +90,16 @@ class _DataOsState extends State<DataOs> {
         relatorio.trim().isNotEmpty;
   }
 
+  bool get _dadosObrigatoriosPreenchidos {
+    return clienteSelecionado != null &&
+        _enderecoSelecionado != null &&
+        _equipamentoSelecionado != null;
+  }
+
+  void _verificarDadosObrigatorios() {
+    widget.onDadosObrigatoriosChanged(_dadosObrigatoriosPreenchidos);
+  }
+
   static const editableStatuses = [
     'CANCELADA',
     'EM_CONSERTO',
@@ -104,6 +119,10 @@ class _DataOsState extends State<DataOs> {
 
     relatorio = widget.relatorio ?? '';
     _relatorioController.text = relatorio;
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _verificarDadosObrigatorios();
+    });
 
     _carregarClientes();
   }
@@ -151,10 +170,7 @@ class _DataOsState extends State<DataOs> {
 
   void _mostrarErro(String mensagem) {
     ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(mensagem),
-        behavior: SnackBarBehavior.floating,
-      ),
+      SnackBar(content: Text(mensagem), behavior: SnackBarBehavior.floating),
     );
   }
 
@@ -166,11 +182,7 @@ class _DataOsState extends State<DataOs> {
 
       setState(() {
         clientesDisponiveis = clientes.map((c) {
-          return {
-            'id': c.id,
-            'name': c.name,
-            'phone': c.contact.phone,
-          };
+          return {'id': c.id, 'name': c.name, 'phone': c.contact.phone};
         }).toList();
       });
     } catch (e) {
@@ -182,9 +194,7 @@ class _DataOsState extends State<DataOs> {
     }
   }
 
-  Future<void> _abrirCadastroEquipamento([
-    dynamic equipamentoInicial,
-  ]) async {
+  Future<void> _abrirCadastroEquipamento([dynamic equipamentoInicial]) async {
     final resultado = await Navigator.push<dynamic>(
       context,
       MaterialPageRoute(
@@ -197,62 +207,65 @@ class _DataOsState extends State<DataOs> {
 
     if (resultado != null && mounted) {
       setState(() => _equipamentoSelecionado = resultado);
+
+      _verificarDadosObrigatorios();
     }
   }
-Future<void> _buscarEquipamento() async {
-  final List<Equipment> equipamentos;
 
-  try {
-    equipamentos = await _equipamentoService.listar();
-  } catch (e) {
+  Future<void> _buscarEquipamento() async {
+    final List<Equipment> equipamentos;
+
+    try {
+      equipamentos = await _equipamentoService.listar();
+    } catch (e) {
+      if (!mounted) return;
+
+      _mostrarErro('Não foi possível carregar os equipamentos.');
+      return;
+    }
+
     if (!mounted) return;
 
-    _mostrarErro('Não foi possível carregar os equipamentos.');
-    return;
-  }
-
-  if (!mounted) return;
-
-  showModalBottomSheet(
-    context: context,
-    backgroundColor: colors.surfaceContainer,
-    isScrollControlled: true,
-    shape: const RoundedRectangleBorder(
-      borderRadius: BorderRadius.vertical(
-        top: Radius.circular(24),
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: colors.surfaceContainer,
+      isScrollControlled: true,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
       ),
-    ),
-    builder: (sheetContext) {
-      return SelectionBottomSheet<Equipment>(
-        title: 'Selecionar equipamento',
-        items: equipamentos,
-        searchText: 'Procurar equipamento',
-        actionText: 'Novo equipamento',
-        itemTitle: (e) => '${e.brand} ${e.model}',
-        itemSubtitle: (e) => 'Nº série ${e.serialNumber}',
-        itemIcon: Icons.scale_outlined,
-        loading: false,
+      builder: (sheetContext) {
+        return SelectionBottomSheet<Equipment>(
+          title: 'Selecionar equipamento',
+          items: equipamentos,
+          searchText: 'Procurar equipamento',
+          actionText: 'Novo equipamento',
+          itemTitle: (e) => '${e.brand} ${e.model}',
+          itemSubtitle: (e) => 'Nº série ${e.serialNumber}',
+          itemIcon: Icons.scale_outlined,
+          loading: false,
 
-        onAction: () {
-          Navigator.pop(sheetContext);
-          _abrirCadastroEquipamento();
-        },
+          onAction: () {
+            Navigator.pop(sheetContext);
+            _abrirCadastroEquipamento();
+          },
 
-        onSelect: (e) {
-          setState(() {
-            _equipamentoSelecionado = {
-              'id': e.id,
-              'marca': e.brand,
-              'modelo': e.model,
-            };
-          });
+          onSelect: (e) {
+            setState(() {
+              _equipamentoSelecionado = {
+                'id': e.id,
+                'marca': e.brand,
+                'modelo': e.model,
+              };
+            });
 
-          Navigator.pop(sheetContext);
-        },
-      );
-    },
-  );
-}
+            _verificarDadosObrigatorios();
+
+            Navigator.pop(sheetContext);
+          },
+        );
+      },
+    );
+  }
 
   String _formatDate(DateTime? date) {
     if (date == null) return 'Indefinida';
@@ -368,9 +381,7 @@ Future<void> _buscarEquipamento() async {
               child: Container(
                 decoration: const BoxDecoration(
                   color: Colors.white,
-                  borderRadius: BorderRadius.vertical(
-                    top: Radius.circular(26),
-                  ),
+                  borderRadius: BorderRadius.vertical(top: Radius.circular(26)),
                 ),
                 padding: const EdgeInsets.fromLTRB(24, 16, 24, 24),
                 child: SafeArea(
@@ -445,17 +456,13 @@ Future<void> _buscarEquipamento() async {
                           icon: const Icon(Icons.check),
                           label: const Text(
                             'Concluir edição',
-                            style: TextStyle(
-                              fontWeight: FontWeight.bold,
-                            ),
+                            style: TextStyle(fontWeight: FontWeight.bold),
                           ),
                           style: ElevatedButton.styleFrom(
                             elevation: 3,
                             backgroundColor: colors.primary,
                             foregroundColor: colors.onSecondary,
-                            padding: const EdgeInsets.symmetric(
-                              vertical: 16,
-                            ),
+                            padding: const EdgeInsets.symmetric(vertical: 16),
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(14),
                             ),
@@ -479,9 +486,7 @@ Future<void> _buscarEquipamento() async {
       backgroundColor: colors.surface,
       isScrollControlled: true,
       shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(
-          top: Radius.circular(24),
-        ),
+        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
       ),
       builder: (context) {
         return SelectionBottomSheet<Map<String, dynamic>>(
@@ -496,14 +501,11 @@ Future<void> _buscarEquipamento() async {
           onAction: () async {
             Navigator.pop(context);
 
-            final novoCliente =
-                await Navigator.push<Map<String, dynamic>>(
+            final novoCliente = await Navigator.push<Map<String, dynamic>>(
               context,
               MaterialPageRoute(
                 builder: (context) =>
-                    const PersonRegistration(
-                  retornarDadosAoFechar: true,
-                ),
+                    const PersonRegistration(retornarDadosAoFechar: true),
               ),
             );
 
@@ -513,6 +515,7 @@ Future<void> _buscarEquipamento() async {
                 clienteSelecionado = novoCliente;
                 _enderecoSelecionado = null;
               });
+              _verificarDadosObrigatorios();
             }
           },
           onSelect: (cliente) {
@@ -520,6 +523,8 @@ Future<void> _buscarEquipamento() async {
               clienteSelecionado = cliente;
               _enderecoSelecionado = null;
             });
+
+            _verificarDadosObrigatorios();
 
             Navigator.pop(context);
           },
@@ -540,9 +545,7 @@ Future<void> _buscarEquipamento() async {
 
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
-          content: Text(
-            'Não foi possível carregar os endereços.',
-          ),
+          content: Text('Não foi possível carregar os endereços.'),
           behavior: SnackBarBehavior.floating,
         ),
       );
@@ -557,9 +560,7 @@ Future<void> _buscarEquipamento() async {
       backgroundColor: colors.surfaceContainer,
       isScrollControlled: true,
       shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(
-          top: Radius.circular(24),
-        ),
+        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
       ),
       builder: (context) {
         return SelectionBottomSheet<Address>(
@@ -596,11 +597,15 @@ Future<void> _buscarEquipamento() async {
             setState(() {
               _enderecoSelecionado = novo;
             });
+
+            _verificarDadosObrigatorios();
           },
           onSelect: (endereco) {
             setState(() {
               _enderecoSelecionado = endereco;
             });
+
+            _verificarDadosObrigatorios();
 
             Navigator.pop(context);
           },
@@ -612,20 +617,11 @@ Future<void> _buscarEquipamento() async {
   @override
   Widget build(BuildContext context) {
     return SingleChildScrollView(
-      padding: const EdgeInsets.symmetric(
-        horizontal: 16,
-        vertical: 18,
-      ),
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 18),
       child: Center(
         child: ConstrainedBox(
           constraints: const BoxConstraints(maxWidth: 650),
-          child: Column(
-            spacing: 24,
-            children: [
-              
-              _buildFormCard(),
-            ],
-          ),
+          child: Column(spacing: 24, children: [_buildFormCard()]),
         ),
       ),
     );
@@ -636,35 +632,30 @@ Future<void> _buscarEquipamento() async {
       color: Colors.white,
       elevation: 8,
       shadowColor: Colors.black26,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(22),
-      ),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(22)),
       child: Padding(
-        padding: const EdgeInsets.symmetric(
-          horizontal: 24,
-          vertical: 28,
-        ),
+        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 28),
         child: Column(
           spacing: 18,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-             _buildSectionTitle(
+            _buildSectionTitle(
               'Informações da ordem de serviço',
               'Insira os dados da ordem de serviço.',
             ),
             _buildClienteEnderecoLabel(
-              'Cliente *',
+              'Cliente*',
               onAdd: _abrirListaClientes,
-              addLabel: 'Adicionar cliente',
+              addLabel: 'Adicionar Cliente',
+              icon: Icons.person_outline,
             ),
             _buildClienteSelecionado(),
 
             _buildClienteEnderecoLabel(
-              'Endereço *',
-              onAdd: clienteSelecionado == null
-                  ? null
-                  : _abrirListaEnderecos,
+              'Endereço*',
+              onAdd: clienteSelecionado == null ? null : _abrirListaEnderecos,
               addLabel: 'Adicionar Endereço',
+              icon: Icons.home_outlined,
             ),
             _buildEnderecoSelecionado(),
 
@@ -676,8 +667,7 @@ Future<void> _buscarEquipamento() async {
               onEdit: (equip) => _abrirCadastroEquipamento(equip),
             ),
 
-            if (!_formHabilitado)
-              _buildAvisoSelecioneCliente(),
+            if (!_formHabilitado) _buildAvisoSelecioneCliente(),
 
             Opacity(
               opacity: _formHabilitado ? 1.0 : 0.4,
@@ -697,8 +687,7 @@ Future<void> _buscarEquipamento() async {
                       children: [
                         Expanded(
                           child: Column(
-                            crossAxisAlignment:
-                                CrossAxisAlignment.start,
+                            crossAxisAlignment: CrossAxisAlignment.start,
                             spacing: 8,
                             children: [
                               _buildFieldLabel(
@@ -706,8 +695,7 @@ Future<void> _buscarEquipamento() async {
                                 'Entrada',
                               ),
                               InkWell(
-                                borderRadius:
-                                    BorderRadius.circular(14),
+                                borderRadius: BorderRadius.circular(14),
                                 onTap: _selecionarDataEntrada,
                                 child: InputDecorator(
                                   decoration:
@@ -726,9 +714,7 @@ Future<void> _buscarEquipamento() async {
                                       ),
                                   child: Text(
                                     _formatDate(dataEntrada),
-                                    style: const TextStyle(
-                                      fontSize: 14,
-                                    ),
+                                    style: const TextStyle(fontSize: 14),
                                   ),
                                 ),
                               ),
@@ -737,8 +723,7 @@ Future<void> _buscarEquipamento() async {
                         ),
                         Expanded(
                           child: Column(
-                            crossAxisAlignment:
-                                CrossAxisAlignment.start,
+                            crossAxisAlignment: CrossAxisAlignment.start,
                             spacing: 8,
                             children: [
                               _buildFieldLabel(
@@ -746,32 +731,32 @@ Future<void> _buscarEquipamento() async {
                                 'Saída',
                               ),
                               InkWell(
-                                borderRadius:
-                                    BorderRadius.circular(14),
+                                borderRadius: BorderRadius.circular(14),
                                 onTap: _alterarDataSaida,
                                 child: InputDecorator(
-                                  decoration: customInputDecoration(
-                                    hintText: 'Automática',
-                                  ).copyWith(
-                                    filled: true,
-                                    fillColor: colors.surfaceContainerLow,
-                                    suffixIcon: dataSaida == null
-                                        ? Icon(
-                                            Icons.hourglass_empty,
-                                            color: Colors.blueGrey.shade400,
-                                            size: 20,
-                                          )
-                                        : Icon(
-                                            Icons.edit_calendar_outlined,
-                                            color: Colors.blueGrey.shade400,
-                                            size: 20,
-                                          ),
-                                    contentPadding:
-                                        const EdgeInsets.symmetric(
-                                      horizontal: 12,
-                                      vertical: 14,
-                                    ),
-                                  ),
+                                  decoration:
+                                      customInputDecoration(
+                                        hintText: 'Automática',
+                                      ).copyWith(
+                                        filled: true,
+                                        fillColor: colors.surfaceContainerLow,
+                                        suffixIcon: dataSaida == null
+                                            ? Icon(
+                                                Icons.hourglass_empty,
+                                                color: Colors.blueGrey.shade400,
+                                                size: 20,
+                                              )
+                                            : Icon(
+                                                Icons.edit_calendar_outlined,
+                                                color: Colors.blueGrey.shade400,
+                                                size: 20,
+                                              ),
+                                        contentPadding:
+                                            const EdgeInsets.symmetric(
+                                              horizontal: 12,
+                                              vertical: 14,
+                                            ),
+                                      ),
                                   child: Text(
                                     dataSaida == null
                                         ? 'Indefinida'
@@ -809,36 +794,25 @@ Future<void> _buscarEquipamento() async {
                         ],
                       ),
                     ],
-                    _buildFieldLabel(
-                      Icons.sync_alt,
-                      'Status',
-                    ),
+                    _buildFieldLabel(Icons.sync_alt, 'Status'),
                     _buildStatusField(),
-                    _buildFieldLabel(
-                      Icons.description_outlined,
-                      'Relatório',
-                    ),
+                    _buildFieldLabel(Icons.description_outlined, 'Relatório'),
                     InkWell(
                       onTap: _editarRelatorio,
                       borderRadius: BorderRadius.circular(16),
                       child: Container(
                         width: double.infinity,
-                        constraints: const BoxConstraints(
-                          minHeight: 130,
-                        ),
+                        constraints: const BoxConstraints(minHeight: 130),
                         padding: const EdgeInsets.all(16),
                         decoration: BoxDecoration(
                           color: Colors.white,
-                          border: Border.all(
-                            color: Colors.grey.shade400,
-                          ),
+                          border: Border.all(color: Colors.grey.shade400),
                           borderRadius: BorderRadius.circular(16),
                         ),
                         child: relatorio.isEmpty
                             ? Row(
                                 spacing: 6,
-                                crossAxisAlignment:
-                                    CrossAxisAlignment.start,
+                                crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
                                   Icon(
                                     Icons.edit_note,
@@ -848,8 +822,7 @@ Future<void> _buscarEquipamento() async {
                                     child: Text(
                                       'Toque para adicionar observações...',
                                       style: TextStyle(
-                                        color:
-                                            colors.onSurfaceVariant,
+                                        color: colors.onSurfaceVariant,
                                         fontSize: 15,
                                       ),
                                     ),
@@ -858,8 +831,7 @@ Future<void> _buscarEquipamento() async {
                               )
                             : Column(
                                 spacing: 18,
-                                crossAxisAlignment:
-                                    CrossAxisAlignment.start,
+                                crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
                                   Text(
                                     relatorio,
@@ -869,8 +841,7 @@ Future<void> _buscarEquipamento() async {
                                     ),
                                   ),
                                   Row(
-                                    mainAxisAlignment:
-                                        MainAxisAlignment.end,
+                                    mainAxisAlignment: MainAxisAlignment.end,
                                     children: [
                                       Icon(
                                         Icons.edit_outlined,
@@ -897,8 +868,7 @@ Future<void> _buscarEquipamento() async {
                             ? () {
                                 if (!_validarFormulario()) return;
 
-                                DefaultTabController.of(context)
-                                    .animateTo(1);
+                                DefaultTabController.of(context).animateTo(1);
                               }
                             : null,
                         icon: const Icon(Icons.build),
@@ -913,13 +883,9 @@ Future<void> _buscarEquipamento() async {
                           elevation: _formValido ? 3 : 0,
                           backgroundColor: colors.primary,
                           foregroundColor: colors.onSecondary,
-                          disabledBackgroundColor:
-                              colors.surfaceContainerLow,
-                          disabledForegroundColor:
-                              colors.onSurfaceVariant,
-                          padding: const EdgeInsets.symmetric(
-                            vertical: 18,
-                          ),
+                          disabledBackgroundColor: colors.surfaceContainerLow,
+                          disabledForegroundColor: colors.onSurfaceVariant,
+                          padding: const EdgeInsets.symmetric(vertical: 18),
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(14),
                           ),
@@ -950,17 +916,11 @@ Future<void> _buscarEquipamento() async {
     String text, {
     VoidCallback? onAdd,
     String addLabel = 'Adicionar',
+    required IconData icon,
   }) {
     return Row(
       children: [
-        Text(
-          text,
-          style: TextStyle(
-            color: colors.onSurface,
-            fontSize: 18,
-            fontWeight: FontWeight.bold,
-          ),
-        ),
+        SectionLabel(icon: icon, text: text),
         const Spacer(),
         if (onAdd != null || addLabel.isNotEmpty)
           ElevatedButton.icon(
@@ -971,10 +931,7 @@ Future<void> _buscarEquipamento() async {
               backgroundColor: colors.secondary,
               foregroundColor: Colors.white,
               elevation: 0,
-              padding: const EdgeInsets.symmetric(
-                horizontal: 14,
-                vertical: 10,
-              ),
+              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(8),
               ),
@@ -995,19 +952,14 @@ Future<void> _buscarEquipamento() async {
       decoration: BoxDecoration(
         color: colors.surfaceContainerHigh,
         borderRadius: BorderRadius.circular(14),
-        
       ),
       child: Row(
         children: [
-          Icon(
-            Icons.person,
-            color: colors.secondary,
-          ),
+          Icon(Icons.person, color: colors.secondary),
           const SizedBox(width: 12),
           Expanded(
             child: Column(
-              crossAxisAlignment:
-                  CrossAxisAlignment.start,
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
                   'Cliente selecionado',
@@ -1030,10 +982,7 @@ Future<void> _buscarEquipamento() async {
           ),
           IconButton(
             onPressed: _abrirListaClientes,
-            icon: Icon(
-              Icons.sync_alt,
-              color: colors.secondary,
-            ),
+            icon: Icon(Icons.sync_alt, color: colors.secondary),
             tooltip: 'Trocar cliente',
           ),
         ],
@@ -1057,15 +1006,11 @@ Future<void> _buscarEquipamento() async {
       ),
       child: Row(
         children: [
-          Icon(
-            Icons.location_on,
-            color: colors.secondary,
-          ),
+          Icon(Icons.location_on, color: colors.secondary),
           const SizedBox(width: 12),
           Expanded(
             child: Column(
-              crossAxisAlignment:
-                  CrossAxisAlignment.start,
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
                   'Endereço selecionado',
@@ -1088,10 +1033,7 @@ Future<void> _buscarEquipamento() async {
           ),
           IconButton(
             onPressed: _abrirListaEnderecos,
-            icon: Icon(
-              Icons.sync_alt,
-              color: colors.primary,
-            ),
+            icon: Icon(Icons.sync_alt, color: colors.primary),
             tooltip: 'Trocar endereço',
           ),
         ],
@@ -1109,19 +1051,12 @@ Future<void> _buscarEquipamento() async {
       ),
       child: Row(
         children: [
-          Icon(
-            Icons.info_outline,
-            color: Colors.amber.shade800,
-            size: 18,
-          ),
+          Icon(Icons.info_outline, color: Colors.amber.shade800, size: 18),
           const SizedBox(width: 8),
           Expanded(
             child: Text(
               'Selecione um cliente para liberar os demais campos.',
-              style: TextStyle(
-                fontSize: 13,
-                color: Colors.amber.shade900,
-              ),
+              style: TextStyle(fontSize: 13, color: Colors.amber.shade900),
             ),
           ),
         ],
@@ -1129,10 +1064,7 @@ Future<void> _buscarEquipamento() async {
     );
   }
 
-  Widget _buildSectionTitle(
-    String title,
-    String subtitle,
-  ) {
+  Widget _buildSectionTitle(String title, String subtitle) {
     return Column(
       spacing: 6,
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -1147,27 +1079,17 @@ Future<void> _buscarEquipamento() async {
         ),
         Text(
           subtitle,
-          style: TextStyle(
-            fontSize: 14,
-            color: colors.onSurfaceVariant,
-          ),
+          style: TextStyle(fontSize: 14, color: colors.onSurfaceVariant),
         ),
       ],
     );
   }
 
-  Widget _buildFieldLabel(
-    IconData icon,
-    String label,
-  ) {
+  Widget _buildFieldLabel(IconData icon, String label) {
     return Row(
       spacing: 6,
       children: [
-        Icon(
-          icon,
-          size: 20,
-          color: colors.primary,
-        ),
+        Icon(icon, size: 20, color: colors.primary),
         Text(
           label,
           style: TextStyle(
@@ -1183,9 +1105,7 @@ Future<void> _buscarEquipamento() async {
   Widget _buildStatusField() {
     if (status == 'CONCLUIDA') {
       return InputDecorator(
-        decoration: customInputDecoration(
-          hintText: 'Status',
-        ).copyWith(
+        decoration: customInputDecoration(hintText: 'Status').copyWith(
           filled: true,
           fillColor: Colors.grey.shade100,
           suffixIcon: const Icon(
@@ -1220,9 +1140,7 @@ Future<void> _buscarEquipamento() async {
 
     return DropdownButtonFormField<String>(
       value: status,
-      decoration: customInputDecoration(
-        hintText: 'Selecione o status',
-      ),
+      decoration: customInputDecoration(hintText: 'Selecione o status'),
       items: editableStatuses.map((value) {
         final color = _statusColor(value);
 
@@ -1233,10 +1151,7 @@ Future<void> _buscarEquipamento() async {
               Container(
                 width: 9,
                 height: 9,
-                decoration: BoxDecoration(
-                  color: color,
-                  shape: BoxShape.circle,
-                ),
+                decoration: BoxDecoration(color: color, shape: BoxShape.circle),
               ),
               const SizedBox(width: 6),
               Text(_statusLabel(value)),
@@ -1257,30 +1172,24 @@ Future<void> _buscarEquipamento() async {
   }
 }
 
-Widget _buildSectionTitle(
-    String title,
-    String subtitle,
-  ) {
-    final colors = custom_colors.colorScheme;
-    return Column(
-      spacing: 6,
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          title,
-          style: TextStyle(
-            fontSize: 20,
-            fontWeight: FontWeight.bold,
-            color: colors.onSurface,
-          ),
+Widget _buildSectionTitle(String title, String subtitle) {
+  final colors = custom_colors.colorScheme;
+  return Column(
+    spacing: 6,
+    crossAxisAlignment: CrossAxisAlignment.start,
+    children: [
+      Text(
+        title,
+        style: TextStyle(
+          fontSize: 20,
+          fontWeight: FontWeight.bold,
+          color: colors.onSurface,
         ),
-        Text(
-          subtitle,
-          style: TextStyle(
-            fontSize: 14,
-            color: colors.onSurfaceVariant,
-          ),
-        ),
-      ],
-    );
-  }
+      ),
+      Text(
+        subtitle,
+        style: TextStyle(fontSize: 14, color: colors.onSurfaceVariant),
+      ),
+    ],
+  );
+}
