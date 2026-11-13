@@ -101,12 +101,12 @@ class _PersonRegistrationState1 extends State<PersonRegistration> {
           },
         ),
 
-       SelectionField<Address>(
-         label: 'Endereço',
-           iconeLabel: Icons.home_outlined,
+        SelectionField<Address>(
+          label: 'Endereço',
+          iconeLabel: Icons.home_outlined,
           itens: _enderecos,
           tituloItem: (endereco) =>
-           '${endereco.publicPlace}, ${endereco.number} - ${endereco.city}/${endereco.uf.name}',
+              '${endereco.publicPlace}, ${endereco.number} - ${endereco.city}/${endereco.uf.name}',
           textoVazio: 'Nenhum endereço adicionado.',
           permitirExclusao: true,
           onPressed: () async {
@@ -127,9 +127,8 @@ class _PersonRegistrationState1 extends State<PersonRegistration> {
             final enderecoEditado = await Navigator.push<Address>(
               context,
               MaterialPageRoute(
-                builder: (context) => PersonRegistrationAddress(
-                  enderecoInicial: endereco,
-                ),
+                builder: (context) =>
+                    PersonRegistrationAddress(enderecoInicial: endereco),
               ),
             );
 
@@ -171,9 +170,8 @@ class _PersonRegistrationState1 extends State<PersonRegistration> {
             final resultadoContato = await Navigator.push<Contact>(
               context,
               MaterialPageRoute(
-                builder: (context) => PersonRegistrationContact(
-                  contatoInicial: _contato,
-                ),
+                builder: (context) =>
+                    PersonRegistrationContact(contatoInicial: _contato),
               ),
             );
 
@@ -187,9 +185,8 @@ class _PersonRegistrationState1 extends State<PersonRegistration> {
             final contatoEditado = await Navigator.push<Contact>(
               context,
               MaterialPageRoute(
-                builder: (context) => PersonRegistrationContact( 
-                  contatoInicial: contato,
-                ),
+                builder: (context) =>
+                    PersonRegistrationContact(contatoInicial: contato),
               ),
             );
 
@@ -202,7 +199,7 @@ class _PersonRegistrationState1 extends State<PersonRegistration> {
           onDelete: (contato, index) {
             final contatoRemovido = _contato;
             setState(() {
-              _contato = null; 
+              _contato = null;
             });
 
             ScaffoldMessenger.of(context).showSnackBar(
@@ -221,7 +218,6 @@ class _PersonRegistrationState1 extends State<PersonRegistration> {
           },
         ),
 
-
         FormFieldLabel(
           icon: Icons.badge_outlined,
           label: _isPessoaFisica ? "CPF *" : "CNPJ *",
@@ -231,9 +227,7 @@ class _PersonRegistrationState1 extends State<PersonRegistration> {
           key: ValueKey(_isPessoaFisica),
           controller: _documentoController,
           decoration: customInputDecoration(
-            hintText: _isPessoaFisica
-                ? "000.000.000-00"
-                : "00.000.000/0000-00",
+            hintText: _isPessoaFisica ? "000.000.000-00" : "00.000.000/0000-00",
           ),
           keyboardType: TextInputType.number,
           inputFormatters: [_isPessoaFisica ? _cpfFormatter : _cnpjFormatter],
@@ -287,15 +281,15 @@ class _PersonRegistrationState1 extends State<PersonRegistration> {
     );
 
     try {
-      final id = await _service.cadastrar(cliente, _enderecos);
+      await _service.cadastrar(cliente, _enderecos);
 
       if (!mounted) return;
 
       if (widget.retornarDadosAoFechar) {
         Navigator.pop(context, {
           'id': cliente.id,
-          'nome': cliente.name,
-          'telefone': cliente.contact.phone,
+          'name': cliente.name,
+          'phone': cliente.contact.phone,
         });
       } else {
         Navigator.pushAndRemoveUntil(
