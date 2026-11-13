@@ -186,53 +186,77 @@ class _OsServicosTabState extends State<OsServicosTab> {
     return Stack(
       children: [
         SafeArea(
-          child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
-            child: Column(
-              children: [
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text(
-                      'Subtotal de serviços',
-                      style: TextStyle(
-                        color: colors.onSurface,
-                        fontSize: 20,
-                        fontWeight: FontWeight.bold,
-                      ),
+          child: SingleChildScrollView(
+            padding: const EdgeInsets.fromLTRB(16, 18, 16, 90),
+            child: Center(
+              child: ConstrainedBox(
+                constraints: const BoxConstraints(maxWidth: 650),
+                // Card externo: mesmo estilo do card da aba "Dados".
+                child: SizedBox(
+                  width: double.infinity,
+                  child: Card(
+                    color: Colors.white,
+                    elevation: 8,
+                    shadowColor: Colors.black26,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(22),
                     ),
-                    Text(
-                      _formatar(_subtotal.centavos),
-                      style: TextStyle(
-                        color: Colors.blueGrey.shade600,
-                        fontSize: 18,
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 20),
-                Expanded(
-                  child: listaAtual.isEmpty
-                      ? Center(
-                          child: Text(
-                            'Nenhum serviço adicionado',
-                            style: TextStyle(
-                              color: colors.onSurfaceVariant,
-                              fontSize: 16,
-                            ),
+                    child: Padding(
+                      padding: const EdgeInsets.all(16),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Text(
+                                'Subtotal de serviços',
+                                style: TextStyle(
+                                  color: colors.onSurface,
+                                  fontSize: 20,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                              Text(
+                                _formatar(_subtotal.centavos),
+                                style: TextStyle(
+                                  color: Colors.blueGrey.shade600,
+                                  fontSize: 18,
+                                  fontWeight: FontWeight.w600,
+                                ),
+                              ),
+                            ],
                           ),
-                        )
-                      : ListView.separated(
-                          padding: const EdgeInsets.only(bottom: 80),
-                          itemCount: listaAtual.length,
-                          separatorBuilder: (context, index) =>
-                              const SizedBox(height: 12),
-                          itemBuilder: (context, index) =>
-                              _buildServiceCard(listaAtual[index]),
-                        ),
+                          const SizedBox(height: 20),
+                          if (listaAtual.isEmpty)
+                            Padding(
+                              padding: const EdgeInsets.symmetric(vertical: 24),
+                              child: Center(
+                                child: Text(
+                                  'Nenhum serviço adicionado',
+                                  style: TextStyle(
+                                    color: colors.onSurfaceVariant,
+                                    fontSize: 16,
+                                  ),
+                                ),
+                              ),
+                            )
+                          else
+                            ListView.separated(
+                              shrinkWrap: true,
+                              physics: const NeverScrollableScrollPhysics(),
+                              itemCount: listaAtual.length,
+                              separatorBuilder: (context, index) =>
+                                  const SizedBox(height: 12),
+                              itemBuilder: (context, index) =>
+                                  _buildServiceCard(listaAtual[index]),
+                            ),
+                        ],
+                      ),
+                    ),
+                  ),
                 ),
-              ],
+              ),
             ),
           ),
         ),
