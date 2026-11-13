@@ -341,7 +341,7 @@ class _OsServicosTabState extends State<OsServicosTab> {
         width: double.infinity,
         padding: const EdgeInsets.all(14),
         decoration: BoxDecoration(
-          color: colors.surfaceContainer,
+          color: colors.surfaceContainerHigh,
           borderRadius: BorderRadius.circular(18),
         ),
         child: Column(
@@ -350,7 +350,7 @@ class _OsServicosTabState extends State<OsServicosTab> {
             Text(
               servico['nome'] as String,
               style: TextStyle(
-                color: colors.onSurface,
+                color: Colors.blueGrey.shade600,
                 fontWeight: FontWeight.bold,
                 fontSize: 18,
               ),
@@ -369,7 +369,7 @@ class _OsServicosTabState extends State<OsServicosTab> {
             Text(
               _formatar(preco),
               style: TextStyle(
-                color: Colors.blueGrey.shade600,
+                color: colors.onSurfaceVariant,
                 fontWeight: FontWeight.bold,
                 fontSize: 17,
               ),
