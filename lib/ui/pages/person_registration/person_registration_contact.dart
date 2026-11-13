@@ -90,7 +90,7 @@ class _PersonRegistration3State extends State<PersonRegistrationContact> {
 
         TextFormField(
           controller: _telefoneController,
-          decoration: customInputDecoration(hintText: "(44) 98765-4321"),
+          decoration: customInputDecoration(hintText: "(44) 99999-9999"),
           inputFormatters: [_phoneFormatter],
           keyboardType: TextInputType.phone,
           validator: (value) {
@@ -133,7 +133,7 @@ class _PersonRegistration3State extends State<PersonRegistrationContact> {
 
         TextFormField(
           controller: _setorController,
-          decoration: customInputDecoration(hintText: "Financeiro, Compras..."),
+          decoration: customInputDecoration(hintText: "Exemplo: Financeiro, Compras..."),
           maxLength: 50,
         ),
 
@@ -145,7 +145,7 @@ class _PersonRegistration3State extends State<PersonRegistrationContact> {
           maxLength: 255,
           keyboardType: TextInputType.multiline,
           decoration: customInputDecoration(
-            hintText: "Digite observações relevantes aqui...",
+            hintText: "Digite observações relevantes aqui",
           ),
         ),
 
