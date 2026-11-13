@@ -21,6 +21,10 @@ class Service {
   }
 
   Map<String, dynamic> toMap() {
-    return {'name': name, 'description': description, 'value_in_cents': valueInCents};
+    return {
+      'name': name,
+      'description': description,
+      'value_in_cents': valueInCents,
+    };
   }
 }
