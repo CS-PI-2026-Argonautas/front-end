@@ -47,17 +47,12 @@ class ItemService {
       throw ArgumentError('Item name is required.');
     }
 
-    if (item.description != null &&
-        item.description!.length > 50) {
-      throw ArgumentError(
-        'Item description cannot exceed 50 characters.',
-      );
+    if (item.description != null && item.description!.length > 50) {
+      throw ArgumentError('Item description cannot exceed 50 characters.');
     }
 
     if (item.valueInCents < 0) {
-      throw ArgumentError(
-        'Item value cannot be negative.',
-      );
+      throw ArgumentError('Item value cannot be negative.');
     }
   }
 }
