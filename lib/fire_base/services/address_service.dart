@@ -25,9 +25,8 @@ class AddressService {
     return _repository.excluir(clientId, addressId);
   }
 
-  void _validate(Address address) {
-    if (address.publicPlace.trim().isEmpty ||
-        address.city.trim().isEmpty) {
+  void _validate(Address endereco) {
+    if (endereco.publicPlace.trim().isEmpty || endereco.city.trim().isEmpty) {
       throw ArgumentError('Logradouro e cidade são obrigatórios.');
     }
   }

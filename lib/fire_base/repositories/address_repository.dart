@@ -15,7 +15,10 @@ class AddressRepository {
     FirebaseFirestore db,
     String clienteId,
   ) {
-    return db.collection(colecaoClientes).doc(clienteId).collection(subcolecaoEnderecos);
+    return db
+        .collection(colecaoClientes)
+        .doc(clienteId)
+        .collection(subcolecaoEnderecos);
   }
 
   CollectionReference<Map<String, dynamic>> _col(String clienteId) =>
