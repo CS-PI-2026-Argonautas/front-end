@@ -1,12 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:frontend/ui/style/ColorScheme.dart' as custom_colors;
 import 'package:frontend/fire_base/models/dinheiro.dart';
+import 'package:frontend/fire_base/models/os.dart';
 
 class ValuesOs extends StatefulWidget {
+  final ServiceOrder serviceOrder;
   final VoidCallback? onConcluir;
 
   const ValuesOs({
     super.key,
+    required this.serviceOrder,
     this.onConcluir,
   });
 

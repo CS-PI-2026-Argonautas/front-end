@@ -1,8 +1,10 @@
+
 import 'package:flutter/material.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
 
 import 'package:frontend/fire_base/Enums/ProductType.dart';
 import 'package:frontend/fire_base/models/item.dart';
+import 'package:frontend/fire_base/models/os.dart';
 import 'package:frontend/fire_base/repositories/item_repository.dart';
 import 'package:frontend/fire_base/services/item_service.dart';
 
@@ -13,7 +15,12 @@ import 'package:frontend/ui/style/inputDecorationStyles.dart';
 import 'package:frontend/ui/widgets/bottom_sheet/bottom_sheet.dart';
 
 class TollsOs extends StatefulWidget {
-  const TollsOs({super.key});
+  final ServiceOrder serviceOrder;
+
+  const TollsOs({
+    super.key,
+    required this.serviceOrder,
+  });
 
   @override
   State<TollsOs> createState() => TollsOsState();
@@ -27,23 +34,27 @@ class TollsOsState extends State<TollsOs>
     ItemRepository(),
   );
 
-  final List<Map<String, dynamic>> orderParts = [];
+  ServiceOrder get _os => widget.serviceOrder;
+List<Map<String, dynamic>> get orderParts {
+  return _os.parts.map((part) {
+    return {
+      'id': part.partId,
+      'name': part.name,
+      'price': part.unitPriceCents,
+      'quantity': part.quantity,
+    };
+  }).toList();
+}
 
-  @override
-  bool get wantKeepAlive => true;
+@override
+bool get wantKeepAlive => true;
 
-  int _calculateSubtotal() {
-    int subtotal = 0;
-
-    for (final part in orderParts) {
-      final int quantity = part['quantity'] as int;
-      final int priceInCents = part['price'] as int;
-
-      subtotal += quantity * priceInCents;
-    }
-
-    return subtotal;
-  }
+int _calculateSubtotal() {
+  return _os.parts.fold<int>(
+    0,
+    (total, part) => total + part.subtotalCents,
+  );
+}
 
   String _formatPrice(int cents) {
     final int reais = cents ~/ 100;
@@ -120,6 +131,7 @@ class TollsOsState extends State<TollsOs>
     super.build(context);
 
     final int subtotal = _calculateSubtotal();
+    final parts = orderParts;
 
     return Scaffold(
       backgroundColor: colors.surface,
@@ -154,7 +166,7 @@ class TollsOsState extends State<TollsOs>
               ),
               const SizedBox(height: 20),
               Expanded(
-                child: orderParts.isEmpty
+                child: parts.isEmpty
                     ? Center(
                         child: Text(
                           'Nenhuma peça adicionada',
@@ -165,13 +177,13 @@ class TollsOsState extends State<TollsOs>
                         ),
                       )
                     : ListView.separated(
-                        itemCount: orderParts.length,
+                        itemCount: parts.length,
                         separatorBuilder: (context, index) {
                           return const SizedBox(height: 12);
                         },
                         itemBuilder: (context, index) {
                           return _buildPartCard(
-                            orderParts[index],
+                            parts[index],
                             index,
                           );
                         },
@@ -212,8 +224,7 @@ class TollsOsState extends State<TollsOs>
               );
             }
 
-            if (snapshot.connectionState ==
-                ConnectionState.waiting) {
+            if (snapshot.connectionState == ConnectionState.waiting) {
               return const Center(
                 child: CircularProgressIndicator(),
               );
@@ -237,8 +248,8 @@ class TollsOsState extends State<TollsOs>
                 _showDeleteConfirmation(part);
               },
               onSelect: (part) {
-                final bool alreadyAdded = orderParts.any(
-                  (item) => item['id'] == part.id,
+                final bool alreadyAdded = _os.parts.any(
+                  (item) => item.partId == part.id,
                 );
 
                 if (alreadyAdded) {
@@ -270,9 +281,7 @@ class TollsOsState extends State<TollsOs>
       context: context,
       builder: (dialogContext) {
         return AlertDialog(
-          title: const Text(
-            'Peça já adicionada',
-          ),
+          title: const Text('Peça já adicionada'),
           content: Text(
             'A peça "${part.name}" já está adicionada nesta OS.',
           ),
@@ -287,58 +296,53 @@ class TollsOsState extends State<TollsOs>
         );
       },
     );
+  }void _addPart(Item part) {
+  if (part.id == null) {
+    _showMessage('Essa peça não possui um identificador válido.');
+    return;
   }
 
-  void _addPart(Item part) {
-    setState(() {
-      orderParts.add({
-        'id': part.id,
-        'name': part.name,
-        'price': part.valueInCents,
-        'quantity': 1,
-      });
-    });
+  setState(() {
+    _os.parts.add(
+      ServiceOrderPart(
+        partId: part.id!,
+        name: part.name,
+        quantity: 1,
+        unitPriceCents: part.valueInCents,
+        discountCents: 0,
+      ),
+    );
+  });
+}
+
+void _increaseQuantity(int index) {
+  final part = _os.parts[index];
+
+  setState(() {
+    _os.parts[index] = part.withQuantity(part.quantity + 1);
+  });
+}
+
+void _decreaseQuantity(int index) {
+  final part = _os.parts[index];
+
+  if (part.quantity <= 1) {
+    return;
   }
 
-  void _increaseQuantity(int index) {
-    setState(() {
-      orderParts[index]['quantity'] =
-          (orderParts[index]['quantity'] as int) + 1;
-    });
-  }
-
-  void _decreaseQuantity(int index) {
-    final int quantity =
-        orderParts[index]['quantity'] as int;
-
-    if (quantity <= 1) {
-      return;
-    }
-
-    setState(() {
-      orderParts[index]['quantity'] = quantity - 1;
-    });
-  }
+  setState(() {
+    _os.parts[index] = part.withQuantity(part.quantity - 1);
+  });
+}
 
   void _removePart(int index) {
     setState(() {
-      orderParts.removeAt(index);
+      _os.parts.removeAt(index);
     });
   }
 
   Future<void> _updateItem(Item updatedItem) async {
     await _itemService.update(updatedItem);
-
-    if (!mounted) return;
-
-    setState(() {
-      for (final part in orderParts) {
-        if (part['id'] == updatedItem.id) {
-          part['name'] = updatedItem.name;
-          part['price'] = updatedItem.valueInCents;
-        }
-      }
-    });
   }
 
   Future<void> _showEditItemSheet(Item item) async {
@@ -358,20 +362,13 @@ class TollsOsState extends State<TollsOs>
   }
 
   Future<void> _showDeleteConfirmation(Item item) async {
-    final bool inOrder = orderParts.any(
-      (part) => part['id'] == item.id,
-    );
-
     final bool confirmed = await showDialog<bool>(
           context: context,
           builder: (dialogContext) {
             return AlertDialog(
               title: const Text('Excluir peça'),
               content: Text(
-                inOrder
-                    ? 'Deseja excluir "${item.name}"? '
-                        'Ela também será removida desta OS.'
-                    : 'Deseja excluir "${item.name}"?',
+                'Deseja excluir "${item.name}" do catálogo?',
               ),
               actions: [
                 TextButton(
@@ -404,13 +401,7 @@ class TollsOsState extends State<TollsOs>
 
       if (!mounted) return;
 
-      setState(() {
-        orderParts.removeWhere(
-          (part) => part['id'] == item.id,
-        );
-      });
-
-      _showMessage('Peça excluída com sucesso.');
+      _showMessage('Peça excluída do catálogo com sucesso.');
     } catch (e) {
       debugPrint('Erro ao excluir peça: $e');
 
@@ -450,7 +441,6 @@ class TollsOsState extends State<TollsOs>
         padding: const EdgeInsets.all(14),
         decoration: BoxDecoration(
           color: colors.surfaceContainer,
-
           borderRadius: BorderRadius.circular(18),
         ),
         child: Row(
@@ -527,6 +517,7 @@ class TollsOsState extends State<TollsOs>
     );
   }
 }
+
 class _EditItemSheet extends StatefulWidget {
   final Item item;
   final String Function(int cents) formatPrice;
@@ -714,14 +705,12 @@ class _EditItemSheetState extends State<_EditItemSheet> {
                   _buildLabel('Nome'),
                   TextFormField(
                     controller: _nameController,
-                    textCapitalization:
-                        TextCapitalization.sentences,
+                    textCapitalization: TextCapitalization.sentences,
                     decoration: customInputDecoration(
                       hintText: 'Nome da peça',
                     ),
                     validator: (value) {
-                      if (value == null ||
-                          value.trim().isEmpty) {
+                      if (value == null || value.trim().isEmpty) {
                         return 'Informe o nome.';
                       }
 
@@ -732,8 +721,7 @@ class _EditItemSheetState extends State<_EditItemSheet> {
                   TextFormField(
                     controller: _descriptionController,
                     maxLength: 50,
-                    textCapitalization:
-                        TextCapitalization.sentences,
+                    textCapitalization: TextCapitalization.sentences,
                     decoration: customInputDecoration(
                       hintText: 'Descrição (opcional)',
                     ).copyWith(
@@ -825,16 +813,13 @@ class _EditItemSheetState extends State<_EditItemSheet> {
                         elevation: 3,
                         backgroundColor: colors.primary,
                         foregroundColor: colors.onSecondary,
-                        disabledBackgroundColor:
-                            Colors.grey.shade300,
-                        disabledForegroundColor:
-                            Colors.grey.shade600,
+                        disabledBackgroundColor: Colors.grey.shade300,
+                        disabledForegroundColor: Colors.grey.shade600,
                         padding: const EdgeInsets.symmetric(
                           vertical: 16,
                         ),
                         shape: RoundedRectangleBorder(
-                          borderRadius:
-                              BorderRadius.circular(14),
+                          borderRadius: BorderRadius.circular(14),
                         ),
                       ),
                     ),

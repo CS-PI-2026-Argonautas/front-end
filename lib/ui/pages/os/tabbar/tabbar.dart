@@ -1,3 +1,4 @@
+
 import 'package:flutter/material.dart';
 import 'package:frontend/fire_base/Enums/StatusOrderService.dart';
 import 'package:frontend/fire_base/models/os.dart';
@@ -10,13 +11,17 @@ import 'package:frontend/ui/style/ColorScheme.dart' as custom_colors;
 class Tabbar extends StatefulWidget {
   final dynamic serviceOrderNumber;
 
-  const Tabbar({super.key, required this.serviceOrderNumber});
+  const Tabbar({
+    super.key,
+    required this.serviceOrderNumber,
+  });
 
   @override
   State<Tabbar> createState() => _TabbarState();
 }
 
-class _TabbarState extends State<Tabbar> with SingleTickerProviderStateMixin {
+class _TabbarState extends State<Tabbar>
+    with SingleTickerProviderStateMixin {
   final colors = custom_colors.colorScheme;
 
   late final TabController _tabController;
@@ -29,7 +34,11 @@ class _TabbarState extends State<Tabbar> with SingleTickerProviderStateMixin {
     super.initState();
 
     _serviceOrder = ServiceOrder.createNew();
-    _tabController = TabController(length: 4, vsync: this);
+
+    _tabController = TabController(
+      length: 4,
+      vsync: this,
+    );
   }
 
   @override
@@ -39,13 +48,21 @@ class _TabbarState extends State<Tabbar> with SingleTickerProviderStateMixin {
   }
 
   void _concluirOs() {
-    setState(() => _serviceOrder.changeStatus(ServiceOrderStatus.CONCLUIDA));
+    setState(() {
+      _serviceOrder.changeStatus(
+        ServiceOrderStatus.CONCLUIDA,
+      );
+    });
   }
 
   void _atualizarDadosObrigatorios(bool preenchidos) {
-    if (_dadosObrigatoriosPreenchidos == preenchidos) return;
+    if (_dadosObrigatoriosPreenchidos == preenchidos) {
+      return;
+    }
 
-    setState(() => _dadosObrigatoriosPreenchidos = preenchidos);
+    setState(() {
+      _dadosObrigatoriosPreenchidos = preenchidos;
+    });
   }
 
   @override
@@ -58,10 +75,12 @@ class _TabbarState extends State<Tabbar> with SingleTickerProviderStateMixin {
         centerTitle: true,
         elevation: 8,
         shadowColor: Colors.black.withOpacity(0.5),
+
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
           onPressed: () => Navigator.pop(context),
         ),
+
         title: Text(
           'OS nº ${widget.serviceOrderNumber}',
           style: const TextStyle(
@@ -70,21 +89,27 @@ class _TabbarState extends State<Tabbar> with SingleTickerProviderStateMixin {
             fontSize: 20,
           ),
         ),
+
         flexibleSpace: Container(
           decoration: BoxDecoration(
             gradient: LinearGradient(
-              colors: [colors.primary, colors.tertiary],
+              colors: [
+                colors.primary,
+                colors.tertiary,
+              ],
               begin: Alignment.centerLeft,
               end: Alignment.centerRight,
             ),
           ),
         ),
+
         bottom: TabBar(
           controller: _tabController,
           labelColor: Colors.white,
           unselectedLabelColor: Colors.white70,
           indicatorColor: Colors.white,
           indicatorWeight: 3,
+
           onTap: (index) {
             if (index != 0 && !_dadosObrigatoriosPreenchidos) {
               _tabController.animateTo(0);
@@ -99,29 +124,59 @@ class _TabbarState extends State<Tabbar> with SingleTickerProviderStateMixin {
               );
             }
           },
+
           tabs: const [
-            Tab(icon: Icon(Icons.description), text: 'Dados'),
-            Tab(icon: Icon(Icons.build), text: 'Peças'),
-            Tab(icon: Icon(Icons.handyman), text: 'Serviços'),
-            Tab(icon: Icon(Icons.attach_money), text: 'Valores'),
+            Tab(
+              icon: Icon(Icons.description),
+              text: 'Dados',
+            ),
+            Tab(
+              icon: Icon(Icons.build),
+              text: 'Peças',
+            ),
+            Tab(
+              icon: Icon(Icons.handyman),
+              text: 'Serviços',
+            ),
+            Tab(
+              icon: Icon(Icons.attach_money),
+              text: 'Valores',
+            ),
           ],
         ),
       ),
+
       body: TabBarView(
         controller: _tabController,
+
         physics: _dadosObrigatoriosPreenchidos
             ? const BouncingScrollPhysics()
             : const NeverScrollableScrollPhysics(),
+
         children: [
           DataOs(
             serviceOrder: _serviceOrder,
-            avancarTab: () => _tabController.animateTo(1),
+            avancarTab: () {
+              _tabController.animateTo(1);
+            },
             onDadosObrigatoriosChanged: _atualizarDadosObrigatorios,
-            onChanged: () => setState(() {}),
+            onChanged: () {
+              setState(() {});
+            },
           ),
-          TollsOs(),
-          OsServicosTab(),
-          ValuesOs(onConcluir: _concluirOs),
+
+          TollsOs(
+            serviceOrder: _serviceOrder,
+          ),
+
+          OsServicosTab(
+            serviceOrder: _serviceOrder,
+          ),
+
+          ValuesOs(
+            serviceOrder: _serviceOrder,
+            onConcluir: _concluirOs,
+          ),
         ],
       ),
     );

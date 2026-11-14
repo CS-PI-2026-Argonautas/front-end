@@ -8,15 +8,20 @@ import 'package:frontend/ui/widgets/bottom_sheet/bottom_sheet.dart';
 import 'package:frontend/ui/widgets/slidable/slidable_delete_card.dart';
 import 'package:frontend/ui/pages/os/tabs/service_registration.dart';
 import 'package:frontend/fire_base/services/service_service.dart';
-import 'package:frontend/fire_base/models/service.dart';
+import 'package:frontend/fire_base/models/os.dart';
+
 
 class OsServicosTab extends StatefulWidget {
-  const OsServicosTab({super.key});
+  final ServiceOrder serviceOrder;
+
+  const OsServicosTab({
+    super.key,
+    required this.serviceOrder,
+  });
 
   @override
   State<OsServicosTab> createState() => _OsServicosTabState();
 }
-
 class _OsServicosTabState extends State<OsServicosTab> {
   final colors = custom_colors.colorScheme;
 
