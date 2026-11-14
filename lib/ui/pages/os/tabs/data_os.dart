@@ -1,129 +1,78 @@
 import 'package:flutter/material.dart';
+import 'package:frontend/fire_base/Enums/StatusOrderService.dart';
 import 'package:frontend/fire_base/services/client_service.dart';
 import 'package:frontend/fire_base/services/address_service.dart';
 import 'package:frontend/fire_base/models/address.dart';
+import 'package:frontend/fire_base/models/client.dart';
+import 'package:frontend/fire_base/models/os.dart';
 import 'package:frontend/ui/pages/person_registration/person_registration_address.dart';
 import 'package:frontend/ui/style/ColorScheme.dart' as custom_colors;
 import 'package:frontend/ui/style/inputDecorationStyles.dart';
 import 'package:frontend/ui/widgets/bottom_sheet/bottom_sheet.dart';
 import 'package:frontend/ui/widgets/fields/equipment_field.dart';
-import 'package:frontend/ui/widgets/fields/selection_field.dart';
-import 'package:frontend/ui/widgets/form/labeled_form.dart';
 import 'package:frontend/ui/widgets/form/section_label.dart';
-import 'package:frontend/utils/formatters/address_formatter.dart';
 import 'package:frontend/ui/pages/person_registration/person_registration.dart';
-import 'package:frontend/ui/pages/stand_in_page.dart';
 import 'package:frontend/fire_base/models/equipment.dart';
 import 'package:frontend/fire_base/services/equipment_service.dart';
 import 'package:frontend/ui/pages/equipment_data/equipment_data.dart';
 
 class DataOs extends StatefulWidget {
-  final DateTime? dataEntrada;
-  final DateTime? dataSaida;
-  final String? status;
-  final String? relatorio;
-
-  final ValueChanged<DateTime>? onDataEntradaChanged;
-  final ValueChanged<String>? onStatusChanged;
-  final ValueChanged<String>? onRelatorioChanged;
-  final ValueChanged<DateTime>? onDataSaidaChanged;
-  final ValueChanged<bool> onDadosObrigatoriosChanged;
-
+  final ServiceOrder serviceOrder;
+  final VoidCallback? onChanged;
   final VoidCallback? avancarTab;
+  final ValueChanged<bool> onDadosObrigatoriosChanged;
 
   const DataOs({
     super.key,
-    this.dataEntrada,
-    this.dataSaida,
-    this.status,
-    this.relatorio,
-    this.onDataEntradaChanged,
-    this.onStatusChanged,
-    this.onRelatorioChanged,
-    this.onDataSaidaChanged,
-    this.avancarTab,
+    required this.serviceOrder,
     required this.onDadosObrigatoriosChanged,
+    this.onChanged,
+    this.avancarTab,
   });
 
   @override
   State<DataOs> createState() => _DataOsState();
 }
 
-class _DataOsState extends State<DataOs> {
-  Map<String, dynamic> _montarDadosOs() {
-    return {
-      'status': status,
-      'dataEntrada': dataEntrada,
-      'dataSaida': dataSaida,
-      'relatorio': relatorio,
-      'cliente': clienteSelecionado,
-      'endereco': _enderecoSelecionado,
-      'equipamento': _equipamentoSelecionado,
-    };
-  }
+class _DataOsState extends State<DataOs>
+    with AutomaticKeepAliveClientMixin<DataOs> {
+  @override
+  bool get wantKeepAlive => true;
 
-  final EquipmentService _equipamentoService = EquipmentService();
+  ServiceOrder get _os => widget.serviceOrder;
+
   final colors = custom_colors.colorScheme;
-
+  final EquipmentService _equipamentoService = EquipmentService();
   final AddressService _enderecoService = AddressService();
-  Address? _enderecoSelecionado;
-
   final ClientService _clienteService = ClientService();
-  List<Map<String, dynamic>> clientesDisponiveis = [];
-  Map<String, dynamic>? clienteSelecionado;
-
-  dynamic _equipamentoSelecionado;
-
-  bool get _formHabilitado => clienteSelecionado != null;
-
-  late DateTime dataEntrada;
-  DateTime? dataSaida;
-  late String status;
-  late String relatorio;
-
   final _relatorioController = TextEditingController();
 
-  bool get _formValido {
-    return clienteSelecionado != null &&
-        _enderecoSelecionado != null &&
-        _equipamentoSelecionado != null &&
-        relatorio.trim().isNotEmpty;
-  }
-
-  bool get _dadosObrigatoriosPreenchidos {
-    return clienteSelecionado != null &&
-        _enderecoSelecionado != null &&
-        _equipamentoSelecionado != null;
-  }
-
-  void _verificarDadosObrigatorios() {
-    widget.onDadosObrigatoriosChanged(_dadosObrigatoriosPreenchidos);
-  }
+  List<Client> clientesDisponiveis = [];
 
   static const editableStatuses = [
-    'CANCELADA',
-    'EM_CONSERTO',
-    'EM_ORCAMENTO',
-    'ENTREGUE',
-    'PAGA',
+    ServiceOrderStatus.CANCELADA,
+    ServiceOrderStatus.EM_CONSERTO,
+    ServiceOrderStatus.EM_ORCAMENTO,
+    ServiceOrderStatus.ENTREGUE,
+    ServiceOrderStatus.PAGA,
   ];
+
+  bool get _formHabilitado => _os.client != null;
+
+  bool get _formValido => _os.client != null && _os.serviceAddress != null;
+
+  bool get _equipamentoBloqueado => _os.equipmentBlocked;
+
+  void _notificar() {
+    widget.onDadosObrigatoriosChanged(_formValido);
+    widget.onChanged?.call();
+  }
 
   @override
   void initState() {
     super.initState();
-
-    dataEntrada = widget.dataEntrada ?? DateTime.now();
-    dataSaida = widget.dataSaida;
-
-    status = widget.status ?? 'EM_CONSERTO';
-
-    relatorio = widget.relatorio ?? '';
-    _relatorioController.text = relatorio;
-
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      _verificarDadosObrigatorios();
-    });
-
+    _relatorioController.text = _os.report;
+    WidgetsBinding.instance.addPostFrameCallback((_) => _notificar());
     _carregarClientes();
   }
 
@@ -133,35 +82,59 @@ class _DataOsState extends State<DataOs> {
     super.dispose();
   }
 
-  @override
-  void didUpdateWidget(covariant DataOs oldWidget) {
-    super.didUpdateWidget(oldWidget);
+  Map<String, dynamic> _montarDadosOs() {
+    return {
+      'status': _os.status.name,
+      'dataEntrada': _os.entryDate,
+      'dataSaida': _os.exitDate,
+      'relatorio': _os.report,
+      'cliente': _os.client?.toFirestore(),
+      'endereco': _os.serviceAddress?.toFirestore(),
+      'equipamento': _os.equipment?.toFirestore(),
+    };
+  }
 
-    if (widget.status != oldWidget.status && widget.status != null) {
-      setState(() {
-        status = widget.status!;
-      });
+  ServiceOrderEquipment _equipamentoDe(Object? dados) {
+    if (dados is ServiceOrderEquipment) return dados;
+
+    if (dados is Equipment) {
+      return ServiceOrderEquipment(
+        brand: dados.brand,
+        model: dados.model,
+        serialNumber: dados.serialNumber,
+      );
     }
+
+    return ServiceOrderEquipment.fromMap(
+      Map<String, dynamic>.from(dados as Map),
+    );
+  }
+
+  Map<String, dynamic>? get _equipamentoParaSecao {
+    final equipamento = _os.equipment;
+    if (equipamento == null || equipamento.isEmpty) return null;
+    return equipamento.toFirestore();
+  }
+
+  String _formatarEnderecoServico(ServiceAddress e) {
+    final numero = (e.number == null || e.number!.isEmpty)
+        ? ''
+        : ', ${e.number}';
+    final complemento = (e.complement == null || e.complement!.isEmpty)
+        ? ''
+        : ', ${e.complement}';
+
+    return '${e.street}$numero$complemento - ${e.city}/${e.state}';
   }
 
   bool _validarFormulario() {
-    if (clienteSelecionado == null) {
+    if (_os.client == null) {
       _mostrarErro('Selecione um cliente.');
       return false;
     }
 
-    if (_enderecoSelecionado == null) {
+    if (_os.serviceAddress == null) {
       _mostrarErro('Selecione um endereço.');
-      return false;
-    }
-
-    if (_equipamentoSelecionado == null) {
-      _mostrarErro('Selecione ou cadastre um equipamento.');
-      return false;
-    }
-
-    if (relatorio.trim().isEmpty) {
-      _mostrarErro('Preencha o relatório da ordem de serviço.');
       return false;
     }
 
@@ -180,11 +153,7 @@ class _DataOsState extends State<DataOs> {
 
       if (!mounted) return;
 
-      setState(() {
-        clientesDisponiveis = clientes.map((c) {
-          return {'id': c.id, 'name': c.name, 'phone': c.contact.phone};
-        }).toList();
-      });
+      setState(() => clientesDisponiveis = clientes);
     } catch (e) {
       debugPrint('Erro ao carregar clientes: $e');
 
@@ -194,7 +163,14 @@ class _DataOsState extends State<DataOs> {
     }
   }
 
-  Future<void> _abrirCadastroEquipamento([dynamic equipamentoInicial]) async {
+  void _selecionarCliente(Client cliente) {
+    setState(() => _os.setClient(cliente));
+    _notificar();
+  }
+
+  Future<void> _abrirCadastroEquipamento() async {
+    if (_equipamentoBloqueado) return;
+
     final resultado = await Navigator.push<dynamic>(
       context,
       MaterialPageRoute(
@@ -206,13 +182,14 @@ class _DataOsState extends State<DataOs> {
     );
 
     if (resultado != null && mounted) {
-      setState(() => _equipamentoSelecionado = resultado);
-
-      _verificarDadosObrigatorios();
+      setState(() => _os.equipment = _equipamentoDe(resultado));
+      _notificar();
     }
   }
 
   Future<void> _buscarEquipamento() async {
+    if (_equipamentoBloqueado) return;
+
     final List<Equipment> equipamentos;
 
     try {
@@ -243,23 +220,13 @@ class _DataOsState extends State<DataOs> {
           itemSubtitle: (e) => 'Nº série ${e.serialNumber}',
           itemIcon: Icons.scale_outlined,
           loading: false,
-
           onAction: () {
             Navigator.pop(sheetContext);
             _abrirCadastroEquipamento();
           },
-
           onSelect: (e) {
-            setState(() {
-              _equipamentoSelecionado = {
-                'id': e.id,
-                'marca': e.brand,
-                'modelo': e.model,
-              };
-            });
-
-            _verificarDadosObrigatorios();
-
+            setState(() => _os.equipment = _equipamentoDe(e));
+            _notificar();
             Navigator.pop(sheetContext);
           },
         );
@@ -316,7 +283,7 @@ class _DataOsState extends State<DataOs> {
   Future<void> _selecionarDataEntrada() async {
     final selecionada = await showDatePicker(
       context: context,
-      initialDate: dataEntrada,
+      initialDate: _os.entryDate,
       firstDate: DateTime(2000),
       lastDate: DateTime.now().add(const Duration(days: 365)),
       helpText: 'Selecione a data de entrada',
@@ -326,19 +293,14 @@ class _DataOsState extends State<DataOs> {
 
     if (selecionada == null) return;
 
-    setState(() {
-      dataEntrada = selecionada;
-    });
-
-    widget.onDataEntradaChanged?.call(selecionada);
+    setState(() => _os.entryDate = selecionada);
+    widget.onChanged?.call();
   }
 
   Future<void> _alterarDataSaida() async {
-    final dataInicial = dataSaida ?? DateTime.now();
-
     final selecionada = await showDatePicker(
       context: context,
-      initialDate: dataInicial,
+      initialDate: _os.exitDate ?? DateTime.now(),
       firstDate: DateTime(2000),
       lastDate: DateTime.now().add(const Duration(days: 365)),
       helpText: 'Alterar data de saída',
@@ -348,24 +310,16 @@ class _DataOsState extends State<DataOs> {
 
     if (selecionada == null) return;
 
-    setState(() {
-      dataSaida = selecionada;
-    });
-
-    widget.onDataSaidaChanged?.call(selecionada);
+    setState(() => _os.exitDate = selecionada);
+    widget.onChanged?.call();
 
     if (mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Data de saída alterada com sucesso.'),
-          behavior: SnackBarBehavior.floating,
-        ),
-      );
+      _mostrarErro('Data de saída alterada com sucesso.');
     }
   }
 
   Future<void> _editarRelatorio() async {
-    _relatorioController.text = relatorio;
+    _relatorioController.text = _os.report;
 
     await showModalBottomSheet(
       context: context,
@@ -428,7 +382,7 @@ class _DataOsState extends State<DataOs> {
                         controller: _relatorioController,
                         autofocus: true,
                         maxLines: 7,
-                        maxLength: 256,
+                        maxLength: ServiceOrder.reportLimit,
                         textCapitalization: TextCapitalization.sentences,
                         decoration:
                             customInputDecoration(
@@ -441,12 +395,8 @@ class _DataOsState extends State<DataOs> {
                             ),
                         onChanged: (value) {
                           setModalState(() {});
-
-                          setState(() {
-                            relatorio = value;
-                          });
-
-                          widget.onRelatorioChanged?.call(value);
+                          setState(() => _os.report = value);
+                          widget.onChanged?.call();
                         },
                       ),
                       SizedBox(
@@ -488,134 +438,122 @@ class _DataOsState extends State<DataOs> {
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
       ),
-      builder: (context) {
-        return SelectionBottomSheet<Map<String, dynamic>>(
+      builder: (sheetContext) {
+        return SelectionBottomSheet<Client>(
           title: 'Selecionar cliente',
           items: clientesDisponiveis,
           searchText: 'Procurar cliente',
           actionText: 'Novo cliente',
-          itemTitle: (cliente) => cliente['name'].toString(),
-          itemSubtitle: (cliente) => cliente['phone'].toString(),
+          itemTitle: (c) => c.name,
+          itemSubtitle: (c) => c.contact.phone,
           itemIcon: Icons.person_outline,
           loading: false,
           onAction: () async {
-            Navigator.pop(context);
+            Navigator.pop(sheetContext);
 
-            final novoCliente = await Navigator.push<Map<String, dynamic>>(
+            final retorno = await Navigator.push<dynamic>(
               context,
               MaterialPageRoute(
-                builder: (context) =>
+                builder: (_) =>
                     const PersonRegistration(retornarDadosAoFechar: true),
               ),
             );
 
-            if (novoCliente != null) {
-              setState(() {
-                clientesDisponiveis.add(novoCliente);
-                clienteSelecionado = novoCliente;
-                _enderecoSelecionado = null;
-              });
-              _verificarDadosObrigatorios();
-            }
-          },
-          onSelect: (cliente) {
-            setState(() {
-              clienteSelecionado = cliente;
-              _enderecoSelecionado = null;
-            });
+            if (retorno == null || !mounted) return;
 
-            _verificarDadosObrigatorios();
-
-            Navigator.pop(context);
-          },
-        );
-      },
-    );
-  }
-
-  Future<void> _abrirListaEnderecos() async {
-    final List<Address> enderecos;
-
-    try {
-      enderecos = await _enderecoService.getByClientId(
-        clienteSelecionado!['id'].toString(),
-      );
-    } catch (e) {
-      if (!mounted) return;
-
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Não foi possível carregar os endereços.'),
-          behavior: SnackBarBehavior.floating,
-        ),
-      );
-
-      return;
-    }
-
-    if (!mounted) return;
-
-    showModalBottomSheet(
-      context: context,
-      backgroundColor: colors.surfaceContainer,
-      isScrollControlled: true,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
-      ),
-      builder: (context) {
-        return SelectionBottomSheet<Address>(
-          title: 'Selecionar endereço',
-          items: enderecos,
-          searchText: 'Procurar endereço',
-          actionText: 'Novo endereço',
-          itemTitle: (endereco) =>
-              '${endereco.publicPlace}, ${endereco.number}, '
-              '${endereco.complement}',
-          itemSubtitle: (endereco) =>
-              '${endereco.city} - ${endereco.uf.name}'
-              '${endereco.zipCode.isEmpty ? '' : ' • CEP ${endereco.zipCode}'}',
-          itemIcon: Icons.location_on_outlined,
-          loading: false,
-          onAction: () async {
-            Navigator.pop(context);
-
-            final novo = await Navigator.push<Address>(
-              context,
-              MaterialPageRoute(
-                builder: (_) => const PersonRegistrationAddress(),
-              ),
-            );
-
-            if (novo == null) return;
-            final salvo = await _enderecoService.save(
-              clienteSelecionado!['id'].toString(),
-              novo,
-            );
+            await _carregarClientes();
 
             if (!mounted) return;
 
-            setState(() {
-              _enderecoSelecionado = novo;
-            });
+            final idNovo = retorno is Client
+                ? retorno.id
+                : (retorno is Map ? retorno['id']?.toString() : null);
 
-            _verificarDadosObrigatorios();
+            if (idNovo == null) return;
+
+            for (final c in clientesDisponiveis) {
+              if (c.id == idNovo) {
+                _selecionarCliente(c);
+                break;
+              }
+            }
           },
-          onSelect: (endereco) {
-            setState(() {
-              _enderecoSelecionado = endereco;
-            });
-
-            _verificarDadosObrigatorios();
-
-            Navigator.pop(context);
+          onSelect: (c) {
+            _selecionarCliente(c);
+            Navigator.pop(sheetContext);
           },
         );
       },
     );
   }
+Future<void> _abrirListaEnderecos() async {
+  final cliente = _os.client;
+  if (cliente == null) return;
 
+  final List<Address> enderecos;
+
+  try {
+    enderecos = await _enderecoService.getByClientId(cliente.id.toString());
+  } catch (e) {
+    if (!mounted) return;
+
+    _mostrarErro('Não foi possível carregar os endereços.');
+    return;
+  }
+
+  if (!mounted) return;
+
+  showModalBottomSheet(
+    context: context,
+    backgroundColor: colors.surfaceContainer,
+    isScrollControlled: true,
+    shape: const RoundedRectangleBorder(
+      borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+    ),
+    builder: (sheetContext) {
+      return SelectionBottomSheet<Address>(
+        title: 'Selecionar endereço',
+        items: enderecos,
+        searchText: 'Procurar endereço',
+        actionText: 'Novo endereço',
+        itemTitle: (e) => '${e.publicPlace}, ${e.number}, ${e.complement}',
+        itemSubtitle: (e) =>
+            '${e.city} - ${e.uf.name}'
+            '${e.zipCode.isEmpty ? '' : ' • CEP ${e.zipCode}'}',
+        itemIcon: Icons.location_on_outlined,
+        loading: false,
+        onAction: () async {
+          Navigator.pop(sheetContext);
+
+          final novo = await Navigator.push<Address>(
+            context,
+            MaterialPageRoute(
+              builder: (_) => const PersonRegistrationAddress(),
+            ),
+          );
+
+          if (novo == null) return;
+
+          await _enderecoService.save(cliente.id.toString(), novo);
+
+          if (!mounted) return;
+
+          setState(() => _os.setServiceAddress(novo));
+          _notificar();
+        },
+        onSelect: (e) {
+          setState(() => _os.setServiceAddress(e));
+          _notificar();
+          Navigator.pop(sheetContext);
+        },
+      );
+    },
+  );
+}
   @override
   Widget build(BuildContext context) {
+    super.build(context);
+
     return SingleChildScrollView(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 18),
       child: Center(
@@ -628,6 +566,8 @@ class _DataOsState extends State<DataOs> {
   }
 
   Widget _buildFormCard() {
+    final relatorio = _os.report;
+
     return Card(
       color: Colors.white,
       elevation: 8,
@@ -650,25 +590,26 @@ class _DataOsState extends State<DataOs> {
               icon: Icons.person_outline,
             ),
             _buildClienteSelecionado(),
-
             _buildClienteEnderecoLabel(
               'Endereço*',
-              onAdd: clienteSelecionado == null ? null : _abrirListaEnderecos,
+              onAdd: _os.client == null ? null : _abrirListaEnderecos,
               addLabel: 'Adicionar Endereço',
               icon: Icons.home_outlined,
             ),
             _buildEnderecoSelecionado(),
-
-            EquipmentSection(
-              equipamento: _equipamentoSelecionado,
-              onBuscar: _buscarEquipamento,
-              onOpenCadastro: () =>
-                  _abrirCadastroEquipamento(_equipamentoSelecionado),
-              onEdit: (equip) => _abrirCadastroEquipamento(equip),
+            Opacity(
+              opacity: _equipamentoBloqueado ? 0.5 : 1.0,
+              child: AbsorbPointer(
+                absorbing: _equipamentoBloqueado,
+                child: EquipmentSection(
+                  equipamento: _equipamentoParaSecao,
+                  onBuscar: _buscarEquipamento,
+                  onOpenCadastro: _abrirCadastroEquipamento,
+                  onEdit: (_) => _abrirCadastroEquipamento(),
+                ),
+              ),
             ),
-
             if (!_formHabilitado) _buildAvisoSelecioneCliente(),
-
             Opacity(
               opacity: _formHabilitado ? 1.0 : 0.4,
               child: AbsorbPointer(
@@ -713,7 +654,7 @@ class _DataOsState extends State<DataOs> {
                                             ),
                                       ),
                                   child: Text(
-                                    _formatDate(dataEntrada),
+                                    _formatDate(_os.entryDate),
                                     style: const TextStyle(fontSize: 14),
                                   ),
                                 ),
@@ -740,7 +681,7 @@ class _DataOsState extends State<DataOs> {
                                       ).copyWith(
                                         filled: true,
                                         fillColor: colors.surfaceContainerLow,
-                                        suffixIcon: dataSaida == null
+                                        suffixIcon: _os.exitDate == null
                                             ? Icon(
                                                 Icons.hourglass_empty,
                                                 color: Colors.blueGrey.shade400,
@@ -758,12 +699,12 @@ class _DataOsState extends State<DataOs> {
                                             ),
                                       ),
                                   child: Text(
-                                    dataSaida == null
+                                    _os.exitDate == null
                                         ? 'Indefinida'
-                                        : _formatDate(dataSaida),
+                                        : _formatDate(_os.exitDate),
                                     style: TextStyle(
                                       fontSize: 14,
-                                      color: dataSaida == null
+                                      color: _os.exitDate == null
                                           ? Colors.blueGrey.shade600
                                           : colors.onSurface,
                                     ),
@@ -775,7 +716,7 @@ class _DataOsState extends State<DataOs> {
                         ),
                       ],
                     ),
-                    if (dataSaida != null) ...[
+                    if (_os.exitDate != null) ...[
                       Row(
                         spacing: 6,
                         children: [
@@ -855,7 +796,7 @@ class _DataOsState extends State<DataOs> {
                       ),
                     ),
                     Text(
-                      '${relatorio.length}/256 caracteres',
+                      '${relatorio.length}/${ServiceOrder.reportLimit} caracteres',
                       style: TextStyle(
                         fontSize: 12,
                         color: colors.onSurfaceVariant,
@@ -867,8 +808,7 @@ class _DataOsState extends State<DataOs> {
                         onPressed: _formValido
                             ? () {
                                 if (!_validarFormulario()) return;
-
-                                DefaultTabController.of(context).animateTo(1);
+                                widget.avancarTab?.call();
                               }
                             : null,
                         icon: const Icon(Icons.build),
@@ -922,27 +862,28 @@ class _DataOsState extends State<DataOs> {
       children: [
         SectionLabel(icon: icon, text: text),
         const Spacer(),
-        if (onAdd != null || addLabel.isNotEmpty)
-          ElevatedButton.icon(
-            onPressed: onAdd,
-            icon: const Icon(Icons.add, size: 18),
-            label: Text(addLabel),
-            style: ElevatedButton.styleFrom(
-              backgroundColor: colors.secondary,
-              foregroundColor: Colors.white,
-              elevation: 0,
-              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(8),
-              ),
+        ElevatedButton.icon(
+          onPressed: onAdd,
+          icon: const Icon(Icons.add, size: 18),
+          label: Text(addLabel),
+          style: ElevatedButton.styleFrom(
+            backgroundColor: colors.secondary,
+            foregroundColor: Colors.white,
+            elevation: 0,
+            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(8),
             ),
           ),
+        ),
       ],
     );
   }
 
   Widget _buildClienteSelecionado() {
-    if (clienteSelecionado == null) {
+    final cliente = _os.client;
+
+    if (cliente == null) {
       return const SizedBox.shrink();
     }
 
@@ -970,7 +911,7 @@ class _DataOsState extends State<DataOs> {
                 ),
                 const SizedBox(height: 2),
                 Text(
-                  clienteSelecionado!['name'],
+                  cliente.name,
                   style: TextStyle(
                     color: colors.onSurface,
                     fontSize: 16,
@@ -991,7 +932,7 @@ class _DataOsState extends State<DataOs> {
   }
 
   Widget _buildEnderecoSelecionado() {
-    final endereco = _enderecoSelecionado;
+    final endereco = _os.serviceAddress;
 
     if (endereco == null) {
       return const SizedBox.shrink();
@@ -1021,7 +962,7 @@ class _DataOsState extends State<DataOs> {
                 ),
                 const SizedBox(height: 2),
                 Text(
-                  formatarEndereco(endereco),
+                  _formatarEnderecoServico(endereco),
                   style: TextStyle(
                     color: colors.onSurface,
                     fontSize: 16,
@@ -1103,7 +1044,9 @@ class _DataOsState extends State<DataOs> {
   }
 
   Widget _buildStatusField() {
-    if (status == 'CONCLUIDA') {
+    final status = _os.status;
+
+    if (!editableStatuses.contains(status)) {
       return InputDecorator(
         decoration: customInputDecoration(hintText: 'Status').copyWith(
           filled: true,
@@ -1120,13 +1063,13 @@ class _DataOsState extends State<DataOs> {
               width: 9,
               height: 9,
               decoration: BoxDecoration(
-                color: _statusColor(status),
+                color: _statusColor(status.name),
                 shape: BoxShape.circle,
               ),
             ),
             const SizedBox(width: 8),
             Text(
-              _statusLabel(status),
+              _statusLabel(status.name),
               style: TextStyle(
                 fontSize: 14,
                 color: colors.onSurface,
@@ -1138,23 +1081,24 @@ class _DataOsState extends State<DataOs> {
       );
     }
 
-    return DropdownButtonFormField<String>(
+    return DropdownButtonFormField<ServiceOrderStatus>(
       value: status,
       decoration: customInputDecoration(hintText: 'Selecione o status'),
       items: editableStatuses.map((value) {
-        final color = _statusColor(value);
-
-        return DropdownMenuItem<String>(
+        return DropdownMenuItem<ServiceOrderStatus>(
           value: value,
           child: Row(
             children: [
               Container(
                 width: 9,
                 height: 9,
-                decoration: BoxDecoration(color: color, shape: BoxShape.circle),
+                decoration: BoxDecoration(
+                  color: _statusColor(value.name),
+                  shape: BoxShape.circle,
+                ),
               ),
               const SizedBox(width: 6),
-              Text(_statusLabel(value)),
+              Text(_statusLabel(value.name)),
             ],
           ),
         );
@@ -1162,34 +1106,9 @@ class _DataOsState extends State<DataOs> {
       onChanged: (value) {
         if (value == null) return;
 
-        setState(() {
-          status = value;
-        });
-
-        widget.onStatusChanged?.call(value);
+        setState(() => _os.changeStatus(value));
+        widget.onChanged?.call();
       },
     );
   }
-}
-
-Widget _buildSectionTitle(String title, String subtitle) {
-  final colors = custom_colors.colorScheme;
-  return Column(
-    spacing: 6,
-    crossAxisAlignment: CrossAxisAlignment.start,
-    children: [
-      Text(
-        title,
-        style: TextStyle(
-          fontSize: 20,
-          fontWeight: FontWeight.bold,
-          color: colors.onSurface,
-        ),
-      ),
-      Text(
-        subtitle,
-        style: TextStyle(fontSize: 14, color: colors.onSurfaceVariant),
-      ),
-    ],
-  );
 }

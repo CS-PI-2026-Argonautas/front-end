@@ -21,7 +21,7 @@ class FirestoreOsRepository implements OsRepository {
   }) : _firestore = firestore ?? FirebaseFirestore.instance;
 
   CollectionReference<Map<String, dynamic>> get _colecao =>
-      _firestore.collection('ordens_servico');
+     _firestore.collection('service_orders');
 
   @override
   Future<void> salvar(ServiceOrder os) async {
