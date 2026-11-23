@@ -16,4 +16,9 @@ class AppUserRepository {
   Future<void> save(AppUser user) async {
     await _db.doc(user.uid).set(user);
   }
+
+  Future<AppUser?> findById(String uid) async {
+  final doc = await _db.doc(uid).get();
+  return doc.data();
+}
 }
