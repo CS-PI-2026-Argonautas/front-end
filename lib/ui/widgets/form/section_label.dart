@@ -6,11 +6,7 @@ class SectionLabel extends StatelessWidget {
   final IconData icon;
   final String text;
 
-  const SectionLabel({
-    super.key,
-    required this.icon,
-    required this.text,
-  });
+  const SectionLabel({super.key, required this.icon, required this.text});
 
   @override
   Widget build(BuildContext context) {
@@ -19,11 +15,7 @@ class SectionLabel extends StatelessWidget {
     return Row(
       spacing: 6,
       children: [
-        Icon(
-          icon,
-          size: 20,
-          color: colors.primary,
-        ),
+        Icon(icon, size: 20, color: colors.secondary),
         Text(
           text,
           style: TextStyle(

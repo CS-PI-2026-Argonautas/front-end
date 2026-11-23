@@ -7,7 +7,10 @@ import 'package:frontend/ui/style/ColorScheme.dart' as custom_colors;
 import 'package:frontend/ui/style/inputDecorationStyles.dart';
 import 'package:frontend/ui/widgets/bottom_sheet/bottom_sheet.dart';
 import 'package:frontend/ui/widgets/fields/equipment_field.dart';
-import 'package:frontend/utils/data_os/address_formatter.dart';
+import 'package:frontend/ui/widgets/fields/selection_field.dart';
+import 'package:frontend/ui/widgets/form/labeled_form.dart';
+import 'package:frontend/ui/widgets/form/section_label.dart';
+import 'package:frontend/utils/formatters/address_formatter.dart';
 import 'package:frontend/ui/pages/person_registration/person_registration.dart';
 import 'package:frontend/ui/pages/stand_in_page.dart';
 import 'package:frontend/fire_base/models/equipment.dart';
@@ -24,6 +27,7 @@ class DataOs extends StatefulWidget {
   final ValueChanged<String>? onStatusChanged;
   final ValueChanged<String>? onRelatorioChanged;
   final ValueChanged<DateTime>? onDataSaidaChanged;
+  final ValueChanged<bool> onDadosObrigatoriosChanged;
 
   final VoidCallback? avancarTab;
 
@@ -38,6 +42,7 @@ class DataOs extends StatefulWidget {
     this.onRelatorioChanged,
     this.onDataSaidaChanged,
     this.avancarTab,
+    required this.onDadosObrigatoriosChanged,
   });
 
   @override
@@ -85,6 +90,16 @@ class _DataOsState extends State<DataOs> {
         relatorio.trim().isNotEmpty;
   }
 
+  bool get _dadosObrigatoriosPreenchidos {
+    return clienteSelecionado != null &&
+        _enderecoSelecionado != null &&
+        _equipamentoSelecionado != null;
+  }
+
+  void _verificarDadosObrigatorios() {
+    widget.onDadosObrigatoriosChanged(_dadosObrigatoriosPreenchidos);
+  }
+
   static const editableStatuses = [
     'CANCELADA',
     'EM_CONSERTO',
@@ -104,6 +119,10 @@ class _DataOsState extends State<DataOs> {
 
     relatorio = widget.relatorio ?? '';
     _relatorioController.text = relatorio;
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _verificarDadosObrigatorios();
+    });
 
     _carregarClientes();
   }
@@ -188,6 +207,8 @@ class _DataOsState extends State<DataOs> {
 
     if (resultado != null && mounted) {
       setState(() => _equipamentoSelecionado = resultado);
+
+      _verificarDadosObrigatorios();
     }
   }
 
@@ -236,6 +257,8 @@ class _DataOsState extends State<DataOs> {
                 'modelo': e.model,
               };
             });
+
+            _verificarDadosObrigatorios();
 
             Navigator.pop(sheetContext);
           },
@@ -492,6 +515,7 @@ class _DataOsState extends State<DataOs> {
                 clienteSelecionado = novoCliente;
                 _enderecoSelecionado = null;
               });
+              _verificarDadosObrigatorios();
             }
           },
           onSelect: (cliente) {
@@ -499,6 +523,8 @@ class _DataOsState extends State<DataOs> {
               clienteSelecionado = cliente;
               _enderecoSelecionado = null;
             });
+
+            _verificarDadosObrigatorios();
 
             Navigator.pop(context);
           },
@@ -571,11 +597,15 @@ class _DataOsState extends State<DataOs> {
             setState(() {
               _enderecoSelecionado = novo;
             });
+
+            _verificarDadosObrigatorios();
           },
           onSelect: (endereco) {
             setState(() {
               _enderecoSelecionado = endereco;
             });
+
+            _verificarDadosObrigatorios();
 
             Navigator.pop(context);
           },
@@ -614,16 +644,18 @@ class _DataOsState extends State<DataOs> {
               'Insira os dados da ordem de serviço.',
             ),
             _buildClienteEnderecoLabel(
-              'Cliente *',
+              'Cliente*',
               onAdd: _abrirListaClientes,
-              addLabel: 'Adicionar cliente',
+              addLabel: 'Adicionar Cliente',
+              icon: Icons.person_outline,
             ),
             _buildClienteSelecionado(),
 
             _buildClienteEnderecoLabel(
-              'Endereço *',
+              'Endereço*',
               onAdd: clienteSelecionado == null ? null : _abrirListaEnderecos,
               addLabel: 'Adicionar Endereço',
+              icon: Icons.home_outlined,
             ),
             _buildEnderecoSelecionado(),
 
@@ -884,17 +916,11 @@ class _DataOsState extends State<DataOs> {
     String text, {
     VoidCallback? onAdd,
     String addLabel = 'Adicionar',
+    required IconData icon,
   }) {
     return Row(
       children: [
-        Text(
-          text,
-          style: TextStyle(
-            color: colors.onSurface,
-            fontSize: 18,
-            fontWeight: FontWeight.bold,
-          ),
-        ),
+        SectionLabel(icon: icon, text: text),
         const Spacer(),
         if (onAdd != null || addLabel.isNotEmpty)
           ElevatedButton.icon(

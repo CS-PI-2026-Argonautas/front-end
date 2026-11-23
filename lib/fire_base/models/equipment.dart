@@ -45,9 +45,7 @@ class Equipment {
     };
   }
 
-  factory Equipment.fromFirestore(
-    DocumentSnapshot<Map<String, dynamic>> doc,
-  ) {
+  factory Equipment.fromFirestore(DocumentSnapshot<Map<String, dynamic>> doc) {
     final data = doc.data() ?? {};
     return Equipment(
       id: doc.id,

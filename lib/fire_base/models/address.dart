@@ -5,12 +5,12 @@ import 'package:uuid/uuid.dart';
 class Address {
   final String id;
 
-  String zipCode; 
-  String publicPlace; 
+  String zipCode;
+  String publicPlace;
   String number;
-  String complement; 
-  String city; 
-  Uf uf; 
+  String complement;
+  String city;
+  Uf uf;
 
   Timestamp? createdAt;
   Timestamp? updatedAt;

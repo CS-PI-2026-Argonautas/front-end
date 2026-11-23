@@ -27,12 +27,27 @@ class _OsListPageState extends State<OsListPage> {
 
   late Future<List<WorkOrder>> _futureOrdemServicos;
 
+  final TextEditingController _searchController = TextEditingController();
+  String _searchQuery = '';
+
   final colors = custom_colors.colorScheme;
 
   @override
   void initState() {
     super.initState();
     _carregarOrdemServicos();
+
+    _searchController.addListener(() {
+      setState(() {
+        _searchQuery = _searchController.text.trim().toLowerCase();
+      });
+    });
+  }
+
+  @override
+  void dispose() {
+    _searchController.dispose();
+    super.dispose();
   }
 
   void _carregarOrdemServicos() {
@@ -67,7 +82,7 @@ class _OsListPageState extends State<OsListPage> {
     return Scaffold(
       backgroundColor: colors.surface,
 
-        appBar: Header(
+      appBar: Header(
         onBack: () {
           Navigator.pop(context);
         },
@@ -118,12 +133,21 @@ class _OsListPageState extends State<OsListPage> {
             child: Column(
               children: [
                 TextFormField(
+                  controller: _searchController,
                   decoration: InputDecoration(
                     hintText: 'Procurar ordem de serviço',
                     filled: true,
                     fillColor: colors.surfaceContainer,
                     hintStyle: TextStyle(color: colors.onSurface),
                     prefixIcon: Icon(Icons.search, color: colors.secondary),
+                    suffixIcon: _searchQuery.isNotEmpty
+                        ? IconButton(
+                            icon: Icon(Icons.clear, color: colors.secondary),
+                            onPressed: () {
+                              _searchController.clear();
+                            },
+                          )
+                        : null,
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(14),
                       borderSide: BorderSide.none,
@@ -189,7 +213,6 @@ class _OsListPageState extends State<OsListPage> {
                   ),
                 ),
 
-                // Aqui carrego as ordens de serviço
                 FutureBuilder<List<WorkOrder>>(
                   future: _futureOrdemServicos,
                   builder: (context, snapshot) {
@@ -212,15 +235,46 @@ class _OsListPageState extends State<OsListPage> {
                       );
                     }
 
-                    final ordemServicos = snapshot.data!;
+                    final todasOrdens = snapshot.data!;
 
-                    return ListView.builder(
-                      shrinkWrap: true,
-                      physics: const NeverScrollableScrollPhysics(),
-                      itemCount: ordemServicos.length,
-                      itemBuilder: (context, index) {
-                        return _buildClientCard(ordemServicos[index]);
-                      },
+                    final ordensFiltradas = todasOrdens.where((os) {
+                      final idMatch = os.id.toString().toLowerCase().contains(_searchQuery);
+                      final nomeMatch = os.name.toLowerCase().contains(_searchQuery);
+                      final cidadeMatch = os.city.toLowerCase().contains(_searchQuery);
+                      return idMatch || nomeMatch || cidadeMatch;
+                    }).toList();
+
+                    if (ordensFiltradas.isEmpty) {
+                      return Padding(
+                        padding: const EdgeInsets.only(top: 20.0),
+                        child: Center(
+                          child: Text(
+                            'Nenhuma ordem de serviço corresponde à pesquisa.',
+                            style: TextStyle(color: colors.onSurfaceVariant),
+                          ),
+                        ),
+                      );
+                    }
+
+                    return Card(
+                      elevation: 4,
+                      color: colors.surfaceContainer,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      clipBehavior: Clip.antiAlias,
+                      child: ListView.separated(
+                        shrinkWrap: true,
+                        physics: const NeverScrollableScrollPhysics(),
+                        itemCount: ordensFiltradas.length,
+                        separatorBuilder: (context, index) => Divider(
+                          height: 1,
+                          color: colors.onSurfaceVariant.withOpacity(0.2),
+                        ),
+                        itemBuilder: (context, index) {
+                          return _buildClientCard(ordensFiltradas[index]);
+                        },
+                      ),
                     );
                   },
                 ),
@@ -240,116 +294,102 @@ class _OsListPageState extends State<OsListPage> {
           );
         },      
       ),
-        );
+    );
   }
 
-  // Construo os cards
   Widget _buildClientCard(WorkOrder os) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 16),
-      child: SlidableDeleteCard(
-        slidableKey: ValueKey(os.id),
+    return SlidableDeleteCard(
+      slidableKey: ValueKey(os.id),
 
-        onDelete: () async {
-          final confimarExclusao =
-              await showDialog(
-                context: context,
-                builder: (_) => ShowDeleteOsDialog(nome: os.name),
-              ) ??
-              false;
+      onDelete: () async {
+        final confimarExclusao =
+            await showDialog(
+              context: context,
+              builder: (_) => ShowDeleteOsDialog(nome: os.name),
+            ) ??
+            false;
 
-          if (!confimarExclusao) return;
+        if (!confimarExclusao) return;
 
-          await _deletarOrdemServicos(os);
+        await _deletarOrdemServicos(os);
 
-          _carregarOrdemServicos();
+        _carregarOrdemServicos();
 
-          if (!mounted) return;
+        if (!mounted) return;
 
-          final messenger = ScaffoldMessenger.of(context);
+        final messenger = ScaffoldMessenger.of(context);
 
-          messenger.hideCurrentSnackBar();
+        messenger.hideCurrentSnackBar();
 
-          messenger.showSnackBar(
-            ShowDeleteOsSnackbar(
-              color: colors.primary,
-              onPressed: () async {
-                await _repository.restore(os.id);
+        messenger.showSnackBar(
+          ShowDeleteOsSnackbar(
+            color: colors.primary,
+            onPressed: () async {
+              await _repository.restore(os.id);
 
-                _carregarOrdemServicos();
+              _carregarOrdemServicos();
 
-                messenger.hideCurrentSnackBar();
-              },
-              duration: const Duration(seconds: 5),
+              messenger.hideCurrentSnackBar();
+            },
+            duration: const Duration(seconds: 5),
+          ),
+        );
+      },
+
+      extentRatio: 0.20,
+
+      child: Padding(
+        padding: const EdgeInsets.symmetric(
+          horizontal: 16.0,
+          vertical: 12.0,
+        ),
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    '#${os.id} - ${os.name}',
+                    style: TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.blueGrey.shade600,
+                    ),
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    os.city,
+                    style: TextStyle(
+                      color: colors.onSurfaceVariant,
+                      fontSize: 14,
+                    ),
+                  ),
+                  const SizedBox(height: 2),
+                  Text(
+                    os.status,
+                    style: TextStyle(
+                      color: _obterCorDoStatus(os.status),
+                      fontSize: 14,
+                    ),
+                  ),
+                ],
+              ),
             ),
-          );
-        },
 
-        extentRatio: 0.20,
-
-        child: Container(
-          padding: const EdgeInsets.all(10.0),
-          decoration: BoxDecoration(
-            color: colors.surfaceContainer,
-            borderRadius: BorderRadius.circular(12),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black.withOpacity(0.12),
-                blurRadius: 10,
-                spreadRadius: 1,
-                offset: const Offset(0, 5),
-              ),
-            ],
-          ),
-
-          child: Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      '#${os.id} - ${os.name}',
-                      style: TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.blueGrey.shade600,
-                      ),
-                    ),
-
-                    Text(
-                      os.city,
-                      style: TextStyle(
-                        color: colors.onSurfaceVariant,
-                        fontSize: 14,
-                      ),
-                    ),
-
-                    Text(
-                      os.status,
-                      style: TextStyle(
-                        color: _obterCorDoStatus(os.status),
-                        fontSize: 14,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-
-              IconButton(
-                icon: Icon(Icons.edit, color: colors.secondary),
-                onPressed: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => const StandInPage(),
-                    ),
-                  );
-                },
-              ),
-            ],
-          ),
+            IconButton(
+              icon: Icon(Icons.edit, color: colors.secondary),
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => const StandInPage(),
+                  ),
+                );
+              },
+            ),
+          ],
         ),
       ),
     );

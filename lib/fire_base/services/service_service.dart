@@ -24,4 +24,18 @@ class ServicoService {
       throw Exception('Erro ao buscar serviços: $e');
     }
   }
+
+  Future<void> atualizarServico(Service servico) async {
+    final id = servico.id;
+
+    if (id == null || id.isEmpty) {
+      throw Exception('Serviço sem id: não é possível atualizar.');
+    }
+
+    try {
+      await _firestore.collection(_colecao).doc(id).update(servico.toMap());
+    } catch (e) {
+      throw Exception('Erro ao atualizar serviço: $e');
+    }
+  }
 }

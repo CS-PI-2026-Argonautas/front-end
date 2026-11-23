@@ -6,6 +6,7 @@ import 'package:frontend/ui/widgets/form/action_buttons.dart';
 import 'package:frontend/ui/widgets/form/form_card.dart';
 import 'package:frontend/ui/widgets/form/form_field_label.dart';
 import 'package:frontend/ui/widgets/appBar.dart';
+import 'package:frontend/utils/validators/validators.dart';
 import 'package:mask_text_input_formatter/mask_text_input_formatter.dart';
 
 class PersonRegistrationContact extends StatefulWidget {
@@ -90,7 +91,7 @@ class _PersonRegistration3State extends State<PersonRegistrationContact> {
 
         TextFormField(
           controller: _telefoneController,
-          decoration: customInputDecoration(hintText: "(44) 98765-4321"),
+          decoration: customInputDecoration(hintText: "(44) 99999-9999"),
           inputFormatters: [_phoneFormatter],
           keyboardType: TextInputType.phone,
           validator: (value) {
@@ -107,12 +108,7 @@ class _PersonRegistration3State extends State<PersonRegistrationContact> {
           decoration: customInputDecoration(hintText: "exemplo@email.com"),
           keyboardType: TextInputType.emailAddress,
           validator: (value) {
-            if (value == null || value.trim().isEmpty) return null;
-            final bool emailValid = RegExp(
-              r"^[a-zA-Z0-9.a-zA-Z0-9.!#$%&'*+-/=?^_`{|}~]+@[a-zA-Z0-9]+\.[a-zA-Z]+",
-            ).hasMatch(value);
-            if (!emailValid) return 'Informe um email válido';
-            return null;
+            return validateEmail(value);
           },
         ),
 
@@ -133,7 +129,7 @@ class _PersonRegistration3State extends State<PersonRegistrationContact> {
 
         TextFormField(
           controller: _setorController,
-          decoration: customInputDecoration(hintText: "Financeiro, Compras..."),
+          decoration: customInputDecoration(hintText: "Exemplo: Financeiro, Compras..."),
           maxLength: 50,
         ),
 
@@ -145,7 +141,7 @@ class _PersonRegistration3State extends State<PersonRegistrationContact> {
           maxLength: 255,
           keyboardType: TextInputType.multiline,
           decoration: customInputDecoration(
-            hintText: "Digite observações relevantes aqui...",
+            hintText: "Digite observações relevantes aqui",
           ),
         ),
 

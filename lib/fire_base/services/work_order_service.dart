@@ -4,9 +4,8 @@ import 'package:frontend/fire_base/repositories/work_order_repository.dart';
 class WorkOrderService {
   final WorkOrderRepository _repository;
 
-  WorkOrderService({
-    WorkOrderRepository? repository,
-  }) : _repository = repository ?? WorkOrderRepository();
+  WorkOrderService({WorkOrderRepository? repository})
+    : _repository = repository ?? WorkOrderRepository();
 
   Future<List<WorkOrder>> listAll() async {
     return await _repository.listAll();

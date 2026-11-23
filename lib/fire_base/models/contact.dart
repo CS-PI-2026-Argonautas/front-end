@@ -1,5 +1,5 @@
 class Contact {
-  final String phone; 
+  final String phone;
   final String? email;
   final String? additionalContact;
   final String? sector;

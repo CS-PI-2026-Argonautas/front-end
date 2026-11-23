@@ -3,7 +3,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/foundation.dart';
 import 'package:frontend/fire_base/firestore_paths.dart';
 import 'package:frontend/fire_base/models/address.dart';
-import 'package:frontend/fire_base/repositories/firestore_reading.dart'; 
+import 'package:frontend/fire_base/repositories/firestore_reading.dart';
 
 class AddressRepository {
   final FirebaseFirestore _db;
@@ -15,7 +15,10 @@ class AddressRepository {
     FirebaseFirestore db,
     String clienteId,
   ) {
-    return db.collection(colecaoClientes).doc(clienteId).collection(subcolecaoEnderecos);
+    return db
+        .collection(colecaoClientes)
+        .doc(clienteId)
+        .collection(subcolecaoEnderecos);
   }
 
   CollectionReference<Map<String, dynamic>> _col(String clienteId) =>

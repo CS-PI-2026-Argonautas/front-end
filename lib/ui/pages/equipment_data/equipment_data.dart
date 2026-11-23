@@ -8,6 +8,7 @@ import 'package:frontend/ui/widgets/form/form_card.dart';
 import 'package:frontend/ui/widgets/form/labeled_form.dart';
 import 'package:frontend/fire_base/models/equipment.dart';
 import 'package:frontend/fire_base/services/equipment_service.dart';
+import 'package:frontend/utils/validators/validators.dart';
 
 class EquipmentData extends StatefulWidget {
   final VoidCallback? onBack;
@@ -199,16 +200,18 @@ class _EquipmentDataState extends State<EquipmentData> {
               subtitle: 'Preencha as informações técnicas da balança.',
               children: [
                 _buildField(
-                  label: 'Marca',
+                  label: 'Marca*',
                   icon: Icons.branding_watermark_outlined,
                   controller: _marcaController,
                   hintText: 'Ex: Toledo',
+                  validatorField: emptyMandatoryField,
                 ),
                 _buildField(
-                  label: 'Modelo',
+                  label: 'Modelo*',
                   icon: Icons.devices_other_outlined,
                   controller: _modeloController,
                   hintText: 'Ex: Prix 3 Plus',
+                  validatorField: emptyMandatoryField,
                 ),
                 _buildField(
                   label: 'Nº de Série',
@@ -304,13 +307,14 @@ class _EquipmentDataState extends State<EquipmentData> {
     required TextEditingController controller,
     String? hintText,
     bool isNumeric = false,
+    String? Function(String?)? validatorField,
   }) {
     return LabeledFormField(
       icon: icon,
       label: label,
       field: TextFormField(
         controller: controller,
-        validator: requiredValidator,
+        validator: validatorField,
         keyboardType: isNumeric ? TextInputType.number : TextInputType.text,
         inputFormatters: isNumeric
             ? [FilteringTextInputFormatter.digitsOnly]

@@ -101,12 +101,12 @@ class _PersonRegistrationState1 extends State<PersonRegistration> {
           },
         ),
 
-       SelectionField<Address>(
-         label: 'Endereço',
-           iconeLabel: Icons.home_outlined,
+        SelectionField<Address>(
+          label: 'Endereço',
+          iconeLabel: Icons.home_outlined,
           itens: _enderecos,
           tituloItem: (endereco) =>
-           '${endereco.publicPlace}, ${endereco.number} - ${endereco.city}/${endereco.uf.name}',
+              '${endereco.publicPlace}, ${endereco.number} - ${endereco.city}/${endereco.uf.name}',
           textoVazio: 'Nenhum endereço adicionado.',
           permitirExclusao: true,
           onPressed: () async {
@@ -127,9 +127,8 @@ class _PersonRegistrationState1 extends State<PersonRegistration> {
             final enderecoEditado = await Navigator.push<Address>(
               context,
               MaterialPageRoute(
-                builder: (context) => PersonRegistrationAddress(
-                  enderecoInicial: endereco,
-                ),
+                builder: (context) =>
+                    PersonRegistrationAddress(enderecoInicial: endereco),
               ),
             );
 
@@ -160,68 +159,59 @@ class _PersonRegistrationState1 extends State<PersonRegistration> {
           },
         ),
 
-        Row(
-          spacing: 6,
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            const FormFieldLabel(
-              icon: Icons.phone_android_outlined,
-              label: "Informações de contato",
-            ),
-            IconButton(
-              padding: EdgeInsets.zero,
-              constraints: const BoxConstraints(),
-              icon: Icon(
-                Icons.add_box_rounded,
-                color: colors.secondary,
-                size: 26,
+        SelectionField<Contact>(
+          label: 'Informações de contato',
+          iconeLabel: Icons.phone_android_outlined,
+          itens: _contato != null ? [_contato!] : [],
+          tituloItem: (contato) => contato.resumo,
+          textoVazio: 'Nenhum contato adicionado.',
+          permitirExclusao: true,
+          onPressed: () async {
+            final resultadoContato = await Navigator.push<Contact>(
+              context,
+              MaterialPageRoute(
+                builder: (context) =>
+                    PersonRegistrationContact(contatoInicial: _contato),
               ),
-              onPressed: () async {
-                final resultadoContato = await Navigator.push<Contact>(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) =>
-                        PersonRegistrationContact(contatoInicial: _contato),
-                  ),
-                );
+            );
 
-                if (resultadoContato != null && mounted) {
-                  setState(() {
-                    _contato = resultadoContato;
-                  });
-                }
-              },
-            ),
-          ],
-        ),
-
-        FormField<String>(
-          key: ValueKey('contato_${(_contato?.resumo ?? '')}'),
-          initialValue: (_contato?.resumo ?? ''),
-          validator: (value) {
-            if (_contato == null) {
-              return 'Informe as informações de contato';
+            if (resultadoContato != null && mounted) {
+              setState(() {
+                _contato = resultadoContato;
+              });
             }
-            return null;
           },
-          builder: (FormFieldState<String> state) {
-            return InputDecorator(
-              decoration: customInputDecoration(
-                hintText: _contato == null
-                    ? "Inserir contato"
-                    : null,
-              ).copyWith(errorText: state.errorText),
-              child: Text(
-                _contato == null
-                    ? "Inserir contato"
-                    : (_contato?.resumo ?? ''),
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-                style: TextStyle(
-                  fontSize: 16,
-                  color: _contato == null
-                      ? colors.onSurfaceVariant.withOpacity(0.6)
-                      : colors.onSurface,
+          onEdit: (contato, index) async {
+            final contatoEditado = await Navigator.push<Contact>(
+              context,
+              MaterialPageRoute(
+                builder: (context) =>
+                    PersonRegistrationContact(contatoInicial: contato),
+              ),
+            );
+
+            if (contatoEditado != null && mounted) {
+              setState(() {
+                _contato = contatoEditado;
+              });
+            }
+          },
+          onDelete: (contato, index) {
+            final contatoRemovido = _contato;
+            setState(() {
+              _contato = null;
+            });
+
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: const Text('Contato removido.'),
+                action: SnackBarAction(
+                  label: 'Desfazer',
+                  onPressed: () {
+                    setState(() {
+                      _contato = contatoRemovido;
+                    });
+                  },
                 ),
               ),
             );
@@ -237,9 +227,7 @@ class _PersonRegistrationState1 extends State<PersonRegistration> {
           key: ValueKey(_isPessoaFisica),
           controller: _documentoController,
           decoration: customInputDecoration(
-            hintText: _isPessoaFisica
-                ? "000.000.000-00"
-                : "00.000.000/0000-00",
+            hintText: _isPessoaFisica ? "000.000.000-00" : "00.000.000/0000-00",
           ),
           keyboardType: TextInputType.number,
           inputFormatters: [_isPessoaFisica ? _cpfFormatter : _cnpjFormatter],
@@ -293,15 +281,15 @@ class _PersonRegistrationState1 extends State<PersonRegistration> {
     );
 
     try {
-      final id = await _service.cadastrar(cliente, _enderecos);
+      await _service.cadastrar(cliente, _enderecos);
 
       if (!mounted) return;
 
       if (widget.retornarDadosAoFechar) {
         Navigator.pop(context, {
           'id': cliente.id,
-          'nome': cliente.name,
-          'telefone': cliente.contact.phone,
+          'name': cliente.name,
+          'phone': cliente.contact.phone,
         });
       } else {
         Navigator.pushAndRemoveUntil(

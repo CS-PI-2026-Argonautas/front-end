@@ -27,7 +27,26 @@ class _ClientListState extends State<ClientList> {
 
   late final Stream<List<Client>> _clientes = _service.observar();
 
+  final TextEditingController _searchController = TextEditingController();
+  String _searchQuery = '';
+
   final colors = custom_colors.colorScheme;
+
+  @override
+  void initState() {
+    super.initState();
+    _searchController.addListener(() {
+      setState(() {
+        _searchQuery = _searchController.text.trim().toLowerCase();
+      });
+    });
+  }
+
+  @override
+  void dispose() {
+    _searchController.dispose();
+    super.dispose();
+  }
 
   Future<void> _deletarCliente(Client cliente) async {
     await _service.excluir(cliente.id);
@@ -98,6 +117,7 @@ class _ClientListState extends State<ClientList> {
             child: Column(
               children: [
                 TextFormField(
+                  controller: _searchController,
                   decoration: InputDecoration(
                     hintText: 'Procurar cliente',
                     filled: true,
@@ -109,6 +129,14 @@ class _ClientListState extends State<ClientList> {
                       Icons.search,
                       color: colors.secondary,
                     ),
+                    suffixIcon: _searchQuery.isNotEmpty
+                        ? IconButton(
+                            icon: Icon(Icons.clear, color: colors.secondary),
+                            onPressed: () {
+                              _searchController.clear();
+                            },
+                          )
+                        : null,
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(14),
                       borderSide: BorderSide.none,
@@ -207,18 +235,45 @@ class _ClientListState extends State<ClientList> {
                       );
                     }
 
-                    final clientes = snapshot.data!;
+                    final todosClientes = snapshot.data!;
 
-                    return ListView.builder(
-                      shrinkWrap: true,
-                      physics:
-                          const NeverScrollableScrollPhysics(),
-                      itemCount: clientes.length,
-                      itemBuilder: (context, index) {
-                        return _buildClientCard(
-                          clientes[index],
-                        );
-                      },
+                    final clientesFiltrados = todosClientes.where((cliente) {
+                      final nomeMatch = cliente.name.toLowerCase().contains(_searchQuery);
+                      final resumoMatch = cliente.contact.resumo.toLowerCase().contains(_searchQuery);
+                      return nomeMatch || resumoMatch;
+                    }).toList();
+
+                    if (clientesFiltrados.isEmpty) {
+                      return Padding(
+                        padding: const EdgeInsets.only(top: 20.0),
+                        child: Center(
+                          child: Text(
+                            'Nenhum cliente corresponde à pesquisa.',
+                            style: TextStyle(color: colors.onSurfaceVariant),
+                          ),
+                        ),
+                      );
+                    }
+
+                    return Card(
+                      elevation: 4,
+                      color: colors.surfaceContainer,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      clipBehavior: Clip.antiAlias,
+                      child: ListView.separated(
+                        shrinkWrap: true,
+                        physics: const NeverScrollableScrollPhysics(),
+                        itemCount: clientesFiltrados.length,
+                        separatorBuilder: (context, index) => Divider(
+                          height: 1,
+                          color: colors.onSurfaceVariant.withOpacity(0.2),
+                        ),
+                        itemBuilder: (context, index) {
+                          return _buildClientCard(clientesFiltrados[index]);
+                        },
+                      ),
                     );
                   },
                 ),
@@ -243,130 +298,115 @@ class _ClientListState extends State<ClientList> {
   }
 
   Widget _buildClientCard(Client cliente) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 16),
-      child: SlidableDeleteCard(
-        slidableKey: ValueKey(cliente.id),
+    return SlidableDeleteCard(
+      slidableKey: ValueKey(cliente.id),
 
-        extentRatio: 0.20,
+      extentRatio: 0.20,
 
-        onDelete: () async {
-          final confirmarExclusao =
-              await showDialog<bool>(
-                context: context,
-                builder: (_) => ShowDeleteClientDialog(
-                  nome: cliente.name,
-                ),
-              ) ??
-              false;
+      onDelete: () async {
+        final confirmarExclusao =
+            await showDialog<bool>(
+              context: context,
+              builder: (_) => ShowDeleteClientDialog(
+                nome: cliente.name,
+              ),
+            ) ??
+            false;
 
-          if (!confirmarExclusao) return;
+        if (!confirmarExclusao) return;
 
-          await _deletarCliente(cliente);
+        await _deletarCliente(cliente);
 
-          if (!mounted) return;
+        if (!mounted) return;
 
-          final messenger =
-              ScaffoldMessenger.of(context);
+        final messenger =
+            ScaffoldMessenger.of(context);
 
-          messenger.hideCurrentSnackBar();
+        messenger.hideCurrentSnackBar();
 
-          messenger.showSnackBar(
-            ShowDeleteClientSnackbar(
-              color: colors.primary,
+        messenger.showSnackBar(
+          ShowDeleteClientSnackbar(
+            color: colors.primary,
 
-              onPressed: () async {
-                await _service.restaurar(cliente.id);
+            onPressed: () async {
+              await _service.restaurar(cliente.id);
 
-                if (!mounted) return;
+              if (!mounted) return;
 
-                messenger.hideCurrentSnackBar();
-              },
+              messenger.hideCurrentSnackBar();
+            },
 
-              duration: const Duration(seconds: 5),
+            duration: const Duration(seconds: 5),
+          ),
+        );
+      },
+
+      child: Padding(
+        padding: const EdgeInsets.symmetric(
+          horizontal: 16.0,
+          vertical: 12.0,
+        ),
+
+        child: Row(
+          crossAxisAlignment:
+              CrossAxisAlignment.start,
+
+          children: [
+            Expanded(
+              child: Column(
+                crossAxisAlignment:
+                    CrossAxisAlignment.start,
+
+                children: [
+                  Text(
+                    cliente.name,
+                    maxLines: 1,
+                    overflow:
+                        TextOverflow.ellipsis,
+
+                    style: TextStyle(
+                      color:
+                          Colors.blueGrey.shade600,
+                      fontSize: 18,
+                      fontWeight:
+                          FontWeight.bold,
+                    ),
+                  ),
+
+                  Text(
+                    cliente.contact.resumo,
+
+                    style: TextStyle(
+                      color:
+                          colors.onSurfaceVariant,
+                      fontSize: 14,
+                    ),
+                  ),
+                ],
+              ),
             ),
-          );
-        },
 
-        child: Container(
-          padding: const EdgeInsets.all(10.0),
-
-          decoration: BoxDecoration(
-            color: colors.surfaceContainer,
-            borderRadius: BorderRadius.circular(12),
-
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black.withOpacity(0.12),
-                blurRadius: 10,
-                spreadRadius: 1,
-                offset: const Offset(0, 5),
-              ),
-            ],
-          ),
-
-          child: Row(
-            crossAxisAlignment:
-                CrossAxisAlignment.start,
-
-            children: [
-              Expanded(
-                child: Column(
-                  crossAxisAlignment:
-                      CrossAxisAlignment.start,
-
-                  children: [
-                    Text(
-                      cliente.name,
-                      maxLines: 1,
-                      overflow:
-                          TextOverflow.ellipsis,
-
-                      style: TextStyle(
-                        color:
-                            Colors.blueGrey.shade600,
-                        fontSize: 18,
-                        fontWeight:
-                            FontWeight.bold,
-                      ),
-                    ),
-
-                    Text(
-                      cliente.contact.resumo,
-
-                      style: TextStyle(
-                        color:
-                            colors.onSurfaceVariant,
-                        fontSize: 14,
-                      ),
-                    ),
-                  ],
-                ),
+            IconButton(
+              icon: Icon(
+                Icons.edit,
+                color: colors.secondary,
               ),
 
-              IconButton(
-                icon: Icon(
-                  Icons.edit,
-                  color: colors.secondary,
-                ),
-
-                onPressed: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) =>
-                          PersonAlteration(
-                        cliente: cliente,
-                      ),
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) =>
+                        PersonAlteration(
+                      cliente: cliente,
                     ),
-                  );
-                },
-              ),
-            ],
-          ),
+                  ),
+                );
+              },
+            ),
+          ],
         ),
       ),
     );
   }
 }
-

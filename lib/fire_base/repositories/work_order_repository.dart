@@ -4,9 +4,8 @@ import 'package:frontend/fire_base/models/work_order.dart';
 class WorkOrderRepository {
   final FirebaseFirestore _firestore;
 
-  WorkOrderRepository({
-    FirebaseFirestore? firestore,
-  }) : _firestore = firestore ?? FirebaseFirestore.instance;
+  WorkOrderRepository({FirebaseFirestore? firestore})
+    : _firestore = firestore ?? FirebaseFirestore.instance;
 
   CollectionReference<Map<String, dynamic>> get _collection =>
       _firestore.collection('service_orders');
@@ -34,9 +33,7 @@ class WorkOrderRepository {
   }
 
   Future<void> save(WorkOrder order) async {
-    await _collection.doc(order.id).set(
-      order.toFirestore(),
-    );
+    await _collection.doc(order.id).set(order.toFirestore());
   }
 
   Future<void> delete(String id) async {
@@ -46,8 +43,6 @@ class WorkOrderRepository {
   }
 
   Future<void> restore(String id) async {
-    await _collection.doc(id).update({
-      'deleted_at': null,
-    });
+    await _collection.doc(id).update({'deleted_at': null});
   }
 }

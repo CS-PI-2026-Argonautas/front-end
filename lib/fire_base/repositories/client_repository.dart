@@ -5,7 +5,7 @@ import 'package:frontend/fire_base/firestore_paths.dart';
 import 'package:frontend/fire_base/models/client.dart';
 import 'package:frontend/fire_base/models/address.dart';
 import 'package:frontend/fire_base/repositories/address_repository.dart';
-import 'package:frontend/fire_base/repositories/firestore_reading.dart'; 
+import 'package:frontend/fire_base/repositories/firestore_reading.dart';
 
 class ClientRepository {
   final FirebaseFirestore _db;
@@ -40,7 +40,8 @@ class ClientRepository {
 
   Stream<List<Client>> observar() => _clientes.snapshots().map(_ativos);
 
-  Future<List<Client>> listar() async => _ativos(await lerComFallback(_clientes));
+  Future<List<Client>> listar() async =>
+      _ativos(await lerComFallback(_clientes));
 
   Future<List<Client>> listarDoCache() async {
     try {

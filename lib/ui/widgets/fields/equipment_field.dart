@@ -18,12 +18,12 @@ class EquipmentSection extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return SelectionField<dynamic>(
-      label: 'Equipamento *',
+      label: 'Equipamento*',
       iconeLabel: Icons.devices_other_outlined,
       textoBotao: equipamento == null
-          ? 'Buscar equipamento'
-          : 'Editar equipamento',
-      iconeBotao: Icons.build,
+          ? 'Cadastrar Equipamento'
+          : 'Editar Equipamento',
+      iconeBotao: Icons.add,
       iconeItem: Icons.scale,
       itens: equipamento != null ? [equipamento] : [],
       tituloItem: (equip) {
@@ -37,7 +37,9 @@ class EquipmentSection extends StatelessWidget {
       },
       textoVazio: 'Nenhum equipamento selecionado.',
       permitirExclusao: false,
-      onPressed: equipamento == null ? onBuscar : onOpenCadastro,
+      onPressed: equipamento == null
+          ? onOpenCadastro
+          : () => onEdit(equipamento),
       onEdit: (equip, index) => onEdit(equip),
     );
   }

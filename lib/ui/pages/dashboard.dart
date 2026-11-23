@@ -11,6 +11,8 @@ import 'package:frontend/ui/pages/product_registration/product_registration.dart
 import 'package:frontend/ui/pages/service-registration/service_registration.dart';
 import 'package:frontend/ui/style/ColorScheme.dart' as custom_Colors;
 import 'package:frontend/ui/widgets/menu.dart';
+import 'package:frontend/fire_base/models/app_user.dart';
+import 'package:frontend/fire_base/services/authentication_service.dart';
 
 class Dashboard extends StatelessWidget {
   const Dashboard({super.key});
@@ -134,16 +136,24 @@ class Dashboard extends StatelessWidget {
               mainAxisSize: MainAxisSize.min,
               spacing: 24,
               children: [
-                Text(
-                  "Olá, Rodrigo!",
-                  textAlign: TextAlign.center,
-                  style: TextStyle(
-                    fontSize: 24,
-                    fontWeight: FontWeight.bold,
-                    color: colors.onSurface,
-                  ),
+               FutureBuilder<AppUser?>(
+                future: AuthenticationService().getLoggedUser(),
+                builder: (context, snapshot) {
+                final usuarioLogado = snapshot.data;
+                    return Text(
+                      usuarioLogado != null
+                          ? "Olá, ${usuarioLogado.name}!"
+                          : "Olá!",
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        fontSize: 24,
+                        fontWeight: FontWeight.bold,
+                        color: colors.onSurface,
+                      ),
+                    );
+                  },
                 ),
-
+                
                 Card(
                   color: colors.surfaceContainer,
                   elevation: 8,

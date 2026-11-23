@@ -4,8 +4,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 class Dinheiro {
   final int centavos;
 
-  Dinheiro(int centavos)
-      : centavos = centavos < 0 ? 0 : centavos; 
+  Dinheiro(int centavos) : centavos = centavos < 0 ? 0 : centavos;
 
   factory Dinheiro.fromReais(double reais) {
     if (reais < 0) return Dinheiro(0);
@@ -49,7 +48,8 @@ class Dinheiro {
 
   static int _inteiro(Object? valor) {
     if (valor is int) return valor < 0 ? 0 : valor;
-    if (valor is double) return (valor * 100).round() < 0 ? 0 : (valor * 100).round();
+    if (valor is double)
+      return (valor * 100).round() < 0 ? 0 : (valor * 100).round();
     return int.tryParse((valor ?? '').toString().trim()) ?? 0;
   }
 

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:frontend/ui/style/ColorScheme.dart' as custom_colors;
 import 'package:frontend/ui/widgets/form/form_field_label.dart';
+import 'package:frontend/ui/widgets/form/section_label.dart';
 import 'package:frontend/ui/widgets/slidable/slidable_delete_card.dart';
 
 class SelectionField<T> extends StatelessWidget {
@@ -44,44 +45,36 @@ class SelectionField<T> extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         LayoutBuilder(
-  builder: (context, constraints) {
-    // Se a largura disponível for menor que 320px, muda para Column
-    final bool eTelaPequena = constraints.maxWidth < 320;
+          builder: (context, constraints) {
+            // Se a largura disponível for menor que 320px, muda para Column
+            final bool eTelaPequena = constraints.maxWidth < 320;
 
-    if (eTelaPequena) {
-      return Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          FormFieldLabel(
-            icon: iconeLabel,
-            label: label,
-          ),
-          const SizedBox(height: 6),
-          Align(
-            alignment: Alignment.centerLeft,
-            child: _buildBotao(colors),
-          ),
-        ],
-      );
-    }
+            if (eTelaPequena) {
+              return Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  FormFieldLabel(icon: iconeLabel, label: label),
+                  const SizedBox(height: 6),
+                  Align(
+                    alignment: Alignment.centerLeft,
+                    child: _buildBotao(colors),
+                  ),
+                ],
+              );
+            }
 
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: [
-        Expanded(
-          child: FormFieldLabel(
-            icon: iconeLabel,
-            label: label,
-          ),
+            return Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Expanded(
+                  child: SectionLabel(icon: iconeLabel, text: label),
+                ),
+                const SizedBox(width: 8),
+                Flexible(child: _buildBotao(colors)),
+              ],
+            );
+          },
         ),
-        const SizedBox(width: 8),
-        Flexible(
-          child: _buildBotao(colors),
-        ),
-      ],
-    );
-  },
-),
         const SizedBox(height: 8),
         if (itens.isEmpty)
           Padding(
@@ -135,22 +128,16 @@ class SelectionField<T> extends StatelessWidget {
       );
     }
 
-    return TextButton.icon(
-      style: TextButton.styleFrom(
-        padding: const EdgeInsets.symmetric(horizontal: 8),
-        minimumSize: Size.zero,
-        tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-      ),
+    return ElevatedButton.icon(
       onPressed: onPressed,
-      icon: Icon(iconeBotao, color: colors.secondary, size: 20),
-      label: Text(
-        textoBotao!,
-        maxLines: 1,
-        overflow: TextOverflow.ellipsis,
-        style: TextStyle(
-          color: colors.secondary,
-          fontWeight: FontWeight.w600,
-        ),
+      icon: Icon(iconeBotao, size: 18),
+      label: Text(textoBotao!, maxLines: 1, overflow: TextOverflow.ellipsis),
+      style: ElevatedButton.styleFrom(
+        backgroundColor: colors.secondary,
+        foregroundColor: Colors.white,
+        elevation: 0,
+        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
       ),
     );
   }
@@ -169,7 +156,7 @@ class SelectionField<T> extends StatelessWidget {
           const SizedBox(width: 12),
           Expanded(
             child: Text(
-              titulo, 
+              titulo,
               style: TextStyle(
                 color: colors.onSurface,
                 fontSize: 16,

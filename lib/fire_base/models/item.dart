@@ -10,7 +10,7 @@ class Item {
   final ProductType type;
   final Timestamp? createdAt;
   final Timestamp? updatedAt;
-    final Timestamp? deletedAt;
+  final Timestamp? deletedAt;
   Item({
     this.id,
     required this.name,
@@ -22,9 +22,7 @@ class Item {
     this.updatedAt,
     this.deletedAt,
   });
-  factory Item.fromFirestore(
-    DocumentSnapshot<Map<String, dynamic>> document,
-  ) {
+  factory Item.fromFirestore(DocumentSnapshot<Map<String, dynamic>> document) {
     final data = document.data()!;
 
     return Item(
@@ -100,4 +98,3 @@ class Item {
     );
   }
 }
-

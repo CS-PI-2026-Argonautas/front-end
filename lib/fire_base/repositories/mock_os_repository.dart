@@ -1,8 +1,7 @@
 import 'package:frontend/fire_base/models/work_order.dart';
 
 class MockOSRepository {
-  static final MockOSRepository _instance =
-      MockOSRepository._internal();
+  static final MockOSRepository _instance = MockOSRepository._internal();
 
   MockOSRepository._internal();
 
@@ -15,12 +14,12 @@ class MockOSRepository {
       part: 'Lacre Inmetro',
       equipment: 'Balança Comercial Toledo Prix 3 Plus',
       client: 'Giovanna',
+      address: '//',
       city: 'Presidente Prudente - SP',
       assignee: 'Carlos (Técnico)',
       date: DateTime(2026, 8, 1, 9, 30),
       status: 'Concluída',
-      report:
-          'Equipamento calibrado e selado conforme exigências do Inmetro.',
+      report: 'Equipamento calibrado e selado conforme exigências do Inmetro.',
       createdAt: DateTime(2026, 7, 28, 10, 0),
     ),
 
@@ -30,6 +29,7 @@ class MockOSRepository {
       part: 'Célula de carga Zemic 500kg',
       equipment: 'Balança Industrial de Plataforma',
       client: 'Murilo',
+      address: '//',
       city: 'Campinas - SP',
       assignee: 'Roberto (Técnico)',
       date: DateTime(2026, 8, 5, 14, 0),
@@ -45,6 +45,7 @@ class MockOSRepository {
       part: 'Nenhuma',
       equipment: 'Balança Analítica de Precisão',
       client: 'Isaque',
+      address: '//',
       city: 'Belo Horizonte - BH',
       assignee: 'Ana (Especialista)',
       date: DateTime(2026, 8, 7, 10, 15),
@@ -60,6 +61,7 @@ class MockOSRepository {
       part: 'Cabeça Térmica de Impressão',
       equipment: 'Balança Etiquetadora Filizola',
       client: 'Maria',
+      address: '//',
       city: 'Curitiba - PR',
       assignee: 'Carlos (Técnico)',
       date: DateTime(2026, 8, 6, 16, 45),
@@ -75,6 +77,7 @@ class MockOSRepository {
       part: 'Bateria 6V 4.5Ah e Fusível 2A',
       equipment: 'Balança Pediátrica',
       client: 'Felipe',
+      address: '//',
       city: 'Rio de Janeiro - RJ',
       assignee: 'Roberto (Técnico)',
       date: DateTime(2026, 8, 2, 11, 20),
@@ -90,6 +93,7 @@ class MockOSRepository {
       part: 'Cabo blindado 4 vias (15m)',
       equipment: 'Balança Rodoviária 80t',
       client: 'Arthur',
+      address: '//',
       city: 'Porto Alegre - RS',
       assignee: 'Ana (Especialista)',
       date: DateTime(2026, 8, 7, 8, 0),
@@ -138,6 +142,7 @@ class MockOSRepository {
       part: order.part,
       equipment: order.equipment,
       client: order.client,
+      address: order.address,
       assignee: order.assignee,
       date: order.date,
       status: order.status,

@@ -7,6 +7,7 @@ class WorkOrder {
   final String part;
   final String equipment;
   final String client;
+  final String address;
   final String assignee;
   final DateTime date;
   final String status;
@@ -22,6 +23,7 @@ class WorkOrder {
     required this.part,
     required this.equipment,
     required this.client,
+    required this.address,
     required this.assignee,
     required this.date,
     required this.status,
@@ -37,6 +39,7 @@ class WorkOrder {
       'part': part,
       'equipment': equipment,
       'client': client,
+      'address': address,
       'assignee': assignee,
       'date': Timestamp.fromDate(date),
       'status': status,
@@ -58,6 +61,7 @@ class WorkOrder {
       part: data['part'] as String,
       equipment: data['equipment'] as String,
       client: data['client'] as String,
+      address: data['address'] as String,
       assignee: data['assignee'] as String,
       date: (data['date'] as Timestamp).toDate(),
       status: data['status'] as String,
