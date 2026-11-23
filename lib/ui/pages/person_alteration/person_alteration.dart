@@ -165,6 +165,8 @@ class _PersonAlterationState extends State<PersonAlteration> {
           SelectionField<Address>(
             label: 'Endereço',
             iconeLabel: Icons.home_outlined,
+            textoBotao: 'Cadastrar endereço',
+            iconeBotao: Icons.add,
             itens: _enderecos,
             tituloItem: (endereco) =>
                 '${endereco.publicPlace}, ${endereco.number} - ${endereco.city}/${endereco.uf.name}',
@@ -220,22 +222,23 @@ class _PersonAlterationState extends State<PersonAlteration> {
               );
             },
           ),
-
-       SelectionField<Contact>(
-          label: 'Informações de contato',
-          iconeLabel: Icons.phone_android_outlined,
-          itens: _contato != null ? [_contato!] : [],
-          tituloItem: (contato) => contato.resumo,
-          textoVazio: 'Nenhum contato adicionado.',
-          permitirExclusao: true,
-          onPressed: () async {
-            final resultadoContato = await Navigator.push<Contact>(
-              context,
-              MaterialPageRoute(
-                builder: (context) => PersonAlterationContact( // ou PersonRegistrationContact
-                  contatoInicial: _contato,
+          SelectionField<Contact>(
+            label: 'Informações de contato',
+            iconeLabel: Icons.phone_android_outlined,
+            textoBotao: _contato == null ? 'Adicionar contato' : 'Alterar contato',
+            iconeBotao: _contato == null ? Icons.add : Icons.swap_horiz_outlined,
+            itens: _contato != null ? [_contato!] : [],
+            tituloItem: (contato) => contato.resumo,
+            textoVazio: 'Nenhum contato adicionado.',
+            permitirExclusao: true,
+            onPressed: () async {
+              final resultadoContato = await Navigator.push<Contact>(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => PersonAlterationContact(
+                    contatoInicial: _contato,
+                  ),
                 ),
-              ),
             );
 
             if (resultadoContato != null && mounted) {
@@ -248,7 +251,7 @@ class _PersonAlterationState extends State<PersonAlteration> {
             final contatoEditado = await Navigator.push<Contact>(
               context,
               MaterialPageRoute(
-                builder: (context) => PersonAlterationContact( // ou PersonRegistrationContact
+                builder: (context) => PersonAlterationContact( 
                   contatoInicial: contato,
                 ),
               ),
@@ -281,9 +284,7 @@ class _PersonAlterationState extends State<PersonAlteration> {
             );
           },
         ),
-
         
-
         FormFieldLabel(
           icon: Icons.badge_outlined,
           label: _isPessoaFisica ? "CPF *" : "CNPJ *",
