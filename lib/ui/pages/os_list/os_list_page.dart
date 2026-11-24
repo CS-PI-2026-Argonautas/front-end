@@ -71,7 +71,6 @@ class _OsListPageState extends State<OsListPage> {
 
   Future<void> _recarregarOrdemServicos() async {
     _carregarOrdemServicos();
-
     await _futureOrdemServicos;
   }
 
@@ -99,19 +98,37 @@ class _OsListPageState extends State<OsListPage> {
     return '$dia/$mes/$ano';
   }
 
+  String _formatarNumeroOs(ServiceOrder os) {
+    final numero = os.numeroOs;
+
+    if (numero == null) {
+      return 'Sem número';
+    }
+
+    return numero.toString().padLeft(4, '0');
+  }
+
   List<ServiceOrder> _filtrarOrdens(
     List<ServiceOrder> ordens,
   ) {
     final resultado = ordens.where((os) {
-      final id = os.id.toLowerCase();
+      final numeroOs =
+          os.numeroOs?.toString() ?? '';
+
+      final numeroFormatado =
+          _formatarNumeroOs(os).toLowerCase();
+
       final nomeCliente =
           (os.client?.name ?? '').toLowerCase();
+
       final cidade =
           (os.serviceAddress?.city ?? '').toLowerCase();
+
       final status = os.status.value.toLowerCase();
 
       final correspondePesquisa =
-          id.contains(_searchQuery) ||
+          numeroOs.contains(_searchQuery) ||
+          numeroFormatado.contains(_searchQuery) ||
           nomeCliente.contains(_searchQuery) ||
           cidade.contains(_searchQuery) ||
           status.contains(_searchQuery);
@@ -177,7 +194,9 @@ class _OsListPageState extends State<OsListPage> {
     final confirmar = await showDialog<bool>(
       context: context,
       builder: (_) => ShowDeleteOsDialog(
-        nome: os.client?.name ?? 'OS ${os.id}',
+        nome: os.numeroOs == null
+            ? 'OS sem número'
+            : 'OS Nº ${_formatarNumeroOs(os)}',
       ),
     );
 
@@ -211,14 +230,12 @@ class _OsListPageState extends State<OsListPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: colors.surface,
-
       appBar: Header(
         onBack: () {
           Navigator.pop(context);
         },
         title: 'Listagem de ordens de serviço',
       ),
-
       endDrawer: Menu(
         currentIndex: 2,
         onTap: (index) {
@@ -262,7 +279,6 @@ class _OsListPageState extends State<OsListPage> {
           }
         },
       ),
-
       body: SafeArea(
         child: RefreshIndicator(
           onRefresh: _recarregarOrdemServicos,
@@ -305,11 +321,8 @@ class _OsListPageState extends State<OsListPage> {
                       ),
                     ),
                   ),
-
                   Padding(
-                    padding: const EdgeInsets.only(
-                      top: 20,
-                    ),
+                    padding: const EdgeInsets.only(top: 20),
                     child: Row(
                       children: [
                         PopupMenuButton<ServiceOrderStatus?>(
@@ -336,29 +349,36 @@ class _OsListPageState extends State<OsListPage> {
                               ),
                             ];
                           },
-                          child: ElevatedButton.icon(
-                            onPressed: null,
-                            icon: const Icon(Icons.tune),
-                            label: const Text(
-                              'Filtrar',
-                              style: TextStyle(
-                                fontWeight: FontWeight.bold,
-                                fontSize: 14.8,
-                              ),
+                          child: Container(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 16,
+                              vertical: 12,
                             ),
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: colors.primary,
-                              foregroundColor: Colors.white,
-                              disabledBackgroundColor:
-                                  colors.primary,
-                              disabledForegroundColor:
-                                  Colors.white,
+                            decoration: BoxDecoration(
+                              color: colors.primary,
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                            child: const Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Icon(
+                                  Icons.tune,
+                                  color: Colors.white,
+                                ),
+                                SizedBox(width: 8),
+                                Text(
+                                  'Filtrar',
+                                  style: TextStyle(
+                                    color: Colors.white,
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 14.8,
+                                  ),
+                                ),
+                              ],
                             ),
                           ),
                         ),
-
                         const SizedBox(width: 10),
-
                         ElevatedButton.icon(
                           onPressed: _alternarOrdenacao,
                           icon: Icon(
@@ -383,7 +403,6 @@ class _OsListPageState extends State<OsListPage> {
                       ],
                     ),
                   ),
-
                   Padding(
                     padding: const EdgeInsets.only(
                       top: 20,
@@ -401,7 +420,6 @@ class _OsListPageState extends State<OsListPage> {
                       ),
                     ),
                   ),
-
                   FutureBuilder<List<ServiceOrder>>(
                     future: _futureOrdemServicos,
                     builder: (context, snapshot) {
@@ -503,7 +521,6 @@ class _OsListPageState extends State<OsListPage> {
           ),
         ),
       ),
-
       floatingActionButton: CustomFloatingButton(
         onPressed: _abrirNovaOs,
       ),
@@ -522,15 +539,14 @@ class _OsListPageState extends State<OsListPage> {
 
     final status = os.status.value;
 
+    final numeroOs = _formatarNumeroOs(os);
+
     return SlidableDeleteCard(
       slidableKey: ValueKey(os.id),
-
       onDelete: () async {
         await _confirmarExclusao(os);
       },
-
       extentRatio: 0.20,
-
       child: Padding(
         padding: const EdgeInsets.symmetric(
           horizontal: 16,
@@ -544,16 +560,14 @@ class _OsListPageState extends State<OsListPage> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    '#${os.id} - $nomeCliente',
+                    'OS Nº $numeroOs - $nomeCliente',
                     style: TextStyle(
                       fontSize: 18,
                       fontWeight: FontWeight.bold,
                       color: Colors.blueGrey.shade600,
                     ),
                   ),
-
                   const SizedBox(height: 5),
-
                   Text(
                     '$cidade${estado.isNotEmpty ? ' - $estado' : ''}',
                     style: TextStyle(
@@ -561,9 +575,7 @@ class _OsListPageState extends State<OsListPage> {
                       fontSize: 14,
                     ),
                   ),
-
                   const SizedBox(height: 5),
-
                   Row(
                     children: [
                       Icon(
@@ -582,9 +594,7 @@ class _OsListPageState extends State<OsListPage> {
                       ),
                     ],
                   ),
-
                   const SizedBox(height: 5),
-
                   Text(
                     'Entrada: ${_formatarData(os.entryDate)}',
                     style: TextStyle(
@@ -592,9 +602,7 @@ class _OsListPageState extends State<OsListPage> {
                       fontSize: 12,
                     ),
                   ),
-
                   const SizedBox(height: 5),
-
                   Text(
                     'Total: ${Dinheiro(os.values.totalCents).formatado()}',
                     style: TextStyle(
@@ -606,7 +614,6 @@ class _OsListPageState extends State<OsListPage> {
                 ],
               ),
             ),
-
             IconButton(
               icon: Icon(
                 Icons.edit,
