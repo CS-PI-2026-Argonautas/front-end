@@ -41,9 +41,7 @@ class OrderServiceState extends State<TollsOs>
 
     _os = widget.serviceOrder;
 
-    _itemService = ItemService(
-      ItemRepository(),
-    );
+    _itemService = ItemService(ItemRepository());
 
     _pecasStream = _itemService.watchParts();
   }
@@ -66,91 +64,112 @@ class OrderServiceState extends State<TollsOs>
 
         return Scaffold(
           backgroundColor: colors.surface,
+
           body: SafeArea(
             child: Padding(
               padding: const EdgeInsets.symmetric(
-                horizontal: 20,
-                vertical: 16,
+                horizontal: 16,
+                vertical: 18,
               ),
-              child: Column(
-                children: [
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Text(
-                        'Subtotal de peças',
-                        style: TextStyle(
-                          color: colors.onSurface,
-                          fontSize: 20,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                      Text(
-                        Dinheiro(_calcularSubtotal()).formatado(),
-                        style: TextStyle(
-                          color: colors.onSurface,
-                          fontSize: 18,
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
-                    ],
+              child: Center(
+                child: ConstrainedBox(
+                  constraints: const BoxConstraints(
+                    maxWidth: 650,
                   ),
-
-                  const SizedBox(height: 16),
-
-                  if (snapshot.connectionState == ConnectionState.waiting)
-                    const LinearProgressIndicator(),
-
-                  if (snapshot.hasError)
-                    Padding(
-                      padding: const EdgeInsets.all(12),
-                      child: Text(
-                        'Erro ao carregar peças: ${snapshot.error}',
-                        style: TextStyle(
-                          color: colors.error,
-                        ),
-                      ),
+                  child: Card(
+                    color: Colors.white,
+                    elevation: 8,
+                    shadowColor: Colors.black26,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(22),
                     ),
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 24,
+                        vertical: 28,
+                      ),
+                      child: Column(
+                        children: [
+                          Row(
+                            mainAxisAlignment:
+                                MainAxisAlignment.spaceBetween,
+                            children: [
+                              Text(
+                                'Subtotal de peças',
+                                style: TextStyle(
+                                  color: colors.onSurface,
+                                  fontSize: 20,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                              Text(
+                                Dinheiro(
+                                  _calcularSubtotal(),
+                                ).formatado(),
+                                style: TextStyle(
+                                  color: Colors.blueGrey.shade600,
+                                  fontSize: 18,
+                                  fontWeight: FontWeight.w600,
+                                ),
+                              ),
+                            ],
+                          ),
 
-                  Expanded(
-                    child: _os.parts.isEmpty
-                        ? Center(
-                            child: Text(
-                              'Nenhuma peça adicionada',
-                              style: TextStyle(
-                                color: colors.onSurfaceVariant,
-                                fontSize: 16,
+                          const SizedBox(height: 20),
+
+                          if (snapshot.connectionState ==
+                              ConnectionState.waiting)
+                            const LinearProgressIndicator(),
+
+                          if (snapshot.hasError)
+                            Padding(
+                              padding: const EdgeInsets.all(12),
+                              child: Text(
+                                'Erro ao carregar peças: ${snapshot.error}',
+                                style: TextStyle(
+                                  color: colors.error,
+                                ),
                               ),
                             ),
-                          )
-                        : ListView.separated(
-                            itemCount: _os.parts.length,
-                            separatorBuilder: (context, index) {
-                              return const SizedBox(height: 12);
-                            },
-                            itemBuilder: (context, index) {
-                              return _buildPieceCard(
-                                _os.parts[index],
-                                index,
-                              );
-                            },
+
+                          Expanded(
+                            child: _os.parts.isEmpty
+                                ? Center(
+                                    child: Text(
+                                      'Nenhuma peça adicionada',
+                                      style: TextStyle(
+                                        color: colors.onSurfaceVariant,
+                                        fontSize: 16,
+                                      ),
+                                    ),
+                                  )
+                                : ListView.separated(
+                                    padding: const EdgeInsets.all(4),
+                                    itemCount: _os.parts.length,
+                                    separatorBuilder: (context, index) {
+                                      return const SizedBox(height: 12);
+                                    },
+                                    itemBuilder: (context, index) {
+                                      return _buildPieceCard(
+                                        _os.parts[index],
+                                        index,
+                                      );
+                                    },
+                                  ),
                           ),
+                        ],
+                      ),
+                    ),
                   ),
-                ],
+                ),
               ),
             ),
           ),
 
-          floatingActionButton: FloatingActionButton(
+          floatingActionButton: CustomFloatingButton(
             onPressed: snapshot.hasData && !snapshot.hasError
                 ? () => abrirListaPecas(pecasDisponiveis)
-                : null,
-            backgroundColor: colors.primary,
-            child: const Icon(
-              Icons.add,
-              color: Colors.white,
-              size: 28,
-            ),
+                : () {},
           ),
         );
       },
@@ -160,10 +179,12 @@ class OrderServiceState extends State<TollsOs>
   void abrirListaPecas(List<Item> pecasDisponiveis) {
     showModalBottomSheet(
       context: context,
-      backgroundColor: colors.surface,
+      backgroundColor: colors.surfaceContainer,
       isScrollControlled: true,
       shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+        borderRadius: BorderRadius.vertical(
+          top: Radius.circular(24),
+        ),
       ),
       builder: (context) {
         return SelectionBottomSheet<Item>(
@@ -171,7 +192,7 @@ class OrderServiceState extends State<TollsOs>
           items: pecasDisponiveis,
           searchText: 'Buscar peça...',
           actionText: 'Nova peça',
-          itemIcon: Icons.build_outlined,
+          itemIcon: Icons.build,
 
           itemTitle: (peca) => peca.name,
 
@@ -292,10 +313,6 @@ class OrderServiceState extends State<TollsOs>
         padding: const EdgeInsets.all(14),
         decoration: BoxDecoration(
           color: colors.surfaceContainer,
-          border: Border.all(
-            color: colors.primary,
-            width: 1.5,
-          ),
           borderRadius: BorderRadius.circular(18),
           boxShadow: kElevationToShadow[4],
         ),
@@ -329,7 +346,7 @@ class OrderServiceState extends State<TollsOs>
                   Text(
                     totalItem.formatado(),
                     style: TextStyle(
-                      color: colors.onSurface,
+                      color: Colors.blueGrey.shade600,
                       fontWeight: FontWeight.bold,
                       fontSize: 17,
                     ),
@@ -343,7 +360,7 @@ class OrderServiceState extends State<TollsOs>
                 IconButton(
                   onPressed: () => _aumentarQuantidade(index),
                   icon: Icon(
-                    Icons.add_box_outlined,
+                    Icons.add,
                     color: colors.primary,
                   ),
                 ),
@@ -361,7 +378,7 @@ class OrderServiceState extends State<TollsOs>
                       ? () => _diminuirQuantidade(index)
                       : null,
                   icon: Icon(
-                    Icons.indeterminate_check_box_outlined,
+                    Icons.remove,
                     color: quantidade > 1
                         ? colors.primary
                         : colors.onSurfaceVariant,
