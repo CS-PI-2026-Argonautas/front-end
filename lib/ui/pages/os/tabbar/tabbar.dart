@@ -1,7 +1,7 @@
 
 import 'package:flutter/material.dart';
-import 'package:frontend/fire_base/Enums/StatusOrderService.dart';
 import 'package:frontend/fire_base/models/os.dart';
+import 'package:frontend/fire_base/Enums/StatusOrderService.dart';
 import 'package:frontend/fire_base/repositories/os_repository.dart';
 import 'package:frontend/ui/pages/os/tabs/data_os.dart';
 import 'package:frontend/ui/pages/os/tabs/os_service.dart';
@@ -51,6 +51,7 @@ class _TabbarState extends State<Tabbar>
     super.dispose();
   }
 
+  // Salva a OS sem alterar o status.
   Future<void> _salvarOs() async {
     if (_salvando) return;
 
@@ -70,8 +71,6 @@ class _TabbarState extends State<Tabbar>
           behavior: SnackBarBehavior.floating,
         ),
       );
-
-      setState(() {});
     } catch (e) {
       if (!mounted) return;
 
@@ -93,12 +92,63 @@ class _TabbarState extends State<Tabbar>
     }
   }
 
-  void _concluirOs() {
+  // Conclui a OS, salva e retorna somente se tudo der certo.
+  Future<void> _concluirOs() async {
+    if (_salvando) return;
+
+    if (!_dadosObrigatoriosPreenchidos) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text(
+            'Selecione um cliente e um endereço antes de concluir.',
+          ),
+          behavior: SnackBarBehavior.floating,
+        ),
+      );
+
+      _tabController.animateTo(0);
+      return;
+    }
+
+    final statusAnterior = _serviceOrder.status;
+
     setState(() {
+      _salvando = true;
+    });
+
+    try {
       _serviceOrder.changeStatus(
         ServiceOrderStatus.CONCLUIDA,
       );
-    });
+
+      await _osRepository.salvar(_serviceOrder);
+
+      if (!mounted) return;
+
+      Navigator.pop(context, _serviceOrder);
+    } catch (e) {
+      // Se falhar, restaura o status anterior.
+      _serviceOrder.changeStatus(statusAnterior);
+
+      if (!mounted) return;
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            'Não foi possível concluir a OS: '
+            '${e.toString().replaceFirst('Exception: ', '')}',
+          ),
+          backgroundColor: Colors.red,
+          behavior: SnackBarBehavior.floating,
+        ),
+      );
+    } finally {
+      if (mounted) {
+        setState(() {
+          _salvando = false;
+        });
+      }
+    }
   }
 
   void _atualizarDadosObrigatorios(bool preenchidos) {
@@ -115,6 +165,7 @@ class _TabbarState extends State<Tabbar>
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: colors.surface,
+
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         foregroundColor: Colors.white,
@@ -124,7 +175,9 @@ class _TabbarState extends State<Tabbar>
 
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
-          onPressed: () => Navigator.pop(context),
+          onPressed: _salvando
+              ? null
+              : () => Navigator.pop(context),
         ),
 
         title: Text(
@@ -157,7 +210,8 @@ class _TabbarState extends State<Tabbar>
           indicatorWeight: 3,
 
           onTap: (index) {
-            if (index != 0 && !_dadosObrigatoriosPreenchidos) {
+            if (index != 0 &&
+                !_dadosObrigatoriosPreenchidos) {
               _tabController.animateTo(0);
 
               ScaffoldMessenger.of(context).showSnackBar(
@@ -204,7 +258,8 @@ class _TabbarState extends State<Tabbar>
             avancarTab: () {
               _tabController.animateTo(1);
             },
-            onDadosObrigatoriosChanged: _atualizarDadosObrigatorios,
+            onDadosObrigatoriosChanged:
+                _atualizarDadosObrigatorios,
             onChanged: () {
               setState(() {});
             },
@@ -225,41 +280,10 @@ class _TabbarState extends State<Tabbar>
         ],
       ),
 
-      bottomNavigationBar: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.all(16),
-          child: SizedBox(
-            width: double.infinity,
-            height: 50,
-            child: ElevatedButton.icon(
-              onPressed: _salvando ? null : _salvarOs,
-              icon: _salvando
-                  ? const SizedBox(
-                      width: 20,
-                      height: 20,
-                      child: CircularProgressIndicator(
-                        strokeWidth: 2,
-                        color: Colors.white,
-                      ),
-                    )
-                  : const Icon(Icons.save),
-              label: Text(
-                _salvando
-                    ? 'Salvando...'
-                    : 'Salvar alterações',
-              ),
-              style: ElevatedButton.styleFrom(
-                backgroundColor: colors.primary,
-                foregroundColor: Colors.white,
-                disabledBackgroundColor: colors.primary.withOpacity(0.6),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(10),
-                ),
-              ),
-            ),
-          ),
-        ),
-      ),
+  
+          
+        
+      
     );
   }
 }

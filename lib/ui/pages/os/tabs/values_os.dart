@@ -26,6 +26,8 @@ class _ValuesOsState extends State<ValuesOs>
   late final TextEditingController _taxaController;
   late final TextEditingController _descontoController;
 
+  ServiceOrder get os => widget.serviceOrder;
+
   @override
   bool get wantKeepAlive => true;
 
@@ -34,11 +36,11 @@ class _ValuesOsState extends State<ValuesOs>
     super.initState();
 
     _taxaController = TextEditingController(
-      text: _formatarInput(widget.serviceOrder.globalFeeCents),
+      text: _formatarInput(os.globalFeeCents),
     );
 
     _descontoController = TextEditingController(
-      text: _formatarInput(widget.serviceOrder.globalDiscountCents),
+      text: _formatarInput(os.globalDiscountCents),
     );
   }
 
@@ -50,51 +52,105 @@ class _ValuesOsState extends State<ValuesOs>
   }
 
   String _formatarInput(int centavos) {
-    return (centavos / 100).toStringAsFixed(2).replaceAll('.', ',');
+    return (centavos / 100)
+        .toStringAsFixed(2)
+        .replaceAll('.', ',');
   }
 
   int _converterParaCentavos(String valor) {
-    final numeros = valor.replaceAll(RegExp(r'[^0-9]'), '');
+    String normalizado = valor.trim();
 
-    if (numeros.isEmpty) return 0;
+    if (normalizado.isEmpty) return 0;
 
-    return int.parse(numeros);
+    if (normalizado.contains(',') && normalizado.contains('.')) {
+      if (normalizado.lastIndexOf(',') >
+          normalizado.lastIndexOf('.')) {
+        normalizado = normalizado
+            .replaceAll('.', '')
+            .replaceAll(',', '.');
+      } else {
+        normalizado = normalizado.replaceAll(',', '');
+      }
+    } else {
+      normalizado = normalizado.replaceAll(',', '.');
+    }
+
+    final numero = double.tryParse(normalizado);
+
+    if (numero == null || numero < 0) return 0;
+
+    return (numero * 100).round();
+  }
+
+  void _atualizarTaxa(String valor) {
+    setState(() {
+      os.globalFeeCents = _converterParaCentavos(valor);
+    });
+  }
+
+  void _atualizarDesconto(String valor) {
+    setState(() {
+      os.globalDiscountCents = _converterParaCentavos(valor);
+    });
   }
 
   int get _subtotalPecas {
-    return widget.serviceOrder.parts.fold<int>(
+    return os.parts.fold<int>(
       0,
       (total, peca) => total + peca.subtotalCents,
     );
   }
 
   int get _subtotalServicos {
-    return widget.serviceOrder.services.fold<int>(
+    return os.services.fold<int>(
       0,
       (total, servico) => total + servico.subtotalCents,
     );
   }
 
-  int get _taxas => widget.serviceOrder.globalFeeCents;
+  int get _taxas => os.globalFeeCents;
 
-  int get _desconto => widget.serviceOrder.globalDiscountCents;
+  int get _desconto => os.globalDiscountCents;
 
   int get _total {
-    return _subtotalPecas + _subtotalServicos + _taxas - _desconto;
+    return _subtotalPecas +
+        _subtotalServicos +
+        _taxas -
+        _desconto;
   }
 
-  void _atualizarTaxa(String valor) {
-    setState(() {
-      widget.serviceOrder.globalFeeCents =
-          _converterParaCentavos(valor);
-    });
-  }
+  void _concluir() {
+    debugPrint('================================');
+    debugPrint('BOTÃO CONCLUIR CLICADO');
+    debugPrint('Total: $_total centavos');
+    debugPrint('Callback conectado: ${widget.onConcluir != null}');
+    debugPrint('================================');
 
-  void _atualizarDesconto(String valor) {
-    setState(() {
-      widget.serviceOrder.globalDiscountCents =
-          _converterParaCentavos(valor);
-    });
+    if (_total < 0) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text(
+            'O desconto não pode deixar o total negativo.',
+          ),
+        ),
+      );
+      return;
+    }
+
+    if (widget.onConcluir == null) {
+      debugPrint('ERRO: onConcluir não foi conectado na Tabbar.');
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text(
+            'Não foi possível concluir: ação não configurada.',
+          ),
+        ),
+      );
+      return;
+    }
+
+    widget.onConcluir!.call();
   }
 
   @override
@@ -138,10 +194,10 @@ class _ValuesOsState extends State<ValuesOs>
                   const SizedBox(height: 18),
 
                   _buildSummarySection(
-                    icon: Icons.build,
                     title: 'Peças',
                     value: subtotalPecas,
-                    children: widget.serviceOrder.parts.map((peca) {
+                    icon: Icons.build,
+                    children: os.parts.map((peca) {
                       return _buildItem(
                         name: '${peca.name} (${peca.quantity}x)',
                         value: peca.subtotalCents,
@@ -152,10 +208,10 @@ class _ValuesOsState extends State<ValuesOs>
                   const SizedBox(height: 18),
 
                   _buildSummarySection(
-                    icon: Icons.handyman,
                     title: 'Serviços',
                     value: subtotalServicos,
-                    children: widget.serviceOrder.services.map((servico) {
+                    icon: Icons.handyman,
+                    children: os.services.map((servico) {
                       return _buildItem(
                         name: servico.description,
                         value: servico.subtotalCents,
@@ -170,7 +226,6 @@ class _ValuesOsState extends State<ValuesOs>
                     controller: _taxaController,
                     onChanged: _atualizarTaxa,
                     cor: Colors.green.shade700,
-                    icone: Icons.add,
                   ),
 
                   const SizedBox(height: 12),
@@ -180,7 +235,6 @@ class _ValuesOsState extends State<ValuesOs>
                     controller: _descontoController,
                     onChanged: _atualizarDesconto,
                     cor: Colors.redAccent.shade400,
-                    icone: Icons.remove,
                   ),
 
                   const SizedBox(height: 20),
@@ -199,10 +253,11 @@ class _ValuesOsState extends State<ValuesOs>
                   SizedBox(
                     width: double.infinity,
                     child: ElevatedButton.icon(
-                      onPressed: widget.onConcluir,
+                      onPressed: total < 0 ? null : _concluir,
                       icon: const Icon(Icons.check),
                       label: const Text(
                         'Concluir ordem de serviço e voltar',
+                        textAlign: TextAlign.center,
                         style: TextStyle(
                           fontWeight: FontWeight.bold,
                           fontSize: 16,
@@ -212,7 +267,9 @@ class _ValuesOsState extends State<ValuesOs>
                         elevation: 3,
                         backgroundColor: colors.primary,
                         foregroundColor: colors.onSecondary,
-                        padding: const EdgeInsets.symmetric(vertical: 18),
+                        padding: const EdgeInsets.symmetric(
+                          vertical: 18,
+                        ),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(14),
                         ),
@@ -225,7 +282,7 @@ class _ValuesOsState extends State<ValuesOs>
                   Center(
                     child: Text(
                       total < 0
-                          ? 'O total não pode ser negativo.'
+                          ? 'O desconto não pode deixar o total negativo.'
                           : 'Confira os valores antes de concluir.',
                       textAlign: TextAlign.center,
                       style: TextStyle(
@@ -245,7 +302,10 @@ class _ValuesOsState extends State<ValuesOs>
     );
   }
 
-  Widget _buildSectionTitle(String title, String subtitle) {
+  Widget _buildSectionTitle(
+    String title,
+    String subtitle,
+  ) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -286,7 +346,11 @@ class _ValuesOsState extends State<ValuesOs>
         children: [
           Row(
             children: [
-              Icon(icon, size: 20, color: colors.secondary),
+              Icon(
+                icon,
+                size: 20,
+                color: colors.secondary,
+              ),
               const SizedBox(width: 8),
               Expanded(
                 child: Text(
@@ -312,7 +376,9 @@ class _ValuesOsState extends State<ValuesOs>
           if (children.isEmpty)
             Text(
               'Nenhum item adicionado.',
-              style: TextStyle(color: colors.onSurfaceVariant),
+              style: TextStyle(
+                color: colors.onSurfaceVariant,
+              ),
             )
           else
             ...children,
@@ -364,7 +430,6 @@ class _ValuesOsState extends State<ValuesOs>
     required TextEditingController controller,
     required ValueChanged<String> onChanged,
     required Color cor,
-    required IconData icone,
   }) {
     return Container(
       padding: const EdgeInsets.symmetric(
@@ -381,8 +446,6 @@ class _ValuesOsState extends State<ValuesOs>
       ),
       child: Row(
         children: [
-          Icon(icone, color: cor),
-          const SizedBox(width: 8),
           Expanded(
             child: Text(
               titulo,
@@ -394,7 +457,7 @@ class _ValuesOsState extends State<ValuesOs>
             ),
           ),
           SizedBox(
-            width: 110,
+            width: 120,
             child: TextField(
               controller: controller,
               keyboardType: const TextInputType.numberWithOptions(
@@ -408,6 +471,7 @@ class _ValuesOsState extends State<ValuesOs>
               textAlign: TextAlign.end,
               decoration: const InputDecoration(
                 prefixText: 'R\$ ',
+                hintText: '0,00',
                 border: InputBorder.none,
                 isDense: true,
               ),
@@ -472,7 +536,9 @@ class _ValuesOsState extends State<ValuesOs>
           Text(
             Dinheiro(total).formatado(),
             style: TextStyle(
-              color: total < 0 ? colors.error : colors.secondary,
+              color: total < 0
+                  ? colors.error
+                  : colors.secondary,
               fontSize: 20,
               fontWeight: FontWeight.bold,
             ),
