@@ -8,9 +8,9 @@ import 'package:frontend/fire_base/models/item.dart';
 import 'package:frontend/fire_base/models/os.dart';
 import 'package:frontend/fire_base/repositories/item_repository.dart';
 import 'package:frontend/fire_base/services/item_service.dart';
-
 import 'package:frontend/ui/pages/product_registration/product_registration.dart';
 import 'package:frontend/ui/widgets/bottom_sheet/bottom_sheet.dart';
+import 'package:frontend/ui/widgets/floatingButton.dart';
 
 class TollsOs extends StatefulWidget {
   final ServiceOrder serviceOrder;
@@ -163,9 +163,7 @@ class OrderServiceState extends State<TollsOs>
       backgroundColor: colors.surface,
       isScrollControlled: true,
       shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(
-          top: Radius.circular(24),
-        ),
+        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
       ),
       builder: (context) {
         return SelectionBottomSheet<Item>(
@@ -299,6 +297,7 @@ class OrderServiceState extends State<TollsOs>
             width: 1.5,
           ),
           borderRadius: BorderRadius.circular(18),
+          boxShadow: kElevationToShadow[4],
         ),
         child: Row(
           children: [

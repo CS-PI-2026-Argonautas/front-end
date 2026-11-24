@@ -76,6 +76,16 @@ class AuthenticationService {
       await auth.signOut();
     }
   }
+  
+  Future<AppUser?> getLoggedUser() async {
+  final user = currentUser;
+
+  if (user == null) {
+    return null;
+  }
+
+  return await AppUserRepository().findById(user.uid);
+}
 
   Future<FirebaseApp> _accountCreationApp() async {
     for (final app in Firebase.apps) {

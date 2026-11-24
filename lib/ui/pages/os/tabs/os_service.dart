@@ -1,6 +1,4 @@
 
-import 'dart:math';
-
 import 'package:flutter/material.dart';
 import 'package:frontend/fire_base/models/dinheiro.dart';
 import 'package:frontend/fire_base/models/os.dart';
@@ -36,9 +34,16 @@ class _OsServicosTabState extends State<OsServicosTab> {
     _carregarServicosDoBanco();
   }
 
+  @override
+  void dispose() {
+    _searchController.dispose();
+    super.dispose();
+  }
+
   Future<void> _carregarServicosDoBanco() async {
     try {
       final servicoService = ServicoService();
+
       final servicosDoFirebase =
           await servicoService.buscarServicosDisponiveis();
 
@@ -53,26 +58,25 @@ class _OsServicosTabState extends State<OsServicosTab> {
         };
       }).toList();
 
-      if (mounted) {
-        setState(() {
-          _servicosDisponiveis = servicosFormatados;
-          _carregandoServicos = false;
-        });
-      }
-    } catch (e) {
-      if (mounted) {
-        setState(() => _carregandoServicos = false);
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Erro ao carregar serviços: $e')),
-        );
-      }
-    }
-  }
+      if (!mounted) return;
 
-  @override
-  void dispose() {
-    _searchController.dispose();
-    super.dispose();
+      setState(() {
+        _servicosDisponiveis = servicosFormatados;
+        _carregandoServicos = false;
+      });
+    } catch (e) {
+      if (!mounted) return;
+
+      setState(() {
+        _carregandoServicos = false;
+      });
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Erro ao carregar serviços: $e'),
+        ),
+      );
+    }
   }
 
   List<ServiceOrderService> get _servicosExibidos {
@@ -91,6 +95,17 @@ class _OsServicosTabState extends State<OsServicosTab> {
   }
 
   void _adicionarServico(Map<String, dynamic> servico) {
+    final preco = servico['preco'];
+
+    if (preco is! num) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Não foi possível adicionar o serviço: preço inválido.'),
+        ),
+      );
+      return;
+    }
+
     setState(() {
       widget.serviceOrder.services.add(
         ServiceOrderService(
@@ -98,14 +113,13 @@ class _OsServicosTabState extends State<OsServicosTab> {
           description: servico['descricao']?.toString().isNotEmpty == true
               ? servico['descricao'].toString()
               : servico['nome'].toString(),
-          valueCents: servico['preco'] as int,
+          valueCents: preco.toInt(),
         ),
       );
     });
   }
 
-  void _removerServico(int index) {
-    final servico = _servicosExibidos[index];
+  void _removerServico(ServiceOrderService servico) {
     final indiceOriginal =
         widget.serviceOrder.services.indexOf(servico);
 
@@ -127,9 +141,14 @@ class _OsServicosTabState extends State<OsServicosTab> {
           label: 'DESFAZER',
           textColor: Colors.white,
           onPressed: () {
+            if (!mounted) return;
+
             setState(() {
               widget.serviceOrder.services.insert(
-                min(indiceOriginal, widget.serviceOrder.services.length),
+                indiceOriginal.clamp(
+                  0,
+                  widget.serviceOrder.services.length,
+                ),
                 servico,
               );
             });
@@ -157,7 +176,7 @@ class _OsServicosTabState extends State<OsServicosTab> {
           actionText: 'Novo serviço',
           itemTitle: (servico) => servico['nome'].toString(),
           itemSubtitle: (servico) {
-            final int preco = servico['preco'] as int;
+            final preco = servico['preco'] as int;
             return Dinheiro(preco).formatado();
           },
           itemIcon: Icons.build,
@@ -175,13 +194,15 @@ class _OsServicosTabState extends State<OsServicosTab> {
             if (!mounted || dadosNovos == null) return;
 
             final novoServico = {
-              'id': 'novo_${DateTime.now().millisecondsSinceEpoch}',
+              'id': dadosNovos['id']?.toString() ??
+                  'novo_${DateTime.now().millisecondsSinceEpoch}',
               'nome': dadosNovos['nome'],
               'descricao': dadosNovos['descricao'],
-              'preco': dadosNovos['valor'] as int,
+              'preco': dadosNovos['valor'],
             };
 
             _adicionarServico(novoServico);
+
             await _carregarServicosDoBanco();
           },
           onSelect: (servico) {
@@ -238,7 +259,9 @@ class _OsServicosTabState extends State<OsServicosTab> {
                       hintText: 'Procurar serviço',
                       filled: true,
                       fillColor: colors.surfaceContainer,
-                      hintStyle: TextStyle(color: colors.onSurface),
+                      hintStyle: TextStyle(
+                        color: colors.onSurface,
+                      ),
                       prefixIcon: Icon(
                         Icons.search,
                         color: colors.secondary,
@@ -252,7 +275,9 @@ class _OsServicosTabState extends State<OsServicosTab> {
                   const SizedBox(height: 20),
                   if (listaAtual.isEmpty)
                     Padding(
-                      padding: const EdgeInsets.symmetric(vertical: 40),
+                      padding: const EdgeInsets.symmetric(
+                        vertical: 40,
+                      ),
                       child: Center(
                         child: Text(
                           'Nenhum serviço adicionado.',
@@ -271,7 +296,6 @@ class _OsServicosTabState extends State<OsServicosTab> {
                       itemBuilder: (context, index) {
                         return _buildServiceCard(
                           listaAtual[index],
-                          index,
                         );
                       },
                     ),
@@ -291,11 +315,10 @@ class _OsServicosTabState extends State<OsServicosTab> {
     );
   }
 
-  Widget _buildServiceCard(
-    ServiceOrderService servico,
-    int index,
-  ) {
-    final double preco = max(0, servico.subtotalCents) / 100;
+  Widget _buildServiceCard(ServiceOrderService servico) {
+    final preco = servico.subtotalCents < 0
+        ? 0
+        : servico.subtotalCents;
 
     return Padding(
       padding: const EdgeInsets.only(bottom: 12),
@@ -314,14 +337,20 @@ class _OsServicosTabState extends State<OsServicosTab> {
                       ),
                       actions: [
                         TextButton(
-                          onPressed: () => Navigator.pop(context, false),
+                          onPressed: () {
+                            Navigator.pop(context, false);
+                          },
                           child: const Text('CANCELAR'),
                         ),
                         TextButton(
-                          onPressed: () => Navigator.pop(context, true),
+                          onPressed: () {
+                            Navigator.pop(context, true);
+                          },
                           child: Text(
                             'REMOVER',
-                            style: TextStyle(color: colors.error),
+                            style: TextStyle(
+                              color: colors.error,
+                            ),
                           ),
                         ),
                       ],
@@ -331,7 +360,7 @@ class _OsServicosTabState extends State<OsServicosTab> {
                 false;
 
             if (confirmar && mounted) {
-              _removerServico(index);
+              _removerServico(servico);
             }
           },
           extentRatio: 0.20,
@@ -355,7 +384,7 @@ class _OsServicosTabState extends State<OsServicosTab> {
                 ),
                 const SizedBox(height: 8),
                 Text(
-                  Dinheiro((preco * 100).round()).formatado(),
+                  Dinheiro(preco).formatado(),
                   style: TextStyle(
                     color: colors.primary,
                     fontSize: 15,

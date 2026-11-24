@@ -115,7 +115,7 @@ class _PersonRegistration2State extends State<PersonRegistrationAddress> {
 
         TextFormField(
           controller: _cepController,
-          decoration: customInputDecoration(hintText: "12345-678"),
+          decoration: customInputDecoration(hintText: "Informe o CEP"),
           keyboardType: TextInputType.number,
           inputFormatters: [
             FilteringTextInputFormatter.digitsOnly,
@@ -136,23 +136,16 @@ class _PersonRegistration2State extends State<PersonRegistrationAddress> {
 
         TextFormField(
           controller: _ruaController,
-          decoration: customInputDecoration(hintText: "Av. Brasil"),
+          decoration: customInputDecoration(hintText: "Rua, avenida ou rodovia do endereço"),
           validator: (value) =>
               (value == null || value.isEmpty) ? 'Informe a rua' : null,
-        ),
-
-        FormFieldLabel(icon: Icons.apartment_outlined, label: "Complemento"),
-
-        TextFormField(
-          controller: _complementoController,
-          decoration: customInputDecoration(hintText: "Sala 2, fundos..."),
         ),
 
         FormFieldLabel(icon: Icons.location_city_outlined, label: "Cidade *"),
 
         TextFormField(
           controller: _cidadeController,
-          decoration: customInputDecoration(hintText: "Paranavaí"),
+          decoration: customInputDecoration(hintText: "Informe a cidade"),
           validator: (value) =>
               (value == null || value.isEmpty) ? 'Informe a cidade' : null,
         ),
@@ -174,7 +167,7 @@ class _PersonRegistration2State extends State<PersonRegistrationAddress> {
 
                   TextFormField(
                     controller: _numeroController,
-                    decoration: customInputDecoration(hintText: "123"),
+                    decoration: customInputDecoration(hintText: "Informe o número"),
                     keyboardType: TextInputType.number,
                     inputFormatters: [FilteringTextInputFormatter.digitsOnly],
                   ),
@@ -197,7 +190,7 @@ class _PersonRegistration2State extends State<PersonRegistrationAddress> {
                       FilteringTextInputFormatter.allow(RegExp(r'[a-zA-Z]')),
                       LengthLimitingTextInputFormatter(2),
                     ],
-                    decoration: customInputDecoration(hintText: "PR"),
+                    decoration: customInputDecoration(hintText: "Informe a UF"),
                     textCapitalization: TextCapitalization.characters,
 
                     validator: (value) {
@@ -216,6 +209,13 @@ class _PersonRegistration2State extends State<PersonRegistrationAddress> {
               ),
             ),
           ],
+        ),
+
+        FormFieldLabel(icon: Icons.apartment_outlined, label: "Complemento"),
+
+        TextFormField(
+          controller: _complementoController,
+          decoration: customInputDecoration(hintText: "Informe o complemento"),
         ),
 
         ActionButtons(
