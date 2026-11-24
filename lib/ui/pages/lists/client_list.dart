@@ -4,7 +4,7 @@ import 'package:frontend/fire_base/services/client_service.dart';
 import 'package:frontend/ui/pages/dashboard.dart';
 import 'package:frontend/ui/pages/edit_item/item_edition.dart';
 import 'package:frontend/ui/pages/lists/service_list.dart';
-import 'package:frontend/ui/pages/os_list/os_list_page.dart';
+import 'package:frontend/ui/pages/lists/os_list_page.dart';
 import 'package:frontend/ui/pages/person_alteration/person_alteration.dart';
 import 'package:frontend/ui/pages/person_registration/person_registration.dart';
 import 'package:frontend/ui/pages/product_registration/product_registration.dart';
@@ -101,64 +101,49 @@ class _ClientListState extends State<ClientList> {
           }
         },
       ),
-
       body: SafeArea(
-        child: SingleChildScrollView(
-          child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 50),
-            child: Column(
-              children: [
-                TextFormField(
-                  controller: _searchController,
-                  decoration: InputDecoration(
-                    hintText: 'Procurar cliente',
-                    filled: true,
-                    fillColor: colors.surfaceContainer,
-                    hintStyle: TextStyle(color: colors.onSurface),
-                    prefixIcon: Icon(Icons.search, color: colors.secondary),
-                    suffixIcon: _searchQuery.isNotEmpty
-                        ? IconButton(
-                            icon: Icon(Icons.clear, color: colors.secondary),
-                            onPressed: () {
-                              _searchController.clear();
-                            },
-                          )
-                        : null,
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(14),
-                      borderSide: BorderSide.none,
+        child: Align(
+          alignment: Alignment.topCenter,
+          child: ConstrainedBox(
+            constraints: const BoxConstraints(maxWidth: 650),
+            child: SingleChildScrollView(
+              padding: const EdgeInsets.fromLTRB(20, 30, 20, 100),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  TextFormField(
+                    controller: _searchController,
+                    decoration: InputDecoration(
+                      hintText: 'Procurar cliente',
+                      filled: true,
+                      fillColor: colors.surfaceContainer,
+                      hintStyle: TextStyle(color: colors.onSurface),
+                      prefixIcon: Icon(Icons.search, color: colors.secondary),
+                      suffixIcon: _searchQuery.isNotEmpty
+                          ? IconButton(
+                              icon: Icon(Icons.clear, color: colors.secondary),
+                              onPressed: () {
+                                _searchController.clear();
+                              },
+                            )
+                          : null,
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(14),
+                        borderSide: BorderSide.none,
+                      ),
                     ),
                   ),
-                ),
 
-                Padding(
-                  padding: const EdgeInsets.only(top: 20.0),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.start,
-                    children: [
-                      ElevatedButton.icon(
-                        onPressed: () {},
-                        icon: const Icon(Icons.tune),
-                        label: const Text(
-                          'Filtrar',
-                          style: TextStyle(
-                            fontWeight: FontWeight.bold,
-                            fontSize: 14.8,
-                          ),
-                        ),
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: colors.primary,
-                          foregroundColor: Colors.white,
-                        ),
-                      ),
-
-                      Padding(
-                        padding: const EdgeInsets.only(left: 10.0),
-                        child: ElevatedButton.icon(
+                  Padding(
+                    padding: const EdgeInsets.only(top: 20.0),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.start,
+                      children: [
+                        ElevatedButton.icon(
                           onPressed: () {},
-                          icon: const Icon(Icons.swap_vert),
+                          icon: const Icon(Icons.tune),
                           label: const Text(
-                            'Ordenar',
+                            'Filtrar',
                             style: TextStyle(
                               fontWeight: FontWeight.bold,
                               fontSize: 14.8,
@@ -169,100 +154,118 @@ class _ClientListState extends State<ClientList> {
                             foregroundColor: Colors.white,
                           ),
                         ),
-                      ),
-                    ],
-                  ),
-                ),
 
-                Padding(
-                  padding: const EdgeInsets.only(top: 10.0, bottom: 10.0),
-                  child: Align(
-                    alignment: Alignment.centerLeft,
-                    child: Text(
-                      'Recentes',
-                      style: TextStyle(
-                        color: colors.onSurface,
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
+                        Padding(
+                          padding: const EdgeInsets.only(left: 10.0),
+                          child: ElevatedButton.icon(
+                            onPressed: () {},
+                            icon: const Icon(Icons.swap_vert),
+                            label: const Text(
+                              'Ordenar',
+                              style: TextStyle(
+                                fontWeight: FontWeight.bold,
+                                fontSize: 14.8,
+                              ),
+                            ),
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: colors.primary,
+                              foregroundColor: Colors.white,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+
+                  Padding(
+                    padding: const EdgeInsets.only(top: 10.0, bottom: 10.0),
+                    child: Align(
+                      alignment: Alignment.centerLeft,
+                      child: Text(
+                        'Recentes',
+                        style: TextStyle(
+                          color: colors.onSurface,
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                        ),
                       ),
                     ),
                   ),
-                ),
 
-                StreamBuilder<List<Client>>(
-                  stream: _clientes,
-                  builder: (context, snapshot) {
-                    if (snapshot.connectionState == ConnectionState.waiting) {
-                      return const Padding(
-                        padding: EdgeInsets.only(top: 20.0),
-                        child: Center(child: CircularProgressIndicator()),
-                      );
-                    }
+                  StreamBuilder<List<Client>>(
+                    stream: _clientes,
+                    builder: (context, snapshot) {
+                      if (snapshot.connectionState == ConnectionState.waiting) {
+                        return const Padding(
+                          padding: EdgeInsets.only(top: 20.0),
+                          child: Center(child: CircularProgressIndicator()),
+                        );
+                      }
 
-                    if (snapshot.hasError) {
-                      return const Center(
-                        child: Text('Erro ao carregar clientes.'),
-                      );
-                    }
+                      if (snapshot.hasError) {
+                        return const Center(
+                          child: Text('Erro ao carregar clientes.'),
+                        );
+                      }
 
-                    if (!snapshot.hasData || snapshot.data!.isEmpty) {
-                      return const Center(
-                        child: Text('Nenhum cliente encontrado.'),
-                      );
-                    }
+                      if (!snapshot.hasData || snapshot.data!.isEmpty) {
+                        return const Center(
+                          child: Text('Nenhum cliente encontrado.'),
+                        );
+                      }
 
-                    final todosClientes = snapshot.data!;
+                      final todosClientes = snapshot.data!;
 
-                    final clientesFiltrados = todosClientes.where((cliente) {
-                      final nomeMatch = cliente.name.toLowerCase().contains(
-                        _searchQuery,
-                      );
-                      final resumoMatch = cliente.contact.resumo
-                          .toLowerCase()
-                          .contains(_searchQuery);
-                      return nomeMatch || resumoMatch;
-                    }).toList();
+                      final clientesFiltrados = todosClientes.where((cliente) {
+                        final nomeMatch = cliente.name.toLowerCase().contains(
+                          _searchQuery,
+                        );
+                        final resumoMatch = cliente.contact.resumo
+                            .toLowerCase()
+                            .contains(_searchQuery);
+                        return nomeMatch || resumoMatch;
+                      }).toList();
 
-                    if (clientesFiltrados.isEmpty) {
-                      return Padding(
-                        padding: const EdgeInsets.only(top: 20.0),
-                        child: Center(
-                          child: Text(
-                            'Nenhum cliente corresponde à pesquisa.',
-                            style: TextStyle(color: colors.onSurfaceVariant),
+                      if (clientesFiltrados.isEmpty) {
+                        return Padding(
+                          padding: const EdgeInsets.only(top: 20.0),
+                          child: Center(
+                            child: Text(
+                              'Nenhum cliente corresponde à pesquisa.',
+                              style: TextStyle(color: colors.onSurfaceVariant),
+                            ),
                           ),
+                        );
+                      }
+
+                      return Card(
+                        elevation: 4,
+                        color: colors.surfaceContainer,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        clipBehavior: Clip.antiAlias,
+                        child: ListView.separated(
+                          shrinkWrap: true,
+                          physics: const NeverScrollableScrollPhysics(),
+                          itemCount: clientesFiltrados.length,
+                          separatorBuilder: (context, index) => Divider(
+                            height: 1,
+                            color: colors.onSurfaceVariant.withOpacity(0.2),
+                          ),
+                          itemBuilder: (context, index) {
+                            return _buildClientCard(clientesFiltrados[index]);
+                          },
                         ),
                       );
-                    }
-
-                    return Card(
-                      elevation: 4,
-                      color: colors.surfaceContainer,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      clipBehavior: Clip.antiAlias,
-                      child: ListView.separated(
-                        shrinkWrap: true,
-                        physics: const NeverScrollableScrollPhysics(),
-                        itemCount: clientesFiltrados.length,
-                        separatorBuilder: (context, index) => Divider(
-                          height: 1,
-                          color: colors.onSurfaceVariant.withOpacity(0.2),
-                        ),
-                        itemBuilder: (context, index) {
-                          return _buildClientCard(clientesFiltrados[index]);
-                        },
-                      ),
-                    );
-                  },
-                ),
-              ],
+                    },
+                  ),
+                ],
+              ),
             ),
           ),
         ),
       ),
-
       floatingActionButton: CustomFloatingButton(
         onPressed: () {
           Navigator.push(

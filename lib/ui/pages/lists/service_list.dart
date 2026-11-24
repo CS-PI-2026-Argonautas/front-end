@@ -4,7 +4,7 @@ import 'package:frontend/fire_base/models/service.dart';
 import 'package:frontend/fire_base/services/service_service.dart';
 import 'package:frontend/ui/pages/dashboard.dart';
 import 'package:frontend/ui/pages/lists/client_list.dart';
-import 'package:frontend/ui/pages/os_list/os_list_page.dart';
+import 'package:frontend/ui/pages/lists/os_list_page.dart';
 import 'package:frontend/ui/pages/product_registration/product_registration.dart';
 import 'package:frontend/ui/pages/service_registration/service_registration.dart';
 import 'package:frontend/ui/style/ColorScheme.dart' as custom_colors;
@@ -257,11 +257,54 @@ class _ServiceListState extends State<ServiceList> {
                   ),
 
                   Padding(
+                    padding: const EdgeInsets.only(top: 20.0),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.start,
+                      children: [
+                        ElevatedButton.icon(
+                          onPressed: () {},
+                          icon: const Icon(Icons.tune),
+                          label: const Text(
+                            'Filtrar',
+                            style: TextStyle(
+                              fontWeight: FontWeight.bold,
+                              fontSize: 14.8,
+                            ),
+                          ),
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: colors.primary,
+                            foregroundColor: Colors.white,
+                          ),
+                        ),
+
+                        Padding(
+                          padding: const EdgeInsets.only(left: 10.0),
+                          child: ElevatedButton.icon(
+                            onPressed: () {},
+                            icon: const Icon(Icons.swap_vert),
+                            label: const Text(
+                              'Ordenar',
+                              style: TextStyle(
+                                fontWeight: FontWeight.bold,
+                                fontSize: 14.8,
+                              ),
+                            ),
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: colors.primary,
+                              foregroundColor: Colors.white,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+
+                  Padding(
                     padding: const EdgeInsets.only(top: 20, bottom: 10),
                     child: Align(
                       alignment: Alignment.centerLeft,
                       child: Text(
-                        'Serviços cadastrados',
+                        'Recentes',
                         style: TextStyle(
                           color: colors.onSurface,
                           fontSize: 18,

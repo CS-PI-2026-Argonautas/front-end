@@ -4,7 +4,10 @@ import 'package:frontend/fire_base/models/address.dart';
 import 'package:frontend/fire_base/Enums/PersonType.dart';
 import 'package:frontend/fire_base/models/contact.dart';
 import 'package:frontend/fire_base/services/client_service.dart';
+import 'package:frontend/ui/pages/lists/os_list_page.dart';
+import 'package:frontend/ui/pages/lists/service_list.dart';
 import 'package:frontend/ui/pages/person_registration/person_registration_contact.dart';
+import 'package:frontend/ui/pages/product_registration/product_registration.dart';
 import 'package:frontend/ui/style/ColorScheme.dart' as custom_colors;
 import 'package:frontend/ui/pages/person_registration/person_registration_address.dart';
 import 'package:frontend/ui/style/inputDecorationStyles.dart';
@@ -12,6 +15,7 @@ import 'package:frontend/ui/widgets/form/action_buttons.dart';
 import 'package:frontend/ui/widgets/form/form_card.dart';
 import 'package:frontend/ui/widgets/form/form_field_label.dart';
 import 'package:frontend/ui/widgets/fields/selection_field.dart';
+import 'package:frontend/ui/widgets/menu.dart';
 import 'package:mask_text_input_formatter/mask_text_input_formatter.dart';
 import 'package:frontend/ui/pages/dashboard.dart';
 import 'package:frontend/ui/widgets/appBar.dart';
@@ -62,6 +66,42 @@ class _PersonRegistrationState1 extends State<PersonRegistration> {
           Navigator.pop(context);
         },
         title: 'Cadastro de clientes',
+      ),
+      endDrawer: Menu(
+        currentIndex: 0,
+        onTap: (index) {
+          Navigator.pop(context);
+
+          if (index == 1) {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => const ProductRegistration(),
+              ),
+            );
+          }
+
+          if (index == 2) {
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => const OsListPage()),
+            );
+          }
+
+          if (index == 3) {
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => const ServiceList()),
+            );
+          }
+
+          if (index == 4) {
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => const Dashboard()),
+            );
+          }
+        },
       ),
       body: SafeArea(
         child: SingleChildScrollView(

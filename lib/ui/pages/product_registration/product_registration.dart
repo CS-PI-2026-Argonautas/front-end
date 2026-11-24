@@ -8,7 +8,7 @@ import 'package:frontend/ui/pages/lists/client_list.dart';
 import 'package:frontend/ui/pages/dashboard.dart';
 import 'package:frontend/ui/pages/edit_item/item_edition.dart';
 import 'package:frontend/ui/pages/lists/service_list.dart';
-import 'package:frontend/ui/pages/os_list/os_list_page.dart';
+import 'package:frontend/ui/pages/lists/os_list_page.dart';
 import 'package:frontend/ui/pages/product_registration/product_form.dart';
 import 'package:frontend/ui/widgets/appBar.dart';
 import 'package:frontend/ui/style/ColorScheme.dart' as custom_colors;

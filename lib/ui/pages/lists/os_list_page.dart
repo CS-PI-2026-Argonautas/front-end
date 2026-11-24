@@ -128,62 +128,48 @@ class _OsListPageState extends State<OsListPage> {
       ),
 
       body: SafeArea(
-        child: SingleChildScrollView(
-          child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 50),
-            child: Column(
-              children: [
-                TextFormField(
-                  controller: _searchController,
-                  decoration: InputDecoration(
-                    hintText: 'Procurar ordem de serviço',
-                    filled: true,
-                    fillColor: colors.surfaceContainer,
-                    hintStyle: TextStyle(color: colors.onSurface),
-                    prefixIcon: Icon(Icons.search, color: colors.secondary),
-                    suffixIcon: _searchQuery.isNotEmpty
-                        ? IconButton(
-                            icon: Icon(Icons.clear, color: colors.secondary),
-                            onPressed: () {
-                              _searchController.clear();
-                            },
-                          )
-                        : null,
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(14),
-                      borderSide: BorderSide.none,
+        child: Align(
+          alignment: Alignment.topCenter,
+          child: ConstrainedBox(
+            constraints: const BoxConstraints(maxWidth: 650),
+            child: SingleChildScrollView(
+              padding: const EdgeInsets.fromLTRB(20, 30, 20, 100),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  TextFormField(
+                    controller: _searchController,
+                    decoration: InputDecoration(
+                      hintText: 'Procurar ordem de serviço',
+                      filled: true,
+                      fillColor: colors.surfaceContainer,
+                      hintStyle: TextStyle(color: colors.onSurface),
+                      prefixIcon: Icon(Icons.search, color: colors.secondary),
+                      suffixIcon: _searchQuery.isNotEmpty
+                          ? IconButton(
+                              icon: Icon(Icons.clear, color: colors.secondary),
+                              onPressed: () {
+                                _searchController.clear();
+                              },
+                            )
+                          : null,
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(14),
+                        borderSide: BorderSide.none,
+                      ),
                     ),
                   ),
-                ),
 
-                Padding(
-                  padding: const EdgeInsets.only(top: 20.0),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.start,
-                    children: [
-                      ElevatedButton.icon(
-                        onPressed: () {},
-                        icon: const Icon(Icons.tune),
-                        label: const Text(
-                          'Filtrar',
-                          style: TextStyle(
-                            fontWeight: FontWeight.bold,
-                            fontSize: 14.8,
-                          ),
-                        ),
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: colors.primary,
-                          foregroundColor: Colors.white,
-                        ),
-                      ),
-
-                      Padding(
-                        padding: const EdgeInsets.only(left: 10.0),
-                        child: ElevatedButton.icon(
+                  Padding(
+                    padding: const EdgeInsets.only(top: 20.0),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.start,
+                      children: [
+                        ElevatedButton.icon(
                           onPressed: () {},
-                          icon: const Icon(Icons.swap_vert),
+                          icon: const Icon(Icons.tune),
                           label: const Text(
-                            'Ordenar',
+                            'Filtrar',
                             style: TextStyle(
                               fontWeight: FontWeight.bold,
                               fontSize: 14.8,
@@ -194,98 +180,117 @@ class _OsListPageState extends State<OsListPage> {
                             foregroundColor: Colors.white,
                           ),
                         ),
-                      ),
-                    ],
-                  ),
-                ),
 
-                Padding(
-                  padding: const EdgeInsets.only(top: 10.0, bottom: 10.0),
-                  child: Align(
-                    alignment: Alignment.centerLeft,
-                    child: Text(
-                      'Recentes',
-                      style: TextStyle(
-                        color: colors.onSurface,
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
+                        Padding(
+                          padding: const EdgeInsets.only(left: 10.0),
+                          child: ElevatedButton.icon(
+                            onPressed: () {},
+                            icon: const Icon(Icons.swap_vert),
+                            label: const Text(
+                              'Ordenar',
+                              style: TextStyle(
+                                fontWeight: FontWeight.bold,
+                                fontSize: 14.8,
+                              ),
+                            ),
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: colors.primary,
+                              foregroundColor: Colors.white,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+
+                  Padding(
+                    padding: const EdgeInsets.only(top: 10.0, bottom: 10.0),
+                    child: Align(
+                      alignment: Alignment.centerLeft,
+                      child: Text(
+                        'Recentes',
+                        style: TextStyle(
+                          color: colors.onSurface,
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                        ),
                       ),
                     ),
                   ),
-                ),
 
-                FutureBuilder<List<WorkOrder>>(
-                  future: _futureOrdemServicos,
-                  builder: (context, snapshot) {
-                    if (snapshot.connectionState == ConnectionState.waiting) {
-                      return const Padding(
-                        padding: EdgeInsets.only(top: 20.0),
-                        child: Center(child: CircularProgressIndicator()),
-                      );
-                    }
+                  FutureBuilder<List<WorkOrder>>(
+                    future: _futureOrdemServicos,
+                    builder: (context, snapshot) {
+                      if (snapshot.connectionState == ConnectionState.waiting) {
+                        return const Padding(
+                          padding: EdgeInsets.only(top: 20.0),
+                          child: Center(child: CircularProgressIndicator()),
+                        );
+                      }
 
-                    if (snapshot.hasError) {
-                      return const Center(
-                        child: Text('Erro ao carregar ordens de serviço.'),
-                      );
-                    }
+                      if (snapshot.hasError) {
+                        return const Center(
+                          child: Text('Erro ao carregar ordens de serviço.'),
+                        );
+                      }
 
-                    if (!snapshot.hasData || snapshot.data!.isEmpty) {
-                      return const Center(
-                        child: Text('Nenhuma ordem de serviço encontrada.'),
-                      );
-                    }
+                      if (!snapshot.hasData || snapshot.data!.isEmpty) {
+                        return const Center(
+                          child: Text('Nenhuma ordem de serviço encontrada.'),
+                        );
+                      }
 
-                    final todasOrdens = snapshot.data!;
+                      final todasOrdens = snapshot.data!;
 
-                    final ordensFiltradas = todasOrdens.where((os) {
-                      final idMatch = os.id.toString().toLowerCase().contains(
-                        _searchQuery,
-                      );
-                      final nomeMatch = os.name.toLowerCase().contains(
-                        _searchQuery,
-                      );
-                      final cidadeMatch = os.city.toLowerCase().contains(
-                        _searchQuery,
-                      );
-                      return idMatch || nomeMatch || cidadeMatch;
-                    }).toList();
+                      final ordensFiltradas = todasOrdens.where((os) {
+                        final idMatch = os.id.toString().toLowerCase().contains(
+                          _searchQuery,
+                        );
+                        final nomeMatch = os.name.toLowerCase().contains(
+                          _searchQuery,
+                        );
+                        final cidadeMatch = os.city.toLowerCase().contains(
+                          _searchQuery,
+                        );
+                        return idMatch || nomeMatch || cidadeMatch;
+                      }).toList();
 
-                    if (ordensFiltradas.isEmpty) {
-                      return Padding(
-                        padding: const EdgeInsets.only(top: 20.0),
-                        child: Center(
-                          child: Text(
-                            'Nenhuma ordem de serviço corresponde à pesquisa.',
-                            style: TextStyle(color: colors.onSurfaceVariant),
+                      if (ordensFiltradas.isEmpty) {
+                        return Padding(
+                          padding: const EdgeInsets.only(top: 20.0),
+                          child: Center(
+                            child: Text(
+                              'Nenhuma ordem de serviço corresponde à pesquisa.',
+                              style: TextStyle(color: colors.onSurfaceVariant),
+                            ),
                           ),
+                        );
+                      }
+
+                      return Card(
+                        elevation: 4,
+                        color: colors.surfaceContainer,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        clipBehavior: Clip.antiAlias,
+                        child: ListView.separated(
+                          shrinkWrap: true,
+                          physics: const NeverScrollableScrollPhysics(),
+                          itemCount: ordensFiltradas.length,
+                          separatorBuilder: (context, index) => Divider(
+                            height: 1,
+                            color: colors.onSurfaceVariant.withOpacity(0.2),
+                          ),
+                          itemBuilder: (context, index) {
+                            return _buildClientCard(ordensFiltradas[index]);
+                          },
                         ),
                       );
-                    }
-
-                    return Card(
-                      elevation: 4,
-                      color: colors.surfaceContainer,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      clipBehavior: Clip.antiAlias,
-                      child: ListView.separated(
-                        shrinkWrap: true,
-                        physics: const NeverScrollableScrollPhysics(),
-                        itemCount: ordensFiltradas.length,
-                        separatorBuilder: (context, index) => Divider(
-                          height: 1,
-                          color: colors.onSurfaceVariant.withOpacity(0.2),
-                        ),
-                        itemBuilder: (context, index) {
-                          return _buildClientCard(ordensFiltradas[index]);
-                        },
-                      ),
-                    );
-                  },
-                ),
-              ],
+                    },
+                  ),
+                ],
+              ),
             ),
           ),
         ),
