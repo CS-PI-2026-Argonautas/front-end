@@ -13,14 +13,23 @@ class Dinheiro {
   }
 
   factory Dinheiro.fromTexto(String texto) {
-    if (texto.trim().isEmpty) return Dinheiro(0);
+    if (texto.trim().isEmpty) {
+      return Dinheiro(0);
+    }
 
-    String limpo = texto.replaceAll(RegExp(r'[^\d,\.]'), '').trim();
-    if (limpo.isEmpty) return Dinheiro(0);
+    String limpo = texto.replaceAll(RegExp(r'[^\d,.]'), '');
 
-    limpo = limpo.replaceAll(',', '.');
+    if (limpo.isEmpty) {
+      return Dinheiro(0);
+    }
+
+    // Formato brasileiro: 1.234,56
+    if (limpo.contains(',')) {
+      limpo = limpo.replaceAll('.', '').replaceAll(',', '.');
+    }
 
     final valorDouble = double.tryParse(limpo) ?? 0.0;
+
     return Dinheiro.fromReais(valorDouble);
   }
 
