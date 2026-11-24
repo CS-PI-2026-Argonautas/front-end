@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:frontend/ui/style/ColorScheme.dart' as custom_colors;
 import 'package:flutter_slidable/flutter_slidable.dart';
-import 'package:frontend/ui/pages/product_registration/product_registration.dart';
+import 'package:frontend/ui/pages/person_alteration/product_registration/product_registration.dart';
 import 'package:frontend/ui/widgets/bottom_sheet/bottom_sheet.dart';
 import 'package:frontend/fire_base/models/dinheiro.dart';
 
@@ -102,47 +102,44 @@ class OrderServiceState extends State<TollsOs> {
         onPressed: abrirListaPecas,
         backgroundColor: colors.primary,
         elevation: 3,
-        child: Icon(Icons.add, color:  Colors.white, size: 28),
+        child: Icon(Icons.add, color: Colors.white, size: 28),
       ),
     );
   }
-void abrirListaPecas() {
-  showModalBottomSheet(
-    context: context,
-    backgroundColor: colors.surface,
-    isScrollControlled: true,
-    shape: const RoundedRectangleBorder(
-      borderRadius: BorderRadius.vertical(
-        top: Radius.circular(24),
-      ),
-    ),
-    builder: (context) {
-     return SelectionBottomSheet<Map<String, dynamic>>(
-  title: "Selecionar peça",
-  items: pecasDisponiveis,
-  searchText: "Buscar peça...",
-  actionText: "Nova peça",
-  itemIcon: Icons.build_outlined,
-  itemTitle: (peca) => peca["nome"],
-  itemSubtitle: (peca) => (peca["preco"] as Dinheiro).formatado(),
 
-  onSelect: (peca) {
-    _adicionarPeca(peca);
-    Navigator.pop(context);
-  },
-
-  onAction: () {
-    Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (context) => ProductRegistration(),
+  void abrirListaPecas() {
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: colors.surface,
+      isScrollControlled: true,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
       ),
+      builder: (context) {
+        return SelectionBottomSheet<Map<String, dynamic>>(
+          title: "Selecionar peça",
+          items: pecasDisponiveis,
+          searchText: "Buscar peça...",
+          actionText: "Nova peça",
+          itemIcon: Icons.build_outlined,
+          itemTitle: (peca) => peca["nome"],
+          itemSubtitle: (peca) => (peca["preco"] as Dinheiro).formatado(),
+
+          onSelect: (peca) {
+            _adicionarPeca(peca);
+            Navigator.pop(context);
+          },
+
+          onAction: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => ProductRegistration()),
+            );
+          },
+        );
+      },
     );
-  },
-);
-    },
-  );
-}
+  }
 
   void _adicionarPeca(Map<String, dynamic> peca) {
     setState(() {

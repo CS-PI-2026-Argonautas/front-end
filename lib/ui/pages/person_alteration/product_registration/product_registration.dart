@@ -8,7 +8,7 @@ import 'package:frontend/ui/pages/client_list/client_list.dart';
 import 'package:frontend/ui/pages/dashboard.dart';
 import 'package:frontend/ui/pages/edit_item/item_edition.dart';
 import 'package:frontend/ui/pages/os_list/os_list_page.dart';
-import 'package:frontend/ui/pages/product_registration/product_form.dart';
+import 'package:frontend/ui/pages/person_alteration/product_registration/product_form.dart';
 import 'package:frontend/ui/widgets/appBar.dart';
 import 'package:frontend/ui/style/ColorScheme.dart' as custom_colors;
 import 'package:frontend/ui/widgets/menu.dart';
@@ -20,9 +20,7 @@ class ProductRegistration extends StatelessWidget {
   Widget build(BuildContext context) {
     final colors = custom_colors.colorScheme;
 
-    final ItemService itemService = ItemService(
-      ItemRepository(),
-    );
+    final ItemService itemService = ItemService(ItemRepository());
 
     return Scaffold(
       backgroundColor: colors.surface,
@@ -56,18 +54,14 @@ class ProductRegistration extends StatelessWidget {
           if (index == 3) {
             Navigator.push(
               context,
-              MaterialPageRoute(
-                builder: (context) => const ItemEdition(),
-              ),
+              MaterialPageRoute(builder: (context) => const ItemEdition()),
             );
           }
 
           if (index == 4) {
             Navigator.push(
               context,
-              MaterialPageRoute(
-                builder: (context) => const Dashboard(),
-              ),
+              MaterialPageRoute(builder: (context) => const Dashboard()),
             );
           }
         },
@@ -80,10 +74,7 @@ class ProductRegistration extends StatelessWidget {
 
         child: SafeArea(
           child: SingleChildScrollView(
-            padding: const EdgeInsets.symmetric(
-              horizontal: 16,
-              vertical: 18,
-            ),
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 18),
 
             child: Center(
               child: ConstrainedBox(

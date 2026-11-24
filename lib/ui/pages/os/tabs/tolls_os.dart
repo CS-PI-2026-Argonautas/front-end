@@ -4,7 +4,7 @@ import 'package:frontend/fire_base/Enums/ProductType.dart';
 import 'package:frontend/fire_base/models/item.dart';
 import 'package:frontend/fire_base/repositories/item_repository.dart';
 import 'package:frontend/fire_base/services/item_service.dart';
-import 'package:frontend/ui/pages/product_registration/product_registration.dart';
+import 'package:frontend/ui/pages/person_alteration/product_registration/product_registration.dart';
 import 'package:frontend/ui/style/ColorScheme.dart' as custom_colors;
 import 'package:frontend/ui/style/inputDecorationStyles.dart';
 import 'package:frontend/ui/widgets/bottom_sheet/bottom_sheet.dart';

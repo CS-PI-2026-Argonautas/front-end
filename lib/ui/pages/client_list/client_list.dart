@@ -6,7 +6,7 @@ import 'package:frontend/ui/pages/edit_item/item_edition.dart';
 import 'package:frontend/ui/pages/os_list/os_list_page.dart';
 import 'package:frontend/ui/pages/person_alteration/person_alteration.dart';
 import 'package:frontend/ui/pages/person_registration/person_registration.dart';
-import 'package:frontend/ui/pages/product_registration/product_registration.dart';
+import 'package:frontend/ui/pages/person_alteration/product_registration/product_registration.dart';
 import 'package:frontend/ui/style/ColorScheme.dart' as custom_colors;
 import 'package:frontend/ui/widgets/floatingButton.dart';
 import 'package:frontend/ui/widgets/appBar.dart';
@@ -81,27 +81,21 @@ class _ClientListState extends State<ClientList> {
           if (index == 2) {
             Navigator.push(
               context,
-              MaterialPageRoute(
-                builder: (context) => const OsListPage(),
-              ),
+              MaterialPageRoute(builder: (context) => const OsListPage()),
             );
           }
 
           if (index == 3) {
             Navigator.push(
               context,
-              MaterialPageRoute(
-                builder: (context) => const ItemEdition(),
-              ),
+              MaterialPageRoute(builder: (context) => const ItemEdition()),
             );
           }
 
           if (index == 4) {
             Navigator.push(
               context,
-              MaterialPageRoute(
-                builder: (context) => const Dashboard(),
-              ),
+              MaterialPageRoute(builder: (context) => const Dashboard()),
             );
           }
         },
@@ -110,10 +104,7 @@ class _ClientListState extends State<ClientList> {
       body: SafeArea(
         child: SingleChildScrollView(
           child: Padding(
-            padding: const EdgeInsets.symmetric(
-              horizontal: 40,
-              vertical: 50,
-            ),
+            padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 50),
             child: Column(
               children: [
                 TextFormField(
@@ -122,13 +113,8 @@ class _ClientListState extends State<ClientList> {
                     hintText: 'Procurar cliente',
                     filled: true,
                     fillColor: colors.surfaceContainer,
-                    hintStyle: TextStyle(
-                      color: colors.onSurface,
-                    ),
-                    prefixIcon: Icon(
-                      Icons.search,
-                      color: colors.secondary,
-                    ),
+                    hintStyle: TextStyle(color: colors.onSurface),
+                    prefixIcon: Icon(Icons.search, color: colors.secondary),
                     suffixIcon: _searchQuery.isNotEmpty
                         ? IconButton(
                             icon: Icon(Icons.clear, color: colors.secondary),
@@ -188,10 +174,7 @@ class _ClientListState extends State<ClientList> {
                 ),
 
                 Padding(
-                  padding: const EdgeInsets.only(
-                    top: 10.0,
-                    bottom: 10.0,
-                  ),
+                  padding: const EdgeInsets.only(top: 10.0, bottom: 10.0),
                   child: Align(
                     alignment: Alignment.centerLeft,
                     child: Text(
@@ -208,38 +191,34 @@ class _ClientListState extends State<ClientList> {
                 StreamBuilder<List<Client>>(
                   stream: _clientes,
                   builder: (context, snapshot) {
-                    if (snapshot.connectionState ==
-                        ConnectionState.waiting) {
+                    if (snapshot.connectionState == ConnectionState.waiting) {
                       return const Padding(
                         padding: EdgeInsets.only(top: 20.0),
-                        child: Center(
-                          child: CircularProgressIndicator(),
-                        ),
+                        child: Center(child: CircularProgressIndicator()),
                       );
                     }
 
                     if (snapshot.hasError) {
                       return const Center(
-                        child: Text(
-                          'Erro ao carregar clientes.',
-                        ),
+                        child: Text('Erro ao carregar clientes.'),
                       );
                     }
 
-                    if (!snapshot.hasData ||
-                        snapshot.data!.isEmpty) {
+                    if (!snapshot.hasData || snapshot.data!.isEmpty) {
                       return const Center(
-                        child: Text(
-                          'Nenhum cliente encontrado.',
-                        ),
+                        child: Text('Nenhum cliente encontrado.'),
                       );
                     }
 
                     final todosClientes = snapshot.data!;
 
                     final clientesFiltrados = todosClientes.where((cliente) {
-                      final nomeMatch = cliente.name.toLowerCase().contains(_searchQuery);
-                      final resumoMatch = cliente.contact.resumo.toLowerCase().contains(_searchQuery);
+                      final nomeMatch = cliente.name.toLowerCase().contains(
+                        _searchQuery,
+                      );
+                      final resumoMatch = cliente.contact.resumo
+                          .toLowerCase()
+                          .contains(_searchQuery);
                       return nomeMatch || resumoMatch;
                     }).toList();
 
@@ -287,10 +266,7 @@ class _ClientListState extends State<ClientList> {
         onPressed: () {
           Navigator.push(
             context,
-            MaterialPageRoute(
-              builder: (context) =>
-                  const PersonRegistration(),
-            ),
+            MaterialPageRoute(builder: (context) => const PersonRegistration()),
           );
         },
       ),
@@ -307,9 +283,7 @@ class _ClientListState extends State<ClientList> {
         final confirmarExclusao =
             await showDialog<bool>(
               context: context,
-              builder: (_) => ShowDeleteClientDialog(
-                nome: cliente.name,
-              ),
+              builder: (_) => ShowDeleteClientDialog(nome: cliente.name),
             ) ??
             false;
 
@@ -319,8 +293,7 @@ class _ClientListState extends State<ClientList> {
 
         if (!mounted) return;
 
-        final messenger =
-            ScaffoldMessenger.of(context);
+        final messenger = ScaffoldMessenger.of(context);
 
         messenger.hideCurrentSnackBar();
 
@@ -342,34 +315,26 @@ class _ClientListState extends State<ClientList> {
       },
 
       child: Padding(
-        padding: const EdgeInsets.symmetric(
-          horizontal: 16.0,
-          vertical: 12.0,
-        ),
+        padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 12.0),
 
         child: Row(
-          crossAxisAlignment:
-              CrossAxisAlignment.start,
+          crossAxisAlignment: CrossAxisAlignment.start,
 
           children: [
             Expanded(
               child: Column(
-                crossAxisAlignment:
-                    CrossAxisAlignment.start,
+                crossAxisAlignment: CrossAxisAlignment.start,
 
                 children: [
                   Text(
                     cliente.name,
                     maxLines: 1,
-                    overflow:
-                        TextOverflow.ellipsis,
+                    overflow: TextOverflow.ellipsis,
 
                     style: TextStyle(
-                      color:
-                          Colors.blueGrey.shade600,
+                      color: Colors.blueGrey.shade600,
                       fontSize: 18,
-                      fontWeight:
-                          FontWeight.bold,
+                      fontWeight: FontWeight.bold,
                     ),
                   ),
 
@@ -377,8 +342,7 @@ class _ClientListState extends State<ClientList> {
                     cliente.contact.resumo,
 
                     style: TextStyle(
-                      color:
-                          colors.onSurfaceVariant,
+                      color: colors.onSurfaceVariant,
                       fontSize: 14,
                     ),
                   ),
@@ -387,19 +351,13 @@ class _ClientListState extends State<ClientList> {
             ),
 
             IconButton(
-              icon: Icon(
-                Icons.edit,
-                color: colors.secondary,
-              ),
+              icon: Icon(Icons.edit, color: colors.secondary),
 
               onPressed: () {
                 Navigator.push(
                   context,
                   MaterialPageRoute(
-                    builder: (context) =>
-                        PersonAlteration(
-                      cliente: cliente,
-                    ),
+                    builder: (context) => PersonAlteration(cliente: cliente),
                   ),
                 );
               },
