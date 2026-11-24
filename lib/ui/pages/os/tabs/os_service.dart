@@ -8,6 +8,7 @@ import 'package:frontend/ui/widgets/floatingButton.dart';
 import 'package:frontend/ui/widgets/bottom_sheet/bottom_sheet.dart';
 import 'package:frontend/fire_base/services/service_service.dart';
 import 'package:frontend/fire_base/models/service.dart';
+import 'package:frontend/utils/formatters/currency_input_formatter.dart';
 
 class OsServicosTab extends StatefulWidget {
   const OsServicosTab({super.key});
@@ -153,7 +154,8 @@ class _OsServicosTabState extends State<OsServicosTab> {
                 await Navigator.push(
                   sheetContext,
                   MaterialPageRoute(
-                    builder: (_) => const ServiceRegistration(),
+                    builder: (_) =>
+                        const ServiceRegistration(abertoPelaOS: true),
                   ),
                 );
 
@@ -388,20 +390,29 @@ class _EditServiceSheetState extends State<_EditServiceSheet> {
   late final TextEditingController _nomeController;
   late final TextEditingController _descricaoController;
   late final TextEditingController _valorController;
+
   bool _saving = false;
 
   @override
   void initState() {
     super.initState();
+
     final s = widget.servico;
+
     _nomeController = TextEditingController(text: s['nome']?.toString() ?? '');
+
     _descricaoController = TextEditingController(
       text: s['descricao']?.toString() ?? '',
     );
-    final int cents = s['valueInCents'] as int? ?? 0;
-    _valorController = TextEditingController(
-      text: (cents / 100).toStringAsFixed(2).replaceAll('.', ','),
-    );
+
+    // Carrega o valor existente já formatado em reais.
+    final int centavos = s['valueInCents'] as int? ?? 0;
+
+    final valorFormatado = Dinheiro(
+      centavos,
+    ).formatado().replaceFirst('R\$', '').trim();
+
+    _valorController = TextEditingController(text: valorFormatado);
   }
 
   @override
@@ -412,16 +423,17 @@ class _EditServiceSheetState extends State<_EditServiceSheet> {
     super.dispose();
   }
 
-  /// "1.234,56" / "12,5" / "12" -> centavos. Retorna null se inválido.
-  int? _parseCentavos(String texto) {
-    final t = texto.trim().replaceAll('.', '').replaceAll(',', '.');
-    final v = double.tryParse(t);
-    if (v == null || v < 0) return null;
-    return Dinheiro.fromReais(v).centavos;
+  // Utiliza a própria classe Dinheiro para converter em centavos.
+  int _parseCentavos(String texto) {
+    return Dinheiro.fromTexto(texto).centavos;
   }
 
   Future<void> _save() async {
     if (_saving || !_formKey.currentState!.validate()) return;
+
+    final valorEmCentavos = _parseCentavos(_valorController.text);
+
+    if (valorEmCentavos <= 0) return;
 
     final navigator = Navigator.of(context);
     final messenger = ScaffoldMessenger.of(context);
@@ -430,14 +442,18 @@ class _EditServiceSheetState extends State<_EditServiceSheet> {
       id: widget.servico['servicoId'] ?? widget.servico['id'],
       name: _nomeController.text.trim(),
       description: _descricaoController.text.trim(),
-      valueInCents: _parseCentavos(_valorController.text)!,
+      valueInCents: valorEmCentavos,
     );
 
     setState(() => _saving = true);
 
     try {
       await widget.onSave(atualizado);
+
+      if (!mounted) return;
+
       navigator.pop();
+
       messenger.showSnackBar(
         const SnackBar(
           content: Text('Serviço atualizado com sucesso.'),
@@ -446,7 +462,11 @@ class _EditServiceSheetState extends State<_EditServiceSheet> {
       );
     } catch (e) {
       debugPrint('Erro ao atualizar serviço: $e');
-      if (mounted) setState(() => _saving = false);
+
+      if (!mounted) return;
+
+      setState(() => _saving = false);
+
       messenger.showSnackBar(
         const SnackBar(
           content: Text('Não foi possível atualizar o serviço.'),
@@ -544,12 +564,19 @@ class _EditServiceSheetState extends State<_EditServiceSheet> {
                     keyboardType: const TextInputType.numberWithOptions(
                       decimal: true,
                     ),
+                    inputFormatters: [CurrencyInputFormatter()],
                     decoration: customInputDecoration(
                       hintText: '0,00',
                     ).copyWith(prefixText: 'R\$ '),
-                    validator: (v) => _parseCentavos(v ?? '') == null
-                        ? 'Informe um valor válido.'
-                        : null,
+                    validator: (v) {
+                      final valor = Dinheiro.fromTexto(v ?? '').centavos;
+
+                      if (valor <= 0) {
+                        return 'O valor deve ser maior que zero.';
+                      }
+
+                      return null;
+                    },
                   ),
                   const SizedBox(height: 6),
                   SizedBox(

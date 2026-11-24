@@ -80,12 +80,12 @@ class _ServiceListState extends State<ServiceList> {
   }
 
   Future<void> _abrirEdicao(Service servico) async {
-    // await Navigator.push(
-    //   context,
-    //   MaterialPageRoute(
-    //     builder: (_) => ServiceRegistration(initialService: servico),
-    //   ),
-    // );
+    await Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (_) => ServiceRegistration(initialService: servico),
+      ),
+    );
   }
 
   Future<void> _confirmarRemocao(Service servico) async {
