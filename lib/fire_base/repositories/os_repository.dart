@@ -21,7 +21,10 @@ class FirestoreOsRepository implements OsRepository {
   }) : _firestore = firestore ?? FirebaseFirestore.instance;
 
   CollectionReference<Map<String, dynamic>> get _colecao =>
-     _firestore.collection('service_orders');
+      _firestore.collection('service_orders');
+
+  DocumentReference<Map<String, dynamic>> get _contador =>
+      _firestore.collection('counters').doc('service_orders');
 
   @override
   Future<void> salvar(ServiceOrder os) async {
@@ -46,18 +49,54 @@ class FirestoreOsRepository implements OsRepository {
     try {
       final documento = _colecao.doc(os.id);
 
-      final dados = os.toFirestore();
+      int? numeroAtribuido;
 
-      dados['updated_at'] = FieldValue.serverTimestamp();
+      await _firestore.runTransaction((transaction) async {
+        // Todas as leituras precisam ocorrer antes das escritas.
+        final osSnapshot = await transaction.get(documento);
+        final contadorSnapshot = await transaction.get(_contador);
 
-      if (!os.persisted) {
-        dados['created_at'] = FieldValue.serverTimestamp();
-      }
+        final dadosExistentes = osSnapshot.data();
 
-      await documento.set(
-        dados,
-        SetOptions(merge: true),
-      );
+        final numeroExistente = dadosExistentes?['numero_os'];
+
+        if (numeroExistente is num) {
+          // Atualização: preserva o número já atribuído.
+          numeroAtribuido = numeroExistente.toInt();
+        } else {
+          // Primeira gravação ou OS antiga sem numeração.
+          final ultimoNumero =
+              contadorSnapshot.data()?['last_number'];
+
+          final ultimoNumeroValido =
+              ultimoNumero is num ? ultimoNumero.toInt() : 0;
+
+          numeroAtribuido = ultimoNumeroValido + 1;
+
+          transaction.set(_contador, {
+            'last_number': numeroAtribuido,
+            'updated_at': FieldValue.serverTimestamp(),
+          }, SetOptions(merge: true));
+        }
+
+        final dados = os.toFirestore();
+
+        dados['numero_os'] = numeroAtribuido;
+        dados['updated_at'] = FieldValue.serverTimestamp();
+
+        if (!osSnapshot.exists) {
+          dados['created_at'] = FieldValue.serverTimestamp();
+        }
+
+        transaction.set(
+          documento,
+          dados,
+          SetOptions(merge: true),
+        );
+      });
+
+      // Atualiza o objeto somente depois do commit.
+      os.numeroOs = numeroAtribuido;
 
       final snapshot = await documento.get();
       final dadosSalvos = snapshot.data();
@@ -69,7 +108,9 @@ class FirestoreOsRepository implements OsRepository {
 
       os.markAsSaved();
 
-      debugPrint('OS ${os.id} salva com sucesso.');
+      debugPrint(
+        'OS Nº ${os.numeroOs} (${os.id}) salva com sucesso.',
+      );
     } catch (e, stackTrace) {
       debugPrint('Erro ao salvar OS: $e');
       debugPrintStack(stackTrace: stackTrace);
@@ -85,9 +126,16 @@ class FirestoreOsRepository implements OsRepository {
           .where('deleted_at', isNull: true)
           .get();
 
-      return snapshot.docs
+      final ordens = snapshot.docs
           .map((doc) => ServiceOrder.fromFirestore(doc))
           .toList();
+
+      // Ordena pelo número da OS, da mais recente para a mais antiga.
+      ordens.sort((a, b) {
+        return (b.numeroOs ?? 0).compareTo(a.numeroOs ?? 0);
+      });
+
+      return ordens;
     } catch (e, stackTrace) {
       debugPrint('Erro ao listar OS: $e');
       debugPrintStack(stackTrace: stackTrace);

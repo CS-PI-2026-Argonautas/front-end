@@ -1,3 +1,4 @@
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:frontend/fire_base/Enums/StatusOrderService.dart';
 import 'package:frontend/fire_base/models/address.dart';
@@ -12,15 +13,18 @@ String? _textOrNull(Object? value) {
   return (text == null || text.isEmpty) ? null : text;
 }
 
-Timestamp? _timestamp(Object? value) => value is Timestamp ? value : null;
+Timestamp? _timestamp(Object? value) =>
+    value is Timestamp ? value : null;
 
-int _integer(Object? value) => value is num ? value.toInt() : 0;
+int _integer(Object? value) =>
+    value is num ? value.toInt() : 0;
 
 Map<String, dynamic> _map(Object? value) =>
     value is Map ? Map<String, dynamic>.from(value) : <String, dynamic>{};
 
 List<Map<String, dynamic>> _list(Object? value) {
   if (value is! List) return <Map<String, dynamic>>[];
+
   return value
       .whereType<Map>()
       .map((item) => Map<String, dynamic>.from(item))
@@ -30,7 +34,11 @@ List<Map<String, dynamic>> _list(Object? value) {
 class ServiceOrder {
   static const int reportLimit = 256;
 
+  // Identificador interno (UUID).
   final String id;
+
+  // Número sequencial global apresentado ao usuário.
+  int? numeroOs;
 
   ServiceOrderStatus status;
 
@@ -66,6 +74,7 @@ class ServiceOrder {
 
   ServiceOrder({
     String? id,
+    this.numeroOs,
     this.status = ServiceOrderStatus.EM_ORCAMENTO,
     this.statusBeforeCancellation,
     this.equipmentBlocked = false,
@@ -85,12 +94,12 @@ class ServiceOrder {
     this.globalFeeCents = 0,
     this.globalDiscountCents = 0,
     this.persisted = false,
-  }) : id = id ?? const Uuid().v4(),
-       entryDate = entryDate ?? DateTime.now(),
-       executor = executor ?? ServiceOrderExecutor(),
-       serviceProvider = serviceProvider ?? ServiceProvider(),
-       parts = parts ?? [],
-       services = services ?? [];
+  })  : id = id ?? const Uuid().v4(),
+        entryDate = entryDate ?? DateTime.now(),
+        executor = executor ?? ServiceOrderExecutor(),
+        serviceProvider = serviceProvider ?? ServiceProvider(),
+        parts = parts ?? [],
+        services = services ?? [];
 
   factory ServiceOrder.createNew() {
     final serviceOrder = ServiceOrder();
@@ -101,11 +110,11 @@ class ServiceOrder {
   bool get active => deletedAt == null;
 
   ServiceOrderValues get values => ServiceOrderValues.calculate(
-    parts: parts,
-    services: services,
-    globalFeeCents: globalFeeCents,
-    globalDiscountCents: globalDiscountCents,
-  );
+        parts: parts,
+        services: services,
+        globalFeeCents: globalFeeCents,
+        globalDiscountCents: globalDiscountCents,
+      );
 
   void changeStatus(ServiceOrderStatus newStatus) {
     if (newStatus == status) return;
@@ -126,15 +135,17 @@ class ServiceOrder {
     if (client?.id != newStatus.id) {
       serviceAddress = null;
     }
+
     client = ServiceOrderClient.fromClient(newStatus);
   }
 
-  void setServiceAddress( Address address) {
+  void setServiceAddress(Address address) {
     if (client == null) {
       throw const InvalidAddressException(
         'Selecione um cliente antes de escolher o endereço de serviço.',
       );
     }
+
     serviceAddress = ServiceAddress.fromAddress(address);
   }
 
@@ -154,15 +165,20 @@ class ServiceOrder {
     final equipmentData = equipment;
 
     return {
+      'numero_os': numeroOs,
       'status': status.value,
       'status_antes_cancelamento': statusBeforeCancellation?.value,
       'equipamento_bloqueado': equipmentBlocked,
       'data_entrada': Timestamp.fromDate(entryDate),
-      'data_saida': exitDate == null ? null : Timestamp.fromDate(exitDate!),
+      'data_saida':
+          exitDate == null ? null : Timestamp.fromDate(exitDate!),
       'relatorio': report.trim(),
       'executor': executor.toFirestore(),
       'permissionaria': serviceProvider.toFirestore(),
-      'equipamento': (equipmentData == null || equipmentData.isEmpty) ? null : equipmentData.toFirestore(),
+      'equipamento':
+          (equipmentData == null || equipmentData.isEmpty)
+              ? null
+              : equipmentData.toFirestore(),
       'cliente': client?.toFirestore(),
       'endereco_servico': serviceAddress?.toFirestore(),
       'pecas': parts.map((part) => part.toFirestore()).toList(),
@@ -176,50 +192,87 @@ class ServiceOrder {
     DocumentSnapshot<Map<String, dynamic>> doc,
   ) {
     final data = doc.data() ?? <String, dynamic>{};
+
     final values = _map(data['valores']);
     final clientMap = _map(data['cliente']);
     final addressMap = _map(data['endereco_servico']);
     final equipmentMap = _map(data['equipamento']);
-    final previousStatus = _textOrNull(data['status_antes_cancelamento']);
+
+    final previousStatus =
+        _textOrNull(data['status_antes_cancelamento']);
+
+    final numeroOsData = data['numero_os'];
 
     final serviceOrder = ServiceOrder(
-  id: doc.id,
-  status: ServiceOrderStatusX.from(_textOrNull(data['status'])),
-  statusBeforeCancellation: previousStatus == null
-      ? null
-      : ServiceOrderStatusX.from(previousStatus),
-  equipmentBlocked: data['equipamento_bloqueado'] == true,
-  entryDate: _timestamp(data['data_entrada'])?.toDate(),
-  exitDate: _timestamp(data['data_saida'])?.toDate(),
-  report: _text(data['relatorio']),
-  createdAt: _timestamp(data['created_at']),
-  updatedAt: _timestamp(data['updated_at']),
-  deletedAt: _timestamp(data['deleted_at']),
-  executor: ServiceOrderExecutor.fromMap(_map(data['executor'])),
-  serviceProvider: ServiceProvider.fromMap(
-    _map(data['permissionaria']),
-  ),
-  equipment: equipmentMap.isEmpty
-      ? null
-      : ServiceOrderEquipment.fromMap(equipmentMap),
-  client: clientMap.isEmpty
-      ? null
-      : ServiceOrderClient.fromMap(clientMap),
-  serviceAddress: addressMap.isEmpty
-      ? null
-      : ServiceAddress.fromMap(addressMap),
-  parts: _list(data['pecas']).map(ServiceOrderPart.fromMap).toList(),
-  services: _list(data['servicos'])
-      .map(ServiceOrderService.fromMap)
-      .toList(),
-  globalFeeCents: _integer(values['taxa_global_centavos']),
-  globalDiscountCents: _integer(values['desconto_global_centavos']),
-);
+      id: doc.id,
 
-serviceOrder.markAsSaved();
-return serviceOrder;}
+      // Compatibilidade com documentos antigos.
+      numeroOs: numeroOsData is num ? numeroOsData.toInt() : null,
 
-  static String? optionalText(Object? value) => _textOrNull(value);
+      status: ServiceOrderStatusX.from(
+        _textOrNull(data['status']),
+      ),
+
+      statusBeforeCancellation: previousStatus == null
+          ? null
+          : ServiceOrderStatusX.from(previousStatus),
+
+      equipmentBlocked: data['equipamento_bloqueado'] == true,
+
+      entryDate: _timestamp(data['data_entrada'])?.toDate(),
+
+      exitDate: _timestamp(data['data_saida'])?.toDate(),
+
+      report: _text(data['relatorio']),
+
+      createdAt: _timestamp(data['created_at']),
+      updatedAt: _timestamp(data['updated_at']),
+      deletedAt: _timestamp(data['deleted_at']),
+
+      executor: ServiceOrderExecutor.fromMap(
+        _map(data['executor']),
+      ),
+
+      serviceProvider: ServiceProvider.fromMap(
+        _map(data['permissionaria']),
+      ),
+
+      equipment: equipmentMap.isEmpty
+          ? null
+          : ServiceOrderEquipment.fromMap(equipmentMap),
+
+      client: clientMap.isEmpty
+          ? null
+          : ServiceOrderClient.fromMap(clientMap),
+
+      serviceAddress: addressMap.isEmpty
+          ? null
+          : ServiceAddress.fromMap(addressMap),
+
+      parts: _list(data['pecas'])
+          .map(ServiceOrderPart.fromMap)
+          .toList(),
+
+      services: _list(data['servicos'])
+          .map(ServiceOrderService.fromMap)
+          .toList(),
+
+      globalFeeCents: _integer(
+        values['taxa_global_centavos'],
+      ),
+
+      globalDiscountCents: _integer(
+        values['desconto_global_centavos'],
+      ),
+    );
+
+    serviceOrder.markAsSaved();
+
+    return serviceOrder;
+  }
+
+  static String? optionalText(Object? value) =>
+      _textOrNull(value);
 }
 
 class ServiceOrderExecutor {
@@ -241,15 +294,15 @@ class ServiceOrderExecutor {
       name: _textOrNull(data['nome']) ?? defaultValue.name,
       identityDocument:
           _textOrNull(data['documento_identidade']) ??
-          defaultValue.identityDocument,
+              defaultValue.identityDocument,
     );
   }
 
   Map<String, dynamic> toFirestore() => {
-    'id': id,
-    'nome': name,
-    'documento_identidade': identityDocument,
-  };
+        'id': id,
+        'nome': name,
+        'documento_identidade': identityDocument,
+      };
 }
 
 class ServiceProvider {
@@ -285,7 +338,8 @@ class ServiceProvider {
     return ServiceProvider(
       id: _textOrNull(data['id']) ?? defaultValue.id,
       businessName:
-          _textOrNull(data['nome_empresarial']) ?? defaultValue.businessName,
+          _textOrNull(data['nome_empresarial']) ??
+              defaultValue.businessName,
       cnpj: _textOrNull(data['cnpj']) ?? defaultValue.cnpj,
       phone: _textOrNull(data['telefone']) ?? defaultValue.phone,
       email: _textOrNull(data['email']) ?? defaultValue.email,
@@ -294,13 +348,13 @@ class ServiceProvider {
   }
 
   Map<String, dynamic> toFirestore() => {
-    'id': id,
-    'nome_empresarial': businessName,
-    'cnpj': cnpj,
-    'telefone': phone,
-    'email': email,
-    'endereco': Map<String, dynamic>.from(address),
-  };
+        'id': id,
+        'nome_empresarial': businessName,
+        'cnpj': cnpj,
+        'telefone': phone,
+        'email': email,
+        'endereco': Map<String, dynamic>.from(address),
+      };
 }
 
 class ServiceOrderEquipment {
@@ -343,20 +397,21 @@ class ServiceOrderEquipment {
     );
   }
 
-  bool get isEmpty => toFirestore().values.every((value) => value == null);
+  bool get isEmpty =>
+      toFirestore().values.every((value) => value == null);
 
   Map<String, dynamic> toFirestore() => {
-    'marca': _textOrNull(brand),
-    'modelo': _textOrNull(model),
-    'numero_serie': _textOrNull(serialNumber),
-    'numero_inmetro': _textOrNull(inmetroNumber),
-    'portaria': _textOrNull(ordinance),
-    'numero_verificacao': _textOrNull(verificationNumber),
-    'selo_anterior': _textOrNull(previousSeal),
-    'selo_atual': _textOrNull(currentSeal),
-    'lacre_anterior': _textOrNull(previousLock),
-    'lacre_atual': _textOrNull(currentLock),
-  };
+        'marca': _textOrNull(brand),
+        'modelo': _textOrNull(model),
+        'numero_serie': _textOrNull(serialNumber),
+        'numero_inmetro': _textOrNull(inmetroNumber),
+        'portaria': _textOrNull(ordinance),
+        'numero_verificacao': _textOrNull(verificationNumber),
+        'selo_anterior': _textOrNull(previousSeal),
+        'selo_atual': _textOrNull(currentSeal),
+        'lacre_anterior': _textOrNull(previousLock),
+        'lacre_atual': _textOrNull(currentLock),
+      };
 }
 
 class ServiceOrderClient {
@@ -399,13 +454,13 @@ class ServiceOrderClient {
   }
 
   Map<String, dynamic> toFirestore() => {
-    'id': id,
-    'nome': name,
-    'tipo_pessoa': personType,
-    'documento': document,
-    'telefone': phone,
-    'email': email,
-  };
+        'id': id,
+        'nome': name,
+        'tipo_pessoa': personType,
+        'documento': document,
+        'telefone': phone,
+        'email': email,
+      };
 }
 
 class ServiceAddress {
@@ -427,17 +482,17 @@ class ServiceAddress {
     this.postalCode,
   });
 
-factory ServiceAddress.fromAddress(Address address) {
-  return ServiceAddress(
-    id: address.id,
-    street: address.publicPlace,
-    number: _textOrNull(address.number),
-    complement: _textOrNull(address.complement),
-    city: address.city,
-    state: address.uf.name,
-    postalCode: _textOrNull(address.zipCode),
-  );
-}
+  factory ServiceAddress.fromAddress(Address address) {
+    return ServiceAddress(
+      id: address.id,
+      street: address.publicPlace,
+      number: _textOrNull(address.number),
+      complement: _textOrNull(address.complement),
+      city: address.city,
+      state: address.uf.name,
+      postalCode: _textOrNull(address.zipCode),
+    );
+  }
 
   factory ServiceAddress.fromMap(Map<String, dynamic> data) {
     return ServiceAddress(
@@ -452,14 +507,14 @@ factory ServiceAddress.fromAddress(Address address) {
   }
 
   Map<String, dynamic> toFirestore() => {
-    'id': id,
-    'logradouro': street,
-    'numero': number,
-    'complemento': complement,
-    'cidade': city,
-    'uf': state,
-    'cep': postalCode,
-  };
+        'id': id,
+        'logradouro': street,
+        'numero': number,
+        'complemento': complement,
+        'cidade': city,
+        'uf': state,
+        'cep': postalCode,
+      };
 }
 
 class ServiceOrderPart {
@@ -467,7 +522,6 @@ class ServiceOrderPart {
   final String name;
   final int quantity;
   final int unitPriceCents;
-
   final int discountCents;
 
   ServiceOrderPart({
@@ -478,8 +532,13 @@ class ServiceOrderPart {
     this.discountCents = 0,
   }) {
     if (quantity < 1) {
-      throw ArgumentError.value(quantity, 'quantidade', 'Mínimo 1.');
+      throw ArgumentError.value(
+        quantity,
+        'quantidade',
+        'Mínimo 1.',
+      );
     }
+
     if (unitPriceCents < 0) {
       throw ArgumentError.value(
         unitPriceCents,
@@ -487,6 +546,7 @@ class ServiceOrderPart {
         'Não pode ser negativo.',
       );
     }
+
     if (discountCents < 0) {
       throw ArgumentError.value(
         discountCents,
@@ -508,9 +568,11 @@ class ServiceOrderPart {
     );
   }
 
-  int get grossSubtotalCents => quantity * unitPriceCents;
+  int get grossSubtotalCents =>
+      quantity * unitPriceCents;
 
-  int get subtotalCents => grossSubtotalCents - discountCents;
+  int get subtotalCents =>
+      grossSubtotalCents - discountCents;
 
   ServiceOrderPart withQuantity(int novaQuantidade) {
     return ServiceOrderPart(
@@ -523,19 +585,18 @@ class ServiceOrderPart {
   }
 
   Map<String, dynamic> toFirestore() => {
-    'peca_id': partId,
-    'nome': name,
-    'quantidade': quantity,
-    'valor_unitario_centavos': unitPriceCents,
-    'desconto_centavos': discountCents,
-  };
+        'peca_id': partId,
+        'nome': name,
+        'quantidade': quantity,
+        'valor_unitario_centavos': unitPriceCents,
+        'desconto_centavos': discountCents,
+      };
 }
 
 class ServiceOrderService {
   final String serviceId;
   final String description;
   final int valueCents;
-
   final int discountCents;
 
   ServiceOrderService({
@@ -551,6 +612,7 @@ class ServiceOrderService {
         'Não pode ser negativo.',
       );
     }
+
     if (discountCents < 0) {
       throw ArgumentError.value(
         discountCents,
@@ -569,14 +631,15 @@ class ServiceOrderService {
     );
   }
 
-  int get subtotalCents => valueCents - discountCents;
+  int get subtotalCents =>
+      valueCents - discountCents;
 
   Map<String, dynamic> toFirestore() => {
-    'servico_id': serviceId,
-    'descricao': description,
-    'valor_centavos': valueCents,
-    'desconto_centavos': discountCents,
-  };
+        'servico_id': serviceId,
+        'descricao': description,
+        'valor_centavos': valueCents,
+        'desconto_centavos': discountCents,
+      };
 }
 
 class ServiceOrderValues {
@@ -610,8 +673,7 @@ class ServiceOrderValues {
       (total, service) => total + service.subtotalCents,
     );
 
-    final total =
-        partsSubtotal +
+    final total = partsSubtotal +
         servicesSubtotal +
         globalFeeCents -
         globalDiscountCents;
@@ -626,10 +688,10 @@ class ServiceOrderValues {
   }
 
   Map<String, dynamic> toFirestore() => {
-    'subtotal_pecas_centavos': partsSubtotalCents,
-    'subtotal_servicos_centavos': servicesSubtotalCents,
-    'taxa_global_centavos': globalFeeCents,
-    'desconto_global_centavos': globalDiscountCents,
-    'total_centavos': totalCents,
-  };
+        'subtotal_pecas_centavos': partsSubtotalCents,
+        'subtotal_servicos_centavos': servicesSubtotalCents,
+        'taxa_global_centavos': globalFeeCents,
+        'desconto_global_centavos': globalDiscountCents,
+        'total_centavos': totalCents,
+      };
 }
