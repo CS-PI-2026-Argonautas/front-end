@@ -167,12 +167,10 @@ class _ServiceRegistrationState extends State<ServiceRegistration> {
     return Scaffold(
       backgroundColor: colors.surface,
 
-      appBar: widget.abertoPelaOS
-          ? null
-          : Header(
-              onBack: widget.onBack ?? () => Navigator.maybePop(context),
-              title: _editando ? 'Edição de serviços' : 'Cadastro de serviços',
-            ),
+      appBar: Header(
+        onBack: widget.onBack ?? () => Navigator.maybePop(context),
+        title: _editando ? 'Edição de serviços' : 'Cadastro de serviços',
+      ),
 
       // A OS não deve apresentar o menu lateral.
       endDrawer: widget.abertoPelaOS

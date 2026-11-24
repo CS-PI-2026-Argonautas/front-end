@@ -504,8 +504,10 @@ class _DataOsState extends State<DataOs> {
             final novoCliente = await Navigator.push<Map<String, dynamic>>(
               context,
               MaterialPageRoute(
-                builder: (context) =>
-                    const PersonRegistration(retornarDadosAoFechar: true),
+                builder: (context) => const PersonRegistration(
+                  retornarDadosAoFechar: true,
+                  abertoPelaOS: true,
+                ),
               ),
             );
 
@@ -582,7 +584,8 @@ class _DataOsState extends State<DataOs> {
             final novo = await Navigator.push<Address>(
               context,
               MaterialPageRoute(
-                builder: (_) => const PersonRegistrationAddress(),
+                builder: (_) =>
+                    const PersonRegistrationAddress(abertoPelaOS: true),
               ),
             );
 

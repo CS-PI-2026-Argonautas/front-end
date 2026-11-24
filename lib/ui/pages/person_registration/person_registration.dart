@@ -22,7 +22,12 @@ import 'package:frontend/ui/widgets/appBar.dart';
 
 class PersonRegistration extends StatefulWidget {
   final bool retornarDadosAoFechar;
-  const PersonRegistration({super.key, this.retornarDadosAoFechar = false});
+  final bool abertoPelaOS;
+  const PersonRegistration({
+    super.key,
+    this.retornarDadosAoFechar = false,
+    this.abertoPelaOS = false,
+  });
 
   @override
   State<PersonRegistration> createState() => _PersonRegistrationState1();
@@ -67,42 +72,46 @@ class _PersonRegistrationState1 extends State<PersonRegistration> {
         },
         title: 'Cadastro de clientes',
       ),
-      endDrawer: Menu(
-        currentIndex: 0,
-        onTap: (index) {
-          Navigator.pop(context);
+      endDrawer: widget.abertoPelaOS
+          ? null
+          : Menu(
+              currentIndex: 3,
+              onTap: (index) {
+                Navigator.pop(context);
 
-          if (index == 1) {
-            Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (context) => const ProductRegistration(),
-              ),
-            );
-          }
+                if (index == 1) {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => const ProductRegistration(),
+                    ),
+                  );
+                }
 
-          if (index == 2) {
-            Navigator.push(
-              context,
-              MaterialPageRoute(builder: (context) => const OsListPage()),
-            );
-          }
+                if (index == 2) {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => const OsListPage()),
+                  );
+                }
 
-          if (index == 3) {
-            Navigator.push(
-              context,
-              MaterialPageRoute(builder: (context) => const ServiceList()),
-            );
-          }
+                if (index == 3) {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => const ServiceList(),
+                    ),
+                  );
+                }
 
-          if (index == 4) {
-            Navigator.push(
-              context,
-              MaterialPageRoute(builder: (context) => const Dashboard()),
-            );
-          }
-        },
-      ),
+                if (index == 4) {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => const Dashboard()),
+                  );
+                }
+              },
+            ),
       body: SafeArea(
         child: SingleChildScrollView(
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 18),
