@@ -1,14 +1,15 @@
 import 'package:flutter/material.dart';
-import 'package:frontend/ui/pages/client_list/client_list.dart';
-import 'package:frontend/ui/pages/edit_item/item_edition.dart';
+import 'package:frontend/ui/pages/lists/client_list.dart';
+import 'package:frontend/ui/pages/lists/service_list.dart';
 import 'package:frontend/ui/pages/os/tabbar/tabbar.dart';
 import 'package:frontend/ui/pages/os/tabs/clientOs.dart';
 import 'package:frontend/ui/pages/os/tabs/data_os.dart';
-import 'package:frontend/ui/pages/os//tabs/tolls_os.dart';
-import 'package:frontend/ui/pages/os_list/os_list_page.dart';
+
+import 'package:frontend/ui/pages/os/tabs/tolls_os.dart';
+import 'package:frontend/ui/pages/lists/os_list_page.dart';
 import 'package:frontend/ui/pages/person_registration/person_registration.dart';
 import 'package:frontend/ui/pages/product_registration/product_registration.dart';
-import 'package:frontend/ui/pages/service-registration/service_registration.dart';
+import 'package:frontend/ui/pages/service_registration/service_registration.dart';
 import 'package:frontend/ui/style/ColorScheme.dart' as custom_Colors;
 import 'package:frontend/ui/widgets/menu.dart';
 import 'package:frontend/fire_base/models/app_user.dart';
@@ -115,13 +116,7 @@ class Dashboard extends StatelessWidget {
           if (index == 3) {
             Navigator.push(
               context,
-              MaterialPageRoute(builder: (context) => const ItemEdition()),
-            );
-          }
-          if (index == 5) {
-            Navigator.push(
-              context,
-              MaterialPageRoute(builder: (context) => const ClientList()),
+              MaterialPageRoute(builder: (context) => const ServiceList()),
             );
           }
         },
@@ -136,10 +131,10 @@ class Dashboard extends StatelessWidget {
               mainAxisSize: MainAxisSize.min,
               spacing: 24,
               children: [
-               FutureBuilder<AppUser?>(
-                future: AuthenticationService().getLoggedUser(),
-                builder: (context, snapshot) {
-                final usuarioLogado = snapshot.data;
+                FutureBuilder<AppUser?>(
+                  future: AuthenticationService().getLoggedUser(),
+                  builder: (context, snapshot) {
+                    final usuarioLogado = snapshot.data;
                     return Text(
                       usuarioLogado != null
                           ? "Olá, ${usuarioLogado.name}!"
@@ -153,7 +148,7 @@ class Dashboard extends StatelessWidget {
                     );
                   },
                 ),
-                
+
                 Card(
                   color: colors.surfaceContainer,
                   elevation: 8,

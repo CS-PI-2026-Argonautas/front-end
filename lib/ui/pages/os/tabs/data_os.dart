@@ -1,3 +1,4 @@
+
 import 'package:flutter/material.dart';
 import 'package:frontend/fire_base/Enums/StatusOrderService.dart';
 import 'package:frontend/fire_base/services/client_service.dart';
@@ -59,7 +60,8 @@ class _DataOsState extends State<DataOs>
 
   bool get _formHabilitado => _os.client != null;
 
-  bool get _formValido => _os.client != null && _os.serviceAddress != null;
+  bool get _formValido =>
+      _os.client != null && _os.serviceAddress != null;
 
   bool get _equipamentoBloqueado => _os.equipmentBlocked;
 
@@ -71,8 +73,13 @@ class _DataOsState extends State<DataOs>
   @override
   void initState() {
     super.initState();
+
     _relatorioController.text = _os.report;
-    WidgetsBinding.instance.addPostFrameCallback((_) => _notificar());
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) _notificar();
+    });
+
     _carregarClientes();
   }
 
@@ -95,7 +102,9 @@ class _DataOsState extends State<DataOs>
   }
 
   ServiceOrderEquipment _equipamentoDe(Object? dados) {
-    if (dados is ServiceOrderEquipment) return dados;
+    if (dados is ServiceOrderEquipment) {
+      return dados;
+    }
 
     if (dados is Equipment) {
       return ServiceOrderEquipment(
@@ -112,7 +121,11 @@ class _DataOsState extends State<DataOs>
 
   Map<String, dynamic>? get _equipamentoParaSecao {
     final equipamento = _os.equipment;
-    if (equipamento == null || equipamento.isEmpty) return null;
+
+    if (equipamento == null || equipamento.isEmpty) {
+      return null;
+    }
+
     return equipamento.toFirestore();
   }
 
@@ -120,9 +133,11 @@ class _DataOsState extends State<DataOs>
     final numero = (e.number == null || e.number!.isEmpty)
         ? ''
         : ', ${e.number}';
-    final complemento = (e.complement == null || e.complement!.isEmpty)
-        ? ''
-        : ', ${e.complement}';
+
+    final complemento =
+        (e.complement == null || e.complement!.isEmpty)
+            ? ''
+            : ', ${e.complement}';
 
     return '${e.street}$numero$complemento - ${e.city}/${e.state}';
   }
@@ -143,7 +158,10 @@ class _DataOsState extends State<DataOs>
 
   void _mostrarErro(String mensagem) {
     ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text(mensagem), behavior: SnackBarBehavior.floating),
+      SnackBar(
+        content: Text(mensagem),
+        behavior: SnackBarBehavior.floating,
+      ),
     );
   }
 
@@ -153,7 +171,9 @@ class _DataOsState extends State<DataOs>
 
       if (!mounted) return;
 
-      setState(() => clientesDisponiveis = clientes);
+      setState(() {
+        clientesDisponiveis = clientes;
+      });
     } catch (e) {
       debugPrint('Erro ao carregar clientes: $e');
 
@@ -164,7 +184,10 @@ class _DataOsState extends State<DataOs>
   }
 
   void _selecionarCliente(Client cliente) {
-    setState(() => _os.setClient(cliente));
+    setState(() {
+      _os.setClient(cliente);
+    });
+
     _notificar();
   }
 
@@ -176,13 +199,18 @@ class _DataOsState extends State<DataOs>
       MaterialPageRoute(
         builder: (routeContext) => EquipmentData(
           osDados: _montarDadosOs(),
-          onSubmit: (dados) => Navigator.pop(routeContext, dados),
+          onSubmit: (dados) {
+            Navigator.pop(routeContext, dados);
+          },
         ),
       ),
     );
 
     if (resultado != null && mounted) {
-      setState(() => _os.equipment = _equipamentoDe(resultado));
+      setState(() {
+        _os.equipment = _equipamentoDe(resultado);
+      });
+
       _notificar();
     }
   }
@@ -208,7 +236,9 @@ class _DataOsState extends State<DataOs>
       backgroundColor: colors.surfaceContainer,
       isScrollControlled: true,
       shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+        borderRadius: BorderRadius.vertical(
+          top: Radius.circular(24),
+        ),
       ),
       builder: (sheetContext) {
         return SelectionBottomSheet<Equipment>(
@@ -225,7 +255,10 @@ class _DataOsState extends State<DataOs>
             _abrirCadastroEquipamento();
           },
           onSelect: (e) {
-            setState(() => _os.equipment = _equipamentoDe(e));
+            setState(() {
+              _os.equipment = _equipamentoDe(e);
+            });
+
             _notificar();
             Navigator.pop(sheetContext);
           },
@@ -285,15 +318,20 @@ class _DataOsState extends State<DataOs>
       context: context,
       initialDate: _os.entryDate,
       firstDate: DateTime(2000),
-      lastDate: DateTime.now().add(const Duration(days: 365)),
+      lastDate: DateTime.now().add(
+        const Duration(days: 365),
+      ),
       helpText: 'Selecione a data de entrada',
       cancelText: 'Cancelar',
       confirmText: 'Selecionar',
     );
 
-    if (selecionada == null) return;
+    if (selecionada == null || !mounted) return;
 
-    setState(() => _os.entryDate = selecionada);
+    setState(() {
+      _os.entryDate = selecionada;
+    });
+
     widget.onChanged?.call();
   }
 
@@ -302,15 +340,20 @@ class _DataOsState extends State<DataOs>
       context: context,
       initialDate: _os.exitDate ?? DateTime.now(),
       firstDate: DateTime(2000),
-      lastDate: DateTime.now().add(const Duration(days: 365)),
+      lastDate: DateTime.now().add(
+        const Duration(days: 365),
+      ),
       helpText: 'Alterar data de saída',
       cancelText: 'Cancelar',
       confirmText: 'Salvar',
     );
 
-    if (selecionada == null) return;
+    if (selecionada == null || !mounted) return;
 
-    setState(() => _os.exitDate = selecionada);
+    setState(() {
+      _os.exitDate = selecionada;
+    });
+
     widget.onChanged?.call();
 
     if (mounted) {
@@ -325,7 +368,7 @@ class _DataOsState extends State<DataOs>
       context: context,
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
-      builder: (context) {
+      builder: (modalContext) {
         return StatefulBuilder(
           builder: (context, setModalState) {
             return Padding(
@@ -335,7 +378,9 @@ class _DataOsState extends State<DataOs>
               child: Container(
                 decoration: const BoxDecoration(
                   color: Colors.white,
-                  borderRadius: BorderRadius.vertical(top: Radius.circular(26)),
+                  borderRadius: BorderRadius.vertical(
+                    top: Radius.circular(26),
+                  ),
                 ),
                 padding: const EdgeInsets.fromLTRB(24, 16, 24, 24),
                 child: SafeArea(
@@ -383,36 +428,46 @@ class _DataOsState extends State<DataOs>
                         autofocus: true,
                         maxLines: 7,
                         maxLength: ServiceOrder.reportLimit,
-                        textCapitalization: TextCapitalization.sentences,
-                        decoration:
-                            customInputDecoration(
-                              hintText: 'Digite observações sobre a OS...',
-                            ).copyWith(
-                              alignLabelWithHint: true,
-                              counterStyle: TextStyle(
-                                color: colors.onSurfaceVariant,
-                              ),
-                            ),
+                        textCapitalization:
+                            TextCapitalization.sentences,
+                        decoration: customInputDecoration(
+                          hintText: 'Digite observações sobre a OS...',
+                        ).copyWith(
+                          alignLabelWithHint: true,
+                          counterStyle: TextStyle(
+                            color: colors.onSurfaceVariant,
+                          ),
+                        ),
                         onChanged: (value) {
                           setModalState(() {});
-                          setState(() => _os.report = value);
+
+                          setState(() {
+                            _os.report = value;
+                          });
+
                           widget.onChanged?.call();
                         },
                       ),
                       SizedBox(
                         width: double.infinity,
                         child: ElevatedButton.icon(
-                          onPressed: () => Navigator.pop(context),
+                          onPressed: () {
+                            Navigator.pop(modalContext);
+                          },
                           icon: const Icon(Icons.check),
                           label: const Text(
                             'Concluir edição',
-                            style: TextStyle(fontWeight: FontWeight.bold),
+                            style: TextStyle(
+                              fontWeight: FontWeight.bold,
+                            ),
                           ),
                           style: ElevatedButton.styleFrom(
                             elevation: 3,
                             backgroundColor: colors.primary,
                             foregroundColor: colors.onSecondary,
-                            padding: const EdgeInsets.symmetric(vertical: 16),
+                            padding: const EdgeInsets.symmetric(
+                              vertical: 16,
+                            ),
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(14),
                             ),
@@ -430,13 +485,17 @@ class _DataOsState extends State<DataOs>
     );
   }
 
-  void _abrirListaClientes() {
+  Future<void> _abrirListaClientes() async {
+    if (!mounted) return;
+
     showModalBottomSheet(
       context: context,
       backgroundColor: colors.surface,
       isScrollControlled: true,
       shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+        borderRadius: BorderRadius.vertical(
+          top: Radius.circular(24),
+        ),
       ),
       builder: (sheetContext) {
         return SelectionBottomSheet<Client>(
@@ -454,112 +513,178 @@ class _DataOsState extends State<DataOs>
             final retorno = await Navigator.push<dynamic>(
               context,
               MaterialPageRoute(
-                builder: (_) =>
-                    const PersonRegistration(retornarDadosAoFechar: true),
+                builder: (_) => const PersonRegistration(
+                  retornarDadosAoFechar: true,
+                  abertoPelaOS: true,
+                ),
               ),
             );
 
             if (retorno == null || !mounted) return;
 
-            await _carregarClientes();
+            final idCliente = retorno is Map
+                ? retorno['id']?.toString()
+                : null;
 
-            if (!mounted) return;
+            if (idCliente == null || idCliente.isEmpty) {
+              _mostrarErro(
+                'Não foi possível identificar o cliente cadastrado.',
+              );
+              return;
+            }
 
-            final idNovo = retorno is Client
-                ? retorno.id
-                : (retorno is Map ? retorno['id']?.toString() : null);
+            try {
+              final clientes = await _clienteService.listar();
 
-            if (idNovo == null) return;
+              if (!mounted) return;
 
-            for (final c in clientesDisponiveis) {
-              if (c.id == idNovo) {
-                _selecionarCliente(c);
-                break;
+              setState(() {
+                clientesDisponiveis = clientes;
+              });
+
+              Client? clienteEncontrado;
+
+              for (final cliente in clientes) {
+                if (cliente.id.toString() == idCliente) {
+                  clienteEncontrado = cliente;
+                  break;
+                }
+              }
+
+              if (clienteEncontrado == null) {
+                _mostrarErro(
+                  'Cliente cadastrado não foi encontrado.',
+                );
+                return;
+              }
+
+              _selecionarCliente(clienteEncontrado);
+            } catch (e) {
+              debugPrint('Erro ao atualizar clientes: $e');
+
+              if (mounted) {
+                _mostrarErro(
+                  'Não foi possível atualizar a lista de clientes.',
+                );
               }
             }
           },
-          onSelect: (c) {
-            _selecionarCliente(c);
+          onSelect: (cliente) {
+            _selecionarCliente(cliente);
             Navigator.pop(sheetContext);
           },
         );
       },
     );
   }
-Future<void> _abrirListaEnderecos() async {
-  final cliente = _os.client;
-  if (cliente == null) return;
 
-  final List<Address> enderecos;
+  Future<void> _abrirListaEnderecos() async {
+    final cliente = _os.client;
 
-  try {
-    enderecos = await _enderecoService.getByClientId(cliente.id.toString());
-  } catch (e) {
+    if (cliente == null) return;
+
+    final List<Address> enderecos;
+
+    try {
+      enderecos = await _enderecoService.getByClientId(
+        cliente.id.toString(),
+      );
+    } catch (e) {
+      debugPrint('Erro ao carregar endereços: $e');
+
+      if (!mounted) return;
+
+      _mostrarErro('Não foi possível carregar os endereços.');
+      return;
+    }
+
     if (!mounted) return;
 
-    _mostrarErro('Não foi possível carregar os endereços.');
-    return;
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: colors.surfaceContainer,
+      isScrollControlled: true,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(
+          top: Radius.circular(24),
+        ),
+      ),
+      builder: (sheetContext) {
+        return SelectionBottomSheet<Address>(
+          title: 'Selecionar endereço',
+          items: enderecos,
+          searchText: 'Procurar endereço',
+          actionText: 'Novo endereço',
+          itemTitle: (e) => '${e.publicPlace}, ${e.number}, ${e.complement}',
+          itemSubtitle: (e) =>
+              '${e.city} - ${e.uf.name}'
+              '${e.zipCode.isEmpty ? '' : ' • CEP ${e.zipCode}'}',
+          itemIcon: Icons.location_on_outlined,
+          loading: false,
+          onAction: () async {
+            Navigator.pop(sheetContext);
+
+            final novo = await Navigator.push<Address>(
+              context,
+              MaterialPageRoute(
+                builder: (_) => const PersonRegistrationAddress(),
+              ),
+            );
+
+            if (novo == null || !mounted) return;
+
+            try {
+              await _enderecoService.save(
+                cliente.id.toString(),
+                novo,
+              );
+
+              if (!mounted) return;
+
+              setState(() {
+                _os.setServiceAddress(novo);
+              });
+
+              _notificar();
+            } catch (e) {
+              debugPrint('Erro ao salvar endereço: $e');
+
+              if (mounted) {
+                _mostrarErro('Não foi possível salvar o endereço.');
+              }
+            }
+          },
+          onSelect: (endereco) {
+            setState(() {
+              _os.setServiceAddress(endereco);
+            });
+
+            _notificar();
+            Navigator.pop(sheetContext);
+          },
+        );
+      },
+    );
   }
 
-  if (!mounted) return;
-
-  showModalBottomSheet(
-    context: context,
-    backgroundColor: colors.surfaceContainer,
-    isScrollControlled: true,
-    shape: const RoundedRectangleBorder(
-      borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
-    ),
-    builder: (sheetContext) {
-      return SelectionBottomSheet<Address>(
-        title: 'Selecionar endereço',
-        items: enderecos,
-        searchText: 'Procurar endereço',
-        actionText: 'Novo endereço',
-        itemTitle: (e) => '${e.publicPlace}, ${e.number}, ${e.complement}',
-        itemSubtitle: (e) =>
-            '${e.city} - ${e.uf.name}'
-            '${e.zipCode.isEmpty ? '' : ' • CEP ${e.zipCode}'}',
-        itemIcon: Icons.location_on_outlined,
-        loading: false,
-        onAction: () async {
-          Navigator.pop(sheetContext);
-
-          final novo = await Navigator.push<Address>(
-            context,
-            MaterialPageRoute(
-              builder: (_) => const PersonRegistrationAddress(),
-            ),
-          );
-
-          if (novo == null) return;
-
-          await _enderecoService.save(cliente.id.toString(), novo);
-
-          if (!mounted) return;
-
-          setState(() => _os.setServiceAddress(novo));
-          _notificar();
-        },
-        onSelect: (e) {
-          setState(() => _os.setServiceAddress(e));
-          _notificar();
-          Navigator.pop(sheetContext);
-        },
-      );
-    },
-  );
-}
   @override
   Widget build(BuildContext context) {
     super.build(context);
 
     return SingleChildScrollView(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 18),
+      padding: const EdgeInsets.symmetric(
+        horizontal: 16,
+        vertical: 18,
+      ),
       child: Center(
         child: ConstrainedBox(
           constraints: const BoxConstraints(maxWidth: 650),
-          child: Column(spacing: 24, children: [_buildFormCard()]),
+          child: Column(
+            spacing: 24,
+            children: [
+              _buildFormCard(),
+            ],
+          ),
         ),
       ),
     );
@@ -572,9 +697,14 @@ Future<void> _abrirListaEnderecos() async {
       color: Colors.white,
       elevation: 8,
       shadowColor: Colors.black26,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(22)),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(22),
+      ),
       child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 28),
+        padding: const EdgeInsets.symmetric(
+          horizontal: 24,
+          vertical: 28,
+        ),
         child: Column(
           spacing: 18,
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -592,7 +722,9 @@ Future<void> _abrirListaEnderecos() async {
             _buildClienteSelecionado(),
             _buildClienteEnderecoLabel(
               'Endereço*',
-              onAdd: _os.client == null ? null : _abrirListaEnderecos,
+              onAdd: _os.client == null
+                  ? null
+                  : _abrirListaEnderecos,
               addLabel: 'Adicionar Endereço',
               icon: Icons.home_outlined,
             ),
@@ -639,23 +771,24 @@ Future<void> _abrirListaEnderecos() async {
                                 borderRadius: BorderRadius.circular(14),
                                 onTap: _selecionarDataEntrada,
                                 child: InputDecorator(
-                                  decoration:
-                                      customInputDecoration(
-                                        hintText: 'Data',
-                                      ).copyWith(
-                                        suffixIcon: const Icon(
-                                          Icons.calendar_month_outlined,
-                                          size: 20,
-                                        ),
-                                        contentPadding:
-                                            const EdgeInsets.symmetric(
-                                              horizontal: 12,
-                                              vertical: 14,
-                                            ),
-                                      ),
+                                  decoration: customInputDecoration(
+                                    hintText: 'Data',
+                                  ).copyWith(
+                                    suffixIcon: const Icon(
+                                      Icons.calendar_month_outlined,
+                                      size: 20,
+                                    ),
+                                    contentPadding:
+                                        const EdgeInsets.symmetric(
+                                      horizontal: 12,
+                                      vertical: 14,
+                                    ),
+                                  ),
                                   child: Text(
                                     _formatDate(_os.entryDate),
-                                    style: const TextStyle(fontSize: 14),
+                                    style: const TextStyle(
+                                      fontSize: 14,
+                                    ),
                                   ),
                                 ),
                               ),
@@ -675,29 +808,29 @@ Future<void> _abrirListaEnderecos() async {
                                 borderRadius: BorderRadius.circular(14),
                                 onTap: _alterarDataSaida,
                                 child: InputDecorator(
-                                  decoration:
-                                      customInputDecoration(
-                                        hintText: 'Automática',
-                                      ).copyWith(
-                                        filled: true,
-                                        fillColor: colors.surfaceContainerLow,
-                                        suffixIcon: _os.exitDate == null
-                                            ? Icon(
-                                                Icons.hourglass_empty,
-                                                color: Colors.blueGrey.shade400,
-                                                size: 20,
-                                              )
-                                            : Icon(
-                                                Icons.edit_calendar_outlined,
-                                                color: Colors.blueGrey.shade400,
-                                                size: 20,
-                                              ),
-                                        contentPadding:
-                                            const EdgeInsets.symmetric(
-                                              horizontal: 12,
-                                              vertical: 14,
-                                            ),
-                                      ),
+                                  decoration: customInputDecoration(
+                                    hintText: 'Automática',
+                                  ).copyWith(
+                                    filled: true,
+                                    fillColor:
+                                        colors.surfaceContainerLow,
+                                    suffixIcon: _os.exitDate == null
+                                        ? Icon(
+                                            Icons.hourglass_empty,
+                                            color: Colors.blueGrey.shade400,
+                                            size: 20,
+                                          )
+                                        : Icon(
+                                            Icons.edit_calendar_outlined,
+                                            color: Colors.blueGrey.shade400,
+                                            size: 20,
+                                          ),
+                                    contentPadding:
+                                        const EdgeInsets.symmetric(
+                                      horizontal: 12,
+                                      vertical: 14,
+                                    ),
+                                  ),
                                   child: Text(
                                     _os.exitDate == null
                                         ? 'Indefinida'
@@ -716,7 +849,7 @@ Future<void> _abrirListaEnderecos() async {
                         ),
                       ],
                     ),
-                    if (_os.exitDate != null) ...[
+                    if (_os.exitDate != null)
                       Row(
                         spacing: 6,
                         children: [
@@ -734,26 +867,36 @@ Future<void> _abrirListaEnderecos() async {
                           ),
                         ],
                       ),
-                    ],
-                    _buildFieldLabel(Icons.sync_alt, 'Status'),
+                    _buildFieldLabel(
+                      Icons.sync_alt,
+                      'Status',
+                    ),
                     _buildStatusField(),
-                    _buildFieldLabel(Icons.description_outlined, 'Relatório'),
+                    _buildFieldLabel(
+                      Icons.description_outlined,
+                      'Relatório',
+                    ),
                     InkWell(
                       onTap: _editarRelatorio,
                       borderRadius: BorderRadius.circular(16),
                       child: Container(
                         width: double.infinity,
-                        constraints: const BoxConstraints(minHeight: 130),
+                        constraints: const BoxConstraints(
+                          minHeight: 130,
+                        ),
                         padding: const EdgeInsets.all(16),
                         decoration: BoxDecoration(
                           color: Colors.white,
-                          border: Border.all(color: Colors.grey.shade400),
+                          border: Border.all(
+                            color: Colors.grey.shade400,
+                          ),
                           borderRadius: BorderRadius.circular(16),
                         ),
                         child: relatorio.isEmpty
                             ? Row(
                                 spacing: 6,
-                                crossAxisAlignment: CrossAxisAlignment.start,
+                                crossAxisAlignment:
+                                    CrossAxisAlignment.start,
                                 children: [
                                   Icon(
                                     Icons.edit_note,
@@ -772,7 +915,8 @@ Future<void> _abrirListaEnderecos() async {
                               )
                             : Column(
                                 spacing: 18,
-                                crossAxisAlignment: CrossAxisAlignment.start,
+                                crossAxisAlignment:
+                                    CrossAxisAlignment.start,
                                 children: [
                                   Text(
                                     relatorio,
@@ -782,7 +926,8 @@ Future<void> _abrirListaEnderecos() async {
                                     ),
                                   ),
                                   Row(
-                                    mainAxisAlignment: MainAxisAlignment.end,
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.end,
                                     children: [
                                       Icon(
                                         Icons.edit_outlined,
@@ -823,9 +968,13 @@ Future<void> _abrirListaEnderecos() async {
                           elevation: _formValido ? 3 : 0,
                           backgroundColor: colors.primary,
                           foregroundColor: colors.onSecondary,
-                          disabledBackgroundColor: colors.surfaceContainerLow,
-                          disabledForegroundColor: colors.onSurfaceVariant,
-                          padding: const EdgeInsets.symmetric(vertical: 18),
+                          disabledBackgroundColor:
+                              colors.surfaceContainerLow,
+                          disabledForegroundColor:
+                              colors.onSurfaceVariant,
+                          padding: const EdgeInsets.symmetric(
+                            vertical: 18,
+                          ),
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(14),
                           ),
@@ -860,17 +1009,26 @@ Future<void> _abrirListaEnderecos() async {
   }) {
     return Row(
       children: [
-        SectionLabel(icon: icon, text: text),
+        SectionLabel(
+          icon: icon,
+          text: text,
+        ),
         const Spacer(),
         ElevatedButton.icon(
           onPressed: onAdd,
-          icon: const Icon(Icons.add, size: 18),
+          icon: const Icon(
+            Icons.add,
+            size: 18,
+          ),
           label: Text(addLabel),
           style: ElevatedButton.styleFrom(
             backgroundColor: colors.secondary,
             foregroundColor: Colors.white,
             elevation: 0,
-            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+            padding: const EdgeInsets.symmetric(
+              horizontal: 14,
+              vertical: 10,
+            ),
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(8),
             ),
@@ -896,7 +1054,10 @@ Future<void> _abrirListaEnderecos() async {
       ),
       child: Row(
         children: [
-          Icon(Icons.person, color: colors.secondary),
+          Icon(
+            Icons.person,
+            color: colors.secondary,
+          ),
           const SizedBox(width: 12),
           Expanded(
             child: Column(
@@ -923,7 +1084,10 @@ Future<void> _abrirListaEnderecos() async {
           ),
           IconButton(
             onPressed: _abrirListaClientes,
-            icon: Icon(Icons.sync_alt, color: colors.secondary),
+            icon: Icon(
+              Icons.sync_alt,
+              color: colors.secondary,
+            ),
             tooltip: 'Trocar cliente',
           ),
         ],
@@ -947,7 +1111,10 @@ Future<void> _abrirListaEnderecos() async {
       ),
       child: Row(
         children: [
-          Icon(Icons.location_on, color: colors.secondary),
+          Icon(
+            Icons.location_on,
+            color: colors.secondary,
+          ),
           const SizedBox(width: 12),
           Expanded(
             child: Column(
@@ -974,7 +1141,10 @@ Future<void> _abrirListaEnderecos() async {
           ),
           IconButton(
             onPressed: _abrirListaEnderecos,
-            icon: Icon(Icons.sync_alt, color: colors.primary),
+            icon: Icon(
+              Icons.sync_alt,
+              color: colors.primary,
+            ),
             tooltip: 'Trocar endereço',
           ),
         ],
@@ -992,12 +1162,19 @@ Future<void> _abrirListaEnderecos() async {
       ),
       child: Row(
         children: [
-          Icon(Icons.info_outline, color: Colors.amber.shade800, size: 18),
+          Icon(
+            Icons.info_outline,
+            color: Colors.amber.shade800,
+            size: 18,
+          ),
           const SizedBox(width: 8),
           Expanded(
             child: Text(
               'Selecione um cliente para liberar os demais campos.',
-              style: TextStyle(fontSize: 13, color: Colors.amber.shade900),
+              style: TextStyle(
+                fontSize: 13,
+                color: Colors.amber.shade900,
+              ),
             ),
           ),
         ],
@@ -1020,7 +1197,10 @@ Future<void> _abrirListaEnderecos() async {
         ),
         Text(
           subtitle,
-          style: TextStyle(fontSize: 14, color: colors.onSurfaceVariant),
+          style: TextStyle(
+            fontSize: 14,
+            color: colors.onSurfaceVariant,
+          ),
         ),
       ],
     );
@@ -1030,7 +1210,11 @@ Future<void> _abrirListaEnderecos() async {
     return Row(
       spacing: 6,
       children: [
-        Icon(icon, size: 20, color: colors.primary),
+        Icon(
+          icon,
+          size: 20,
+          color: colors.primary,
+        ),
         Text(
           label,
           style: TextStyle(
@@ -1048,7 +1232,9 @@ Future<void> _abrirListaEnderecos() async {
 
     if (!editableStatuses.contains(status)) {
       return InputDecorator(
-        decoration: customInputDecoration(hintText: 'Status').copyWith(
+        decoration: customInputDecoration(
+          hintText: 'Status',
+        ).copyWith(
           filled: true,
           fillColor: Colors.grey.shade100,
           suffixIcon: const Icon(
@@ -1083,7 +1269,9 @@ Future<void> _abrirListaEnderecos() async {
 
     return DropdownButtonFormField<ServiceOrderStatus>(
       value: status,
-      decoration: customInputDecoration(hintText: 'Selecione o status'),
+      decoration: customInputDecoration(
+        hintText: 'Selecione o status',
+      ),
       items: editableStatuses.map((value) {
         return DropdownMenuItem<ServiceOrderStatus>(
           value: value,
@@ -1106,7 +1294,10 @@ Future<void> _abrirListaEnderecos() async {
       onChanged: (value) {
         if (value == null) return;
 
-        setState(() => _os.changeStatus(value));
+        setState(() {
+          _os.changeStatus(value);
+        });
+
         widget.onChanged?.call();
       },
     );

@@ -6,12 +6,12 @@ import 'package:frontend/fire_base/models/dinheiro.dart';
 import 'package:frontend/fire_base/models/os.dart';
 import 'package:frontend/fire_base/models/service.dart';
 import 'package:frontend/fire_base/services/service_service.dart';
-
-import 'package:frontend/ui/pages/os/tabs/service_registration.dart';
+import 'package:frontend/ui/pages/service_registration/service_registration.dart';
 import 'package:frontend/ui/style/ColorScheme.dart' as custom_colors;
 import 'package:frontend/ui/style/inputDecorationStyles.dart';
 import 'package:frontend/ui/widgets/floatingButton.dart';
 import 'package:frontend/ui/widgets/bottom_sheet/bottom_sheet.dart';
+import 'package:frontend/utils/formatters/currency_input_formatter.dart';
 
 class OsServicosTab extends StatefulWidget {
   final ServiceOrder serviceOrder;
@@ -28,7 +28,7 @@ class OsServicosTab extends StatefulWidget {
 class _OsServicosTabState extends State<OsServicosTab> {
   final colors = custom_colors.colorScheme;
 
-  final ServicoService _servicoService = ServicoService();
+  final ServiceService _servicoService = ServiceService();
 
   final TextEditingController _searchController =
       TextEditingController();
@@ -36,6 +36,21 @@ class _OsServicosTabState extends State<OsServicosTab> {
   List<Map<String, dynamic>> _servicosDisponiveis = [];
 
   bool _carregandoServicos = true;
+
+  List<ServiceOrderService> get _servicosExibidos {
+    final query = _searchController.text.toLowerCase().trim();
+
+    return widget.serviceOrder.services.where((servico) {
+      return servico.description.toLowerCase().contains(query);
+    }).toList();
+  }
+
+  int get _subtotal {
+    return widget.serviceOrder.services.fold<int>(
+      0,
+      (total, servico) => total + servico.subtotalCents,
+    );
+  }
 
   @override
   void initState() {
@@ -48,10 +63,11 @@ class _OsServicosTabState extends State<OsServicosTab> {
     _searchController.dispose();
     super.dispose();
   }
+
   Future<void> _carregarServicosDoBanco() async {
     try {
       final servicosDoFirebase =
-          await _servicoService.buscarServicosDisponiveis();
+          await _servicoService.watchServices().first;
 
       final servicosFormatados = servicosDoFirebase
           .where((servico) => servico.id != null)
@@ -72,6 +88,8 @@ class _OsServicosTabState extends State<OsServicosTab> {
         _carregandoServicos = false;
       });
     } catch (e) {
+      debugPrint('Erro ao carregar serviços: $e');
+
       if (!mounted) return;
 
       setState(() {
@@ -84,20 +102,6 @@ class _OsServicosTabState extends State<OsServicosTab> {
         ),
       );
     }
-  }
-  List<ServiceOrderService> get _servicosExibidos {
-    final query = _searchController.text.toLowerCase().trim();
-
-    return widget.serviceOrder.services.where((servico) {
-      return servico.description.toLowerCase().contains(query);
-    }).toList();
-  }
-
-  int get _subtotal {
-    return widget.serviceOrder.services.fold<int>(
-      0,
-      (total, servico) => total + servico.subtotalCents,
-    );
   }
 
   String _formatar(int centavos) {
@@ -120,8 +124,7 @@ class _OsServicosTabState extends State<OsServicosTab> {
       return;
     }
 
-    final String? serviceId =
-        servico['servicoId']?.toString() ??
+    final serviceId = servico['servicoId']?.toString() ??
         servico['id']?.toString();
 
     if (serviceId == null || serviceId.isEmpty) {
@@ -133,9 +136,8 @@ class _OsServicosTabState extends State<OsServicosTab> {
       return;
     }
 
-    final String nome = servico['nome']?.toString() ?? '';
-    final String descricao =
-        servico['descricao']?.toString().trim() ?? '';
+    final nome = servico['nome']?.toString() ?? '';
+    final descricao = servico['descricao']?.toString().trim() ?? '';
 
     setState(() {
       widget.serviceOrder.services.add(
@@ -147,6 +149,7 @@ class _OsServicosTabState extends State<OsServicosTab> {
       );
     });
   }
+
   void _removerServico(ServiceOrderService servico) {
     final indiceOriginal =
         widget.serviceOrder.services.indexOf(servico);
@@ -227,9 +230,8 @@ class _OsServicosTabState extends State<OsServicosTab> {
     _removerServico(servico);
   }
 
-
   Future<void> _atualizarServico(Service atualizado) async {
-    await _servicoService.atualizarServico(atualizado);
+    await _servicoService.update(atualizado);
 
     if (!mounted) return;
 
@@ -254,11 +256,11 @@ class _OsServicosTabState extends State<OsServicosTab> {
                   ? atualizado.description
                   : atualizado.name;
 
-          widget.serviceOrder.services[i] =
-              ServiceOrderService(
+          widget.serviceOrder.services[i] = ServiceOrderService(
             serviceId: servicoOS.serviceId,
             description: descricao,
             valueCents: atualizado.valueInCents,
+            discountCents: servicoOS.discountCents,
           );
         }
       }
@@ -274,16 +276,20 @@ class _OsServicosTabState extends State<OsServicosTab> {
       context: context,
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
-      builder: (context) {
-        return _EditServiceSheet(
-          servico: servico,
-          onSave: _atualizarServico,
-        );
-      },
+      builder: (_) => _EditServiceSheet(
+        servico: servico,
+        onSave: _atualizarServico,
+      ),
     );
   }
 
-  void _abrirListaServicos() {
+  Future<void> _abrirListaServicos() async {
+    if (_carregandoServicos) {
+      await _carregarServicosDoBanco();
+    }
+
+    if (!mounted) return;
+
     showModalBottomSheet(
       context: context,
       backgroundColor: colors.surfaceContainer,
@@ -301,20 +307,15 @@ class _OsServicosTabState extends State<OsServicosTab> {
               items: _servicosDisponiveis,
               searchText: 'Procurar serviço',
               actionText: 'Novo serviço',
-
               itemTitle: (servico) {
                 return servico['nome'].toString();
               },
-
               itemSubtitle: (servico) {
-                return _formatar(
-                  servico['valueInCents'] as int? ?? 0,
-                );
+                final valor = servico['valueInCents'];
+                return _formatar(valor is num ? valor.toInt() : 0);
               },
-
               itemIcon: Icons.build,
               loading: _carregandoServicos,
-
               onEdit: (servico) async {
                 await _abrirEdicao(servico);
 
@@ -322,37 +323,53 @@ class _OsServicosTabState extends State<OsServicosTab> {
                   setSheetState(() {});
                 }
               },
-
               onAction: () async {
                 Navigator.pop(sheetContext);
 
-                final dadosNovos = await Navigator.push(
+                final dadosNovos = await Navigator.push<dynamic>(
                   context,
                   MaterialPageRoute(
-                    builder: (context) =>
-                        const ServiceRegistration(),
+                    builder: (_) => const ServiceRegistration(
+                      abertoPelaOS: true,
+                    ),
                   ),
                 );
 
                 if (!mounted) return;
 
                 if (dadosNovos != null) {
-                  final novoServico = {
-                    'id': dadosNovos['id']?.toString() ??
-                        'novo_${DateTime.now().millisecondsSinceEpoch}',
-                    'servicoId': dadosNovos['id']?.toString() ??
-                        'novo_${DateTime.now().millisecondsSinceEpoch}',
-                    'nome': dadosNovos['nome'],
-                    'descricao': dadosNovos['descricao'],
-                    'valueInCents': dadosNovos['valor'],
-                  };
+                  final idNovo = dadosNovos is Map
+                      ? dadosNovos['id']?.toString()
+                      : null;
 
-                  _adicionarServico(novoServico);
+                  if (idNovo == null || idNovo.isEmpty) {
+                    _mostrarMensagem(
+                      'O cadastro não retornou o identificador do serviço.',
+                    );
+                  } else {
+                    await _carregarServicosDoBanco();
+
+                    if (!mounted) return;
+
+                    final novoServico = _servicosDisponiveis
+                        .where(
+                          (servico) =>
+                              servico['servicoId']?.toString() == idNovo,
+                        )
+                        .firstOrNull;
+
+                    if (novoServico != null) {
+                      _adicionarServico(novoServico);
+                    } else {
+                      _mostrarMensagem(
+                        'O serviço foi cadastrado, mas não foi encontrado na lista.',
+                      );
+                    }
+                  }
+                } else {
+                  await _carregarServicosDoBanco();
                 }
-
-                await _carregarServicosDoBanco();
               },
-
               onSelect: (servico) {
                 _adicionarServico(servico);
                 Navigator.pop(sheetContext);
@@ -361,6 +378,15 @@ class _OsServicosTabState extends State<OsServicosTab> {
           },
         );
       },
+    );
+  }
+
+  void _mostrarMensagem(String mensagem) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(mensagem),
+        behavior: SnackBarBehavior.floating,
+      ),
     );
   }
 
@@ -395,8 +421,7 @@ class _OsServicosTabState extends State<OsServicosTab> {
                     child: Padding(
                       padding: const EdgeInsets.all(16),
                       child: Column(
-                        crossAxisAlignment:
-                            CrossAxisAlignment.start,
+                        crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Row(
                             mainAxisAlignment:
@@ -420,9 +445,7 @@ class _OsServicosTabState extends State<OsServicosTab> {
                               ),
                             ],
                           ),
-
                           const SizedBox(height: 20),
-
                           TextFormField(
                             controller: _searchController,
                             onChanged: (_) {
@@ -437,13 +460,10 @@ class _OsServicosTabState extends State<OsServicosTab> {
                               ),
                             ),
                           ),
-
                           const SizedBox(height: 20),
-
                           if (listaAtual.isEmpty)
                             Padding(
-                              padding:
-                                  const EdgeInsets.symmetric(
+                              padding: const EdgeInsets.symmetric(
                                 vertical: 24,
                               ),
                               child: Center(
@@ -481,7 +501,6 @@ class _OsServicosTabState extends State<OsServicosTab> {
             ),
           ),
         ),
-
         Positioned(
           bottom: 16,
           right: 16,
@@ -493,18 +512,16 @@ class _OsServicosTabState extends State<OsServicosTab> {
     );
   }
 
-
   Widget _buildServiceCard(
     ServiceOrderService servico,
     int index,
   ) {
-    final int preco = servico.subtotalCents < 0
+    final preco = servico.subtotalCents < 0
         ? 0
         : servico.subtotalCents;
 
     return Slidable(
       key: ValueKey('${servico.serviceId}_$index'),
-
       endActionPane: ActionPane(
         motion: const DrawerMotion(),
         extentRatio: 0.22,
@@ -520,7 +537,6 @@ class _OsServicosTabState extends State<OsServicosTab> {
           ),
         ],
       ),
-
       child: Container(
         width: double.infinity,
         padding: const EdgeInsets.all(14),
@@ -539,9 +555,7 @@ class _OsServicosTabState extends State<OsServicosTab> {
                 fontSize: 18,
               ),
             ),
-
             const SizedBox(height: 2),
-
             Text(
               _formatar(preco),
               style: TextStyle(
@@ -559,7 +573,6 @@ class _OsServicosTabState extends State<OsServicosTab> {
 
 class _EditServiceSheet extends StatefulWidget {
   final Map<String, dynamic> servico;
-
   final Future<void> Function(Service atualizado) onSave;
 
   const _EditServiceSheet({
@@ -597,13 +610,17 @@ class _EditServiceSheetState extends State<_EditServiceSheet> {
       text: servico['descricao']?.toString() ?? '',
     );
 
-    final int centavos =
-        servico['valueInCents'] as int? ?? 0;
+    final centavos = servico['valueInCents'] is num
+        ? (servico['valueInCents'] as num).toInt()
+        : 0;
+
+    final valorFormatado = Dinheiro(centavos)
+        .formatado()
+        .replaceFirst('R\$', '')
+        .trim();
 
     _valorController = TextEditingController(
-      text: (centavos / 100)
-          .toStringAsFixed(2)
-          .replaceAll('.', ','),
+      text: valorFormatado,
     );
   }
 
@@ -612,49 +629,41 @@ class _EditServiceSheetState extends State<_EditServiceSheet> {
     _nomeController.dispose();
     _descricaoController.dispose();
     _valorController.dispose();
-
     super.dispose();
   }
 
-  int? _parseCentavos(String texto) {
-    final valor = texto.trim();
-
-    if (valor.isEmpty) return null;
-
-    final normalizado = valor
-        .replaceAll('.', '')
-        .replaceAll(',', '.');
-
-    final numero = double.tryParse(normalizado);
-
-    if (numero == null || !numero.isFinite || numero < 0) {
-      return null;
-    }
-
-    return Dinheiro.fromReais(numero).centavos;
+  int _parseCentavos(String texto) {
+    return Dinheiro.fromTexto(texto).centavos;
   }
-
 
   Future<void> _save() async {
     if (_saving || !_formKey.currentState!.validate()) {
       return;
     }
 
-    final navigator = Navigator.of(context);
-    final messenger = ScaffoldMessenger.of(context);
+    final valorEmCentavos = _parseCentavos(
+      _valorController.text,
+    );
 
-    final String id =
-        widget.servico['servicoId']?.toString() ??
-        widget.servico['id'].toString();
+    if (valorEmCentavos <= 0) return;
+
+    final id = widget.servico['servicoId']?.toString() ??
+        widget.servico['id']?.toString();
+
+    if (id == null || id.isEmpty) {
+      _mostrarErro('Serviço sem identificador válido.');
+      return;
+    }
 
     final atualizado = Service(
       id: id,
       name: _nomeController.text.trim(),
       description: _descricaoController.text.trim(),
-      valueInCents: _parseCentavos(
-        _valorController.text,
-      )!,
+      valueInCents: valorEmCentavos,
     );
+
+    final navigator = Navigator.of(context);
+    final messenger = ScaffoldMessenger.of(context);
 
     setState(() {
       _saving = true;
@@ -693,6 +702,15 @@ class _EditServiceSheetState extends State<_EditServiceSheet> {
     }
   }
 
+  void _mostrarErro(String mensagem) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(mensagem),
+        behavior: SnackBarBehavior.floating,
+      ),
+    );
+  }
+
   Widget _label(String texto) {
     return Text(
       texto,
@@ -703,7 +721,6 @@ class _EditServiceSheetState extends State<_EditServiceSheet> {
       ),
     );
   }
-
 
   @override
   Widget build(BuildContext context) {
@@ -744,9 +761,7 @@ class _EditServiceSheetState extends State<_EditServiceSheet> {
                       ),
                     ),
                   ),
-
                   const SizedBox(height: 6),
-
                   Row(
                     spacing: 6,
                     children: [
@@ -764,11 +779,8 @@ class _EditServiceSheetState extends State<_EditServiceSheet> {
                       ),
                     ],
                   ),
-
                   const SizedBox(height: 6),
-
                   _label('Nome'),
-
                   TextFormField(
                     controller: _nomeController,
                     textCapitalization:
@@ -785,9 +797,7 @@ class _EditServiceSheetState extends State<_EditServiceSheet> {
                       return null;
                     },
                   ),
-
                   _label('Descrição'),
-
                   TextFormField(
                     controller: _descricaoController,
                     maxLength: 50,
@@ -801,31 +811,32 @@ class _EditServiceSheetState extends State<_EditServiceSheet> {
                       ),
                     ),
                   ),
-
                   _label('Valor'),
-
                   TextFormField(
                     controller: _valorController,
                     keyboardType:
                         const TextInputType.numberWithOptions(
                       decimal: true,
                     ),
+                    inputFormatters: [
+                      CurrencyInputFormatter(),
+                    ],
                     decoration: customInputDecoration(
                       hintText: '0,00',
                     ).copyWith(
                       prefixText: 'R\$ ',
                     ),
                     validator: (value) {
-                      if (_parseCentavos(value ?? '') == null) {
-                        return 'Informe um valor válido.';
+                      final valor = _parseCentavos(value ?? '');
+
+                      if (valor <= 0) {
+                        return 'O valor deve ser maior que zero.';
                       }
 
                       return null;
                     },
                   ),
-
                   const SizedBox(height: 6),
-
                   SizedBox(
                     width: double.infinity,
                     child: ElevatedButton.icon(

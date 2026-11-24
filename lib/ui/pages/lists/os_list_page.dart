@@ -1,5 +1,6 @@
 
 import 'package:flutter/material.dart';
+<<<<<<< HEAD:lib/ui/pages/os_list/os_list_page.dart
 
 import 'package:frontend/fire_base/Enums/StatusOrderService.dart';
 import 'package:frontend/fire_base/models/dinheiro.dart';
@@ -7,8 +8,13 @@ import 'package:frontend/fire_base/models/os.dart';
 import 'package:frontend/fire_base/repositories/os_repository.dart';
 
 import 'package:frontend/ui/pages/client_list/client_list.dart';
+=======
+import 'package:frontend/fire_base/models/work_order.dart';
+import 'package:frontend/ui/pages/lists/client_list.dart';
+>>>>>>> origin/dev:lib/ui/pages/lists/os_list_page.dart
 import 'package:frontend/ui/pages/dashboard.dart';
 import 'package:frontend/ui/pages/edit_item/item_edition.dart';
+import 'package:frontend/ui/pages/lists/service_list.dart';
 import 'package:frontend/ui/pages/os/tabbar/tabbar.dart';
 import 'package:frontend/ui/pages/product_registration/product_registration.dart';
 import 'package:frontend/ui/pages/stand_in_page.dart';
@@ -263,9 +269,13 @@ class _OsListPageState extends State<OsListPage> {
           if (index == 3) {
             Navigator.push(
               context,
+<<<<<<< HEAD:lib/ui/pages/os_list/os_list_page.dart
               MaterialPageRoute(
                 builder: (context) => const ItemEdition(),
               ),
+=======
+              MaterialPageRoute(builder: (context) => const ServiceList()),
+>>>>>>> origin/dev:lib/ui/pages/lists/os_list_page.dart
             );
           }
 
@@ -280,6 +290,7 @@ class _OsListPageState extends State<OsListPage> {
         },
       ),
       body: SafeArea(
+<<<<<<< HEAD:lib/ui/pages/os_list/os_list_page.dart
         child: RefreshIndicator(
           onRefresh: _recarregarOrdemServicos,
           child: SingleChildScrollView(
@@ -290,6 +301,16 @@ class _OsListPageState extends State<OsListPage> {
                 vertical: 50,
               ),
               child: Column(
+=======
+        child: Align(
+          alignment: Alignment.topCenter,
+          child: ConstrainedBox(
+            constraints: const BoxConstraints(maxWidth: 650),
+            child: SingleChildScrollView(
+              padding: const EdgeInsets.fromLTRB(20, 30, 20, 100),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+>>>>>>> origin/dev:lib/ui/pages/lists/os_list_page.dart
                 children: [
                   TextFormField(
                     controller: _searchController,
@@ -297,6 +318,7 @@ class _OsListPageState extends State<OsListPage> {
                       hintText: 'Procurar ordem de serviço',
                       filled: true,
                       fillColor: colors.surfaceContainer,
+<<<<<<< HEAD:lib/ui/pages/os_list/os_list_page.dart
                       hintStyle: TextStyle(
                         color: colors.onSurface,
                       ),
@@ -310,6 +332,13 @@ class _OsListPageState extends State<OsListPage> {
                                 Icons.clear,
                                 color: colors.secondary,
                               ),
+=======
+                      hintStyle: TextStyle(color: colors.onSurface),
+                      prefixIcon: Icon(Icons.search, color: colors.secondary),
+                      suffixIcon: _searchQuery.isNotEmpty
+                          ? IconButton(
+                              icon: Icon(Icons.clear, color: colors.secondary),
+>>>>>>> origin/dev:lib/ui/pages/lists/os_list_page.dart
                               onPressed: () {
                                 _searchController.clear();
                               },
@@ -321,6 +350,7 @@ class _OsListPageState extends State<OsListPage> {
                       ),
                     ),
                   ),
+<<<<<<< HEAD:lib/ui/pages/os_list/os_list_page.dart
                   Padding(
                     padding: const EdgeInsets.only(top: 20),
                     child: Row(
@@ -391,6 +421,20 @@ class _OsListPageState extends State<OsListPage> {
                                 ? 'Mais antigas'
                                 : 'Mais recentes',
                             style: const TextStyle(
+=======
+
+                  Padding(
+                    padding: const EdgeInsets.only(top: 20.0),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.start,
+                      children: [
+                        ElevatedButton.icon(
+                          onPressed: () {},
+                          icon: const Icon(Icons.tune),
+                          label: const Text(
+                            'Filtrar',
+                            style: TextStyle(
+>>>>>>> origin/dev:lib/ui/pages/lists/os_list_page.dart
                               fontWeight: FontWeight.bold,
                               fontSize: 14.8,
                             ),
@@ -400,6 +444,7 @@ class _OsListPageState extends State<OsListPage> {
                             foregroundColor: Colors.white,
                           ),
                         ),
+<<<<<<< HEAD:lib/ui/pages/os_list/os_list_page.dart
                       ],
                     ),
                   ),
@@ -412,6 +457,37 @@ class _OsListPageState extends State<OsListPage> {
                       alignment: Alignment.centerLeft,
                       child: Text(
                         'Ordens de serviço',
+=======
+
+                        Padding(
+                          padding: const EdgeInsets.only(left: 10.0),
+                          child: ElevatedButton.icon(
+                            onPressed: () {},
+                            icon: const Icon(Icons.swap_vert),
+                            label: const Text(
+                              'Ordenar',
+                              style: TextStyle(
+                                fontWeight: FontWeight.bold,
+                                fontSize: 14.8,
+                              ),
+                            ),
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: colors.primary,
+                              foregroundColor: Colors.white,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+
+                  Padding(
+                    padding: const EdgeInsets.only(top: 10.0, bottom: 10.0),
+                    child: Align(
+                      alignment: Alignment.centerLeft,
+                      child: Text(
+                        'Recentes',
+>>>>>>> origin/dev:lib/ui/pages/lists/os_list_page.dart
                         style: TextStyle(
                           color: colors.onSurface,
                           fontSize: 18,
@@ -420,6 +496,7 @@ class _OsListPageState extends State<OsListPage> {
                       ),
                     ),
                   ),
+<<<<<<< HEAD:lib/ui/pages/os_list/os_list_page.dart
                   FutureBuilder<List<ServiceOrder>>(
                     future: _futureOrdemServicos,
                     builder: (context, snapshot) {
@@ -429,10 +506,59 @@ class _OsListPageState extends State<OsListPage> {
                           padding: EdgeInsets.only(top: 30),
                           child: Center(
                             child: CircularProgressIndicator(),
+=======
+
+                  FutureBuilder<List<WorkOrder>>(
+                    future: _futureOrdemServicos,
+                    builder: (context, snapshot) {
+                      if (snapshot.connectionState == ConnectionState.waiting) {
+                        return const Padding(
+                          padding: EdgeInsets.only(top: 20.0),
+                          child: Center(child: CircularProgressIndicator()),
+                        );
+                      }
+
+                      if (snapshot.hasError) {
+                        return const Center(
+                          child: Text('Erro ao carregar ordens de serviço.'),
+                        );
+                      }
+
+                      if (!snapshot.hasData || snapshot.data!.isEmpty) {
+                        return const Center(
+                          child: Text('Nenhuma ordem de serviço encontrada.'),
+                        );
+                      }
+
+                      final todasOrdens = snapshot.data!;
+
+                      final ordensFiltradas = todasOrdens.where((os) {
+                        final idMatch = os.id.toString().toLowerCase().contains(
+                          _searchQuery,
+                        );
+                        final nomeMatch = os.name.toLowerCase().contains(
+                          _searchQuery,
+                        );
+                        final cidadeMatch = os.city.toLowerCase().contains(
+                          _searchQuery,
+                        );
+                        return idMatch || nomeMatch || cidadeMatch;
+                      }).toList();
+
+                      if (ordensFiltradas.isEmpty) {
+                        return Padding(
+                          padding: const EdgeInsets.only(top: 20.0),
+                          child: Center(
+                            child: Text(
+                              'Nenhuma ordem de serviço corresponde à pesquisa.',
+                              style: TextStyle(color: colors.onSurfaceVariant),
+                            ),
+>>>>>>> origin/dev:lib/ui/pages/lists/os_list_page.dart
                           ),
                         );
                       }
 
+<<<<<<< HEAD:lib/ui/pages/os_list/os_list_page.dart
                       if (snapshot.hasError) {
                         return Padding(
                           padding: const EdgeInsets.only(top: 20),
@@ -488,6 +614,8 @@ class _OsListPageState extends State<OsListPage> {
                         );
                       }
 
+=======
+>>>>>>> origin/dev:lib/ui/pages/lists/os_list_page.dart
                       return Card(
                         elevation: 4,
                         color: colors.surfaceContainer,
@@ -497,6 +625,7 @@ class _OsListPageState extends State<OsListPage> {
                         clipBehavior: Clip.antiAlias,
                         child: ListView.separated(
                           shrinkWrap: true,
+<<<<<<< HEAD:lib/ui/pages/os_list/os_list_page.dart
                           physics:
                               const NeverScrollableScrollPhysics(),
                           itemCount: ordensFiltradas.length,
@@ -510,6 +639,16 @@ class _OsListPageState extends State<OsListPage> {
                             return _buildOsCard(
                               ordensFiltradas[index],
                             );
+=======
+                          physics: const NeverScrollableScrollPhysics(),
+                          itemCount: ordensFiltradas.length,
+                          separatorBuilder: (context, index) => Divider(
+                            height: 1,
+                            color: colors.onSurfaceVariant.withOpacity(0.2),
+                          ),
+                          itemBuilder: (context, index) {
+                            return _buildClientCard(ordensFiltradas[index]);
+>>>>>>> origin/dev:lib/ui/pages/lists/os_list_page.dart
                           },
                         ),
                       );
@@ -522,7 +661,18 @@ class _OsListPageState extends State<OsListPage> {
         ),
       ),
       floatingActionButton: CustomFloatingButton(
+<<<<<<< HEAD:lib/ui/pages/os_list/os_list_page.dart
         onPressed: _abrirNovaOs,
+=======
+        onPressed: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => Tabbar(serviceOrderNumber: -1),
+            ),
+          );
+        },
+>>>>>>> origin/dev:lib/ui/pages/lists/os_list_page.dart
       ),
     );
   }
@@ -548,10 +698,14 @@ class _OsListPageState extends State<OsListPage> {
       },
       extentRatio: 0.20,
       child: Padding(
+<<<<<<< HEAD:lib/ui/pages/os_list/os_list_page.dart
         padding: const EdgeInsets.symmetric(
           horizontal: 16,
           vertical: 12,
         ),
+=======
+        padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 12.0),
+>>>>>>> origin/dev:lib/ui/pages/lists/os_list_page.dart
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -623,9 +777,7 @@ class _OsListPageState extends State<OsListPage> {
               onPressed: () {
                 Navigator.push(
                   context,
-                  MaterialPageRoute(
-                    builder: (context) => const StandInPage(),
-                  ),
+                  MaterialPageRoute(builder: (context) => const StandInPage()),
                 );
               },
             ),

@@ -19,12 +19,13 @@ class ClientRepository {
   CollectionReference<Map<String, dynamic>> _enderecos(String clienteId) =>
       AddressRepository.colecao(_db, clienteId);
 
-  void _enviar(WriteBatch batch, String operacao) {
-    unawaited(
-      batch.commit().catchError((Object e) {
-        debugPrint('Firestore (client/$operacao): $e');
-      }),
-    );
+  Future<void> _enviar(WriteBatch batch, String operacao) async {
+    try {
+      await batch.commit();
+    } catch (e) {
+      debugPrint('Firestore ($operacao): $e');
+      rethrow;
+    }
   }
 
   List<Client> _ativos(QuerySnapshot<Map<String, dynamic>> snapshot) {
@@ -74,7 +75,7 @@ class ClientRepository {
       });
     }
 
-    _enviar(batch, 'cadastrar');
+    await _enviar(batch, 'cadastrar');
   }
 
   Future<void> atualizar(
@@ -117,7 +118,7 @@ class ClientRepository {
       });
     }
 
-    _enviar(batch, 'atualizar');
+    await _enviar(batch, 'atualizar');
   }
 
   Future<void> excluir(String id) async {
@@ -140,7 +141,7 @@ class ClientRepository {
       }
     }
 
-    _enviar(batch, 'excluir');
+    await _enviar(batch, 'excluir');
   }
 
   Future<void> restaurar(String id) async {
@@ -165,6 +166,6 @@ class ClientRepository {
       }
     }
 
-    _enviar(batch, 'restaurar');
+    await _enviar(batch, 'restaurar');
   }
 }
