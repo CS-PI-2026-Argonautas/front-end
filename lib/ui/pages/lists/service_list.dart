@@ -3,9 +3,10 @@ import 'package:frontend/fire_base/models/dinheiro.dart';
 import 'package:frontend/fire_base/models/service.dart';
 import 'package:frontend/fire_base/services/service_service.dart';
 import 'package:frontend/ui/pages/dashboard.dart';
+import 'package:frontend/ui/pages/lists/client_list.dart';
 import 'package:frontend/ui/pages/os_list/os_list_page.dart';
 import 'package:frontend/ui/pages/product_registration/product_registration.dart';
-import 'package:frontend/ui/pages/os/tabs/service_registration.dart';
+import 'package:frontend/ui/pages/service_registration/service_registration.dart';
 import 'package:frontend/ui/style/ColorScheme.dart' as custom_colors;
 import 'package:frontend/ui/widgets/floatingButton.dart';
 import 'package:frontend/ui/widgets/appBar.dart';
@@ -79,12 +80,12 @@ class _ServiceListState extends State<ServiceList> {
   }
 
   Future<void> _abrirEdicao(Service servico) async {
-    await Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (_) => ServiceRegistration(initialService: servico),
-      ),
-    );
+    // await Navigator.push(
+    //   context,
+    //   MaterialPageRoute(
+    //     builder: (_) => ServiceRegistration(initialService: servico),
+    //   ),
+    // );
   }
 
   Future<void> _confirmarRemocao(Service servico) async {
@@ -191,6 +192,13 @@ class _ServiceListState extends State<ServiceList> {
         onTap: (index) {
           Navigator.pop(context);
 
+          if (index == 0) {
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (_) => const ClientList()),
+            );
+          }
+
           if (index == 1) {
             Navigator.push(
               context,
@@ -217,11 +225,11 @@ class _ServiceListState extends State<ServiceList> {
           }
         },
       ),
-
       body: SafeArea(
-        child: Center(
+        child: Align(
+          alignment: Alignment.topCenter,
           child: ConstrainedBox(
-            constraints: const BoxConstraints(maxWidth: 800),
+            constraints: const BoxConstraints(maxWidth: 650),
             child: SingleChildScrollView(
               padding: const EdgeInsets.fromLTRB(20, 30, 20, 100),
               child: Column(
@@ -333,7 +341,6 @@ class _ServiceListState extends State<ServiceList> {
           ),
         ),
       ),
-
       floatingActionButton: CustomFloatingButton(onPressed: _abrirCadastro),
     );
   }

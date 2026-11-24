@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:frontend/fire_base/models/dinheiro.dart';
+import 'package:frontend/ui/pages/service_registration/service_registration.dart';
 import 'package:frontend/ui/style/ColorScheme.dart' as custom_colors;
 import 'package:frontend/ui/style/inputDecorationStyles.dart';
 import 'package:frontend/ui/widgets/floatingButton.dart';
 import 'package:frontend/ui/widgets/bottom_sheet/bottom_sheet.dart';
-import 'package:frontend/ui/pages/os/tabs/service_registration.dart';
 import 'package:frontend/fire_base/services/service_service.dart';
 import 'package:frontend/fire_base/models/service.dart';
 
