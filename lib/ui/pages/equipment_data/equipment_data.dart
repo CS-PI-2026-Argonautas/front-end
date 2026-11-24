@@ -32,13 +32,34 @@ class EquipmentData extends StatefulWidget {
 }
 
 class _EquipmentDataState extends State<EquipmentData> {
-  static const _statusBloqueados = ['PAGA', 'ENTREGUE'];
+  bool get _osBloqueada =>
+      widget.osDados?['equipamento_bloqueado'] == true ||
+      const ['ENTREGUE', 'PAGA'].contains(widget.osDados?['status']);
 
-  String? get _statusOs => widget.osDados?['status'] as String?;
-
-  bool get _osBloqueada => _statusBloqueados.contains(_statusOs);
-
-  String get _statusLabel => _statusOs == 'PAGA' ? 'paga' : 'entregue';
+  Widget _buildAvisoBloqueio() {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: Colors.amber.shade50,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: Colors.amber.shade300),
+      ),
+      child: Row(
+        children: [
+          Icon(Icons.lock_outline, color: Colors.orange.shade800),
+          const SizedBox(width: 12),
+          const Expanded(
+            child: Text(
+              'Equipamento bloqueado. Esta ordem de serviço '
+              'já foi entregue ou paga. Os dados podem '
+              'ser consultados, mas não alterados.',
+            ),
+          ),
+        ],
+      ),
+    );
+  }
 
   final _formKey = GlobalKey<FormState>();
 
@@ -76,11 +97,9 @@ class _EquipmentDataState extends State<EquipmentData> {
   Future<void> _handleCadastrar() async {
     if (_osBloqueada) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(
-            'Não é possível cadastrar equipamento: a OS está $_statusLabel.',
-          ),
-          backgroundColor: Colors.red.shade700,
+        const SnackBar(
+          content: Text('Não é permitido alterar um equipamento bloqueado.'),
+          behavior: SnackBarBehavior.floating,
         ),
       );
       return;
@@ -165,8 +184,8 @@ class _EquipmentDataState extends State<EquipmentData> {
             ),
             onPressed: widget.onBack ?? () => Navigator.maybePop(context),
           ),
-          title: const Text(
-            'Adicionar Balança',
+          title: Text(
+            _osBloqueada ? 'Visualizar Balança' : 'Adicionar Balança',
             style: TextStyle(
               color: Colors.white,
               fontWeight: FontWeight.bold,
@@ -199,6 +218,7 @@ class _EquipmentDataState extends State<EquipmentData> {
               title: 'Dados da Balança',
               subtitle: 'Preencha as informações técnicas da balança.',
               children: [
+                if (_osBloqueada) _buildAvisoBloqueio(),
                 _buildField(
                   label: 'Marca*',
                   icon: Icons.branding_watermark_outlined,
@@ -281,18 +301,26 @@ class _EquipmentDataState extends State<EquipmentData> {
                     ),
                   ],
                 ),
-                ActionButtons(
-                  formKey: _formKey,
-                  colors: colors,
-                  onSave: () {
-                    if (_salvando) return;
-                    _handleCadastrar();
-                  },
-                  onCancel:
-                      widget.onCancel ??
-                      widget.onBack ??
-                      () => Navigator.maybePop(context),
-                ),
+
+                if (!_osBloqueada)
+                  ActionButtons(
+                    formKey: _formKey,
+                    colors: colors,
+                    onSave: () {
+                      if (_salvando) return;
+                      _handleCadastrar();
+                    },
+                    onCancel:
+                        widget.onCancel ??
+                        widget.onBack ??
+                        () => Navigator.maybePop(context),
+                  )
+                else
+                  OutlinedButton.icon(
+                    onPressed: () => Navigator.maybePop(context),
+                    icon: const Icon(Icons.arrow_back),
+                    label: const Text('Voltar'),
+                  ),
               ],
             ),
           ),
@@ -314,6 +342,9 @@ class _EquipmentDataState extends State<EquipmentData> {
       label: label,
       field: TextFormField(
         controller: controller,
+        readOnly: _osBloqueada,
+        enabled: !_osBloqueada,
+        enableInteractiveSelection: !_osBloqueada,
         validator: validatorField,
         keyboardType: isNumeric ? TextInputType.number : TextInputType.text,
         inputFormatters: isNumeric
