@@ -1,58 +1,65 @@
-import 'package:frontend/fire_base/models/item.dart';
-import 'package:frontend/fire_base/repositories/item_repository.dart';
+import 'package:frontend/fire_base/models/service.dart';
+import 'package:frontend/fire_base/repositories/service_repository.dart';
 
-class ItemService {
-  final ItemRepository _repository;
+class ServiceService {
+  final ServiceRepository _repository;
 
-  ItemService(this._repository);
+  ServiceService({ServiceRepository? repository})
+    : _repository = repository ?? ServiceRepository();
 
-  Future<void> create(Item item) async {
-    _validate(item);
-
-    await _repository.create(item);
+  Future<String> create(Service service) async {
+    _validate(service);
+    return await _repository.create(service);
   }
 
-  Future<void> update(Item item) async {
-    if (item.id == null) {
-      throw ArgumentError('Item ID is required for update.');
+  Future<void> update(Service service) async {
+    if (service.id == null || service.id!.isEmpty) {
+      throw ArgumentError('ID do serviço é obrigatório para edição.');
     }
 
-    _validate(item);
-
-    await _repository.update(item);
+    _validate(service);
+    await _repository.update(service);
   }
 
-  Future<void> delete(Item item) async {
-    if (item.id == null) {
-      throw ArgumentError('Item ID is required for deletion.');
+  Future<void> delete(String id) async {
+    if (id.trim().isEmpty) {
+      throw ArgumentError('ID do serviço é obrigatório para exclusão.');
     }
 
-    await _repository.delete(item.id!);
+    await _repository.delete(id);
   }
 
-  Future<Item?> getById(String id) async {
+  Future<void> restore(String id) async {
+    if (id.trim().isEmpty) {
+      throw ArgumentError('ID do serviço é obrigatório para restauração.');
+    }
+
+    await _repository.restore(id);
+  }
+
+  Future<Service?> getById(String id) {
+    if (id.trim().isEmpty) {
+      throw ArgumentError('ID do serviço é obrigatório.');
+    }
+
     return _repository.getById(id);
   }
 
-  Stream<List<Item>> watchItems() {
-    return _repository.watchItems();
+  Stream<List<Service>> watchServices() {
+    return _repository.watchServices();
   }
 
-  Stream<List<Item>> watchParts() {
-    return _repository.watchParts();
-  }
-
-  void _validate(Item item) {
-    if (item.name.trim().isEmpty) {
-      throw ArgumentError('Item name is required.');
+  void _validate(Service service) {
+    if (service.name.trim().isEmpty) {
+      throw ArgumentError('Informe o nome do serviço.');
     }
 
-    if (item.description != null && item.description!.length > 50) {
-      throw ArgumentError('Item description cannot exceed 50 characters.');
+    if (service.description.trim().length > 50) {
+      throw ArgumentError('A descrição não pode ultrapassar 50 caracteres.');
     }
 
-    if (item.valueInCents < 0) {
-      throw ArgumentError('Item value cannot be negative.');
+    if (service.valueInCents <= 0) {
+      throw ArgumentError('O valor do serviço deve ser maior que zero.');
     }
   }
 }

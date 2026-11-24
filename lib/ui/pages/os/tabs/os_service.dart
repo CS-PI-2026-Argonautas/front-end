@@ -18,7 +18,7 @@ class OsServicosTab extends StatefulWidget {
 
 class _OsServicosTabState extends State<OsServicosTab> {
   final colors = custom_colors.colorScheme;
-  final ServicoService _servicoService = ServicoService();
+  final ServiceService _servicoService = ServiceService();
 
   // 'valueInCents' é SEMPRE int em centavos (nunca reais/double).
   List<Map<String, dynamic>> _servicosDisponiveis = [];
@@ -34,8 +34,7 @@ class _OsServicosTabState extends State<OsServicosTab> {
 
   Future<void> _carregarServicosDoBanco() async {
     try {
-      final servicosDoFirebase =
-          await _servicoService.buscarServicosDisponiveis();
+      final servicosDoFirebase = await _servicoService.watchServices().first;
 
       final servicosFormatados = servicosDoFirebase.map((servico) {
         return {
@@ -65,10 +64,8 @@ class _OsServicosTabState extends State<OsServicosTab> {
   List<Map<String, dynamic>> get _servicosExibidos =>
       _servicosNaOrdem.where((s) => s['removido'] == false).toList();
 
-  /// "R$12,34" (sem espaço), igual ao formato da aba "Peças".
-  String _formatar(int centavos) => Dinheiro(centavos)
-      .formatado()
-      .replaceAll(RegExp(r'[\s\u00A0]'), '');
+  String _formatar(int centavos) =>
+      Dinheiro(centavos).formatado().replaceAll(RegExp(r'[\s\u00A0]'), '');
 
   Dinheiro get _subtotal {
     var total = Dinheiro.zero;
@@ -98,8 +95,7 @@ class _OsServicosTabState extends State<OsServicosTab> {
   }
 
   Future<void> _atualizarServico(Service atualizado) async {
-    // ATENÇÃO: ajuste o nome do método se o ServicoService usar outro.
-    await _servicoService.atualizarServico(atualizado);
+    await _servicoService.update(atualizado);
 
     if (!mounted) return;
 
@@ -121,10 +117,8 @@ class _OsServicosTabState extends State<OsServicosTab> {
       context: context,
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
-      builder: (_) => _EditServiceSheet(
-        servico: servico,
-        onSave: _atualizarServico,
-      ),
+      builder: (_) =>
+          _EditServiceSheet(servico: servico, onSave: _atualizarServico),
     );
   }
 
@@ -270,7 +264,8 @@ class _OsServicosTabState extends State<OsServicosTab> {
   }
 
   Future<void> _confirmarRemocao(Map<String, dynamic> servico) async {
-    final confirmarExclusao = await showDialog<bool>(
+    final confirmarExclusao =
+        await showDialog<bool>(
           context: context,
           builder: (context) => AlertDialog(
             title: const Text('Remover Serviço'),
@@ -282,10 +277,7 @@ class _OsServicosTabState extends State<OsServicosTab> {
               ),
               TextButton(
                 onPressed: () => Navigator.pop(context, true),
-                child: Text(
-                  'REMOVER',
-                  style: TextStyle(color: colors.error),
-                ),
+                child: Text('REMOVER', style: TextStyle(color: colors.error)),
               ),
             ],
           ),
@@ -359,10 +351,7 @@ class _OsServicosTabState extends State<OsServicosTab> {
               const SizedBox(height: 6),
               Text(
                 descricao,
-                style: TextStyle(
-                  color: colors.onSurfaceVariant,
-                  fontSize: 13,
-                ),
+                style: TextStyle(color: colors.onSurfaceVariant, fontSize: 13),
               ),
             ],
             const SizedBox(height: 2),
@@ -406,8 +395,9 @@ class _EditServiceSheetState extends State<_EditServiceSheet> {
     super.initState();
     final s = widget.servico;
     _nomeController = TextEditingController(text: s['nome']?.toString() ?? '');
-    _descricaoController =
-        TextEditingController(text: s['descricao']?.toString() ?? '');
+    _descricaoController = TextEditingController(
+      text: s['descricao']?.toString() ?? '',
+    );
     final int cents = s['valueInCents'] as int? ?? 0;
     _valorController = TextEditingController(
       text: (cents / 100).toStringAsFixed(2).replaceAll('.', ','),
@@ -467,18 +457,20 @@ class _EditServiceSheetState extends State<_EditServiceSheet> {
   }
 
   Widget _label(String text) => Text(
-        text,
-        style: TextStyle(
-          fontWeight: FontWeight.bold,
-          fontSize: 16,
-          color: colors.onSurface,
-        ),
-      );
+    text,
+    style: TextStyle(
+      fontWeight: FontWeight.bold,
+      fontSize: 16,
+      color: colors.onSurface,
+    ),
+  );
 
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: EdgeInsets.only(bottom: MediaQuery.of(context).viewInsets.bottom),
+      padding: EdgeInsets.only(
+        bottom: MediaQuery.of(context).viewInsets.bottom,
+      ),
       child: Container(
         decoration: const BoxDecoration(
           color: Colors.white,
@@ -525,7 +517,9 @@ class _EditServiceSheetState extends State<_EditServiceSheet> {
                   TextFormField(
                     controller: _nomeController,
                     textCapitalization: TextCapitalization.sentences,
-                    decoration: customInputDecoration(hintText: 'Nome do serviço'),
+                    decoration: customInputDecoration(
+                      hintText: 'Nome do serviço',
+                    ),
                     validator: (v) => (v == null || v.trim().isEmpty)
                         ? 'Informe o nome.'
                         : null,
@@ -535,11 +529,14 @@ class _EditServiceSheetState extends State<_EditServiceSheet> {
                     controller: _descricaoController,
                     maxLength: 50,
                     textCapitalization: TextCapitalization.sentences,
-                    decoration: customInputDecoration(
-                      hintText: 'Descrição (opcional)',
-                    ).copyWith(
-                      counterStyle: TextStyle(color: colors.onSurfaceVariant),
-                    ),
+                    decoration:
+                        customInputDecoration(
+                          hintText: 'Descrição (opcional)',
+                        ).copyWith(
+                          counterStyle: TextStyle(
+                            color: colors.onSurfaceVariant,
+                          ),
+                        ),
                   ),
                   _label('Valor'),
                   TextFormField(
@@ -547,8 +544,9 @@ class _EditServiceSheetState extends State<_EditServiceSheet> {
                     keyboardType: const TextInputType.numberWithOptions(
                       decimal: true,
                     ),
-                    decoration: customInputDecoration(hintText: '0,00')
-                        .copyWith(prefixText: 'R\$ '),
+                    decoration: customInputDecoration(
+                      hintText: '0,00',
+                    ).copyWith(prefixText: 'R\$ '),
                     validator: (v) => _parseCentavos(v ?? '') == null
                         ? 'Informe um valor válido.'
                         : null,

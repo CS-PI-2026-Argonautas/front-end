@@ -1,41 +1,61 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:frontend/fire_base/models/service.dart';
+import 'package:frontend/fire_base/repositories/service_repository.dart';
 
-class ServicoService {
-  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
-  final String _colecao = 'services';
+class ServiceService {
+  final ServiceRepository _repository;
 
-  Future<void> cadastrarServico(Service servico) async {
-    try {
-      await _firestore.collection(_colecao).add(servico.toMap());
-    } catch (e) {
-      throw Exception('Erro ao cadastrar serviço: $e');
-    }
+  ServiceService({ServiceRepository? repository})
+    : _repository = repository ?? ServiceRepository();
+
+  Future<String> create(Service service) async {
+    _validate(service);
+    return _repository.create(service);
   }
 
-  Future<List<Service>> buscarServicosDisponiveis() async {
-    try {
-      final snapshot = await _firestore.collection(_colecao).get();
-
-      return snapshot.docs.map((doc) {
-        return Service.fromMap(doc.data(), idDocumento: doc.id);
-      }).toList();
-    } catch (e) {
-      throw Exception('Erro ao buscar serviços: $e');
+  Future<void> update(Service service) async {
+    if (service.id == null || service.id!.isEmpty) {
+      throw ArgumentError('ID do serviço é obrigatório para edição.');
     }
+
+    _validate(service);
+    await _repository.update(service);
   }
 
-  Future<void> atualizarServico(Service servico) async {
-    final id = servico.id;
-
-    if (id == null || id.isEmpty) {
-      throw Exception('Serviço sem id: não é possível atualizar.');
+  Future<void> delete(String id) async {
+    if (id.isEmpty) {
+      throw ArgumentError('ID do serviço é obrigatório para exclusão.');
     }
 
-    try {
-      await _firestore.collection(_colecao).doc(id).update(servico.toMap());
-    } catch (e) {
-      throw Exception('Erro ao atualizar serviço: $e');
+    await _repository.delete(id);
+  }
+
+  Future<void> restore(String id) async {
+    if (id.isEmpty) {
+      throw ArgumentError('ID do serviço é obrigatório para restauração.');
+    }
+
+    await _repository.restore(id);
+  }
+
+  Future<Service?> getById(String id) {
+    return _repository.getById(id);
+  }
+
+  Stream<List<Service>> watchServices() {
+    return _repository.watchServices();
+  }
+
+  void _validate(Service service) {
+    if (service.name.trim().isEmpty) {
+      throw ArgumentError('Informe o nome do serviço.');
+    }
+
+    if (service.valueInCents <= 0) {
+      throw ArgumentError('O valor do serviço deve ser maior que zero.');
+    }
+
+    if (service.description.trim().length > 50) {
+      throw ArgumentError('A descrição não pode ultrapassar 50 caracteres.');
     }
   }
 }
