@@ -22,22 +22,27 @@ class Item {
     this.updatedAt,
     this.deletedAt,
   });
-  factory Item.fromFirestore(DocumentSnapshot<Map<String, dynamic>> document) {
-    final data = document.data()!;
+factory Item.fromFirestore(
+  DocumentSnapshot<Map<String, dynamic>> document,
+) {
+  final data = document.data();
 
-    return Item(
-      id: document.id,
-      name: data['name'] as String,
-      description: data['description'] as String?,
-      valueInCents: data['value_in_cents'] as int,
-      minimumQuantity: data['minimum_quantity'] as int,
-      type: _typeFromFirestore(data['type'] as String),
-      createdAt: data['created_at'] as Timestamp,
-      updatedAt: data['updated_at'] as Timestamp,
-      deletedAt: data['deleted_at'] as Timestamp?,
-    );
+  if (data == null) {
+    throw StateError('Documento ${document.id} não possui dados.');
   }
 
+  return Item(
+    id: document.id,
+    name: data['name'] as String? ?? '',
+    description: data['description'] as String?,
+    valueInCents: (data['value_in_cents'] as num?)?.toInt() ?? 0,
+    minimumQuantity: (data['minimum_quantity'] as num?)?.toInt() ?? 0,
+    type: _typeFromFirestore(data['type'] as String),
+    createdAt: data['created_at'] as Timestamp?,
+    updatedAt: data['updated_at'] as Timestamp?,
+    deletedAt: data['deleted_at'] as Timestamp?,
+  );
+}
   Map<String, dynamic> toFirestore() {
     return {
       'name': name,

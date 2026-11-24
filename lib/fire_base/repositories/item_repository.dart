@@ -1,5 +1,8 @@
+
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter/foundation.dart';
 import 'package:uuid/uuid.dart';
+
 import 'package:frontend/fire_base/Enums/ProductType.dart';
 import 'package:frontend/fire_base/models/item.dart';
 
@@ -7,12 +10,14 @@ class ItemRepository {
   final FirebaseFirestore _firestore;
   final Uuid _uuid;
 
-  ItemRepository({FirebaseFirestore? firestore, Uuid? uuid})
-    : _firestore = firestore ?? FirebaseFirestore.instance,
-      _uuid = uuid ?? const Uuid();
+  ItemRepository({
+    FirebaseFirestore? firestore,
+    Uuid? uuid,
+  })  : _firestore = firestore ?? FirebaseFirestore.instance,
+        _uuid = uuid ?? const Uuid();
 
-  CollectionReference<Map<String, dynamic>> get _itemsCollection =>
-      _firestore.collection('items');
+ CollectionReference<Map<String, dynamic>> get _itemsCollection =>
+    _firestore.collection('itens');
 
   Future<void> create(Item item) async {
     final String id = _uuid.v4();
@@ -62,9 +67,10 @@ class ItemRepository {
   }
 
   Stream<List<Item>> watchItems() {
-    return _itemsCollection.where('deleted_at', isNull: true).snapshots().map((
-      snapshot,
-    ) {
+    return _itemsCollection
+        .where('deleted_at', isNull: true)
+        .snapshots()
+        .map((snapshot) {
       return snapshot.docs.map(Item.fromFirestore).toList();
     });
   }
@@ -75,8 +81,23 @@ class ItemRepository {
         .where('deleted_at', isNull: true)
         .snapshots()
         .map((snapshot) {
-          return snapshot.docs.map(Item.fromFirestore).toList();
-        });
+      debugPrint(
+        'DOCUMENTOS ENCONTRADOS: ${snapshot.docs.length}',
+      );
+
+      try {
+        return snapshot.docs.map((doc) {
+          debugPrint('LENDO DOCUMENTO: ${doc.id}');
+          debugPrint('DADOS: ${doc.data()}');
+
+          return Item.fromFirestore(doc);
+        }).toList();
+      } catch (e, stackTrace) {
+        debugPrint('ERRO NA CONVERSÃO DO ITEM: $e');
+        debugPrint('$stackTrace');
+        rethrow;
+      }
+    });
   }
 
   String _typeToFirestore(Item item) {

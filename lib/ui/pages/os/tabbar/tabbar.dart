@@ -1,4 +1,8 @@
+
 import 'package:flutter/material.dart';
+import 'package:frontend/fire_base/models/os.dart';
+import 'package:frontend/fire_base/Enums/StatusOrderService.dart';
+import 'package:frontend/fire_base/repositories/os_repository.dart';
 import 'package:frontend/ui/pages/os/tabs/data_os.dart';
 import 'package:frontend/ui/pages/os/tabs/os_service.dart';
 import 'package:frontend/ui/pages/os/tabs/values_os.dart';
@@ -8,26 +12,37 @@ import 'package:frontend/ui/style/ColorScheme.dart' as custom_colors;
 class Tabbar extends StatefulWidget {
   final dynamic serviceOrderNumber;
 
-  const Tabbar({super.key, required this.serviceOrderNumber});
+  const Tabbar({
+    super.key,
+    required this.serviceOrderNumber,
+  });
 
   @override
   State<Tabbar> createState() => _TabbarState();
 }
 
-class _TabbarState extends State<Tabbar> with SingleTickerProviderStateMixin {
-  String _status = 'EM_CONSERTO';
-
+class _TabbarState extends State<Tabbar>
+    with SingleTickerProviderStateMixin {
   final colors = custom_colors.colorScheme;
 
-  late TabController _tabController;
+  final OsRepository _osRepository = FirestoreOsRepository();
+
+  late final TabController _tabController;
+  late final ServiceOrder _serviceOrder;
 
   bool _dadosObrigatoriosPreenchidos = false;
+  bool _salvando = false;
 
   @override
   void initState() {
     super.initState();
 
-    _tabController = TabController(length: 4, vsync: this);
+    _serviceOrder = ServiceOrder.createNew();
+
+    _tabController = TabController(
+      length: 4,
+      vsync: this,
+    );
   }
 
   @override
@@ -36,19 +51,111 @@ class _TabbarState extends State<Tabbar> with SingleTickerProviderStateMixin {
     super.dispose();
   }
 
-  void _concluirOs() {
+  // Salva a OS sem alterar o status.
+  Future<void> _salvarOs() async {
+    if (_salvando) return;
+
     setState(() {
-      _status = 'CONCLUIDA';
+      _salvando = true;
     });
+
+    try {
+      await _osRepository.salvar(_serviceOrder);
+
+      if (!mounted) return;
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Ordem de serviço salva com sucesso!'),
+          backgroundColor: Colors.green,
+          behavior: SnackBarBehavior.floating,
+        ),
+      );
+    } catch (e) {
+      if (!mounted) return;
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            e.toString().replaceFirst('Exception: ', ''),
+          ),
+          backgroundColor: Colors.red,
+          behavior: SnackBarBehavior.floating,
+        ),
+      );
+    } finally {
+      if (mounted) {
+        setState(() {
+          _salvando = false;
+        });
+      }
+    }
   }
 
-  void _alterarStatus(String novoStatus) {
+  // Conclui a OS, salva e retorna somente se tudo der certo.
+  Future<void> _concluirOs() async {
+    if (_salvando) return;
+
+    if (!_dadosObrigatoriosPreenchidos) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text(
+            'Selecione um cliente e um endereço antes de concluir.',
+          ),
+          behavior: SnackBarBehavior.floating,
+        ),
+      );
+
+      _tabController.animateTo(0);
+      return;
+    }
+
+    final statusAnterior = _serviceOrder.status;
+
     setState(() {
-      _status = novoStatus;
+      _salvando = true;
     });
+
+    try {
+      _serviceOrder.changeStatus(
+        ServiceOrderStatus.CONCLUIDA,
+      );
+
+      await _osRepository.salvar(_serviceOrder);
+
+      if (!mounted) return;
+
+      Navigator.pop(context, _serviceOrder);
+    } catch (e) {
+      // Se falhar, restaura o status anterior.
+      _serviceOrder.changeStatus(statusAnterior);
+
+      if (!mounted) return;
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            'Não foi possível concluir a OS: '
+            '${e.toString().replaceFirst('Exception: ', '')}',
+          ),
+          backgroundColor: Colors.red,
+          behavior: SnackBarBehavior.floating,
+        ),
+      );
+    } finally {
+      if (mounted) {
+        setState(() {
+          _salvando = false;
+        });
+      }
+    }
   }
 
   void _atualizarDadosObrigatorios(bool preenchidos) {
+    if (_dadosObrigatoriosPreenchidos == preenchidos) {
+      return;
+    }
+
     setState(() {
       _dadosObrigatoriosPreenchidos = preenchidos;
     });
@@ -68,7 +175,9 @@ class _TabbarState extends State<Tabbar> with SingleTickerProviderStateMixin {
 
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
-          onPressed: () => Navigator.pop(context),
+          onPressed: _salvando
+              ? null
+              : () => Navigator.pop(context),
         ),
 
         title: Text(
@@ -83,7 +192,10 @@ class _TabbarState extends State<Tabbar> with SingleTickerProviderStateMixin {
         flexibleSpace: Container(
           decoration: BoxDecoration(
             gradient: LinearGradient(
-              colors: [colors.primary, colors.tertiary],
+              colors: [
+                colors.primary,
+                colors.tertiary,
+              ],
               begin: Alignment.centerLeft,
               end: Alignment.centerRight,
             ),
@@ -98,13 +210,14 @@ class _TabbarState extends State<Tabbar> with SingleTickerProviderStateMixin {
           indicatorWeight: 3,
 
           onTap: (index) {
-            if (index != 0 && !_dadosObrigatoriosPreenchidos) {
+            if (index != 0 &&
+                !_dadosObrigatoriosPreenchidos) {
               _tabController.animateTo(0);
 
               ScaffoldMessenger.of(context).showSnackBar(
                 const SnackBar(
                   content: Text(
-                    'Cadastre um cliente, endereço e equipamento antes de continuar.',
+                    'Selecione um cliente e um endereço antes de continuar.',
                   ),
                   behavior: SnackBarBehavior.floating,
                 ),
@@ -113,35 +226,64 @@ class _TabbarState extends State<Tabbar> with SingleTickerProviderStateMixin {
           },
 
           tabs: const [
-            Tab(icon: Icon(Icons.description), text: 'Dados'),
-            Tab(icon: Icon(Icons.build), text: 'Peças'),
-            Tab(icon: Icon(Icons.handyman), text: 'Serviços'),
-            Tab(icon: Icon(Icons.attach_money), text: 'Valores'),
+            Tab(
+              icon: Icon(Icons.description),
+              text: 'Dados',
+            ),
+            Tab(
+              icon: Icon(Icons.build),
+              text: 'Peças',
+            ),
+            Tab(
+              icon: Icon(Icons.handyman),
+              text: 'Serviços',
+            ),
+            Tab(
+              icon: Icon(Icons.attach_money),
+              text: 'Valores',
+            ),
           ],
         ),
       ),
 
       body: TabBarView(
         controller: _tabController,
-
         physics: _dadosObrigatoriosPreenchidos
             ? const BouncingScrollPhysics()
             : const NeverScrollableScrollPhysics(),
 
         children: [
           DataOs(
-            status: _status,
-            onStatusChanged: _alterarStatus,
-            onDadosObrigatoriosChanged: _atualizarDadosObrigatorios,
+            serviceOrder: _serviceOrder,
+            avancarTab: () {
+              _tabController.animateTo(1);
+            },
+            onDadosObrigatoriosChanged:
+                _atualizarDadosObrigatorios,
+            onChanged: () {
+              setState(() {});
+            },
           ),
 
-          TollsOs(),
+          TollsOs(
+            serviceOrder: _serviceOrder,
+          ),
 
-          OsServicosTab(),
+          OsServicosTab(
+            serviceOrder: _serviceOrder,
+          ),
 
-          ValuesOs(onConcluir: _concluirOs),
+          ValuesOs(
+            serviceOrder: _serviceOrder,
+            onConcluir: _concluirOs,
+          ),
         ],
       ),
+
+  
+          
+        
+      
     );
   }
 }

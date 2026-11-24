@@ -4,7 +4,6 @@ import 'package:frontend/ui/style/ColorScheme.dart' as custom_colors;
 import 'package:frontend/ui/style/inputDecorationStyles.dart';
 import 'package:frontend/ui/widgets/appBar.dart';
 import 'package:frontend/ui/widgets/form/action_buttons.dart';
-import 'package:frontend/ui/widgets/form/validator.dart';
 import 'package:frontend/ui/widgets/form/form_card.dart';
 import 'package:frontend/ui/widgets/form/labeled_form.dart';
 import 'package:frontend/fire_base/models/equipment.dart';

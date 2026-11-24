@@ -4,7 +4,8 @@ import 'package:frontend/ui/pages/lists/service_list.dart';
 import 'package:frontend/ui/pages/os/tabbar/tabbar.dart';
 import 'package:frontend/ui/pages/os/tabs/clientOs.dart';
 import 'package:frontend/ui/pages/os/tabs/data_os.dart';
-import 'package:frontend/ui/pages/os/tolls_os.dart';
+
+import 'package:frontend/ui/pages/os/tabs/tolls_os.dart';
 import 'package:frontend/ui/pages/lists/os_list_page.dart';
 import 'package:frontend/ui/pages/person_registration/person_registration.dart';
 import 'package:frontend/ui/pages/product_registration/product_registration.dart';

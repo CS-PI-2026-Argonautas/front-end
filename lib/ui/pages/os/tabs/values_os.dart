@@ -1,12 +1,17 @@
+
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:frontend/ui/style/ColorScheme.dart' as custom_colors;
 import 'package:frontend/fire_base/models/dinheiro.dart';
+import 'package:frontend/fire_base/models/os.dart';
 
 class ValuesOs extends StatefulWidget {
+  final ServiceOrder serviceOrder;
   final VoidCallback? onConcluir;
 
   const ValuesOs({
     super.key,
+    required this.serviceOrder,
     this.onConcluir,
   });
 
@@ -14,18 +19,149 @@ class ValuesOs extends StatefulWidget {
   State<ValuesOs> createState() => _ValuesOsState();
 }
 
-class _ValuesOsState extends State<ValuesOs> {
+class _ValuesOsState extends State<ValuesOs>
+    with AutomaticKeepAliveClientMixin {
+  final colors = custom_colors.colorScheme;
+
+  late final TextEditingController _taxaController;
+  late final TextEditingController _descontoController;
+
+  ServiceOrder get os => widget.serviceOrder;
+
+  @override
+  bool get wantKeepAlive => true;
+
+  @override
+  void initState() {
+    super.initState();
+
+    _taxaController = TextEditingController(
+      text: _formatarInput(os.globalFeeCents),
+    );
+
+    _descontoController = TextEditingController(
+      text: _formatarInput(os.globalDiscountCents),
+    );
+  }
+
+  @override
+  void dispose() {
+    _taxaController.dispose();
+    _descontoController.dispose();
+    super.dispose();
+  }
+
+  String _formatarInput(int centavos) {
+    return (centavos / 100)
+        .toStringAsFixed(2)
+        .replaceAll('.', ',');
+  }
+
+  int _converterParaCentavos(String valor) {
+    String normalizado = valor.trim();
+
+    if (normalizado.isEmpty) return 0;
+
+    if (normalizado.contains(',') && normalizado.contains('.')) {
+      if (normalizado.lastIndexOf(',') >
+          normalizado.lastIndexOf('.')) {
+        normalizado = normalizado
+            .replaceAll('.', '')
+            .replaceAll(',', '.');
+      } else {
+        normalizado = normalizado.replaceAll(',', '');
+      }
+    } else {
+      normalizado = normalizado.replaceAll(',', '.');
+    }
+
+    final numero = double.tryParse(normalizado);
+
+    if (numero == null || numero < 0) return 0;
+
+    return (numero * 100).round();
+  }
+
+  void _atualizarTaxa(String valor) {
+    setState(() {
+      os.globalFeeCents = _converterParaCentavos(valor);
+    });
+  }
+
+  void _atualizarDesconto(String valor) {
+    setState(() {
+      os.globalDiscountCents = _converterParaCentavos(valor);
+    });
+  }
+
+  int get _subtotalPecas {
+    return os.parts.fold<int>(
+      0,
+      (total, peca) => total + peca.subtotalCents,
+    );
+  }
+
+  int get _subtotalServicos {
+    return os.services.fold<int>(
+      0,
+      (total, servico) => total + servico.subtotalCents,
+    );
+  }
+
+  int get _taxas => os.globalFeeCents;
+
+  int get _desconto => os.globalDiscountCents;
+
+  int get _total {
+    return _subtotalPecas +
+        _subtotalServicos +
+        _taxas -
+        _desconto;
+  }
+
+  void _concluir() {
+    debugPrint('================================');
+    debugPrint('BOTÃO CONCLUIR CLICADO');
+    debugPrint('Total: $_total centavos');
+    debugPrint('Callback conectado: ${widget.onConcluir != null}');
+    debugPrint('================================');
+
+    if (_total < 0) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text(
+            'O desconto não pode deixar o total negativo.',
+          ),
+        ),
+      );
+      return;
+    }
+
+    if (widget.onConcluir == null) {
+      debugPrint('ERRO: onConcluir não foi conectado na Tabbar.');
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text(
+            'Não foi possível concluir: ação não configurada.',
+          ),
+        ),
+      );
+      return;
+    }
+
+    widget.onConcluir!.call();
+  }
 
   @override
   Widget build(BuildContext context) {
+    super.build(context);
 
-    final Dinheiro subtotalPecas = Dinheiro.fromReais(100.00);
-    final Dinheiro subtotalServicos = Dinheiro.fromReais(100.00);
-    final Dinheiro desconto = Dinheiro.fromReais(0.00);
-    final Dinheiro taxas = Dinheiro.fromReais(0.00);
-
-    final Dinheiro total =
-        subtotalPecas + subtotalServicos + taxas - desconto;
+    final subtotalPecas = _subtotalPecas;
+    final subtotalServicos = _subtotalServicos;
+    final taxas = _taxas;
+    final desconto = _desconto;
+    final total = _total;
 
     return SingleChildScrollView(
       padding: const EdgeInsets.symmetric(
@@ -34,149 +170,133 @@ class _ValuesOsState extends State<ValuesOs> {
       ),
       child: Center(
         child: ConstrainedBox(
-          constraints: const BoxConstraints(
-            maxWidth: 650,
-          ),
-          child: _buildFormCard(
-            subtotalPecas: subtotalPecas,
-            subtotalServicos: subtotalServicos,
-            desconto: desconto,
-            taxas: taxas,
-            total: total,
-          ),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildFormCard({
-    required Dinheiro subtotalPecas,
-    required Dinheiro subtotalServicos,
-    required Dinheiro desconto,
-    required Dinheiro taxas,
-    required Dinheiro total,
-  }) {
-    final colors = custom_colors.colorScheme;
-    return Card(
-      color: Colors.white,
-      elevation: 8,
-      shadowColor: Colors.black26,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(22),
-      ),
-      child: Padding(
-        padding: const EdgeInsets.symmetric(
-          horizontal: 24,
-          vertical: 28,
-        ),
-        child: Column(
-          spacing: 18,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            _buildSectionTitle(
-              'Resumo da ordem de serviço',
-              'Confira os valores das peças, serviços e ajustes da ordem de serviço.',
+          constraints: const BoxConstraints(maxWidth: 650),
+          child: Card(
+            color: Colors.white,
+            elevation: 8,
+            shadowColor: Colors.black26,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(22),
             ),
-
-            _buildSummarySection(
-              icon: Icons.build,
-              title: 'Peças',
-              value: subtotalPecas,
-              children: [
-                _buildItem(
-                  name: 'Peça',
-                  value: Dinheiro.fromReais(50.00),
-                ),
-                _buildItem(
-                  name: 'Peça',
-                  value: Dinheiro.fromReais(50.00),
-                ),
-              ],
-            ),
-
-            _buildSummarySection(
-              icon: Icons.handyman,
-              title: 'Serviços',
-              value: subtotalServicos,
-              children: [
-                _buildItem(
-                  name: 'Serviço',
-                  value: Dinheiro.fromReais(50.00),
-                ),
-                _buildItem(
-                  name: 'Serviço',
-                  value: Dinheiro.fromReais(50.00),
-                ),
-              ],
-            ),
-
-            _buildValueRow(
-              icon: Icons.remove,
-              title: 'Descontos',
-              value: desconto,
-              color: Colors.redAccent.shade400,
-            ),
-
-            _buildValueRow(
-              icon: Icons.add,
-              title: 'Taxas',
-              value: taxas,
-              color: Colors.green.shade400,
-            ),
-
-            Divider(
-              color: colors.outline,
-              thickness: 1.2,
-              height: 1,
-            ),
-
-            _buildTotalCard(
-              total: total,
-            ),
-
-            const SizedBox(height: 4),
-
-            SizedBox(
-              width: double.infinity,
-              child: ElevatedButton.icon(
-                onPressed: () {
-                  widget.onConcluir?.call();
-                },
-                icon: const Icon(
-                  Icons.check,
-                ),
-                label: const Text(
-                  'Concluir ordem de serviço e voltar',
-                  style: TextStyle(
-                    fontWeight: FontWeight.bold,
-                    fontSize: 16,
+            child: Padding(
+              padding: const EdgeInsets.symmetric(
+                horizontal: 24,
+                vertical: 28,
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  _buildSectionTitle(
+                    'Resumo da ordem de serviço',
+                    'Confira os valores das peças, serviços e ajustes.',
                   ),
-                ),
-                style: ElevatedButton.styleFrom(
-                  elevation: 3,
-                  backgroundColor: colors.primary,
-                  foregroundColor: colors.onSecondary,
-                  padding: const EdgeInsets.symmetric(
-                    vertical: 18,
+
+                  const SizedBox(height: 18),
+
+                  _buildSummarySection(
+                    title: 'Peças',
+                    value: subtotalPecas,
+                    icon: Icons.build,
+                    children: os.parts.map((peca) {
+                      return _buildItem(
+                        name: '${peca.name} (${peca.quantity}x)',
+                        value: peca.subtotalCents,
+                      );
+                    }).toList(),
                   ),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(14),
+
+                  const SizedBox(height: 18),
+
+                  _buildSummarySection(
+                    title: 'Serviços',
+                    value: subtotalServicos,
+                    icon: Icons.handyman,
+                    children: os.services.map((servico) {
+                      return _buildItem(
+                        name: servico.description,
+                        value: servico.subtotalCents,
+                      );
+                    }).toList(),
                   ),
-                ),
+
+                  const SizedBox(height: 18),
+
+                  _buildInputValor(
+                    titulo: 'Taxas',
+                    controller: _taxaController,
+                    onChanged: _atualizarTaxa,
+                    cor: Colors.green.shade700,
+                  ),
+
+                  const SizedBox(height: 12),
+
+                  _buildInputValor(
+                    titulo: 'Desconto global',
+                    controller: _descontoController,
+                    onChanged: _atualizarDesconto,
+                    cor: Colors.redAccent.shade400,
+                  ),
+
+                  const SizedBox(height: 20),
+
+                  Divider(
+                    color: colors.outline,
+                    thickness: 1.2,
+                  ),
+
+                  const SizedBox(height: 12),
+
+                  _buildTotalCard(total),
+
+                  const SizedBox(height: 20),
+
+                  SizedBox(
+                    width: double.infinity,
+                    child: ElevatedButton.icon(
+                      onPressed: total < 0 ? null : _concluir,
+                      icon: const Icon(Icons.check),
+                      label: const Text(
+                        'Concluir ordem de serviço e voltar',
+                        textAlign: TextAlign.center,
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 16,
+                        ),
+                      ),
+                      style: ElevatedButton.styleFrom(
+                        elevation: 3,
+                        backgroundColor: colors.primary,
+                        foregroundColor: colors.onSecondary,
+                        padding: const EdgeInsets.symmetric(
+                          vertical: 18,
+                        ),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(14),
+                        ),
+                      ),
+                    ),
+                  ),
+
+                  const SizedBox(height: 12),
+
+                  Center(
+                    child: Text(
+                      total < 0
+                          ? 'O desconto não pode deixar o total negativo.'
+                          : 'Confira os valores antes de concluir.',
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        fontSize: 12,
+                        color: total < 0
+                            ? colors.error
+                            : Colors.blueGrey.shade600,
+                      ),
+                    ),
+                  ),
+                ],
               ),
             ),
-
-            Center(
-              child: Text(
-                'Confira os valores antes de concluir a ordem de serviço.',
-                textAlign: TextAlign.center,
-                style: TextStyle(
-                  fontSize: 12,
-                  color: Colors.blueGrey.shade600,
-                ),
-              ),
-            ),
-          ],
+          ),
         ),
       ),
     );
@@ -186,9 +306,7 @@ class _ValuesOsState extends State<ValuesOs> {
     String title,
     String subtitle,
   ) {
-    final colors = custom_colors.colorScheme;
     return Column(
-      spacing: 6,
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
@@ -199,6 +317,7 @@ class _ValuesOsState extends State<ValuesOs> {
             color: colors.onSurface,
           ),
         ),
+        const SizedBox(height: 6),
         Text(
           subtitle,
           style: TextStyle(
@@ -213,10 +332,9 @@ class _ValuesOsState extends State<ValuesOs> {
   Widget _buildSummarySection({
     required IconData icon,
     required String title,
-    required Dinheiro value,
+    required int value,
     required List<Widget> children,
   }) {
-    final colors = custom_colors.colorScheme;
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.all(16),
@@ -225,7 +343,6 @@ class _ValuesOsState extends State<ValuesOs> {
         borderRadius: BorderRadius.circular(16),
       ),
       child: Column(
-        spacing: 8,
         children: [
           Row(
             children: [
@@ -246,7 +363,7 @@ class _ValuesOsState extends State<ValuesOs> {
                 ),
               ),
               Text(
-                value.formatado(),
+                Dinheiro(value).formatado(),
                 style: TextStyle(
                   color: colors.secondary,
                   fontSize: 17,
@@ -255,10 +372,16 @@ class _ValuesOsState extends State<ValuesOs> {
               ),
             ],
           ),
-
-         
-
-          ...children,
+          const SizedBox(height: 8),
+          if (children.isEmpty)
+            Text(
+              'Nenhum item adicionado.',
+              style: TextStyle(
+                color: colors.onSurfaceVariant,
+              ),
+            )
+          else
+            ...children,
         ],
       ),
     );
@@ -266,13 +389,12 @@ class _ValuesOsState extends State<ValuesOs> {
 
   Widget _buildItem({
     required String name,
-    required Dinheiro value,
+    required int value,
   }) {
-    final colors = custom_colors.colorScheme;
     return Padding(
       padding: const EdgeInsets.symmetric(
         horizontal: 4,
-        vertical: 2,
+        vertical: 3,
       ),
       child: Row(
         children: [
@@ -292,7 +414,7 @@ class _ValuesOsState extends State<ValuesOs> {
             ),
           ),
           Text(
-            value.formatado(),
+            Dinheiro(value).formatado(),
             style: TextStyle(
               color: colors.onSurfaceVariant,
               fontSize: 14,
@@ -303,50 +425,57 @@ class _ValuesOsState extends State<ValuesOs> {
     );
   }
 
-  Widget _buildValueRow({
-    required IconData icon,
-    required String title,
-    required Dinheiro value,
-    required Color color,
+  Widget _buildInputValor({
+    required String titulo,
+    required TextEditingController controller,
+    required ValueChanged<String> onChanged,
+    required Color cor,
   }) {
     return Container(
-      width: double.infinity,
       padding: const EdgeInsets.symmetric(
         horizontal: 14,
-        vertical: 12,
+        vertical: 10,
       ),
       decoration: BoxDecoration(
-        color: color.withOpacity(0.09),
+        color: cor.withOpacity(0.09),
         borderRadius: BorderRadius.circular(14),
         border: Border.all(
-          color: color.withOpacity(0.3),
+          color: cor.withOpacity(0.3),
           width: 0.8,
         ),
       ),
       child: Row(
         children: [
-          Icon(
-            icon,
-            size: 20,
-            color: color,
-          ),
-          const SizedBox(width: 8),
           Expanded(
             child: Text(
-              title,
+              titulo,
               style: TextStyle(
-                color: color,
+                color: cor,
                 fontSize: 15,
                 fontWeight: FontWeight.bold,
               ),
             ),
           ),
-          Text(
-            value.formatado(),
-            style: TextStyle(
-              color: color,
-              fontSize: 15,
-              fontWeight: FontWeight.bold,
+          SizedBox(
+            width: 120,
+            child: TextField(
+              controller: controller,
+              keyboardType: const TextInputType.numberWithOptions(
+                decimal: true,
+              ),
+              inputFormatters: [
+                FilteringTextInputFormatter.allow(
+                  RegExp(r'[0-9,.]'),
+                ),
+              ],
+              textAlign: TextAlign.end,
+              decoration: const InputDecoration(
+                prefixText: 'R\$ ',
+                hintText: '0,00',
+                border: InputBorder.none,
+                isDense: true,
+              ),
+              onChanged: onChanged,
             ),
           ),
         ],
@@ -354,10 +483,7 @@ class _ValuesOsState extends State<ValuesOs> {
     );
   }
 
-  Widget _buildTotalCard({
-    required Dinheiro total,
-  }) {
-    final colors = custom_colors.colorScheme;
+  Widget _buildTotalCard(int total) {
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.symmetric(
@@ -383,9 +509,7 @@ class _ValuesOsState extends State<ValuesOs> {
               size: 22,
             ),
           ),
-
           const SizedBox(width: 12),
-
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -399,7 +523,6 @@ class _ValuesOsState extends State<ValuesOs> {
                     letterSpacing: 0.6,
                   ),
                 ),
-                const SizedBox(height: 2),
                 Text(
                   'Valor final da ordem de serviço',
                   style: TextStyle(
@@ -410,11 +533,12 @@ class _ValuesOsState extends State<ValuesOs> {
               ],
             ),
           ),
-
           Text(
-            total.formatado(),
+            Dinheiro(total).formatado(),
             style: TextStyle(
-              color: colors.secondary,
+              color: total < 0
+                  ? colors.error
+                  : colors.secondary,
               fontSize: 20,
               fontWeight: FontWeight.bold,
             ),
@@ -424,108 +548,3 @@ class _ValuesOsState extends State<ValuesOs> {
     );
   }
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-// ESTUDAR ChangeNotifier E Provider
-
-// class OrdemServicoController extends ChangeNotifier {
-//   final OrdemServico os;
-
-//   OrdemServicoController(this.os);
-
-//   double get totalPecas {
-//     return os.pecas.fold(
-//       0,
-//       (total, peca) => total + peca.valor,
-//     );
-//   }
-
-//   double get totalServicos {
-//     return os.servicos.fold(
-//       0,
-//       (total, servico) => total + servico.valor,
-//     );
-//   }
-
-//   double get subtotal {
-//     return totalPecas + totalServicos;
-//   }
-
-//   double get total {
-//     return subtotal + os.taxas - os.desconto;
-//   }
-
-//   bool get descontoInvalido {
-//     return total < 0;
-//   }
-
-//   void setDesconto(double valor) {
-//     os.desconto = valor;
-//     notifyListeners();
-//   }
-
-//   void setTaxas(double valor) {
-//     os.taxas = valor;
-//     notifyListeners();
-//   }
-
-//   void adicionarPeca(Peca peca) {
-//     os.pecas.add(peca);
-//     notifyListeners();
-//   }
-
-//   void adicionarServico(Servico servico) {
-//     os.servicos.add(servico);
-//     notifyListeners();
-//   }
-
-//   void concluir() {
-//     os.status = StatusOS.concluida;
-//     notifyListeners();
-//   }
-// }
-
-
-
-
-
-
-
-
-// class ValoresTab extends StatelessWidget {
-//   const ValoresTab({super.key});
-
-//   @override
-//   Widget build(BuildContext context) {
-//     final os = context.watch<OrdemServicoController>();
-
-//     return Column(
-//       children: [
-//         Text('Peças: R\$ ${os.totalPecas}'),
-
-//         Text('Serviços: R\$ ${os.totalServicos}'),
-
-//         Text('Total: R\$ ${os.total}'),
-//       ],
-//     );
-//   }
-// }
