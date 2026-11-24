@@ -16,6 +16,7 @@ import 'package:frontend/ui/pages/stand_in_page.dart';
 import 'package:frontend/fire_base/models/equipment.dart';
 import 'package:frontend/fire_base/services/equipment_service.dart';
 import 'package:frontend/ui/pages/equipment_data/equipment_data.dart';
+import 'package:frontend/fire_base/models/work_order.dart';
 
 class DataOs extends StatefulWidget {
   final DateTime? dataEntrada;
@@ -59,9 +60,11 @@ class _DataOsState extends State<DataOs> {
       'cliente': clienteSelecionado,
       'endereco': _enderecoSelecionado,
       'equipamento': _equipamentoSelecionado,
+      'equipamento_bloqueado': _equipamentoBloqueado,
     };
   }
 
+  bool _equipamentoBloqueado = false;
   final EquipmentService _equipamentoService = EquipmentService();
   final colors = custom_colors.colorScheme;
 
@@ -94,6 +97,15 @@ class _DataOsState extends State<DataOs> {
     return clienteSelecionado != null &&
         _enderecoSelecionado != null &&
         _equipamentoSelecionado != null;
+  }
+
+  void _aplicarStatus(String novoStatus) {
+    status = novoStatus;
+
+    if (WorkOrder.statusBloqueia(novoStatus)) {
+      _equipamentoBloqueado = true;
+      dataSaida ??= DateTime.now();
+    }
   }
 
   void _verificarDadosObrigatorios() {
@@ -1103,47 +1115,11 @@ class _DataOsState extends State<DataOs> {
   }
 
   Widget _buildStatusField() {
-    if (status == 'CONCLUIDA') {
-      return InputDecorator(
-        decoration: customInputDecoration(hintText: 'Status').copyWith(
-          filled: true,
-          fillColor: Colors.grey.shade100,
-          suffixIcon: const Icon(
-            Icons.lock_outline,
-            color: Colors.grey,
-            size: 20,
-          ),
-        ),
-        child: Row(
-          children: [
-            Container(
-              width: 9,
-              height: 9,
-              decoration: BoxDecoration(
-                color: _statusColor(status),
-                shape: BoxShape.circle,
-              ),
-            ),
-            const SizedBox(width: 8),
-            Text(
-              _statusLabel(status),
-              style: TextStyle(
-                fontSize: 14,
-                color: colors.onSurface,
-                fontWeight: FontWeight.w500,
-              ),
-            ),
-          ],
-        ),
-      );
-    }
-
     return DropdownButtonFormField<String>(
       value: status,
       decoration: customInputDecoration(hintText: 'Selecione o status'),
-      items: editableStatuses.map((value) {
+      items: {...editableStatuses, status}.map((value) {
         final color = _statusColor(value);
-
         return DropdownMenuItem<String>(
           value: value,
           child: Row(
@@ -1162,11 +1138,22 @@ class _DataOsState extends State<DataOs> {
       onChanged: (value) {
         if (value == null) return;
 
+        if (WorkOrder.statusBloqueia(value) && !_dadosObrigatoriosPreenchidos) {
+          _mostrarErro(
+            'Preencha os dados obrigatórios antes de finalizar a OS.',
+          );
+          return;
+        }
+
         setState(() {
-          status = value;
+          _aplicarStatus(value);
         });
 
         widget.onStatusChanged?.call(value);
+
+        if (dataSaida != null) {
+          widget.onDataSaidaChanged?.call(dataSaida!);
+        }
       },
     );
   }
