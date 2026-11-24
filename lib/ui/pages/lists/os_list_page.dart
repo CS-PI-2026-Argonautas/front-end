@@ -6,10 +6,9 @@ import 'package:frontend/fire_base/models/dinheiro.dart';
 import 'package:frontend/fire_base/models/os.dart';
 import 'package:frontend/fire_base/repositories/os_repository.dart';
 
-import 'package:frontend/ui/pages/client_list/client_list.dart';
+import 'package:frontend/ui/pages/lists/client_list.dart';
 import 'package:frontend/ui/pages/dashboard.dart';
 import 'package:frontend/ui/pages/edit_item/item_edition.dart';
-import 'package:frontend/ui/pages/lists/service_list.dart';
 import 'package:frontend/ui/pages/os/tabbar/tabbar.dart';
 import 'package:frontend/ui/pages/product_registration/product_registration.dart';
 import 'package:frontend/ui/pages/stand_in_page.dart';
