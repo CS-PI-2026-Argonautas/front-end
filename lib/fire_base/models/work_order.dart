@@ -14,6 +14,8 @@ class WorkOrder {
   final String report;
   final DateTime? createdAt;
   final String city;
+  final bool equipamentoBloqueado;
+  final DateTime? dataSaida;
 
   bool isDeleted;
 
@@ -31,10 +33,19 @@ class WorkOrder {
     required this.city,
     this.createdAt,
     this.isDeleted = false,
-  });
+    this.dataSaida,
+    bool equipamentoBloqueado = false,
+  }) : equipamentoBloqueado = equipamentoBloqueado || statusBloqueia(status);
+
+  static bool statusBloqueia(String status) {
+    return status == 'ENTREGUE' || status == 'PAGA';
+  }
 
   Map<String, dynamic> toFirestore() {
     return {
+      if (equipamentoBloqueado) 'equipamento_bloqueado': true,
+
+      if (dataSaida != null) 'data_saida': Timestamp.fromDate(dataSaida!),
       'name': name,
       'part': part,
       'equipment': equipment,
@@ -56,6 +67,8 @@ class WorkOrder {
     final data = document.data()!;
 
     return WorkOrder(
+      equipamentoBloqueado: data['equipamento_bloqueado'] == true,
+      dataSaida: (data['data_saida'] as Timestamp?)?.toDate(),
       id: document.id,
       name: data['name'] as String,
       part: data['part'] as String,
