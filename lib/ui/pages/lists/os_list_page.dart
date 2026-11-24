@@ -1,6 +1,5 @@
 
 import 'package:flutter/material.dart';
-<<<<<<< HEAD:lib/ui/pages/os_list/os_list_page.dart
 
 import 'package:frontend/fire_base/Enums/StatusOrderService.dart';
 import 'package:frontend/fire_base/models/dinheiro.dart';
@@ -8,10 +7,6 @@ import 'package:frontend/fire_base/models/os.dart';
 import 'package:frontend/fire_base/repositories/os_repository.dart';
 
 import 'package:frontend/ui/pages/client_list/client_list.dart';
-=======
-import 'package:frontend/fire_base/models/work_order.dart';
-import 'package:frontend/ui/pages/lists/client_list.dart';
->>>>>>> origin/dev:lib/ui/pages/lists/os_list_page.dart
 import 'package:frontend/ui/pages/dashboard.dart';
 import 'package:frontend/ui/pages/edit_item/item_edition.dart';
 import 'package:frontend/ui/pages/lists/service_list.dart';
@@ -118,8 +113,7 @@ class _OsListPageState extends State<OsListPage> {
     List<ServiceOrder> ordens,
   ) {
     final resultado = ordens.where((os) {
-      final numeroOs =
-          os.numeroOs?.toString() ?? '';
+      final numeroOs = os.numeroOs?.toString() ?? '';
 
       final numeroFormatado =
           _formatarNumeroOs(os).toLowerCase();
@@ -269,13 +263,9 @@ class _OsListPageState extends State<OsListPage> {
           if (index == 3) {
             Navigator.push(
               context,
-<<<<<<< HEAD:lib/ui/pages/os_list/os_list_page.dart
               MaterialPageRoute(
                 builder: (context) => const ItemEdition(),
               ),
-=======
-              MaterialPageRoute(builder: (context) => const ServiceList()),
->>>>>>> origin/dev:lib/ui/pages/lists/os_list_page.dart
             );
           }
 
@@ -287,186 +277,146 @@ class _OsListPageState extends State<OsListPage> {
               ),
             );
           }
+
+          // A lista de serviços permanece disponível
+          // pela navegação própria da aplicação.
         },
       ),
       body: SafeArea(
-<<<<<<< HEAD:lib/ui/pages/os_list/os_list_page.dart
         child: RefreshIndicator(
           onRefresh: _recarregarOrdemServicos,
-          child: SingleChildScrollView(
-            physics: const AlwaysScrollableScrollPhysics(),
-            child: Padding(
-              padding: const EdgeInsets.symmetric(
-                horizontal: 40,
-                vertical: 50,
+          child: Align(
+            alignment: Alignment.topCenter,
+            child: ConstrainedBox(
+              constraints: const BoxConstraints(
+                maxWidth: 650,
               ),
-              child: Column(
-=======
-        child: Align(
-          alignment: Alignment.topCenter,
-          child: ConstrainedBox(
-            constraints: const BoxConstraints(maxWidth: 650),
-            child: SingleChildScrollView(
-              padding: const EdgeInsets.fromLTRB(20, 30, 20, 100),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
->>>>>>> origin/dev:lib/ui/pages/lists/os_list_page.dart
-                children: [
-                  TextFormField(
-                    controller: _searchController,
-                    decoration: InputDecoration(
-                      hintText: 'Procurar ordem de serviço',
-                      filled: true,
-                      fillColor: colors.surfaceContainer,
-<<<<<<< HEAD:lib/ui/pages/os_list/os_list_page.dart
-                      hintStyle: TextStyle(
-                        color: colors.onSurface,
-                      ),
-                      prefixIcon: Icon(
-                        Icons.search,
-                        color: colors.secondary,
-                      ),
-                      suffixIcon: _searchQuery.isNotEmpty
-                          ? IconButton(
-                              icon: Icon(
-                                Icons.clear,
-                                color: colors.secondary,
-                              ),
-=======
-                      hintStyle: TextStyle(color: colors.onSurface),
-                      prefixIcon: Icon(Icons.search, color: colors.secondary),
-                      suffixIcon: _searchQuery.isNotEmpty
-                          ? IconButton(
-                              icon: Icon(Icons.clear, color: colors.secondary),
->>>>>>> origin/dev:lib/ui/pages/lists/os_list_page.dart
-                              onPressed: () {
-                                _searchController.clear();
-                              },
-                            )
-                          : null,
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(14),
-                        borderSide: BorderSide.none,
+              child: SingleChildScrollView(
+                physics:
+                    const AlwaysScrollableScrollPhysics(),
+                padding: const EdgeInsets.fromLTRB(
+                  20,
+                  30,
+                  20,
+                  100,
+                ),
+                child: Column(
+                  crossAxisAlignment:
+                      CrossAxisAlignment.stretch,
+                  children: [
+                    TextFormField(
+                      controller: _searchController,
+                      decoration: InputDecoration(
+                        hintText:
+                            'Procurar ordem de serviço',
+                        filled: true,
+                        fillColor:
+                            colors.surfaceContainer,
+                        hintStyle: TextStyle(
+                          color: colors.onSurface,
+                        ),
+                        prefixIcon: Icon(
+                          Icons.search,
+                          color: colors.secondary,
+                        ),
+                        suffixIcon: _searchQuery.isNotEmpty
+                            ? IconButton(
+                                icon: Icon(
+                                  Icons.clear,
+                                  color: colors.secondary,
+                                ),
+                                onPressed: () {
+                                  _searchController.clear();
+                                },
+                              )
+                            : null,
+                        border: OutlineInputBorder(
+                          borderRadius:
+                              BorderRadius.circular(14),
+                          borderSide: BorderSide.none,
+                        ),
                       ),
                     ),
-                  ),
-<<<<<<< HEAD:lib/ui/pages/os_list/os_list_page.dart
-                  Padding(
-                    padding: const EdgeInsets.only(top: 20),
-                    child: Row(
-                      children: [
-                        PopupMenuButton<ServiceOrderStatus?>(
-                          onSelected: (status) {
-                            setState(() {
-                              _statusSelecionado = status;
-                            });
-                          },
-                          itemBuilder: (context) {
-                            return [
-                              const PopupMenuItem<
-                                  ServiceOrderStatus?>(
-                                value: null,
-                                child: Text('Todos os status'),
-                              ),
-                              ...ServiceOrderStatus.values.map(
-                                (status) {
+
+                    Padding(
+                      padding:
+                          const EdgeInsets.only(top: 20),
+                      child: Row(
+                        children: [
+                          PopupMenuButton<
+                              ServiceOrderStatus?>(
+                            onSelected: (status) {
+                              setState(() {
+                                _statusSelecionado = status;
+                              });
+                            },
+                            itemBuilder: (context) {
+                              return [
+                                const PopupMenuItem<
+                                    ServiceOrderStatus?>(
+                                  value: null,
+                                  child: Text(
+                                    'Todos os status',
+                                  ),
+                                ),
+                                ...ServiceOrderStatus.values
+                                    .map((status) {
                                   return PopupMenuItem<
                                       ServiceOrderStatus?>(
                                     value: status,
                                     child: Text(status.value),
                                   );
-                                },
+                                }),
+                              ];
+                            },
+                            child: Container(
+                              padding:
+                                  const EdgeInsets.symmetric(
+                                horizontal: 16,
+                                vertical: 12,
                               ),
-                            ];
-                          },
-                          child: Container(
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 16,
-                              vertical: 12,
-                            ),
-                            decoration: BoxDecoration(
-                              color: colors.primary,
-                              borderRadius: BorderRadius.circular(8),
-                            ),
-                            child: const Row(
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                Icon(
-                                  Icons.tune,
-                                  color: Colors.white,
-                                ),
-                                SizedBox(width: 8),
-                                Text(
-                                  'Filtrar',
-                                  style: TextStyle(
+                              decoration: BoxDecoration(
+                                color: colors.primary,
+                                borderRadius:
+                                    BorderRadius.circular(8),
+                              ),
+                              child: const Row(
+                                mainAxisSize:
+                                    MainAxisSize.min,
+                                children: [
+                                  Icon(
+                                    Icons.tune,
                                     color: Colors.white,
-                                    fontWeight: FontWeight.bold,
-                                    fontSize: 14.8,
                                   ),
-                                ),
-                              ],
+                                  SizedBox(width: 8),
+                                  Text(
+                                    'Filtrar',
+                                    style: TextStyle(
+                                      color: Colors.white,
+                                      fontWeight:
+                                          FontWeight.bold,
+                                      fontSize: 14.8,
+                                    ),
+                                  ),
+                                ],
+                              ),
                             ),
                           ),
-                        ),
-                        const SizedBox(width: 10),
-                        ElevatedButton.icon(
-                          onPressed: _alternarOrdenacao,
-                          icon: Icon(
-                            _ordemCrescente
-                                ? Icons.arrow_upward
-                                : Icons.arrow_downward,
-                          ),
-                          label: Text(
-                            _ordemCrescente
-                                ? 'Mais antigas'
-                                : 'Mais recentes',
-                            style: const TextStyle(
-=======
 
-                  Padding(
-                    padding: const EdgeInsets.only(top: 20.0),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.start,
-                      children: [
-                        ElevatedButton.icon(
-                          onPressed: () {},
-                          icon: const Icon(Icons.tune),
-                          label: const Text(
-                            'Filtrar',
-                            style: TextStyle(
->>>>>>> origin/dev:lib/ui/pages/lists/os_list_page.dart
-                              fontWeight: FontWeight.bold,
-                              fontSize: 14.8,
+                          const SizedBox(width: 10),
+
+                          ElevatedButton.icon(
+                            onPressed: _alternarOrdenacao,
+                            icon: Icon(
+                              _ordemCrescente
+                                  ? Icons.arrow_upward
+                                  : Icons.arrow_downward,
                             ),
-                          ),
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: colors.primary,
-                            foregroundColor: Colors.white,
-                          ),
-                        ),
-<<<<<<< HEAD:lib/ui/pages/os_list/os_list_page.dart
-                      ],
-                    ),
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.only(
-                      top: 20,
-                      bottom: 10,
-                    ),
-                    child: Align(
-                      alignment: Alignment.centerLeft,
-                      child: Text(
-                        'Ordens de serviço',
-=======
-
-                        Padding(
-                          padding: const EdgeInsets.only(left: 10.0),
-                          child: ElevatedButton.icon(
-                            onPressed: () {},
-                            icon: const Icon(Icons.swap_vert),
-                            label: const Text(
-                              'Ordenar',
-                              style: TextStyle(
+                            label: Text(
+                              _ordemCrescente
+                                  ? 'Mais antigas'
+                                  : 'Mais recentes',
+                              style: const TextStyle(
                                 fontWeight: FontWeight.bold,
                                 fontSize: 14.8,
                               ),
@@ -476,203 +426,143 @@ class _OsListPageState extends State<OsListPage> {
                               foregroundColor: Colors.white,
                             ),
                           ),
-                        ),
-                      ],
+                        ],
+                      ),
                     ),
-                  ),
 
-                  Padding(
-                    padding: const EdgeInsets.only(top: 10.0, bottom: 10.0),
-                    child: Align(
-                      alignment: Alignment.centerLeft,
-                      child: Text(
-                        'Recentes',
->>>>>>> origin/dev:lib/ui/pages/lists/os_list_page.dart
-                        style: TextStyle(
-                          color: colors.onSurface,
-                          fontSize: 18,
-                          fontWeight: FontWeight.bold,
+                    Padding(
+                      padding: const EdgeInsets.only(
+                        top: 20,
+                        bottom: 10,
+                      ),
+                      child: Align(
+                        alignment: Alignment.centerLeft,
+                        child: Text(
+                          'Ordens de serviço',
+                          style: TextStyle(
+                            color: colors.onSurface,
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
+                          ),
                         ),
                       ),
                     ),
-                  ),
-<<<<<<< HEAD:lib/ui/pages/os_list/os_list_page.dart
-                  FutureBuilder<List<ServiceOrder>>(
-                    future: _futureOrdemServicos,
-                    builder: (context, snapshot) {
-                      if (snapshot.connectionState ==
-                          ConnectionState.waiting) {
-                        return const Padding(
-                          padding: EdgeInsets.only(top: 30),
-                          child: Center(
-                            child: CircularProgressIndicator(),
-=======
 
-                  FutureBuilder<List<WorkOrder>>(
-                    future: _futureOrdemServicos,
-                    builder: (context, snapshot) {
-                      if (snapshot.connectionState == ConnectionState.waiting) {
-                        return const Padding(
-                          padding: EdgeInsets.only(top: 20.0),
-                          child: Center(child: CircularProgressIndicator()),
-                        );
-                      }
-
-                      if (snapshot.hasError) {
-                        return const Center(
-                          child: Text('Erro ao carregar ordens de serviço.'),
-                        );
-                      }
-
-                      if (!snapshot.hasData || snapshot.data!.isEmpty) {
-                        return const Center(
-                          child: Text('Nenhuma ordem de serviço encontrada.'),
-                        );
-                      }
-
-                      final todasOrdens = snapshot.data!;
-
-                      final ordensFiltradas = todasOrdens.where((os) {
-                        final idMatch = os.id.toString().toLowerCase().contains(
-                          _searchQuery,
-                        );
-                        final nomeMatch = os.name.toLowerCase().contains(
-                          _searchQuery,
-                        );
-                        final cidadeMatch = os.city.toLowerCase().contains(
-                          _searchQuery,
-                        );
-                        return idMatch || nomeMatch || cidadeMatch;
-                      }).toList();
-
-                      if (ordensFiltradas.isEmpty) {
-                        return Padding(
-                          padding: const EdgeInsets.only(top: 20.0),
-                          child: Center(
-                            child: Text(
-                              'Nenhuma ordem de serviço corresponde à pesquisa.',
-                              style: TextStyle(color: colors.onSurfaceVariant),
+                    FutureBuilder<List<ServiceOrder>>(
+                      future: _futureOrdemServicos,
+                      builder: (context, snapshot) {
+                        if (snapshot.connectionState ==
+                            ConnectionState.waiting) {
+                          return const Padding(
+                            padding: EdgeInsets.only(top: 30),
+                            child: Center(
+                              child:
+                                  CircularProgressIndicator(),
                             ),
->>>>>>> origin/dev:lib/ui/pages/lists/os_list_page.dart
-                          ),
-                        );
-                      }
+                          );
+                        }
 
-<<<<<<< HEAD:lib/ui/pages/os_list/os_list_page.dart
-                      if (snapshot.hasError) {
-                        return Padding(
-                          padding: const EdgeInsets.only(top: 20),
-                          child: Column(
-                            children: [
-                              const Icon(
-                                Icons.error_outline,
-                                size: 40,
-                                color: Colors.red,
-                              ),
-                              const SizedBox(height: 10),
-                              const Text(
-                                'Erro ao carregar ordens de serviço.',
-                              ),
-                              const SizedBox(height: 10),
-                              ElevatedButton.icon(
-                                onPressed: _carregarOrdemServicos,
-                                icon: const Icon(Icons.refresh),
-                                label: const Text('Tentar novamente'),
-                              ),
-                            ],
-                          ),
-                        );
-                      }
-
-                      if (!snapshot.hasData ||
-                          snapshot.data!.isEmpty) {
-                        return const Padding(
-                          padding: EdgeInsets.only(top: 30),
-                          child: Center(
-                            child: Text(
-                              'Nenhuma ordem de serviço encontrada.',
+                        if (snapshot.hasError) {
+                          return Padding(
+                            padding:
+                                const EdgeInsets.only(top: 20),
+                            child: Column(
+                              children: [
+                                const Icon(
+                                  Icons.error_outline,
+                                  size: 40,
+                                  color: Colors.red,
+                                ),
+                                const SizedBox(height: 10),
+                                const Text(
+                                  'Erro ao carregar ordens de serviço.',
+                                ),
+                                const SizedBox(height: 10),
+                                ElevatedButton.icon(
+                                  onPressed:
+                                      _carregarOrdemServicos,
+                                  icon: const Icon(
+                                    Icons.refresh,
+                                  ),
+                                  label: const Text(
+                                    'Tentar novamente',
+                                  ),
+                                ),
+                              ],
                             ),
-                          ),
-                        );
-                      }
+                          );
+                        }
 
-                      final ordensFiltradas = _filtrarOrdens(
-                        snapshot.data!,
-                      );
-
-                      if (ordensFiltradas.isEmpty) {
-                        return Padding(
-                          padding: const EdgeInsets.only(top: 20),
-                          child: Center(
-                            child: Text(
-                              'Nenhuma ordem de serviço corresponde à pesquisa.',
-                              style: TextStyle(
-                                color: colors.onSurfaceVariant,
+                        if (!snapshot.hasData ||
+                            snapshot.data!.isEmpty) {
+                          return const Padding(
+                            padding:
+                                EdgeInsets.only(top: 30),
+                            child: Center(
+                              child: Text(
+                                'Nenhuma ordem de serviço encontrada.',
                               ),
                             ),
+                          );
+                        }
+
+                        final ordensFiltradas =
+                            _filtrarOrdens(snapshot.data!);
+
+                        if (ordensFiltradas.isEmpty) {
+                          return Padding(
+                            padding:
+                                const EdgeInsets.only(top: 20),
+                            child: Center(
+                              child: Text(
+                                'Nenhuma ordem de serviço corresponde à pesquisa.',
+                                style: TextStyle(
+                                  color:
+                                      colors.onSurfaceVariant,
+                                ),
+                              ),
+                            ),
+                          );
+                        }
+
+                        return Card(
+                          elevation: 4,
+                          color: colors.surfaceContainer,
+                          shape: RoundedRectangleBorder(
+                            borderRadius:
+                                BorderRadius.circular(12),
+                          ),
+                          clipBehavior: Clip.antiAlias,
+                          child: ListView.separated(
+                            shrinkWrap: true,
+                            physics:
+                                const NeverScrollableScrollPhysics(),
+                            itemCount:
+                                ordensFiltradas.length,
+                            separatorBuilder:
+                                (context, index) => Divider(
+                              height: 1,
+                              color: colors.onSurfaceVariant
+                                  .withOpacity(0.2),
+                            ),
+                            itemBuilder: (context, index) {
+                              return _buildOsCard(
+                                ordensFiltradas[index],
+                              );
+                            },
                           ),
                         );
-                      }
-
-=======
->>>>>>> origin/dev:lib/ui/pages/lists/os_list_page.dart
-                      return Card(
-                        elevation: 4,
-                        color: colors.surfaceContainer,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                        clipBehavior: Clip.antiAlias,
-                        child: ListView.separated(
-                          shrinkWrap: true,
-<<<<<<< HEAD:lib/ui/pages/os_list/os_list_page.dart
-                          physics:
-                              const NeverScrollableScrollPhysics(),
-                          itemCount: ordensFiltradas.length,
-                          separatorBuilder: (context, index) =>
-                              Divider(
-                            height: 1,
-                            color: colors.onSurfaceVariant
-                                .withOpacity(0.2),
-                          ),
-                          itemBuilder: (context, index) {
-                            return _buildOsCard(
-                              ordensFiltradas[index],
-                            );
-=======
-                          physics: const NeverScrollableScrollPhysics(),
-                          itemCount: ordensFiltradas.length,
-                          separatorBuilder: (context, index) => Divider(
-                            height: 1,
-                            color: colors.onSurfaceVariant.withOpacity(0.2),
-                          ),
-                          itemBuilder: (context, index) {
-                            return _buildClientCard(ordensFiltradas[index]);
->>>>>>> origin/dev:lib/ui/pages/lists/os_list_page.dart
-                          },
-                        ),
-                      );
-                    },
-                  ),
-                ],
+                      },
+                    ),
+                  ],
+                ),
               ),
             ),
           ),
         ),
       ),
       floatingActionButton: CustomFloatingButton(
-<<<<<<< HEAD:lib/ui/pages/os_list/os_list_page.dart
         onPressed: _abrirNovaOs,
-=======
-        onPressed: () {
-          Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (context) => Tabbar(serviceOrderNumber: -1),
-            ),
-          );
-        },
->>>>>>> origin/dev:lib/ui/pages/lists/os_list_page.dart
       ),
     );
   }
@@ -698,20 +588,17 @@ class _OsListPageState extends State<OsListPage> {
       },
       extentRatio: 0.20,
       child: Padding(
-<<<<<<< HEAD:lib/ui/pages/os_list/os_list_page.dart
         padding: const EdgeInsets.symmetric(
           horizontal: 16,
           vertical: 12,
         ),
-=======
-        padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 12.0),
->>>>>>> origin/dev:lib/ui/pages/lists/os_list_page.dart
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Expanded(
               child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
+                crossAxisAlignment:
+                    CrossAxisAlignment.start,
                 children: [
                   Text(
                     'OS Nº $numeroOs - $nomeCliente',
@@ -741,7 +628,8 @@ class _OsListPageState extends State<OsListPage> {
                       Text(
                         status,
                         style: TextStyle(
-                          color: _obterCorDoStatus(os.status),
+                          color:
+                              _obterCorDoStatus(os.status),
                           fontSize: 14,
                           fontWeight: FontWeight.w600,
                         ),
@@ -777,7 +665,10 @@ class _OsListPageState extends State<OsListPage> {
               onPressed: () {
                 Navigator.push(
                   context,
-                  MaterialPageRoute(builder: (context) => const StandInPage()),
+                  MaterialPageRoute(
+                    builder: (context) =>
+                        const StandInPage(),
+                  ),
                 );
               },
             ),
