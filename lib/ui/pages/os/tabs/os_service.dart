@@ -1,15 +1,15 @@
+
 import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:frontend/fire_base/models/dinheiro.dart';
+import 'package:frontend/fire_base/models/os.dart';
+import 'package:frontend/fire_base/services/service_service.dart';
+import 'package:frontend/ui/pages/os/tabs/service_registration.dart';
 import 'package:frontend/ui/style/ColorScheme.dart' as custom_colors;
 import 'package:frontend/ui/widgets/floatingButton.dart';
 import 'package:frontend/ui/widgets/bottom_sheet/bottom_sheet.dart';
 import 'package:frontend/ui/widgets/slidable/slidable_delete_card.dart';
-import 'package:frontend/ui/pages/os/tabs/service_registration.dart';
-import 'package:frontend/fire_base/services/service_service.dart';
-import 'package:frontend/fire_base/models/os.dart';
-
 
 class OsServicosTab extends StatefulWidget {
   final ServiceOrder serviceOrder;
@@ -22,15 +22,13 @@ class OsServicosTab extends StatefulWidget {
   @override
   State<OsServicosTab> createState() => _OsServicosTabState();
 }
+
 class _OsServicosTabState extends State<OsServicosTab> {
   final colors = custom_colors.colorScheme;
-
   final TextEditingController _searchController = TextEditingController();
 
   List<Map<String, dynamic>> _servicosDisponiveis = [];
   bool _carregandoServicos = true;
-
-  final List<Map<String, dynamic>> _servicosNaOrdem = [];
 
   @override
   void initState() {
@@ -41,15 +39,17 @@ class _OsServicosTabState extends State<OsServicosTab> {
   Future<void> _carregarServicosDoBanco() async {
     try {
       final servicoService = ServicoService();
-      final servicosDoFirebase = await servicoService
-          .buscarServicosDisponiveis();
+      final servicosDoFirebase =
+          await servicoService.buscarServicosDisponiveis();
 
-      final servicosFormatados = servicosDoFirebase.map((servico) {
+      final servicosFormatados = servicosDoFirebase
+          .where((servico) => servico.id != null)
+          .map((servico) {
         return {
-          'id': servico.id ?? 'sem_id_${DateTime.now().millisecondsSinceEpoch}',
+          'id': servico.id!,
           'nome': servico.name,
           'descricao': servico.description,
-          'preco': servico.valueInCents / 100,
+          'preco': servico.valueInCents,
         };
       }).toList();
 
@@ -75,115 +75,123 @@ class _OsServicosTabState extends State<OsServicosTab> {
     super.dispose();
   }
 
-  List<Map<String, dynamic>> get _servicosExibidos {
+  List<ServiceOrderService> get _servicosExibidos {
     final query = _searchController.text.toLowerCase();
 
-    return _servicosNaOrdem.where((servico) {
-      final bool naoRemovido = servico['removido'] == false;
-
-      final bool atendeFiltro =
-          servico['nome'].toString().toLowerCase().contains(query) ||
-          servico['descricao'].toString().toLowerCase().contains(query);
-
-      return naoRemovido && atendeFiltro;
+    return widget.serviceOrder.services.where((servico) {
+      return servico.description.toLowerCase().contains(query);
     }).toList();
   }
 
-  double get _subtotal {
-    final total = _servicosExibidos.fold(0.0, (sum, item) {
-      final double preco = (item['preco'] as double? ?? 0.0);
-
-      return sum + max(0.0, preco);
-    });
-
-    return max(0.0, total);
+  int get _subtotal {
+    return widget.serviceOrder.services.fold<int>(
+      0,
+      (total, servico) => total + servico.subtotalCents,
+    );
   }
 
   void _adicionarServico(Map<String, dynamic> servico) {
     setState(() {
-      _servicosNaOrdem.add({
-        'id': '${servico['id']}_${DateTime.now().millisecondsSinceEpoch}',
-        'nome': servico['nome'],
-        'descricao': servico['descricao'],
-        'preco': servico['preco'],
-        'removido': false,
-      });
-    });
-  }
-
-  Future<void> _deletarServico(Map<String, dynamic> servico) async {
-    setState(() {
-      servico['removido'] = true;
-    });
-  }
-
-void _abrirListaServicos() {
-  showModalBottomSheet(
-    context: context,
-    backgroundColor: colors.surfaceContainer,
-    isScrollControlled: true,
-    shape: const RoundedRectangleBorder(
-      borderRadius: BorderRadius.vertical(
-        top: Radius.circular(24),
-      ),
-    ),
-    builder: (sheetContext) {
-      return SelectionBottomSheet<Map<String, dynamic>>(
-        title: 'Selecionar serviço',
-        items: _servicosDisponiveis,
-        searchText: 'Procurar serviço',
-        actionText: 'Novo serviço',
-
-        itemTitle: (servico) {
-          return servico['nome'].toString();
-        },
-
-        itemSubtitle: (servico) {
-          final double preco =
-              (servico['preco'] as double? ?? 0.0);
-
-          return 'R\\${preco.toStringAsFixed(2).replaceAll('.', ',')}';
-        },
-
-        itemIcon: Icons.build,
-        loading: _carregandoServicos,
-
-        onAction: () async {
-          Navigator.pop(sheetContext);
-
-          final dadosNovos = await Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (context) =>
-                  const ServiceRegistration(),
-            ),
-          );
-
-          if (!mounted || dadosNovos == null) {
-            return;
-          }
-
-          final novoServicoFormatado = {
-            'id': 'novo_${DateTime.now().millisecondsSinceEpoch}',
-            'nome': dadosNovos['nome'],
-            'descricao': dadosNovos['descricao'],
-            'preco': (dadosNovos['valor'] as int) / 100,
-          };
-
-          _adicionarServico(novoServicoFormatado);
-
-          await _carregarServicosDoBanco();
-        },
-
-        onSelect: (servico) {
-          _adicionarServico(servico);
-          Navigator.pop(sheetContext);
-        },
+      widget.serviceOrder.services.add(
+        ServiceOrderService(
+          serviceId: servico['id'].toString(),
+          description: servico['descricao']?.toString().isNotEmpty == true
+              ? servico['descricao'].toString()
+              : servico['nome'].toString(),
+          valueCents: servico['preco'] as int,
+        ),
       );
-    },
-  );
-}
+    });
+  }
 
+  void _removerServico(int index) {
+    final servico = _servicosExibidos[index];
+    final indiceOriginal =
+        widget.serviceOrder.services.indexOf(servico);
+
+    if (indiceOriginal == -1) return;
+
+    setState(() {
+      widget.serviceOrder.services.removeAt(indiceOriginal);
+    });
+
+    final messenger = ScaffoldMessenger.of(context);
+    messenger.hideCurrentSnackBar();
+
+    messenger.showSnackBar(
+      SnackBar(
+        content: Text('${servico.description} removido.'),
+        backgroundColor: colors.primary,
+        duration: const Duration(seconds: 5),
+        action: SnackBarAction(
+          label: 'DESFAZER',
+          textColor: Colors.white,
+          onPressed: () {
+            setState(() {
+              widget.serviceOrder.services.insert(
+                min(indiceOriginal, widget.serviceOrder.services.length),
+                servico,
+              );
+            });
+          },
+        ),
+      ),
+    );
+  }
+
+  void _abrirListaServicos() {
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: colors.surfaceContainer,
+      isScrollControlled: true,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(
+          top: Radius.circular(24),
+        ),
+      ),
+      builder: (sheetContext) {
+        return SelectionBottomSheet<Map<String, dynamic>>(
+          title: 'Selecionar serviço',
+          items: _servicosDisponiveis,
+          searchText: 'Procurar serviço',
+          actionText: 'Novo serviço',
+          itemTitle: (servico) => servico['nome'].toString(),
+          itemSubtitle: (servico) {
+            final int preco = servico['preco'] as int;
+            return Dinheiro(preco).formatado();
+          },
+          itemIcon: Icons.build,
+          loading: _carregandoServicos,
+          onAction: () async {
+            Navigator.pop(sheetContext);
+
+            final dadosNovos = await Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => const ServiceRegistration(),
+              ),
+            );
+
+            if (!mounted || dadosNovos == null) return;
+
+            final novoServico = {
+              'id': 'novo_${DateTime.now().millisecondsSinceEpoch}',
+              'nome': dadosNovos['nome'],
+              'descricao': dadosNovos['descricao'],
+              'preco': dadosNovos['valor'] as int,
+            };
+
+            _adicionarServico(novoServico);
+            await _carregarServicosDoBanco();
+          },
+          onSelect: (servico) {
+            _adicionarServico(servico);
+            Navigator.pop(sheetContext);
+          },
+        );
+      },
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -194,7 +202,10 @@ void _abrirListaServicos() {
         SafeArea(
           child: SingleChildScrollView(
             child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 20),
+              padding: const EdgeInsets.symmetric(
+                horizontal: 24,
+                vertical: 20,
+              ),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -204,13 +215,13 @@ void _abrirListaServicos() {
                       Text(
                         'Subtotal de serviços',
                         style: TextStyle(
-                      color: colors.onSurface,
-                      fontSize: 20,
-                      fontWeight: FontWeight.bold,
-                    ),
+                          color: colors.onSurface,
+                          fontSize: 20,
+                          fontWeight: FontWeight.bold,
+                        ),
                       ),
                       Text(
-                        Dinheiro(_subtotal as int).formatado(),
+                        Dinheiro(_subtotal).formatado(),
                         style: TextStyle(
                           color: Colors.blueGrey.shade600,
                           fontSize: 18,
@@ -219,36 +230,38 @@ void _abrirListaServicos() {
                       ),
                     ],
                   ),
-
                   const SizedBox(height: 16),
-
                   TextFormField(
                     controller: _searchController,
-                    onChanged: (_) {
-                      setState(() {});
-                    },
+                    onChanged: (_) => setState(() {}),
                     decoration: InputDecoration(
                       hintText: 'Procurar serviço',
                       filled: true,
                       fillColor: colors.surfaceContainer,
                       hintStyle: TextStyle(color: colors.onSurface),
-                      prefixIcon: Icon(Icons.search, color: colors.secondary),
+                      prefixIcon: Icon(
+                        Icons.search,
+                        color: colors.secondary,
+                      ),
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(14),
                         borderSide: BorderSide.none,
                       ),
                     ),
                   ),
-
                   const SizedBox(height: 20),
-                  
-
-                  
-
                   if (listaAtual.isEmpty)
-                     Padding(
-                      padding: EdgeInsets.symmetric(vertical: 40),
-                      child: Center(child: Text('Nenhum serviço adicionado.', style: TextStyle(fontSize: 16, color: colors.onSurfaceVariant),)),
+                    Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 40),
+                      child: Center(
+                        child: Text(
+                          'Nenhum serviço adicionado.',
+                          style: TextStyle(
+                            fontSize: 16,
+                            color: colors.onSurfaceVariant,
+                          ),
+                        ),
+                      ),
                     )
                   else
                     ListView.builder(
@@ -256,7 +269,10 @@ void _abrirListaServicos() {
                       physics: const NeverScrollableScrollPhysics(),
                       itemCount: listaAtual.length,
                       itemBuilder: (context, index) {
-                        return _buildServiceCard(listaAtual[index]);
+                        return _buildServiceCard(
+                          listaAtual[index],
+                          index,
+                        );
                       },
                     ),
                 ],
@@ -264,7 +280,6 @@ void _abrirListaServicos() {
             ),
           ),
         ),
-
         Positioned(
           bottom: 16,
           right: 16,
@@ -276,41 +291,34 @@ void _abrirListaServicos() {
     );
   }
 
-  Widget _buildServiceCard(Map<String, dynamic> servico) {
-    final double precoCru = (servico['preco'] as double? ?? 0.0);
-
-    final double preco = max(0.0, precoCru);
-
-    final String descricao = servico['descricao'] ?? '';
+  Widget _buildServiceCard(
+    ServiceOrderService servico,
+    int index,
+  ) {
+    final double preco = max(0, servico.subtotalCents) / 100;
 
     return Padding(
       padding: const EdgeInsets.only(bottom: 12),
       child: ClipRRect(
         borderRadius: BorderRadius.circular(16),
         child: SlidableDeleteCard(
-          slidableKey: ValueKey(servico['id']),
-
+          slidableKey: ValueKey(servico.serviceId),
           onDelete: () async {
-            final confirmarExclusao =
-                await showDialog<bool>(
+            final confirmar = await showDialog<bool>(
                   context: context,
                   builder: (context) {
                     return AlertDialog(
                       title: const Text('Remover Serviço'),
                       content: Text(
-                        'Deseja remover "${servico['nome']}" da OS?',
+                        'Deseja remover "${servico.description}" da OS?',
                       ),
                       actions: [
                         TextButton(
-                          onPressed: () {
-                            Navigator.pop(context, false);
-                          },
+                          onPressed: () => Navigator.pop(context, false),
                           child: const Text('CANCELAR'),
                         ),
                         TextButton(
-                          onPressed: () {
-                            Navigator.pop(context, true);
-                          },
+                          onPressed: () => Navigator.pop(context, true),
                           child: Text(
                             'REMOVER',
                             style: TextStyle(color: colors.error),
@@ -322,42 +330,11 @@ void _abrirListaServicos() {
                 ) ??
                 false;
 
-            if (!confirmarExclusao) {
-              return;
+            if (confirmar && mounted) {
+              _removerServico(index);
             }
-
-            await _deletarServico(servico);
-
-            if (!mounted) {
-              return;
-            }
-
-            final messenger = ScaffoldMessenger.of(context);
-
-            messenger.hideCurrentSnackBar();
-
-            messenger.showSnackBar(
-              SnackBar(
-                content: Text('${servico['nome']} removido.'),
-                backgroundColor: colors.primary,
-                duration: const Duration(seconds: 5),
-                action: SnackBarAction(
-                  label: 'DESFAZER',
-                  textColor: Colors.white,
-                  onPressed: () {
-                    setState(() {
-                      servico['removido'] = false;
-                    });
-
-                    messenger.hideCurrentSnackBar();
-                  },
-                ),
-              ),
-            );
           },
-
           extentRatio: 0.20,
-
           child: Container(
             width: double.infinity,
             padding: const EdgeInsets.all(16),
@@ -369,29 +346,16 @@ void _abrirListaServicos() {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  servico['nome'],
+                  servico.description,
                   style: TextStyle(
                     color: colors.onSurface,
                     fontSize: 18,
                     fontWeight: FontWeight.bold,
                   ),
                 ),
-
-                if (descricao.isNotEmpty) ...[
-                  const SizedBox(height: 4),
-                  Text(
-                    descricao,
-                    style: TextStyle(
-                      color: colors.onSurfaceVariant,
-                      fontSize: 14,
-                    ),
-                  ),
-                ],
-
                 const SizedBox(height: 8),
-
                 Text(
-                  Dinheiro(preco as int).formatado(),
+                  Dinheiro((preco * 100).round()).formatado(),
                   style: TextStyle(
                     color: colors.primary,
                     fontSize: 15,

@@ -2,6 +2,7 @@
 import 'package:flutter/material.dart';
 import 'package:frontend/fire_base/Enums/StatusOrderService.dart';
 import 'package:frontend/fire_base/models/os.dart';
+import 'package:frontend/fire_base/repositories/os_repository.dart';
 import 'package:frontend/ui/pages/os/tabs/data_os.dart';
 import 'package:frontend/ui/pages/os/tabs/os_service.dart';
 import 'package:frontend/ui/pages/os/tabs/values_os.dart';
@@ -24,10 +25,13 @@ class _TabbarState extends State<Tabbar>
     with SingleTickerProviderStateMixin {
   final colors = custom_colors.colorScheme;
 
+  final OsRepository _osRepository = FirestoreOsRepository();
+
   late final TabController _tabController;
   late final ServiceOrder _serviceOrder;
 
   bool _dadosObrigatoriosPreenchidos = false;
+  bool _salvando = false;
 
   @override
   void initState() {
@@ -45,6 +49,48 @@ class _TabbarState extends State<Tabbar>
   void dispose() {
     _tabController.dispose();
     super.dispose();
+  }
+
+  Future<void> _salvarOs() async {
+    if (_salvando) return;
+
+    setState(() {
+      _salvando = true;
+    });
+
+    try {
+      await _osRepository.salvar(_serviceOrder);
+
+      if (!mounted) return;
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Ordem de serviço salva com sucesso!'),
+          backgroundColor: Colors.green,
+          behavior: SnackBarBehavior.floating,
+        ),
+      );
+
+      setState(() {});
+    } catch (e) {
+      if (!mounted) return;
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            e.toString().replaceFirst('Exception: ', ''),
+          ),
+          backgroundColor: Colors.red,
+          behavior: SnackBarBehavior.floating,
+        ),
+      );
+    } finally {
+      if (mounted) {
+        setState(() {
+          _salvando = false;
+        });
+      }
+    }
   }
 
   void _concluirOs() {
@@ -148,7 +194,6 @@ class _TabbarState extends State<Tabbar>
 
       body: TabBarView(
         controller: _tabController,
-
         physics: _dadosObrigatoriosPreenchidos
             ? const BouncingScrollPhysics()
             : const NeverScrollableScrollPhysics(),
@@ -178,6 +223,42 @@ class _TabbarState extends State<Tabbar>
             onConcluir: _concluirOs,
           ),
         ],
+      ),
+
+      bottomNavigationBar: SafeArea(
+        child: Padding(
+          padding: const EdgeInsets.all(16),
+          child: SizedBox(
+            width: double.infinity,
+            height: 50,
+            child: ElevatedButton.icon(
+              onPressed: _salvando ? null : _salvarOs,
+              icon: _salvando
+                  ? const SizedBox(
+                      width: 20,
+                      height: 20,
+                      child: CircularProgressIndicator(
+                        strokeWidth: 2,
+                        color: Colors.white,
+                      ),
+                    )
+                  : const Icon(Icons.save),
+              label: Text(
+                _salvando
+                    ? 'Salvando...'
+                    : 'Salvar alterações',
+              ),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: colors.primary,
+                foregroundColor: Colors.white,
+                disabledBackgroundColor: colors.primary.withOpacity(0.6),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(10),
+                ),
+              ),
+            ),
+          ),
+        ),
       ),
     );
   }
