@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:frontend/ui/pages/client_list/client_list.dart';
+import 'package:frontend/ui/pages/lists/client_list.dart';
 import 'package:frontend/ui/pages/edit_item/item_edition.dart';
+import 'package:frontend/ui/pages/lists/service_list.dart';
 import 'package:frontend/ui/pages/os/tabbar/tabbar.dart';
 import 'package:frontend/ui/pages/os/tabs/clientOs.dart';
 import 'package:frontend/ui/pages/os/tabs/data_os.dart';
@@ -115,7 +116,7 @@ class Dashboard extends StatelessWidget {
           if (index == 3) {
             Navigator.push(
               context,
-              MaterialPageRoute(builder: (context) => const ItemEdition()),
+              MaterialPageRoute(builder: (context) => const ServiceList()),
             );
           }
           if (index == 5) {
@@ -136,10 +137,10 @@ class Dashboard extends StatelessWidget {
               mainAxisSize: MainAxisSize.min,
               spacing: 24,
               children: [
-               FutureBuilder<AppUser?>(
-                future: AuthenticationService().getLoggedUser(),
-                builder: (context, snapshot) {
-                final usuarioLogado = snapshot.data;
+                FutureBuilder<AppUser?>(
+                  future: AuthenticationService().getLoggedUser(),
+                  builder: (context, snapshot) {
+                    final usuarioLogado = snapshot.data;
                     return Text(
                       usuarioLogado != null
                           ? "Olá, ${usuarioLogado.name}!"
@@ -153,7 +154,7 @@ class Dashboard extends StatelessWidget {
                     );
                   },
                 ),
-                
+
                 Card(
                   color: colors.surfaceContainer,
                   elevation: 8,

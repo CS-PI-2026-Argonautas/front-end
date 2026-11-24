@@ -9,7 +9,7 @@ class ServiceService {
 
   Future<String> create(Service service) async {
     _validate(service);
-    return _repository.create(service);
+    return await _repository.create(service);
   }
 
   Future<void> update(Service service) async {
@@ -22,7 +22,7 @@ class ServiceService {
   }
 
   Future<void> delete(String id) async {
-    if (id.isEmpty) {
+    if (id.trim().isEmpty) {
       throw ArgumentError('ID do serviço é obrigatório para exclusão.');
     }
 
@@ -30,7 +30,7 @@ class ServiceService {
   }
 
   Future<void> restore(String id) async {
-    if (id.isEmpty) {
+    if (id.trim().isEmpty) {
       throw ArgumentError('ID do serviço é obrigatório para restauração.');
     }
 
@@ -38,6 +38,10 @@ class ServiceService {
   }
 
   Future<Service?> getById(String id) {
+    if (id.trim().isEmpty) {
+      throw ArgumentError('ID do serviço é obrigatório.');
+    }
+
     return _repository.getById(id);
   }
 
@@ -50,12 +54,12 @@ class ServiceService {
       throw ArgumentError('Informe o nome do serviço.');
     }
 
-    if (service.valueInCents <= 0) {
-      throw ArgumentError('O valor do serviço deve ser maior que zero.');
-    }
-
     if (service.description.trim().length > 50) {
       throw ArgumentError('A descrição não pode ultrapassar 50 caracteres.');
+    }
+
+    if (service.valueInCents <= 0) {
+      throw ArgumentError('O valor do serviço deve ser maior que zero.');
     }
   }
 }

@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:frontend/fire_base/models/work_order.dart';
-import 'package:frontend/ui/pages/client_list/client_list.dart';
+import 'package:frontend/ui/pages/lists/client_list.dart';
 import 'package:frontend/ui/pages/dashboard.dart';
 import 'package:frontend/ui/pages/edit_item/item_edition.dart';
+import 'package:frontend/ui/pages/lists/service_list.dart';
 import 'package:frontend/ui/pages/os/tabbar/tabbar.dart';
 import 'package:frontend/ui/pages/product_registration/product_registration.dart';
 import 'package:frontend/ui/pages/stand_in_page.dart';
@@ -113,7 +114,7 @@ class _OsListPageState extends State<OsListPage> {
           if (index == 3) {
             Navigator.push(
               context,
-              MaterialPageRoute(builder: (context) => const ItemEdition()),
+              MaterialPageRoute(builder: (context) => const ServiceList()),
             );
           }
 
@@ -238,9 +239,15 @@ class _OsListPageState extends State<OsListPage> {
                     final todasOrdens = snapshot.data!;
 
                     final ordensFiltradas = todasOrdens.where((os) {
-                      final idMatch = os.id.toString().toLowerCase().contains(_searchQuery);
-                      final nomeMatch = os.name.toLowerCase().contains(_searchQuery);
-                      final cidadeMatch = os.city.toLowerCase().contains(_searchQuery);
+                      final idMatch = os.id.toString().toLowerCase().contains(
+                        _searchQuery,
+                      );
+                      final nomeMatch = os.name.toLowerCase().contains(
+                        _searchQuery,
+                      );
+                      final cidadeMatch = os.city.toLowerCase().contains(
+                        _searchQuery,
+                      );
                       return idMatch || nomeMatch || cidadeMatch;
                     }).toList();
 
@@ -292,7 +299,7 @@ class _OsListPageState extends State<OsListPage> {
               builder: (context) => Tabbar(serviceOrderNumber: -1),
             ),
           );
-        },      
+        },
       ),
     );
   }
@@ -339,10 +346,7 @@ class _OsListPageState extends State<OsListPage> {
       extentRatio: 0.20,
 
       child: Padding(
-        padding: const EdgeInsets.symmetric(
-          horizontal: 16.0,
-          vertical: 12.0,
-        ),
+        padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 12.0),
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -383,9 +387,7 @@ class _OsListPageState extends State<OsListPage> {
               onPressed: () {
                 Navigator.push(
                   context,
-                  MaterialPageRoute(
-                    builder: (context) => const StandInPage(),
-                  ),
+                  MaterialPageRoute(builder: (context) => const StandInPage()),
                 );
               },
             ),

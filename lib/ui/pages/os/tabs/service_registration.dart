@@ -52,7 +52,7 @@ class _ServiceRegistrationState extends State<ServiceRegistration> {
   void _handleCadastrar() async {
     if (!(_formKey.currentState?.validate() ?? false)) return;
 
-    final servicoService = ServicoService();
+    final servicoService = ServiceService();
     final novoServico = Service(
       name: _nomeController.text.trim(),
       description: _descricaoController.text.trim(),
@@ -60,10 +60,10 @@ class _ServiceRegistrationState extends State<ServiceRegistration> {
     );
 
     try {
-      await servicoService.cadastrarServico(novoServico);
+      await servicoService.create(novoServico);
 
       if (mounted) {
-        Navigator.maybePop(context, novoServico.toMap());
+        Navigator.maybePop(context, novoServico.toFirestore());
       }
     } catch (e) {
       if (mounted) {
