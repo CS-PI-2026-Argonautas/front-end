@@ -1,4 +1,3 @@
-
 import 'package:flutter/material.dart';
 import 'package:frontend/fire_base/Enums/StatusOrderService.dart';
 import 'package:frontend/fire_base/services/client_service.dart';
@@ -60,8 +59,7 @@ class _DataOsState extends State<DataOs>
 
   bool get _formHabilitado => _os.client != null;
 
-  bool get _formValido =>
-      _os.client != null && _os.serviceAddress != null;
+  bool get _formValido => _os.client != null && _os.serviceAddress != null;
 
   bool get _equipamentoBloqueado => _os.equipmentBlocked;
 
@@ -134,10 +132,9 @@ class _DataOsState extends State<DataOs>
         ? ''
         : ', ${e.number}';
 
-    final complemento =
-        (e.complement == null || e.complement!.isEmpty)
-            ? ''
-            : ', ${e.complement}';
+    final complemento = (e.complement == null || e.complement!.isEmpty)
+        ? ''
+        : ', ${e.complement}';
 
     return '${e.street}$numero$complemento - ${e.city}/${e.state}';
   }
@@ -158,10 +155,7 @@ class _DataOsState extends State<DataOs>
 
   void _mostrarErro(String mensagem) {
     ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(mensagem),
-        behavior: SnackBarBehavior.floating,
-      ),
+      SnackBar(content: Text(mensagem), behavior: SnackBarBehavior.floating),
     );
   }
 
@@ -236,9 +230,7 @@ class _DataOsState extends State<DataOs>
       backgroundColor: colors.surfaceContainer,
       isScrollControlled: true,
       shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(
-          top: Radius.circular(24),
-        ),
+        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
       ),
       builder: (sheetContext) {
         return SelectionBottomSheet<Equipment>(
@@ -318,9 +310,7 @@ class _DataOsState extends State<DataOs>
       context: context,
       initialDate: _os.entryDate,
       firstDate: DateTime(2000),
-      lastDate: DateTime.now().add(
-        const Duration(days: 365),
-      ),
+      lastDate: DateTime.now().add(const Duration(days: 365)),
       helpText: 'Selecione a data de entrada',
       cancelText: 'Cancelar',
       confirmText: 'Selecionar',
@@ -340,9 +330,7 @@ class _DataOsState extends State<DataOs>
       context: context,
       initialDate: _os.exitDate ?? DateTime.now(),
       firstDate: DateTime(2000),
-      lastDate: DateTime.now().add(
-        const Duration(days: 365),
-      ),
+      lastDate: DateTime.now().add(const Duration(days: 365)),
       helpText: 'Alterar data de saída',
       cancelText: 'Cancelar',
       confirmText: 'Salvar',
@@ -378,9 +366,7 @@ class _DataOsState extends State<DataOs>
               child: Container(
                 decoration: const BoxDecoration(
                   color: Colors.white,
-                  borderRadius: BorderRadius.vertical(
-                    top: Radius.circular(26),
-                  ),
+                  borderRadius: BorderRadius.vertical(top: Radius.circular(26)),
                 ),
                 padding: const EdgeInsets.fromLTRB(24, 16, 24, 24),
                 child: SafeArea(
@@ -428,16 +414,16 @@ class _DataOsState extends State<DataOs>
                         autofocus: true,
                         maxLines: 7,
                         maxLength: ServiceOrder.reportLimit,
-                        textCapitalization:
-                            TextCapitalization.sentences,
-                        decoration: customInputDecoration(
-                          hintText: 'Digite observações sobre a OS...',
-                        ).copyWith(
-                          alignLabelWithHint: true,
-                          counterStyle: TextStyle(
-                            color: colors.onSurfaceVariant,
-                          ),
-                        ),
+                        textCapitalization: TextCapitalization.sentences,
+                        decoration:
+                            customInputDecoration(
+                              hintText: 'Digite observações sobre a OS...',
+                            ).copyWith(
+                              alignLabelWithHint: true,
+                              counterStyle: TextStyle(
+                                color: colors.onSurfaceVariant,
+                              ),
+                            ),
                         onChanged: (value) {
                           setModalState(() {});
 
@@ -457,17 +443,13 @@ class _DataOsState extends State<DataOs>
                           icon: const Icon(Icons.check),
                           label: const Text(
                             'Concluir edição',
-                            style: TextStyle(
-                              fontWeight: FontWeight.bold,
-                            ),
+                            style: TextStyle(fontWeight: FontWeight.bold),
                           ),
                           style: ElevatedButton.styleFrom(
                             elevation: 3,
                             backgroundColor: colors.primary,
                             foregroundColor: colors.onSecondary,
-                            padding: const EdgeInsets.symmetric(
-                              vertical: 16,
-                            ),
+                            padding: const EdgeInsets.symmetric(vertical: 16),
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(14),
                             ),
@@ -493,9 +475,7 @@ class _DataOsState extends State<DataOs>
       backgroundColor: colors.surface,
       isScrollControlled: true,
       shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(
-          top: Radius.circular(24),
-        ),
+        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
       ),
       builder: (sheetContext) {
         return SelectionBottomSheet<Client>(
@@ -522,9 +502,7 @@ class _DataOsState extends State<DataOs>
 
             if (retorno == null || !mounted) return;
 
-            final idCliente = retorno is Map
-                ? retorno['id']?.toString()
-                : null;
+            final idCliente = retorno is Map ? retorno['id']?.toString() : null;
 
             if (idCliente == null || idCliente.isEmpty) {
               _mostrarErro(
@@ -552,9 +530,7 @@ class _DataOsState extends State<DataOs>
               }
 
               if (clienteEncontrado == null) {
-                _mostrarErro(
-                  'Cliente cadastrado não foi encontrado.',
-                );
+                _mostrarErro('Cliente cadastrado não foi encontrado.');
                 return;
               }
 
@@ -563,9 +539,7 @@ class _DataOsState extends State<DataOs>
               debugPrint('Erro ao atualizar clientes: $e');
 
               if (mounted) {
-                _mostrarErro(
-                  'Não foi possível atualizar a lista de clientes.',
-                );
+                _mostrarErro('Não foi possível atualizar a lista de clientes.');
               }
             }
           },
@@ -586,9 +560,7 @@ class _DataOsState extends State<DataOs>
     final List<Address> enderecos;
 
     try {
-      enderecos = await _enderecoService.getByClientId(
-        cliente.id.toString(),
-      );
+      enderecos = await _enderecoService.getByClientId(cliente.id.toString());
     } catch (e) {
       debugPrint('Erro ao carregar endereços: $e');
 
@@ -605,9 +577,7 @@ class _DataOsState extends State<DataOs>
       backgroundColor: colors.surfaceContainer,
       isScrollControlled: true,
       shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(
-          top: Radius.circular(24),
-        ),
+        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
       ),
       builder: (sheetContext) {
         return SelectionBottomSheet<Address>(
@@ -634,10 +604,7 @@ class _DataOsState extends State<DataOs>
             if (novo == null || !mounted) return;
 
             try {
-              await _enderecoService.save(
-                cliente.id.toString(),
-                novo,
-              );
+              await _enderecoService.save(cliente.id.toString(), novo);
 
               if (!mounted) return;
 
@@ -672,19 +639,16 @@ class _DataOsState extends State<DataOs>
     super.build(context);
 
     return SingleChildScrollView(
-      padding: const EdgeInsets.symmetric(
-        horizontal: 16,
-        vertical: 18,
+      padding: EdgeInsets.only(
+        left: 16,
+        right: 16,
+        top: 18,
+        bottom: MediaQuery.of(context).viewInsets.bottom + 18,
       ),
       child: Center(
         child: ConstrainedBox(
           constraints: const BoxConstraints(maxWidth: 650),
-          child: Column(
-            spacing: 24,
-            children: [
-              _buildFormCard(),
-            ],
-          ),
+          child: Column(spacing: 24, children: [_buildFormCard()]),
         ),
       ),
     );
@@ -697,14 +661,9 @@ class _DataOsState extends State<DataOs>
       color: Colors.white,
       elevation: 8,
       shadowColor: Colors.black26,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(22),
-      ),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(22)),
       child: Padding(
-        padding: const EdgeInsets.symmetric(
-          horizontal: 24,
-          vertical: 28,
-        ),
+        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 28),
         child: Column(
           spacing: 18,
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -722,9 +681,7 @@ class _DataOsState extends State<DataOs>
             _buildClienteSelecionado(),
             _buildClienteEnderecoLabel(
               'Endereço*',
-              onAdd: _os.client == null
-                  ? null
-                  : _abrirListaEnderecos,
+              onAdd: _os.client == null ? null : _abrirListaEnderecos,
               addLabel: 'Adicionar Endereço',
               icon: Icons.home_outlined,
             ),
@@ -771,24 +728,23 @@ class _DataOsState extends State<DataOs>
                                 borderRadius: BorderRadius.circular(14),
                                 onTap: _selecionarDataEntrada,
                                 child: InputDecorator(
-                                  decoration: customInputDecoration(
-                                    hintText: 'Data',
-                                  ).copyWith(
-                                    suffixIcon: const Icon(
-                                      Icons.calendar_month_outlined,
-                                      size: 20,
-                                    ),
-                                    contentPadding:
-                                        const EdgeInsets.symmetric(
-                                      horizontal: 12,
-                                      vertical: 14,
-                                    ),
-                                  ),
+                                  decoration:
+                                      customInputDecoration(
+                                        hintText: 'Data',
+                                      ).copyWith(
+                                        suffixIcon: const Icon(
+                                          Icons.calendar_month_outlined,
+                                          size: 20,
+                                        ),
+                                        contentPadding:
+                                            const EdgeInsets.symmetric(
+                                              horizontal: 12,
+                                              vertical: 14,
+                                            ),
+                                      ),
                                   child: Text(
                                     _formatDate(_os.entryDate),
-                                    style: const TextStyle(
-                                      fontSize: 14,
-                                    ),
+                                    style: const TextStyle(fontSize: 14),
                                   ),
                                 ),
                               ),
@@ -808,29 +764,29 @@ class _DataOsState extends State<DataOs>
                                 borderRadius: BorderRadius.circular(14),
                                 onTap: _alterarDataSaida,
                                 child: InputDecorator(
-                                  decoration: customInputDecoration(
-                                    hintText: 'Automática',
-                                  ).copyWith(
-                                    filled: true,
-                                    fillColor:
-                                        colors.surfaceContainerLow,
-                                    suffixIcon: _os.exitDate == null
-                                        ? Icon(
-                                            Icons.hourglass_empty,
-                                            color: Colors.blueGrey.shade400,
-                                            size: 20,
-                                          )
-                                        : Icon(
-                                            Icons.edit_calendar_outlined,
-                                            color: Colors.blueGrey.shade400,
-                                            size: 20,
-                                          ),
-                                    contentPadding:
-                                        const EdgeInsets.symmetric(
-                                      horizontal: 12,
-                                      vertical: 14,
-                                    ),
-                                  ),
+                                  decoration:
+                                      customInputDecoration(
+                                        hintText: 'Automática',
+                                      ).copyWith(
+                                        filled: true,
+                                        fillColor: colors.surfaceContainerLow,
+                                        suffixIcon: _os.exitDate == null
+                                            ? Icon(
+                                                Icons.hourglass_empty,
+                                                color: Colors.blueGrey.shade400,
+                                                size: 20,
+                                              )
+                                            : Icon(
+                                                Icons.edit_calendar_outlined,
+                                                color: Colors.blueGrey.shade400,
+                                                size: 20,
+                                              ),
+                                        contentPadding:
+                                            const EdgeInsets.symmetric(
+                                              horizontal: 12,
+                                              vertical: 14,
+                                            ),
+                                      ),
                                   child: Text(
                                     _os.exitDate == null
                                         ? 'Indefinida'
@@ -867,36 +823,25 @@ class _DataOsState extends State<DataOs>
                           ),
                         ],
                       ),
-                    _buildFieldLabel(
-                      Icons.sync_alt,
-                      'Status',
-                    ),
+                    _buildFieldLabel(Icons.sync_alt, 'Status'),
                     _buildStatusField(),
-                    _buildFieldLabel(
-                      Icons.description_outlined,
-                      'Relatório',
-                    ),
+                    _buildFieldLabel(Icons.description_outlined, 'Relatório'),
                     InkWell(
                       onTap: _editarRelatorio,
                       borderRadius: BorderRadius.circular(16),
                       child: Container(
                         width: double.infinity,
-                        constraints: const BoxConstraints(
-                          minHeight: 130,
-                        ),
+                        constraints: const BoxConstraints(minHeight: 130),
                         padding: const EdgeInsets.all(16),
                         decoration: BoxDecoration(
                           color: Colors.white,
-                          border: Border.all(
-                            color: Colors.grey.shade400,
-                          ),
+                          border: Border.all(color: Colors.grey.shade400),
                           borderRadius: BorderRadius.circular(16),
                         ),
                         child: relatorio.isEmpty
                             ? Row(
                                 spacing: 6,
-                                crossAxisAlignment:
-                                    CrossAxisAlignment.start,
+                                crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
                                   Icon(
                                     Icons.edit_note,
@@ -915,8 +860,7 @@ class _DataOsState extends State<DataOs>
                               )
                             : Column(
                                 spacing: 18,
-                                crossAxisAlignment:
-                                    CrossAxisAlignment.start,
+                                crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
                                   Text(
                                     relatorio,
@@ -926,8 +870,7 @@ class _DataOsState extends State<DataOs>
                                     ),
                                   ),
                                   Row(
-                                    mainAxisAlignment:
-                                        MainAxisAlignment.end,
+                                    mainAxisAlignment: MainAxisAlignment.end,
                                     children: [
                                       Icon(
                                         Icons.edit_outlined,
@@ -968,13 +911,9 @@ class _DataOsState extends State<DataOs>
                           elevation: _formValido ? 3 : 0,
                           backgroundColor: colors.primary,
                           foregroundColor: colors.onSecondary,
-                          disabledBackgroundColor:
-                              colors.surfaceContainerLow,
-                          disabledForegroundColor:
-                              colors.onSurfaceVariant,
-                          padding: const EdgeInsets.symmetric(
-                            vertical: 18,
-                          ),
+                          disabledBackgroundColor: colors.surfaceContainerLow,
+                          disabledForegroundColor: colors.onSurfaceVariant,
+                          padding: const EdgeInsets.symmetric(vertical: 18),
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(14),
                           ),
@@ -1009,26 +948,17 @@ class _DataOsState extends State<DataOs>
   }) {
     return Row(
       children: [
-        SectionLabel(
-          icon: icon,
-          text: text,
-        ),
+        SectionLabel(icon: icon, text: text),
         const Spacer(),
         ElevatedButton.icon(
           onPressed: onAdd,
-          icon: const Icon(
-            Icons.add,
-            size: 18,
-          ),
+          icon: const Icon(Icons.add, size: 18),
           label: Text(addLabel),
           style: ElevatedButton.styleFrom(
             backgroundColor: colors.secondary,
             foregroundColor: Colors.white,
             elevation: 0,
-            padding: const EdgeInsets.symmetric(
-              horizontal: 14,
-              vertical: 10,
-            ),
+            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(8),
             ),
@@ -1054,10 +984,7 @@ class _DataOsState extends State<DataOs>
       ),
       child: Row(
         children: [
-          Icon(
-            Icons.person,
-            color: colors.secondary,
-          ),
+          Icon(Icons.person, color: colors.secondary),
           const SizedBox(width: 12),
           Expanded(
             child: Column(
@@ -1084,10 +1011,7 @@ class _DataOsState extends State<DataOs>
           ),
           IconButton(
             onPressed: _abrirListaClientes,
-            icon: Icon(
-              Icons.sync_alt,
-              color: colors.secondary,
-            ),
+            icon: Icon(Icons.sync_alt, color: colors.secondary),
             tooltip: 'Trocar cliente',
           ),
         ],
@@ -1111,10 +1035,7 @@ class _DataOsState extends State<DataOs>
       ),
       child: Row(
         children: [
-          Icon(
-            Icons.location_on,
-            color: colors.secondary,
-          ),
+          Icon(Icons.location_on, color: colors.secondary),
           const SizedBox(width: 12),
           Expanded(
             child: Column(
@@ -1141,10 +1062,7 @@ class _DataOsState extends State<DataOs>
           ),
           IconButton(
             onPressed: _abrirListaEnderecos,
-            icon: Icon(
-              Icons.sync_alt,
-              color: colors.primary,
-            ),
+            icon: Icon(Icons.sync_alt, color: colors.primary),
             tooltip: 'Trocar endereço',
           ),
         ],
@@ -1162,19 +1080,12 @@ class _DataOsState extends State<DataOs>
       ),
       child: Row(
         children: [
-          Icon(
-            Icons.info_outline,
-            color: Colors.amber.shade800,
-            size: 18,
-          ),
+          Icon(Icons.info_outline, color: Colors.amber.shade800, size: 18),
           const SizedBox(width: 8),
           Expanded(
             child: Text(
               'Selecione um cliente para liberar os demais campos.',
-              style: TextStyle(
-                fontSize: 13,
-                color: Colors.amber.shade900,
-              ),
+              style: TextStyle(fontSize: 13, color: Colors.amber.shade900),
             ),
           ),
         ],
@@ -1187,20 +1098,23 @@ class _DataOsState extends State<DataOs>
       spacing: 6,
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(
-          title,
-          style: TextStyle(
-            fontSize: 20,
-            fontWeight: FontWeight.bold,
-            color: colors.onSurface,
-          ),
+        Row(
+          children: [
+            Icon(Icons.description, color: colors.secondary),
+            const SizedBox(width: 8),
+            Text(
+              title,
+              style: TextStyle(
+                fontSize: 20,
+                fontWeight: FontWeight.bold,
+                color: colors.onSurface,
+              ),
+            ),
+          ],
         ),
         Text(
           subtitle,
-          style: TextStyle(
-            fontSize: 14,
-            color: colors.onSurfaceVariant,
-          ),
+          style: TextStyle(fontSize: 14, color: colors.onSurfaceVariant),
         ),
       ],
     );
@@ -1210,11 +1124,7 @@ class _DataOsState extends State<DataOs>
     return Row(
       spacing: 6,
       children: [
-        Icon(
-          icon,
-          size: 20,
-          color: colors.primary,
-        ),
+        Icon(icon, size: 20, color: colors.primary),
         Text(
           label,
           style: TextStyle(
@@ -1232,9 +1142,7 @@ class _DataOsState extends State<DataOs>
 
     if (!editableStatuses.contains(status)) {
       return InputDecorator(
-        decoration: customInputDecoration(
-          hintText: 'Status',
-        ).copyWith(
+        decoration: customInputDecoration(hintText: 'Status').copyWith(
           filled: true,
           fillColor: Colors.grey.shade100,
           suffixIcon: const Icon(
@@ -1269,9 +1177,7 @@ class _DataOsState extends State<DataOs>
 
     return DropdownButtonFormField<ServiceOrderStatus>(
       value: status,
-      decoration: customInputDecoration(
-        hintText: 'Selecione o status',
-      ),
+      decoration: customInputDecoration(hintText: 'Selecione o status'),
       items: editableStatuses.map((value) {
         return DropdownMenuItem<ServiceOrderStatus>(
           value: value,

@@ -11,6 +11,8 @@ import 'package:frontend/ui/pages/product_registration/product_registration.dart
 import 'package:frontend/ui/widgets/bottom_sheet/bottom_sheet.dart';
 import 'package:frontend/ui/widgets/floatingButton.dart';
 
+// onEdit: (servico) async {
+//                 await _abrirEdicao(servico);
 class TollsOs extends StatefulWidget {
   final ServiceOrder serviceOrder;
 
@@ -46,6 +48,44 @@ class OrderServiceState extends State<TollsOs>
     return _os.parts.fold<int>(0, (total, peca) => total + peca.subtotalCents);
   }
 
+  Future<void> _abrirEdicao(Item peca) async {
+    if (peca.id == null) return;
+
+    final Item? pecaAtualizada = await Navigator.push<Item>(
+      context,
+      MaterialPageRoute(
+        builder: (context) =>
+            ProductRegistration(abertoPelaOS: true, itemEdicao: peca),
+      ),
+    );
+
+    if (!mounted || pecaAtualizada == null) return;
+
+    _atualizarPecaNaOS(pecaAtualizada);
+  }
+
+  void _atualizarPecaNaOS(Item pecaAtualizada) {
+    if (pecaAtualizada.id == null) return;
+
+    final index = _os.parts.indexWhere(
+      (item) => item.partId == pecaAtualizada.id,
+    );
+
+    if (index == -1) return;
+
+    setState(() {
+      final pecaAntiga = _os.parts[index];
+
+      _os.parts[index] = ServiceOrderPart(
+        partId: pecaAntiga.partId,
+        name: pecaAtualizada.name,
+        quantity: pecaAntiga.quantity,
+        unitPriceCents: pecaAtualizada.valueInCents,
+        discountCents: pecaAntiga.discountCents,
+      );
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     super.build(context);
@@ -60,93 +100,101 @@ class OrderServiceState extends State<TollsOs>
 
           body: SafeArea(
             child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 18),
-              // child: Center(
-              child: ConstrainedBox(
-                constraints: const BoxConstraints(maxWidth: 650),
-                child: Card(
-                  color: Colors.white,
-                  elevation: 8,
-                  shadowColor: Colors.black26,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(22),
-                  ),
-                  child: Padding(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 24,
-                      vertical: 28,
+              padding: EdgeInsets.only(
+                left: 16,
+                right: 16,
+                top: 18,
+                bottom: MediaQuery.of(context).viewInsets.bottom + 18,
+              ),
+              child: Align(
+                alignment: Alignment.topCenter,
+                child: ConstrainedBox(
+                  constraints: const BoxConstraints(maxWidth: 650),
+                  child: Card(
+                    color: Colors.white,
+                    elevation: 8,
+                    shadowColor: Colors.black26,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(22),
                     ),
-                    child: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Row(
-                              children: [
-                                Icon(Icons.build, color: colors.secondary),
-                                const SizedBox(width: 8),
-                                Text(
-                                  'Subtotal de peças',
-                                  style: TextStyle(
-                                    color: colors.onSurface,
-                                    fontSize: 20,
-                                    fontWeight: FontWeight.bold,
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 24,
+                        vertical: 28,
+                      ),
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Row(
+                                children: [
+                                  Icon(Icons.build, color: colors.secondary),
+                                  const SizedBox(width: 8),
+                                  Text(
+                                    'Subtotal de peças',
+                                    style: TextStyle(
+                                      color: colors.onSurface,
+                                      fontSize: 20,
+                                      fontWeight: FontWeight.bold,
+                                    ),
                                   ),
-                                ),
-                              ],
-                            ),
-                            Text(
-                              Dinheiro(_calcularSubtotal()).formatado(),
-                              style: TextStyle(
-                                color: colors.onSurface,
-                                fontSize: 18,
-                                fontWeight: FontWeight.w600,
+                                ],
                               ),
-                            ),
-                          ],
-                        ),
-
-                        const SizedBox(height: 20),
-
-                        if (snapshot.connectionState == ConnectionState.waiting)
-                          const LinearProgressIndicator(),
-
-                        if (snapshot.hasError)
-                          Padding(
-                            padding: const EdgeInsets.all(12),
-                            child: Text(
-                              'Erro ao carregar peças: ${snapshot.error}',
-                              style: TextStyle(color: colors.error),
-                            ),
+                              Text(
+                                Dinheiro(_calcularSubtotal()).formatado(),
+                                style: TextStyle(
+                                  color: colors.onSurface,
+                                  fontSize: 20,
+                                  fontWeight: FontWeight.w600,
+                                ),
+                              ),
+                            ],
                           ),
 
-                        _os.parts.isEmpty
-                            ? Center(
-                                child: Text(
-                                  'Nenhuma peça adicionada',
-                                  style: TextStyle(
-                                    color: colors.onSurfaceVariant,
-                                    fontSize: 16,
-                                  ),
-                                ),
-                              )
-                            : ListView.separated(
-                                shrinkWrap: true,
-                                physics: const NeverScrollableScrollPhysics(),
-                                padding: const EdgeInsets.all(4),
-                                itemCount: _os.parts.length,
-                                separatorBuilder: (context, index) {
-                                  return const SizedBox(height: 12);
-                                },
-                                itemBuilder: (context, index) {
-                                  return _buildPieceCard(
-                                    _os.parts[index],
-                                    index,
-                                  );
-                                },
+                          const SizedBox(height: 18),
+
+                          if (snapshot.connectionState ==
+                              ConnectionState.waiting)
+                            const LinearProgressIndicator(),
+
+                          if (snapshot.hasError)
+                            Padding(
+                              padding: const EdgeInsets.all(12),
+                              child: Text(
+                                'Erro ao carregar peças: ${snapshot.error}',
+                                style: TextStyle(color: colors.error),
                               ),
-                      ],
+                            ),
+
+                          _os.parts.isEmpty
+                              ? Center(
+                                  child: Text(
+                                    'Nenhuma peça adicionada',
+                                    style: TextStyle(
+                                      color: colors.onSurfaceVariant,
+                                      fontSize: 16,
+                                    ),
+                                  ),
+                                )
+                              : ListView.separated(
+                                  shrinkWrap: true,
+                                  physics: const NeverScrollableScrollPhysics(),
+                                  padding: const EdgeInsets.all(4),
+                                  itemCount: _os.parts.length,
+                                  separatorBuilder: (context, index) {
+                                    return const SizedBox(height: 12);
+                                  },
+                                  itemBuilder: (context, index) {
+                                    return _buildPieceCard(
+                                      _os.parts[index],
+                                      index,
+                                    );
+                                  },
+                                ),
+                        ],
+                      ),
                     ),
                   ),
                 ),
@@ -172,32 +220,44 @@ class OrderServiceState extends State<TollsOs>
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
       ),
-      builder: (context) {
-        return SelectionBottomSheet<Item>(
-          title: 'Selecionar peça',
-          items: pecasDisponiveis,
-          searchText: 'Buscar peça...',
-          actionText: 'Nova peça',
-          itemIcon: Icons.build,
+      builder: (sheetContext) {
+        return StreamBuilder<List<Item>>(
+          stream: _pecasStream,
+          initialData: pecasDisponiveis,
+          builder: (context, snapshot) {
+            final pecas = snapshot.data ?? pecasDisponiveis;
 
-          itemTitle: (peca) => peca.name,
+            return SelectionBottomSheet<Item>(
+              title: 'Selecionar peça',
+              items: pecas,
+              searchText: 'Buscar peça...',
+              actionText: 'Nova peça',
+              itemIcon: Icons.build,
 
-          itemSubtitle: (peca) {
-            return Dinheiro(peca.valueInCents).formatado();
-          },
+              itemTitle: (peca) => peca.name,
 
-          onSelect: (peca) {
-            _adicionarPeca(peca);
-            Navigator.pop(context);
-          },
+              itemSubtitle: (peca) {
+                return Dinheiro(peca.valueInCents).formatado();
+              },
 
-          onAction: () {
-            Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (context) =>
-                    const ProductRegistration(abertoPelaOS: true),
-              ),
+              onEdit: (peca) async {
+                await _abrirEdicao(peca);
+              },
+
+              onSelect: (peca) {
+                _adicionarPeca(peca);
+                Navigator.pop(sheetContext);
+              },
+
+              onAction: () async {
+                await Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) =>
+                        const ProductRegistration(abertoPelaOS: true),
+                  ),
+                );
+              },
             );
           },
         );
@@ -302,7 +362,7 @@ class OrderServiceState extends State<TollsOs>
                     style: TextStyle(
                       color: colors.onSurface,
                       fontWeight: FontWeight.bold,
-                      fontSize: 18,
+                      fontSize: 16,
                     ),
                   ),
 

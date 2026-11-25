@@ -1,4 +1,3 @@
-
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:frontend/ui/style/ColorScheme.dart' as custom_colors;
@@ -9,11 +8,7 @@ class ValuesOs extends StatefulWidget {
   final ServiceOrder serviceOrder;
   final VoidCallback? onConcluir;
 
-  const ValuesOs({
-    super.key,
-    required this.serviceOrder,
-    this.onConcluir,
-  });
+  const ValuesOs({super.key, required this.serviceOrder, this.onConcluir});
 
   @override
   State<ValuesOs> createState() => _ValuesOsState();
@@ -52,9 +47,7 @@ class _ValuesOsState extends State<ValuesOs>
   }
 
   String _formatarInput(int centavos) {
-    return (centavos / 100)
-        .toStringAsFixed(2)
-        .replaceAll('.', ',');
+    return (centavos / 100).toStringAsFixed(2).replaceAll('.', ',');
   }
 
   int _converterParaCentavos(String valor) {
@@ -63,11 +56,8 @@ class _ValuesOsState extends State<ValuesOs>
     if (normalizado.isEmpty) return 0;
 
     if (normalizado.contains(',') && normalizado.contains('.')) {
-      if (normalizado.lastIndexOf(',') >
-          normalizado.lastIndexOf('.')) {
-        normalizado = normalizado
-            .replaceAll('.', '')
-            .replaceAll(',', '.');
+      if (normalizado.lastIndexOf(',') > normalizado.lastIndexOf('.')) {
+        normalizado = normalizado.replaceAll('.', '').replaceAll(',', '.');
       } else {
         normalizado = normalizado.replaceAll(',', '');
       }
@@ -95,10 +85,7 @@ class _ValuesOsState extends State<ValuesOs>
   }
 
   int get _subtotalPecas {
-    return os.parts.fold<int>(
-      0,
-      (total, peca) => total + peca.subtotalCents,
-    );
+    return os.parts.fold<int>(0, (total, peca) => total + peca.subtotalCents);
   }
 
   int get _subtotalServicos {
@@ -113,10 +100,7 @@ class _ValuesOsState extends State<ValuesOs>
   int get _desconto => os.globalDiscountCents;
 
   int get _total {
-    return _subtotalPecas +
-        _subtotalServicos +
-        _taxas -
-        _desconto;
+    return _subtotalPecas + _subtotalServicos + _taxas - _desconto;
   }
 
   void _concluir() {
@@ -129,9 +113,7 @@ class _ValuesOsState extends State<ValuesOs>
     if (_total < 0) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
-          content: Text(
-            'O desconto não pode deixar o total negativo.',
-          ),
+          content: Text('O desconto não pode deixar o total negativo.'),
         ),
       );
       return;
@@ -142,9 +124,7 @@ class _ValuesOsState extends State<ValuesOs>
 
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
-          content: Text(
-            'Não foi possível concluir: ação não configurada.',
-          ),
+          content: Text('Não foi possível concluir: ação não configurada.'),
         ),
       );
       return;
@@ -164,9 +144,11 @@ class _ValuesOsState extends State<ValuesOs>
     final total = _total;
 
     return SingleChildScrollView(
-      padding: const EdgeInsets.symmetric(
-        horizontal: 16,
-        vertical: 18,
+      padding: EdgeInsets.only(
+        left: 16,
+        right: 16,
+        top: 18,
+        bottom: MediaQuery.of(context).viewInsets.bottom + 18,
       ),
       child: Center(
         child: ConstrainedBox(
@@ -179,10 +161,7 @@ class _ValuesOsState extends State<ValuesOs>
               borderRadius: BorderRadius.circular(22),
             ),
             child: Padding(
-              padding: const EdgeInsets.symmetric(
-                horizontal: 24,
-                vertical: 28,
-              ),
+              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 28),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -239,10 +218,7 @@ class _ValuesOsState extends State<ValuesOs>
 
                   const SizedBox(height: 20),
 
-                  Divider(
-                    color: colors.outline,
-                    thickness: 1.2,
-                  ),
+                  Divider(color: colors.outline, thickness: 1.2),
 
                   const SizedBox(height: 12),
 
@@ -267,9 +243,7 @@ class _ValuesOsState extends State<ValuesOs>
                         elevation: 3,
                         backgroundColor: colors.primary,
                         foregroundColor: colors.onSecondary,
-                        padding: const EdgeInsets.symmetric(
-                          vertical: 18,
-                        ),
+                        padding: const EdgeInsets.symmetric(vertical: 18),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(14),
                         ),
@@ -302,28 +276,28 @@ class _ValuesOsState extends State<ValuesOs>
     );
   }
 
-  Widget _buildSectionTitle(
-    String title,
-    String subtitle,
-  ) {
+  Widget _buildSectionTitle(String title, String subtitle) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(
-          title,
-          style: TextStyle(
-            fontSize: 20,
-            fontWeight: FontWeight.bold,
-            color: colors.onSurface,
-          ),
+        Row(
+          children: [
+            Icon(Icons.attach_money, color: colors.secondary),
+            const SizedBox(width: 8),
+            Text(
+              title,
+              style: TextStyle(
+                fontSize: 20,
+                fontWeight: FontWeight.bold,
+                color: colors.onSurface,
+              ),
+            ),
+          ],
         ),
         const SizedBox(height: 6),
         Text(
           subtitle,
-          style: TextStyle(
-            fontSize: 14,
-            color: colors.onSurfaceVariant,
-          ),
+          style: TextStyle(fontSize: 14, color: colors.onSurfaceVariant),
         ),
       ],
     );
@@ -346,11 +320,7 @@ class _ValuesOsState extends State<ValuesOs>
         children: [
           Row(
             children: [
-              Icon(
-                icon,
-                size: 20,
-                color: colors.secondary,
-              ),
+              Icon(icon, size: 20, color: colors.secondary),
               const SizedBox(width: 8),
               Expanded(
                 child: Text(
@@ -376,9 +346,7 @@ class _ValuesOsState extends State<ValuesOs>
           if (children.isEmpty)
             Text(
               'Nenhum item adicionado.',
-              style: TextStyle(
-                color: colors.onSurfaceVariant,
-              ),
+              style: TextStyle(color: colors.onSurfaceVariant),
             )
           else
             ...children,
@@ -387,38 +355,22 @@ class _ValuesOsState extends State<ValuesOs>
     );
   }
 
-  Widget _buildItem({
-    required String name,
-    required int value,
-  }) {
+  Widget _buildItem({required String name, required int value}) {
     return Padding(
-      padding: const EdgeInsets.symmetric(
-        horizontal: 4,
-        vertical: 3,
-      ),
+      padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 3),
       child: Row(
         children: [
-          Icon(
-            Icons.chevron_right,
-            size: 18,
-            color: colors.onSurfaceVariant,
-          ),
+          Icon(Icons.chevron_right, size: 18, color: colors.onSurfaceVariant),
           const SizedBox(width: 4),
           Expanded(
             child: Text(
               name,
-              style: TextStyle(
-                color: colors.onSurfaceVariant,
-                fontSize: 14,
-              ),
+              style: TextStyle(color: colors.onSurfaceVariant, fontSize: 14),
             ),
           ),
           Text(
             Dinheiro(value).formatado(),
-            style: TextStyle(
-              color: colors.onSurfaceVariant,
-              fontSize: 14,
-            ),
+            style: TextStyle(color: colors.onSurfaceVariant, fontSize: 14),
           ),
         ],
       ),
@@ -432,17 +384,11 @@ class _ValuesOsState extends State<ValuesOs>
     required Color cor,
   }) {
     return Container(
-      padding: const EdgeInsets.symmetric(
-        horizontal: 14,
-        vertical: 10,
-      ),
+      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
       decoration: BoxDecoration(
         color: cor.withOpacity(0.09),
         borderRadius: BorderRadius.circular(14),
-        border: Border.all(
-          color: cor.withOpacity(0.3),
-          width: 0.8,
-        ),
+        border: Border.all(color: cor.withOpacity(0.3), width: 0.8),
       ),
       child: Row(
         children: [
@@ -464,9 +410,7 @@ class _ValuesOsState extends State<ValuesOs>
                 decimal: true,
               ),
               inputFormatters: [
-                FilteringTextInputFormatter.allow(
-                  RegExp(r'[0-9,.]'),
-                ),
+                FilteringTextInputFormatter.allow(RegExp(r'[0-9,.]')),
               ],
               textAlign: TextAlign.end,
               decoration: const InputDecoration(
@@ -486,10 +430,7 @@ class _ValuesOsState extends State<ValuesOs>
   Widget _buildTotalCard(int total) {
     return Container(
       width: double.infinity,
-      padding: const EdgeInsets.symmetric(
-        horizontal: 18,
-        vertical: 18,
-      ),
+      padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 18),
       decoration: BoxDecoration(
         color: colors.primary.withOpacity(0.08),
         borderRadius: BorderRadius.circular(16),
@@ -536,9 +477,7 @@ class _ValuesOsState extends State<ValuesOs>
           Text(
             Dinheiro(total).formatado(),
             style: TextStyle(
-              color: total < 0
-                  ? colors.error
-                  : colors.secondary,
+              color: total < 0 ? colors.error : colors.secondary,
               fontSize: 20,
               fontWeight: FontWeight.bold,
             ),

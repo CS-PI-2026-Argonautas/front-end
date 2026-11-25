@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-
 import 'package:frontend/ui/style/ColorScheme.dart' as custom_colors;
 import 'package:frontend/ui/style/inputDecorationStyles.dart';
 import 'package:frontend/fire_base/Enums/ProductType.dart' as tipos;
 import 'package:frontend/fire_base/models/item.dart';
+import 'package:frontend/fire_base/models/dinheiro.dart';
 import 'package:frontend/ui/widgets/form/validator.dart';
 import 'package:frontend/ui/widgets/form/form_card.dart';
 import 'package:frontend/ui/widgets/form/labeled_form.dart';
@@ -13,11 +13,13 @@ import 'package:frontend/ui/widgets/form/action_buttons.dart';
 class ProductForm extends StatefulWidget {
   final ValueChanged<Item> onSave;
   final VoidCallback onCancel;
+  final Item? itemEdicao;
 
   const ProductForm({
     super.key,
     required this.onSave,
     required this.onCancel,
+    this.itemEdicao,
   });
 
   @override
@@ -34,6 +36,31 @@ class _ProductFormState extends State<ProductForm> {
 
   tipos.ProductType? tipoSelecionado;
 
+  bool get modoEdicao => widget.itemEdicao != null;
+
+  @override
+  void initState() {
+    super.initState();
+
+    _preencherFormulario();
+  }
+
+  void _preencherFormulario() {
+    final item = widget.itemEdicao;
+
+    if (item == null) return;
+
+    _nameController.text = item.name;
+
+    _descriptionController.text = item.description ?? '';
+
+    _valueController.text = Dinheiro(item.valueInCents).formatado();
+
+    _minimumQuantityController.text = item.minimumQuantity.toString();
+
+    tipoSelecionado = item.type;
+  }
+
   @override
   void dispose() {
     _nameController.dispose();
@@ -45,72 +72,75 @@ class _ProductFormState extends State<ProductForm> {
   }
 
   int _parseValueInCents(String value) {
-  final input = value.trim();
+    final input = value.trim();
 
-  if (input.isEmpty) {
-    throw const FormatException('Valor vazio.');
-  }
+    if (input.isEmpty) {
+      throw const FormatException('Valor vazio.');
+    }
 
-  String integerPart;
-  String decimalPart;
+    String integerPart;
+    String decimalPart;
 
-  if (input.contains(',')) {
-    final parts = input.split(',');
+    if (input.contains(',')) {
+      final parts = input.split(',');
 
-    if (parts.length != 2) {
+      if (parts.length != 2) {
+        throw const FormatException('Valor inválido.');
+      }
+
+      integerPart = parts[0].replaceAll('.', '');
+      decimalPart = parts[1];
+    } else if (input.contains('.')) {
+      final parts = input.split('.');
+
+      if (parts.length == 2 && parts[1].length <= 2) {
+        integerPart = parts[0];
+        decimalPart = parts[1];
+      } else {
+        integerPart = input.replaceAll('.', '');
+        decimalPart = '00';
+      }
+    } else {
+      integerPart = input;
+      decimalPart = '00';
+    }
+
+    if (integerPart.isEmpty) {
+      integerPart = '0';
+    }
+
+    if (decimalPart.length == 1) {
+      decimalPart += '0';
+    }
+
+    if (decimalPart.length != 2 ||
+        !RegExp(r'^\d+$').hasMatch(integerPart) ||
+        !RegExp(r'^\d{2}$').hasMatch(decimalPart)) {
       throw const FormatException('Valor inválido.');
     }
 
-    integerPart = parts[0].replaceAll('.', '');
-    decimalPart = parts[1];
-  } else if (input.contains('.')) {
-   
-    final parts = input.split('.');
-
-    if (parts.length == 2 && parts[1].length <= 2) {
-      integerPart = parts[0];
-      decimalPart = parts[1];
-    } else {
-
-      integerPart = input.replaceAll('.', '');
-      decimalPart = '00';
-    }
-  } else {
-  
-    integerPart = input;
-    decimalPart = '00';
+    return int.parse(integerPart) * 100 + int.parse(decimalPart);
   }
 
-  if (integerPart.isEmpty) {
-    integerPart = '0';
-  }
-
-  if (decimalPart.length == 1) {
-    decimalPart += '0';
-  }
-
-  if (decimalPart.length != 2 ||
-      !RegExp(r'^\d+$').hasMatch(integerPart) ||
-      !RegExp(r'^\d{2}$').hasMatch(decimalPart)) {
-    throw const FormatException('Valor inválido.');
-  }
-
-  return int.parse(integerPart) * 100 + int.parse(decimalPart);
-}
   void _save() {
     final bool isValid = _formKey.currentState!.validate();
 
-    if (!isValid) {
-      return;
-    }
+    if (!isValid) return;
 
     final String description = _descriptionController.text.trim();
 
     final item = Item(
+      // Preserva o identificador durante a edição.
+      id: widget.itemEdicao?.id,
+
       name: _nameController.text.trim(),
+
       description: description.isEmpty ? null : description,
+
       valueInCents: _parseValueInCents(_valueController.text),
+
       minimumQuantity: int.parse(_minimumQuantityController.text),
+
       type: tipoSelecionado!,
     );
 
@@ -123,8 +153,13 @@ class _ProductFormState extends State<ProductForm> {
 
     return FormCard(
       formKey: _formKey,
-      title: "Informações do produto",
-      subtitle: "Complete os campos abaixo com os dados necessários.",
+
+      title: modoEdicao ? "Editar produto" : "Informações do produto",
+
+      subtitle: modoEdicao
+          ? "Altere os dados do produto selecionado."
+          : "Complete os campos abaixo com os dados necessários.",
+
       children: [
         LabeledFormField(
           icon: Icons.inventory_2,
@@ -132,9 +167,7 @@ class _ProductFormState extends State<ProductForm> {
           field: TextFormField(
             controller: _nameController,
             validator: requiredValidator,
-            decoration: customInputDecoration(
-              hintText: 'Balança',
-            ),
+            decoration: customInputDecoration(hintText: 'Balança'),
           ),
         ),
 
@@ -157,20 +190,13 @@ class _ProductFormState extends State<ProductForm> {
           field: TextFormField(
             controller: _valueController,
             validator: requiredValidator,
-            keyboardType: const TextInputType.numberWithOptions(
-              decimal: true,
-            ),
+            keyboardType: const TextInputType.numberWithOptions(decimal: true),
             inputFormatters: [
-              FilteringTextInputFormatter.allow(
-                RegExp(r'[0-9,.]'),
-              ),
+              FilteringTextInputFormatter.allow(RegExp(r'[0-9,.]')),
             ],
             decoration: customInputDecoration(
               hintText: '0,00',
-              prefixIcon: Icon(
-                Icons.attach_money,
-                color: colors.primary,
-              ),
+              prefixIcon: Icon(Icons.attach_money, color: colors.primary),
             ),
           ),
         ),
@@ -183,21 +209,17 @@ class _ProductFormState extends State<ProductForm> {
             validator: requiredValidator,
             maxLength: 2,
             keyboardType: TextInputType.number,
-            inputFormatters: [
-              FilteringTextInputFormatter.digitsOnly,
-            ],
+            inputFormatters: [FilteringTextInputFormatter.digitsOnly],
             decoration: customInputDecoration(
               hintText: '10',
-              prefixIcon: Icon(
-                Icons.numbers,
-                color: colors.primary,
-              ),
+              prefixIcon: Icon(Icons.numbers, color: colors.primary),
             ),
           ),
         ),
 
         DropdownButtonFormField<tipos.ProductType>(
           value: tipoSelecionado,
+
           validator: (value) {
             if (value == null) {
               return 'Campo obrigatório';
@@ -205,19 +227,16 @@ class _ProductFormState extends State<ProductForm> {
 
             return null;
           },
+
           decoration: customInputDecoration(
             hintText: "Selecione o tipo",
-            prefixIcon: Icon(
-              Icons.category,
-              color: colors.primary,
-            ),
+            prefixIcon: Icon(Icons.category, color: colors.primary),
           ),
+
           items: tipos.ProductType.values.map((tipo) {
-            return DropdownMenuItem(
-              value: tipo,
-              child: Text(tipo.label),
-            );
+            return DropdownMenuItem(value: tipo, child: Text(tipo.label));
           }).toList(),
+
           onChanged: (value) {
             setState(() {
               tipoSelecionado = value;
@@ -225,10 +244,12 @@ class _ProductFormState extends State<ProductForm> {
           },
         ),
 
-       ActionButtons(
+        ActionButtons(
           formKey: _formKey,
           colors: colors,
-          textoConfirmar: 'Salvar',
+
+          textoConfirmar: modoEdicao ? 'Salvar alterações' : 'Cadastrar',
+
           onCancel: widget.onCancel,
           onSave: _save,
         ),

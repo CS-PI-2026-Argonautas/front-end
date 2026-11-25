@@ -31,8 +31,6 @@ class ServiceRegistration extends StatefulWidget {
 
   final Service? initialService;
 
-  // Indica se a tela foi aberta pela OS.
-  // Quando true, o menu lateral não será apresentado.
   final bool abertoPelaOS;
 
   const ServiceRegistration({
@@ -79,7 +77,6 @@ class _ServiceRegistrationState extends State<ServiceRegistration> {
     _nameController.text = service.name;
     _descriptionController.text = service.description;
 
-    // Converte centavos para o formato monetário brasileiro.
     _valueController.text = Dinheiro(
       service.valueInCents,
     ).formatado().replaceFirst('R\$', '').trim();
@@ -98,8 +95,6 @@ class _ServiceRegistrationState extends State<ServiceRegistration> {
     return Dinheiro.fromTexto(_valueController.text).centavos;
   }
 
-  // Executa a gravação sem bloquear a navegação.
-  // O Firestore mantém as operações pendentes para sincronização.
   Future<void> _persistir(Service service) async {
     try {
       if (_editando) {
@@ -146,10 +141,8 @@ class _ServiceRegistrationState extends State<ServiceRegistration> {
       _salvando = true;
     });
 
-    // Não aguarda a confirmação do servidor.
     unawaited(_persistir(service));
 
-    // A listagem será atualizada pelo watchServices().
     widget.onSubmit?.call();
 
     Navigator.maybePop(context);
@@ -170,10 +163,13 @@ class _ServiceRegistrationState extends State<ServiceRegistration> {
 
       appBar: Header(
         onBack: widget.onBack ?? () => Navigator.maybePop(context),
-        title: _editando ? 'Edição de serviços' : 'Cadastro de serviços',
+        title: _editando
+            ? 'Editar serviço'
+            : widget.abertoPelaOS
+            ? 'Novo serviço'
+            : 'Cadastro de serviços',
       ),
 
-      // A OS não deve apresentar o menu lateral.
       endDrawer: widget.abertoPelaOS
           ? null
           : Menu(
