@@ -17,12 +17,15 @@ import 'package:frontend/fire_base/models/equipment.dart';
 import 'package:frontend/fire_base/services/equipment_service.dart';
 import 'package:frontend/ui/pages/equipment_data/equipment_data.dart';
 import 'package:frontend/fire_base/models/work_order.dart';
+import 'dart:async';
+import 'package:frontend/fire_base/services/work_order_service.dart';
 
 class DataOs extends StatefulWidget {
   final DateTime? dataEntrada;
   final DateTime? dataSaida;
   final String? status;
   final String? relatorio;
+  final WorkOrder? ordemInicial;
 
   final ValueChanged<DateTime>? onDataEntradaChanged;
   final ValueChanged<String>? onStatusChanged;
@@ -44,6 +47,7 @@ class DataOs extends StatefulWidget {
     this.onDataSaidaChanged,
     this.avancarTab,
     required this.onDadosObrigatoriosChanged,
+    this.ordemInicial,
   });
 
   @override
@@ -64,6 +68,7 @@ class _DataOsState extends State<DataOs> {
     };
   }
 
+  final WorkOrderService _workOrderService = WorkOrderService();
   bool _equipamentoBloqueado = false;
   final EquipmentService _equipamentoService = EquipmentService();
   final colors = custom_colors.colorScheme;
@@ -112,6 +117,25 @@ class _DataOsState extends State<DataOs> {
     widget.onDadosObrigatoriosChanged(_dadosObrigatoriosPreenchidos);
   }
 
+  Future<void> _persistirBloqueio(String novoStatus, DateTime saida) async {
+    final id = widget.ordemInicial?.id;
+
+    if (id == null) {
+      debugPrint('OS ainda não possui identificação no Firestore.');
+      return;
+    }
+
+    try {
+      await _workOrderService.registrarBloqueio(id, novoStatus, saida);
+    } catch (e) {
+      debugPrint('Erro ao sincronizar bloqueio: $e');
+
+      if (mounted) {
+        _mostrarErro('Não foi possível sincronizar o bloqueio da OS.');
+      }
+    }
+  }
+
   static const editableStatuses = [
     'CANCELADA',
     'EM_CONSERTO',
@@ -125,9 +149,13 @@ class _DataOsState extends State<DataOs> {
     super.initState();
 
     dataEntrada = widget.dataEntrada ?? DateTime.now();
-    dataSaida = widget.dataSaida;
+    dataSaida = widget.ordemInicial?.dataSaida ?? widget.dataSaida;
 
-    status = widget.status ?? 'EM_CONSERTO';
+    status = widget.ordemInicial?.status ?? widget.status ?? 'EM_CONSERTO';
+
+    _equipamentoBloqueado =
+        (widget.ordemInicial?.equipamentoBloqueado ?? false) ||
+        WorkOrder.statusBloqueia(status);
 
     relatorio = widget.relatorio ?? '';
     _relatorioController.text = relatorio;
@@ -207,7 +235,6 @@ class _DataOsState extends State<DataOs> {
   }
 
   Future<void> _abrirCadastroEquipamento([dynamic equipamentoInicial]) async {
-    
     final resultado = await Navigator.push<dynamic>(
       context,
       MaterialPageRoute(
@@ -225,12 +252,10 @@ class _DataOsState extends State<DataOs> {
   }
 
   Future<void> _buscarEquipamento() async {
-  if (_equipamentoBloqueado) {
-    _mostrarErro(
-      'Não é possível trocar um equipamento bloqueado.',
-    );
-    return;
-  }
+    if (_equipamentoBloqueado) {
+      _mostrarErro('Não é possível trocar um equipamento bloqueado.');
+      return;
+    }
 
     final List<Equipment> equipamentos;
 
@@ -1155,6 +1180,10 @@ class _DataOsState extends State<DataOs> {
         setState(() {
           _aplicarStatus(value);
         });
+
+        if (WorkOrder.statusBloqueia(value) && dataSaida != null) {
+          unawaited(_persistirBloqueio(value, dataSaida!));
+        }
 
         widget.onStatusChanged?.call(value);
 

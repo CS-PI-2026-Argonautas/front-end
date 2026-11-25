@@ -4,11 +4,16 @@ import 'package:frontend/ui/pages/os/tabs/os_service.dart';
 import 'package:frontend/ui/pages/os/tabs/values_os.dart';
 import 'package:frontend/ui/pages/os/tabs/tolls_os.dart';
 import 'package:frontend/ui/style/ColorScheme.dart' as custom_colors;
+import 'package:frontend/fire_base/models/work_order.dart';
 
 class Tabbar extends StatefulWidget {
   final dynamic serviceOrderNumber;
-
-  const Tabbar({super.key, required this.serviceOrderNumber});
+  final WorkOrder? ordemInicial;
+  const Tabbar({
+    super.key,
+    required this.serviceOrderNumber,
+    this.ordemInicial,
+  });
 
   @override
   State<Tabbar> createState() => _TabbarState();
@@ -26,7 +31,7 @@ class _TabbarState extends State<Tabbar> with SingleTickerProviderStateMixin {
   @override
   void initState() {
     super.initState();
-
+    _status = widget.ordemInicial?.status ?? 'EM_CONSERTO';
     _tabController = TabController(length: 4, vsync: this);
   }
 
@@ -130,6 +135,7 @@ class _TabbarState extends State<Tabbar> with SingleTickerProviderStateMixin {
 
         children: [
           DataOs(
+            ordemInicial: widget.ordemInicial,
             status: _status,
             onStatusChanged: _alterarStatus,
             onDadosObrigatoriosChanged: _atualizarDadosObrigatorios,

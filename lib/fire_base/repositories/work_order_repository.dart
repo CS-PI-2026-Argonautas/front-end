@@ -33,7 +33,23 @@ class WorkOrderRepository {
   }
 
   Future<void> save(WorkOrder order) async {
-    await _collection.doc(order.id).set(order.toFirestore());
+    await _collection
+        .doc(order.id)
+        .set(order.toFirestore(), SetOptions(merge: true));
+  }
+
+  Future<void> registrarBloqueio(
+    String id,
+    String status,
+    DateTime dataSaida,
+  ) async {
+    if (!WorkOrder.statusBloqueia(status)) return;
+
+    await _collection.doc(id).update({
+      'equipamento_bloqueado': true,
+      'status': status,
+      'data_saida': Timestamp.fromDate(dataSaida),
+    });
   }
 
   Future<void> delete(String id) async {

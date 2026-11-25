@@ -22,4 +22,12 @@ class WorkOrderService {
   Future<void> restore(String id) async {
     await _repository.restore(id);
   }
+
+  Future<void> registrarBloqueio(
+    String id,
+    String status,
+    DateTime dataSaida,
+  ) async {
+    await _repository.registrarBloqueio(id, status, dataSaida);
+  }
 }
