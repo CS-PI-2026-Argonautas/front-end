@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:frontend/fire_base/models/dinheiro.dart';
@@ -13,8 +15,9 @@ import 'package:frontend/utils/formatters/currency_input_formatter.dart';
 
 class OsServicosTab extends StatefulWidget {
   final ServiceOrder serviceOrder;
+  final VoidCallback? avancarTab;
 
-  const OsServicosTab({super.key, required this.serviceOrder});
+  const OsServicosTab({super.key, required this.serviceOrder, this.avancarTab});
 
   @override
   State<OsServicosTab> createState() => _OsServicosTabState();
@@ -24,6 +27,8 @@ class _OsServicosTabState extends State<OsServicosTab> {
   final colors = custom_colors.colorScheme;
 
   final ServiceService _servicoService = ServiceService();
+
+  Timer? _snackBarTimer;
 
   final TextEditingController _searchController = TextEditingController();
 
@@ -55,6 +60,7 @@ class _OsServicosTabState extends State<OsServicosTab> {
   @override
   void dispose() {
     _searchController.dispose();
+    _snackBarTimer?.cancel();
     super.dispose();
   }
 
@@ -149,6 +155,7 @@ class _OsServicosTabState extends State<OsServicosTab> {
 
     final messenger = ScaffoldMessenger.of(context);
 
+    _snackBarTimer?.cancel();
     messenger.hideCurrentSnackBar();
 
     messenger.showSnackBar(
@@ -156,10 +163,16 @@ class _OsServicosTabState extends State<OsServicosTab> {
         content: Text('${servico.description} removido.'),
         backgroundColor: colors.primary,
         duration: const Duration(seconds: 5),
+        behavior: SnackBarBehavior.floating,
+        showCloseIcon: true,
+        closeIconColor: Colors.white,
+
         action: SnackBarAction(
           label: 'DESFAZER',
           textColor: Colors.white,
           onPressed: () {
+            _snackBarTimer?.cancel();
+
             if (!mounted) return;
 
             setState(() {
@@ -172,6 +185,12 @@ class _OsServicosTabState extends State<OsServicosTab> {
         ),
       ),
     );
+
+    _snackBarTimer = Timer(const Duration(seconds: 5), () {
+      if (mounted) {
+        messenger.hideCurrentSnackBar();
+      }
+    });
   }
 
   Future<void> _confirmarRemocao(ServiceOrderService servico) async {
@@ -379,6 +398,7 @@ class _OsServicosTabState extends State<OsServicosTab> {
                         vertical: 28,
                       ),
                       child: Column(
+                        mainAxisSize: MainAxisSize.min,
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Row(
@@ -408,6 +428,14 @@ class _OsServicosTabState extends State<OsServicosTab> {
                               ),
                             ],
                           ),
+                          const SizedBox(height: 6),
+                          Text(
+                            'Selecione os serviços prestados nesta Ordem de Serviço.',
+                            style: TextStyle(
+                              fontSize: 14,
+                              color: colors.onSurfaceVariant,
+                            ),
+                          ),
                           const SizedBox(height: 20),
                           // TextFormField(
                           //   controller: _searchController,
@@ -430,7 +458,7 @@ class _OsServicosTabState extends State<OsServicosTab> {
                               padding: const EdgeInsets.symmetric(vertical: 24),
                               child: Center(
                                 child: Text(
-                                  'Nenhum serviço adicionado',
+                                  'Nenhum serviço adicionado.',
                                   style: TextStyle(
                                     color: colors.onSurfaceVariant,
                                     fontSize: 16,
@@ -453,6 +481,59 @@ class _OsServicosTabState extends State<OsServicosTab> {
                                 );
                               },
                             ),
+                          const SizedBox(height: 20),
+
+                          SizedBox(
+                            width: double.infinity,
+                            child: ElevatedButton.icon(
+                              onPressed:
+                                  widget.serviceOrder.services.isNotEmpty &&
+                                      widget.avancarTab != null
+                                  ? () {
+                                      widget.avancarTab?.call();
+                                    }
+                                  : null,
+                              icon: const Icon(Icons.attach_money),
+                              label: const Text(
+                                'Conferir Resumo',
+                                style: TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 16,
+                                ),
+                              ),
+                              style: ElevatedButton.styleFrom(
+                                elevation:
+                                    widget.serviceOrder.services.isNotEmpty
+                                    ? 3
+                                    : 0,
+                                backgroundColor: colors.primary,
+                                foregroundColor: colors.onSecondary,
+                                disabledBackgroundColor:
+                                    colors.surfaceContainerLow,
+                                disabledForegroundColor:
+                                    colors.onSurfaceVariant,
+                                padding: const EdgeInsets.symmetric(
+                                  vertical: 18,
+                                ),
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(14),
+                                ),
+                              ),
+                            ),
+                          ),
+
+                          const SizedBox(height: 12),
+
+                          Center(
+                            child: Text(
+                              'Informe os serviços prestados para acessar o resumo da Ordem de Serviço.',
+                              textAlign: TextAlign.center,
+                              style: TextStyle(
+                                fontSize: 12,
+                                color: colors.onSurfaceVariant,
+                              ),
+                            ),
+                          ),
                         ],
                       ),
                     ),

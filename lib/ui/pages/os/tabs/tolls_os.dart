@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
 
@@ -11,12 +13,11 @@ import 'package:frontend/ui/pages/product_registration/product_registration.dart
 import 'package:frontend/ui/widgets/bottom_sheet/bottom_sheet.dart';
 import 'package:frontend/ui/widgets/floatingButton.dart';
 
-// onEdit: (servico) async {
-//                 await _abrirEdicao(servico);
 class TollsOs extends StatefulWidget {
   final ServiceOrder serviceOrder;
+  final VoidCallback? avancarTab;
 
-  const TollsOs({super.key, required this.serviceOrder});
+  const TollsOs({super.key, required this.serviceOrder, this.avancarTab});
 
   @override
   State<TollsOs> createState() => OrderServiceState();
@@ -29,6 +30,8 @@ class OrderServiceState extends State<TollsOs>
   late final ServiceOrder _os;
   late final ItemService _itemService;
   late final Stream<List<Item>> _pecasStream;
+  Timer? _snackBarTimer;
+  bool _somenteServicos = false;
 
   @override
   bool get wantKeepAlive => true;
@@ -86,6 +89,92 @@ class OrderServiceState extends State<TollsOs>
     });
   }
 
+  void _removerPeca(int index) {
+    if (index < 0 || index >= _os.parts.length) return;
+
+    final pecaRemovida = _os.parts[index];
+
+    setState(() {
+      _os.parts.removeAt(index);
+    });
+
+    final messenger = ScaffoldMessenger.of(context);
+
+    _snackBarTimer?.cancel();
+    messenger.hideCurrentSnackBar();
+
+    messenger.showSnackBar(
+      SnackBar(
+        content: Text('${pecaRemovida.name} removida.'),
+        backgroundColor: colors.primary,
+        duration: const Duration(seconds: 5),
+        behavior: SnackBarBehavior.floating,
+        showCloseIcon: true,
+        closeIconColor: Colors.white,
+
+        action: SnackBarAction(
+          label: 'DESFAZER',
+          textColor: Colors.white,
+          onPressed: () {
+            _snackBarTimer?.cancel();
+
+            if (!mounted) return;
+
+            setState(() {
+              _os.parts.insert(index.clamp(0, _os.parts.length), pecaRemovida);
+            });
+          },
+        ),
+      ),
+    );
+
+    _snackBarTimer = Timer(const Duration(seconds: 5), () {
+      if (mounted) {
+        messenger.hideCurrentSnackBar();
+      }
+    });
+  }
+
+  Future<void> _confirmarRemocaoPeca(int index) async {
+    if (index < 0 || index >= _os.parts.length) return;
+
+    final peca = _os.parts[index];
+
+    final confirmar = await showDialog<bool>(
+      context: context,
+      builder: (dialogContext) {
+        return AlertDialog(
+          title: const Text('Remover peça'),
+          content: Text('Deseja remover "${peca.name}" da OS?'),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.pop(dialogContext, false);
+              },
+              child: const Text('CANCELAR'),
+            ),
+            TextButton(
+              onPressed: () {
+                Navigator.pop(dialogContext, true);
+              },
+              child: Text('REMOVER', style: TextStyle(color: colors.error)),
+            ),
+          ],
+        );
+      },
+    );
+
+    if (confirmar != true || !mounted) return;
+
+    _removerPeca(index);
+  }
+
+  @override
+  void dispose() {
+    _snackBarTimer?.cancel();
+    super.dispose();
+  }
+
   @override
   Widget build(BuildContext context) {
     super.build(context);
@@ -123,6 +212,7 @@ class OrderServiceState extends State<TollsOs>
                         vertical: 28,
                       ),
                       child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
                         mainAxisSize: MainAxisSize.min,
                         children: [
                           Row(
@@ -152,6 +242,86 @@ class OrderServiceState extends State<TollsOs>
                               ),
                             ],
                           ),
+                          const SizedBox(height: 6),
+                          Text(
+                            'Selecione as peças utilizadas nesta Ordem de Serviço.',
+                            style: TextStyle(
+                              fontSize: 14,
+                              color: colors.onSurfaceVariant,
+                            ),
+                          ),
+                          CheckboxListTile(
+                            value: _somenteServicos,
+                            onChanged: (value) async {
+                              final marcarSomenteServicos = value ?? false;
+
+                              if (marcarSomenteServicos &&
+                                  _os.parts.isNotEmpty) {
+                                final confirmar = await showDialog<bool>(
+                                  context: context,
+                                  builder: (dialogContext) {
+                                    return AlertDialog(
+                                      title: const Text('Remover peças da OS?'),
+                                      content: const Text(
+                                        'Ao selecionar esta opção, todas as peças adicionadas '
+                                        'serão removidas da Ordem de Serviço. Deseja continuar?',
+                                      ),
+                                      actions: [
+                                        TextButton(
+                                          onPressed: () {
+                                            Navigator.pop(dialogContext, false);
+                                          },
+                                          child: const Text('CANCELAR'),
+                                        ),
+                                        TextButton(
+                                          onPressed: () {
+                                            Navigator.pop(dialogContext, true);
+                                          },
+                                          child: Text(
+                                            'REMOVER PEÇAS',
+                                            style: TextStyle(
+                                              color: colors.error,
+                                            ),
+                                          ),
+                                        ),
+                                      ],
+                                    );
+                                  },
+                                );
+
+                                if (!mounted || confirmar != true) return;
+
+                                setState(() {
+                                  _os.parts.clear();
+                                  _somenteServicos = true;
+                                });
+
+                                return;
+                              }
+
+                              setState(() {
+                                _somenteServicos = marcarSomenteServicos;
+                              });
+                            },
+                            contentPadding: EdgeInsets.zero,
+                            controlAffinity: ListTileControlAffinity.leading,
+                            activeColor: colors.primary,
+                            title: Text(
+                              'OS somente de serviços (sem peças)',
+                              style: TextStyle(
+                                fontSize: 14,
+                                color: colors.onSurface,
+                                fontWeight: FontWeight.w500,
+                              ),
+                            ),
+                            subtitle: Text(
+                              'Marque esta opção caso não sejam necessárias peças nesta OS.',
+                              style: TextStyle(
+                                fontSize: 12,
+                                color: colors.onSurfaceVariant,
+                              ),
+                            ),
+                          ),
 
                           const SizedBox(height: 18),
 
@@ -171,7 +341,7 @@ class OrderServiceState extends State<TollsOs>
                           _os.parts.isEmpty
                               ? Center(
                                   child: Text(
-                                    'Nenhuma peça adicionada',
+                                    'Nenhuma peça adicionada.',
                                     style: TextStyle(
                                       color: colors.onSurfaceVariant,
                                       fontSize: 16,
@@ -193,6 +363,61 @@ class OrderServiceState extends State<TollsOs>
                                     );
                                   },
                                 ),
+                          const SizedBox(height: 20),
+
+                          SizedBox(
+                            width: double.infinity,
+                            child: ElevatedButton.icon(
+                              onPressed:
+                                  (_os.parts.isNotEmpty || _somenteServicos) &&
+                                      widget.avancarTab != null
+                                  ? () {
+                                      widget.avancarTab?.call();
+                                    }
+                                  : null,
+                              icon: const Icon(Icons.handyman),
+                              label: const Text(
+                                'Adicionar Serviços',
+                                style: TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 16,
+                                ),
+                              ),
+                              style: ElevatedButton.styleFrom(
+                                elevation:
+                                    (_os.parts.isNotEmpty || _somenteServicos)
+                                    ? 3
+                                    : 0,
+                                backgroundColor: colors.primary,
+                                foregroundColor: colors.onSecondary,
+                                disabledBackgroundColor:
+                                    colors.surfaceContainerLow,
+                                disabledForegroundColor:
+                                    colors.onSurfaceVariant,
+                                padding: const EdgeInsets.symmetric(
+                                  vertical: 18,
+                                ),
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(14),
+                                ),
+                              ),
+                            ),
+                          ),
+
+                          const SizedBox(height: 12),
+
+                          Center(
+                            child: Text(
+                              _somenteServicos
+                                  ? 'OS configurada para serviços sem utilização de peças.'
+                                  : 'Adicione peças ou marque a opção de OS somente de serviços.',
+                              textAlign: TextAlign.center,
+                              style: TextStyle(
+                                fontSize: 12,
+                                color: colors.onSurfaceVariant,
+                              ),
+                            ),
+                          ),
                         ],
                       ),
                     ),
@@ -332,9 +557,7 @@ class OrderServiceState extends State<TollsOs>
         children: [
           SlidableAction(
             onPressed: (context) {
-              setState(() {
-                _os.parts.removeAt(index);
-              });
+              _confirmarRemocaoPeca(index);
             },
             backgroundColor: Colors.red.shade600,
             foregroundColor: Colors.white,

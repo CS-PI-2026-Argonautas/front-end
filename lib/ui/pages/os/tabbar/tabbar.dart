@@ -234,9 +234,19 @@ class _TabbarState extends State<Tabbar> with SingleTickerProviderStateMixin {
             },
           ),
 
-          TollsOs(serviceOrder: _serviceOrder),
+          TollsOs(
+            serviceOrder: _serviceOrder,
+            avancarTab: () {
+              _tabController.animateTo(2);
+            },
+          ),
 
-          OsServicosTab(serviceOrder: _serviceOrder),
+          OsServicosTab(
+            serviceOrder: _serviceOrder,
+            avancarTab: () {
+              _tabController.animateTo(3);
+            },
+          ),
 
           ValuesOs(serviceOrder: _serviceOrder, onConcluir: _concluirOs),
         ],
