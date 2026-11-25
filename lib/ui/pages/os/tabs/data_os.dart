@@ -207,6 +207,7 @@ class _DataOsState extends State<DataOs> {
   }
 
   Future<void> _abrirCadastroEquipamento([dynamic equipamentoInicial]) async {
+    
     final resultado = await Navigator.push<dynamic>(
       context,
       MaterialPageRoute(
@@ -217,14 +218,20 @@ class _DataOsState extends State<DataOs> {
       ),
     );
 
-    if (resultado != null && mounted) {
+    if (resultado != null && mounted && !_equipamentoBloqueado) {
       setState(() => _equipamentoSelecionado = resultado);
-
       _verificarDadosObrigatorios();
     }
   }
 
   Future<void> _buscarEquipamento() async {
+  if (_equipamentoBloqueado) {
+    _mostrarErro(
+      'Não é possível trocar um equipamento bloqueado.',
+    );
+    return;
+  }
+
     final List<Equipment> equipamentos;
 
     try {
