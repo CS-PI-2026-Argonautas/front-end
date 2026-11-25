@@ -9,6 +9,7 @@ import 'package:frontend/ui/widgets/form/validator.dart';
 import 'package:frontend/ui/widgets/form/form_card.dart';
 import 'package:frontend/ui/widgets/form/labeled_form.dart';
 import 'package:frontend/ui/widgets/form/action_buttons.dart';
+import 'package:frontend/utils/formatters/currency_input_formatter.dart';
 
 class ProductForm extends StatefulWidget {
   final ValueChanged<Item> onSave;
@@ -49,15 +50,12 @@ class _ProductFormState extends State<ProductForm> {
     final item = widget.itemEdicao;
 
     if (item == null) return;
-
     _nameController.text = item.name;
-
     _descriptionController.text = item.description ?? '';
-
-    _valueController.text = Dinheiro(item.valueInCents).formatado();
-
+    _valueController.text = Dinheiro(
+      item.valueInCents,
+    ).formatado().replaceFirst('R\$', '').trim();
     _minimumQuantityController.text = item.minimumQuantity.toString();
-
     tipoSelecionado = item.type;
   }
 
@@ -72,54 +70,7 @@ class _ProductFormState extends State<ProductForm> {
   }
 
   int _parseValueInCents(String value) {
-    final input = value.trim();
-
-    if (input.isEmpty) {
-      throw const FormatException('Valor vazio.');
-    }
-
-    String integerPart;
-    String decimalPart;
-
-    if (input.contains(',')) {
-      final parts = input.split(',');
-
-      if (parts.length != 2) {
-        throw const FormatException('Valor inválido.');
-      }
-
-      integerPart = parts[0].replaceAll('.', '');
-      decimalPart = parts[1];
-    } else if (input.contains('.')) {
-      final parts = input.split('.');
-
-      if (parts.length == 2 && parts[1].length <= 2) {
-        integerPart = parts[0];
-        decimalPart = parts[1];
-      } else {
-        integerPart = input.replaceAll('.', '');
-        decimalPart = '00';
-      }
-    } else {
-      integerPart = input;
-      decimalPart = '00';
-    }
-
-    if (integerPart.isEmpty) {
-      integerPart = '0';
-    }
-
-    if (decimalPart.length == 1) {
-      decimalPart += '0';
-    }
-
-    if (decimalPart.length != 2 ||
-        !RegExp(r'^\d+$').hasMatch(integerPart) ||
-        !RegExp(r'^\d{2}$').hasMatch(decimalPart)) {
-      throw const FormatException('Valor inválido.');
-    }
-
-    return int.parse(integerPart) * 100 + int.parse(decimalPart);
+    return Dinheiro.fromTexto(value).centavos;
   }
 
   void _save() {
@@ -132,15 +83,10 @@ class _ProductFormState extends State<ProductForm> {
     final item = Item(
       // Preserva o identificador durante a edição.
       id: widget.itemEdicao?.id,
-
       name: _nameController.text.trim(),
-
       description: description.isEmpty ? null : description,
-
       valueInCents: _parseValueInCents(_valueController.text),
-
       minimumQuantity: int.parse(_minimumQuantityController.text),
-
       type: tipoSelecionado!,
     );
 
@@ -191,9 +137,7 @@ class _ProductFormState extends State<ProductForm> {
             controller: _valueController,
             validator: requiredValidator,
             keyboardType: const TextInputType.numberWithOptions(decimal: true),
-            inputFormatters: [
-              FilteringTextInputFormatter.allow(RegExp(r'[0-9,.]')),
-            ],
+            inputFormatters: [CurrencyInputFormatter()],
             decoration: customInputDecoration(
               hintText: '0,00',
               prefixIcon: Icon(Icons.attach_money, color: colors.primary),

@@ -137,6 +137,7 @@ class _OsServicosTabState extends State<OsServicosTab> {
       widget.serviceOrder.services.add(
         ServiceOrderService(
           serviceId: serviceId,
+          name: nome,
           description: descricao.isNotEmpty ? descricao : nome,
           valueCents: preco.toInt(),
         ),
@@ -160,7 +161,7 @@ class _OsServicosTabState extends State<OsServicosTab> {
 
     messenger.showSnackBar(
       SnackBar(
-        content: Text('${servico.description} removido.'),
+        content: Text('${servico.name} removido.'),
         backgroundColor: colors.primary,
         duration: const Duration(seconds: 5),
         behavior: SnackBarBehavior.floating,
@@ -200,7 +201,7 @@ class _OsServicosTabState extends State<OsServicosTab> {
           builder: (dialogContext) {
             return AlertDialog(
               title: const Text('Remover Serviço'),
-              content: Text('Deseja remover "${servico.description}" da OS?'),
+              content: Text('Deseja remover "${servico.name}" da OS?'),
               actions: [
                 TextButton(
                   onPressed: () {
@@ -249,6 +250,7 @@ class _OsServicosTabState extends State<OsServicosTab> {
 
           widget.serviceOrder.services[i] = ServiceOrderService(
             serviceId: servicoOS.serviceId,
+            name: atualizado.name,
             description: descricao,
             valueCents: atualizado.valueInCents,
             discountCents: servicoOS.discountCents,
@@ -583,12 +585,17 @@ class _OsServicosTabState extends State<OsServicosTab> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              servico.description,
+              servico.name,
               style: TextStyle(
                 color: colors.onSurface,
                 fontWeight: FontWeight.bold,
                 fontSize: 16,
               ),
+            ),
+            const SizedBox(height: 6),
+            Text(
+              servico.description,
+              style: TextStyle(color: colors.onSurfaceVariant, fontSize: 14),
             ),
             const SizedBox(height: 2),
             Text(
