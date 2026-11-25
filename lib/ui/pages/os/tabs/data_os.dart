@@ -597,7 +597,8 @@ class _DataOsState extends State<DataOs>
             final novo = await Navigator.push<Address>(
               context,
               MaterialPageRoute(
-                builder: (_) => const PersonRegistrationAddress(),
+                builder: (_) =>
+                    const PersonRegistrationAddress(abertoPelaOS: true),
               ),
             );
 

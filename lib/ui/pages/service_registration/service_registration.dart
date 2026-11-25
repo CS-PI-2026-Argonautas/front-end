@@ -1,25 +1,20 @@
 import 'dart:async';
-
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-
 import 'package:frontend/fire_base/models/dinheiro.dart';
 import 'package:frontend/fire_base/models/service.dart';
 import 'package:frontend/fire_base/services/service_service.dart';
+import 'package:frontend/ui/pages/lists/item_list.dart';
 import 'package:frontend/ui/pages/person_registration/person_registration.dart';
-
 import 'package:frontend/ui/style/ColorScheme.dart' as custom_colors;
 import 'package:frontend/ui/style/inputDecorationStyles.dart';
-
 import 'package:frontend/ui/widgets/appBar.dart';
 import 'package:frontend/ui/widgets/menu.dart';
 import 'package:frontend/ui/widgets/form/form_card.dart';
 import 'package:frontend/ui/widgets/form/form_field_label.dart';
 import 'package:frontend/ui/widgets/form/action_buttons.dart';
-
 import 'package:frontend/ui/pages/lists/os_list_page.dart';
 import 'package:frontend/ui/pages/lists/service_list.dart';
-import 'package:frontend/ui/pages/product_registration/product_registration.dart';
 import 'package:frontend/ui/pages/dashboard.dart';
 import 'package:frontend/utils/formatters/currency_input_formatter.dart';
 
@@ -189,9 +184,7 @@ class _ServiceRegistrationState extends State<ServiceRegistration> {
                 if (index == 1) {
                   Navigator.push(
                     context,
-                    MaterialPageRoute(
-                      builder: (context) => const ProductRegistration(),
-                    ),
+                    MaterialPageRoute(builder: (context) => const ItemList()),
                   );
                 }
 

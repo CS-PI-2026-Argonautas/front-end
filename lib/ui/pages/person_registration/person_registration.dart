@@ -4,10 +4,10 @@ import 'package:frontend/fire_base/models/address.dart';
 import 'package:frontend/fire_base/Enums/PersonType.dart';
 import 'package:frontend/fire_base/models/contact.dart';
 import 'package:frontend/fire_base/services/client_service.dart';
+import 'package:frontend/ui/pages/lists/item_list.dart';
 import 'package:frontend/ui/pages/lists/os_list_page.dart';
 import 'package:frontend/ui/pages/lists/service_list.dart';
 import 'package:frontend/ui/pages/person_registration/person_registration_contact.dart';
-import 'package:frontend/ui/pages/product_registration/product_registration.dart';
 import 'package:frontend/ui/style/ColorScheme.dart' as custom_colors;
 import 'package:frontend/ui/pages/person_registration/person_registration_address.dart';
 import 'package:frontend/ui/style/inputDecorationStyles.dart';
@@ -82,9 +82,7 @@ class _PersonRegistrationState1 extends State<PersonRegistration> {
                 if (index == 1) {
                   Navigator.push(
                     context,
-                    MaterialPageRoute(
-                      builder: (context) => const ProductRegistration(),
-                    ),
+                    MaterialPageRoute(builder: (context) => const ItemList()),
                   );
                 }
 

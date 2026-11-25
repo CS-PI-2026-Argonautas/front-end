@@ -42,7 +42,7 @@ class OrderServiceState extends State<TollsOs>
 
     _os = widget.serviceOrder;
 
-    _itemService = ItemService(ItemRepository());
+    _itemService = ItemService(repository: ItemRepository());
 
     _pecasStream = _itemService.watchParts();
   }

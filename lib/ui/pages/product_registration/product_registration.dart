@@ -4,9 +4,10 @@ import 'package:frontend/fire_base/models/item.dart';
 import 'package:frontend/fire_base/repositories/item_repository.dart';
 import 'package:frontend/fire_base/services/item_service.dart';
 import 'package:frontend/ui/pages/dashboard.dart';
+import 'package:frontend/ui/pages/lists/client_list.dart';
+import 'package:frontend/ui/pages/lists/item_list.dart';
 import 'package:frontend/ui/pages/lists/os_list_page.dart';
 import 'package:frontend/ui/pages/lists/service_list.dart';
-import 'package:frontend/ui/pages/person_registration/person_registration.dart';
 import 'package:frontend/ui/pages/product_registration/product_form.dart';
 import 'package:frontend/ui/widgets/appBar.dart';
 import 'package:frontend/ui/style/ColorScheme.dart' as custom_colors;
@@ -35,7 +36,7 @@ class _ProductRegistrationState extends State<ProductRegistration> {
   @override
   void initState() {
     super.initState();
-    itemService = ItemService(ItemRepository());
+    itemService = ItemService(repository: ItemRepository());
   }
 
   @override
@@ -66,18 +67,14 @@ class _ProductRegistrationState extends State<ProductRegistration> {
                 if (index == 0) {
                   Navigator.push(
                     context,
-                    MaterialPageRoute(
-                      builder: (context) => const PersonRegistration(),
-                    ),
+                    MaterialPageRoute(builder: (context) => const ClientList()),
                   );
                 }
 
                 if (index == 1) {
                   Navigator.push(
                     context,
-                    MaterialPageRoute(
-                      builder: (context) => const ProductRegistration(),
-                    ),
+                    MaterialPageRoute(builder: (context) => const ItemList()),
                   );
                 }
 

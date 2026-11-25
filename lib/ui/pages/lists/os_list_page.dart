@@ -1,18 +1,14 @@
 import 'package:flutter/material.dart';
-
 import 'package:frontend/fire_base/Enums/StatusOrderService.dart';
 import 'package:frontend/fire_base/models/dinheiro.dart';
 import 'package:frontend/fire_base/models/os.dart';
 import 'package:frontend/fire_base/repositories/os_repository.dart';
-
 import 'package:frontend/ui/pages/lists/client_list.dart';
 import 'package:frontend/ui/pages/dashboard.dart';
-import 'package:frontend/ui/pages/edit_item/item_edition.dart';
+import 'package:frontend/ui/pages/lists/item_list.dart';
 import 'package:frontend/ui/pages/os/tabbar/tabbar.dart';
-import 'package:frontend/ui/pages/product_registration/product_registration.dart';
 import 'package:frontend/ui/pages/service_registration/service_registration.dart';
 import 'package:frontend/ui/pages/stand_in_page.dart';
-
 import 'package:frontend/ui/style/ColorScheme.dart' as custom_colors;
 import 'package:frontend/ui/widgets/floatingButton.dart';
 import 'package:frontend/ui/widgets/appBar.dart';
@@ -217,21 +213,19 @@ class _OsListPageState extends State<OsListPage> {
         onTap: (index) {
           Navigator.pop(context);
 
-          if (index == 1) {
-            Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (context) => const ProductRegistration(),
-              ),
-            );
-          }
-
           if (index == 0) {
             Navigator.push(
               context,
               MaterialPageRoute(builder: (context) => const ClientList()),
             );
           }
+          if (index == 1) {
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => const ItemList()),
+            );
+          }
+          if (index == 2) {}
 
           if (index == 3) {
             Navigator.push(
@@ -248,9 +242,6 @@ class _OsListPageState extends State<OsListPage> {
               MaterialPageRoute(builder: (context) => const Dashboard()),
             );
           }
-
-          // A lista de serviços permanece disponível
-          // pela navegação própria da aplicação.
         },
       ),
       body: SafeArea(

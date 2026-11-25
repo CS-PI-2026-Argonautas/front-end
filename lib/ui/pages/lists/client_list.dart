@@ -2,12 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:frontend/fire_base/models/client.dart';
 import 'package:frontend/fire_base/services/client_service.dart';
 import 'package:frontend/ui/pages/dashboard.dart';
-import 'package:frontend/ui/pages/edit_item/item_edition.dart';
+import 'package:frontend/ui/pages/lists/item_list.dart';
 import 'package:frontend/ui/pages/lists/service_list.dart';
 import 'package:frontend/ui/pages/lists/os_list_page.dart';
 import 'package:frontend/ui/pages/person_alteration/person_alteration.dart';
 import 'package:frontend/ui/pages/person_registration/person_registration.dart';
-import 'package:frontend/ui/pages/product_registration/product_registration.dart';
 import 'package:frontend/ui/style/ColorScheme.dart' as custom_colors;
 import 'package:frontend/ui/widgets/floatingButton.dart';
 import 'package:frontend/ui/widgets/appBar.dart';
@@ -73,9 +72,7 @@ class _ClientListState extends State<ClientList> {
           if (index == 1) {
             Navigator.push(
               context,
-              MaterialPageRoute(
-                builder: (context) => const ProductRegistration(),
-              ),
+              MaterialPageRoute(builder: (context) => const ItemList()),
             );
           }
 
