@@ -6,6 +6,7 @@ import 'package:flutter/services.dart';
 import 'package:frontend/fire_base/models/dinheiro.dart';
 import 'package:frontend/fire_base/models/service.dart';
 import 'package:frontend/fire_base/services/service_service.dart';
+import 'package:frontend/ui/pages/person_registration/person_registration.dart';
 
 import 'package:frontend/ui/style/ColorScheme.dart' as custom_colors;
 import 'package:frontend/ui/style/inputDecorationStyles.dart';
@@ -179,6 +180,15 @@ class _ServiceRegistrationState extends State<ServiceRegistration> {
               currentIndex: 3,
               onTap: (index) {
                 Navigator.pop(context);
+
+                if (index == 0) {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => const PersonRegistration(),
+                    ),
+                  );
+                }
 
                 if (index == 1) {
                   Navigator.push(

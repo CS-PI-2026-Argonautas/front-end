@@ -1,4 +1,3 @@
-
 import 'package:flutter/material.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
 
@@ -15,10 +14,7 @@ import 'package:frontend/ui/widgets/floatingButton.dart';
 class TollsOs extends StatefulWidget {
   final ServiceOrder serviceOrder;
 
-  const TollsOs({
-    super.key,
-    required this.serviceOrder,
-  });
+  const TollsOs({super.key, required this.serviceOrder});
 
   @override
   State<TollsOs> createState() => OrderServiceState();
@@ -47,10 +43,7 @@ class OrderServiceState extends State<TollsOs>
   }
 
   int _calcularSubtotal() {
-    return _os.parts.fold<int>(
-      0,
-      (total, peca) => total + peca.subtotalCents,
-    );
+    return _os.parts.fold<int>(0, (total, peca) => total + peca.subtotalCents);
   }
 
   @override
@@ -67,98 +60,93 @@ class OrderServiceState extends State<TollsOs>
 
           body: SafeArea(
             child: Padding(
-              padding: const EdgeInsets.symmetric(
-                horizontal: 16,
-                vertical: 18,
-              ),
-              child: Center(
-                child: ConstrainedBox(
-                  constraints: const BoxConstraints(
-                    maxWidth: 650,
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 18),
+              // child: Center(
+              child: ConstrainedBox(
+                constraints: const BoxConstraints(maxWidth: 650),
+                child: Card(
+                  color: Colors.white,
+                  elevation: 8,
+                  shadowColor: Colors.black26,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(22),
                   ),
-                  child: Card(
-                    color: Colors.white,
-                    elevation: 8,
-                    shadowColor: Colors.black26,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(22),
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 24,
+                      vertical: 28,
                     ),
-                    child: Padding(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 24,
-                        vertical: 28,
-                      ),
-                      child: Column(
-                        children: [
-                          Row(
-                            mainAxisAlignment:
-                                MainAxisAlignment.spaceBetween,
-                            children: [
-                              Text(
-                                'Subtotal de peças',
-                                style: TextStyle(
-                                  color: colors.onSurface,
-                                  fontSize: 20,
-                                  fontWeight: FontWeight.bold,
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Row(
+                              children: [
+                                Icon(Icons.build, color: colors.secondary),
+                                const SizedBox(width: 8),
+                                Text(
+                                  'Subtotal de peças',
+                                  style: TextStyle(
+                                    color: colors.onSurface,
+                                    fontSize: 20,
+                                    fontWeight: FontWeight.bold,
+                                  ),
                                 ),
-                              ),
-                              Text(
-                                Dinheiro(
-                                  _calcularSubtotal(),
-                                ).formatado(),
-                                style: TextStyle(
-                                  color: Colors.blueGrey.shade600,
-                                  fontSize: 18,
-                                  fontWeight: FontWeight.w600,
-                                ),
-                              ),
-                            ],
-                          ),
-
-                          const SizedBox(height: 20),
-
-                          if (snapshot.connectionState ==
-                              ConnectionState.waiting)
-                            const LinearProgressIndicator(),
-
-                          if (snapshot.hasError)
-                            Padding(
-                              padding: const EdgeInsets.all(12),
-                              child: Text(
-                                'Erro ao carregar peças: ${snapshot.error}',
-                                style: TextStyle(
-                                  color: colors.error,
-                                ),
+                              ],
+                            ),
+                            Text(
+                              Dinheiro(_calcularSubtotal()).formatado(),
+                              style: TextStyle(
+                                color: colors.onSurface,
+                                fontSize: 18,
+                                fontWeight: FontWeight.w600,
                               ),
                             ),
+                          ],
+                        ),
 
-                          Expanded(
-                            child: _os.parts.isEmpty
-                                ? Center(
-                                    child: Text(
-                                      'Nenhuma peça adicionada',
-                                      style: TextStyle(
-                                        color: colors.onSurfaceVariant,
-                                        fontSize: 16,
-                                      ),
-                                    ),
-                                  )
-                                : ListView.separated(
-                                    padding: const EdgeInsets.all(4),
-                                    itemCount: _os.parts.length,
-                                    separatorBuilder: (context, index) {
-                                      return const SizedBox(height: 12);
-                                    },
-                                    itemBuilder: (context, index) {
-                                      return _buildPieceCard(
-                                        _os.parts[index],
-                                        index,
-                                      );
-                                    },
-                                  ),
+                        const SizedBox(height: 20),
+
+                        if (snapshot.connectionState == ConnectionState.waiting)
+                          const LinearProgressIndicator(),
+
+                        if (snapshot.hasError)
+                          Padding(
+                            padding: const EdgeInsets.all(12),
+                            child: Text(
+                              'Erro ao carregar peças: ${snapshot.error}',
+                              style: TextStyle(color: colors.error),
+                            ),
                           ),
-                        ],
-                      ),
+
+                        _os.parts.isEmpty
+                            ? Center(
+                                child: Text(
+                                  'Nenhuma peça adicionada',
+                                  style: TextStyle(
+                                    color: colors.onSurfaceVariant,
+                                    fontSize: 16,
+                                  ),
+                                ),
+                              )
+                            : ListView.separated(
+                                shrinkWrap: true,
+                                physics: const NeverScrollableScrollPhysics(),
+                                padding: const EdgeInsets.all(4),
+                                itemCount: _os.parts.length,
+                                separatorBuilder: (context, index) {
+                                  return const SizedBox(height: 12);
+                                },
+                                itemBuilder: (context, index) {
+                                  return _buildPieceCard(
+                                    _os.parts[index],
+                                    index,
+                                  );
+                                },
+                              ),
+                      ],
                     ),
                   ),
                 ),
@@ -182,9 +170,7 @@ class OrderServiceState extends State<TollsOs>
       backgroundColor: colors.surfaceContainer,
       isScrollControlled: true,
       shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(
-          top: Radius.circular(24),
-        ),
+        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
       ),
       builder: (context) {
         return SelectionBottomSheet<Item>(
@@ -209,7 +195,8 @@ class OrderServiceState extends State<TollsOs>
             Navigator.push(
               context,
               MaterialPageRoute(
-                builder: (context) => const ProductRegistration(),
+                builder: (context) =>
+                    const ProductRegistration(abertoPelaOS: true),
               ),
             );
           },
@@ -222,18 +209,14 @@ class OrderServiceState extends State<TollsOs>
     if (peca.id == null) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
-          content: Text(
-            'Essa peça não possui um identificador válido.',
-          ),
+          content: Text('Essa peça não possui um identificador válido.'),
         ),
       );
       return;
     }
 
     setState(() {
-      final index = _os.parts.indexWhere(
-        (item) => item.partId == peca.id,
-      );
+      final index = _os.parts.indexWhere((item) => item.partId == peca.id);
 
       if (index != -1) {
         final parteExistente = _os.parts[index];
@@ -259,9 +242,7 @@ class OrderServiceState extends State<TollsOs>
     final peca = _os.parts[index];
 
     setState(() {
-      _os.parts[index] = peca.withQuantity(
-        peca.quantity + 1,
-      );
+      _os.parts[index] = peca.withQuantity(peca.quantity + 1);
     });
   }
 
@@ -271,22 +252,16 @@ class OrderServiceState extends State<TollsOs>
     if (peca.quantity <= 1) return;
 
     setState(() {
-      _os.parts[index] = peca.withQuantity(
-        peca.quantity - 1,
-      );
+      _os.parts[index] = peca.withQuantity(peca.quantity - 1);
     });
   }
 
   Widget _buildPieceCard(ServiceOrderPart peca, int index) {
     final int quantidade = peca.quantity;
 
-    final Dinheiro preco = Dinheiro(
-      peca.unitPriceCents,
-    );
+    final Dinheiro preco = Dinheiro(peca.unitPriceCents);
 
-    final Dinheiro totalItem = Dinheiro(
-      peca.subtotalCents,
-    );
+    final Dinheiro totalItem = Dinheiro(peca.subtotalCents);
 
     return Slidable(
       key: ValueKey(peca.partId),
@@ -312,9 +287,9 @@ class OrderServiceState extends State<TollsOs>
       child: Container(
         padding: const EdgeInsets.all(14),
         decoration: BoxDecoration(
-          color: colors.surfaceContainer,
+          color: colors.surfaceContainerLow,
           borderRadius: BorderRadius.circular(18),
-          boxShadow: kElevationToShadow[4],
+          // boxShadow: kElevationToShadow[4],
         ),
         child: Row(
           children: [
@@ -337,7 +312,7 @@ class OrderServiceState extends State<TollsOs>
                     '$quantidade un x ${preco.formatado()}/un',
                     style: TextStyle(
                       color: colors.onSurfaceVariant,
-                      fontSize: 13,
+                      fontSize: 14,
                     ),
                   ),
 
@@ -346,9 +321,9 @@ class OrderServiceState extends State<TollsOs>
                   Text(
                     totalItem.formatado(),
                     style: TextStyle(
-                      color: Colors.blueGrey.shade600,
+                      color: colors.onSurfaceVariant,
                       fontWeight: FontWeight.bold,
-                      fontSize: 17,
+                      fontSize: 15,
                     ),
                   ),
                 ],
@@ -359,10 +334,7 @@ class OrderServiceState extends State<TollsOs>
               children: [
                 IconButton(
                   onPressed: () => _aumentarQuantidade(index),
-                  icon: Icon(
-                    Icons.add,
-                    color: colors.primary,
-                  ),
+                  icon: Icon(Icons.add, color: colors.primary),
                 ),
 
                 Text(
