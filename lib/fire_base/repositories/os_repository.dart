@@ -7,6 +7,8 @@ import 'package:frontend/fire_base/models/os.dart';
 abstract class OsRepository {
   Future<List<ServiceOrder>> listarTodos();
 
+  Future<ServiceOrder?> buscarPorId(String id);
+
   Future<void> salvar(ServiceOrder os);
 
   Future<void> deletar(String id);
@@ -58,7 +60,6 @@ class FirestoreOsRepository implements OsRepository {
         final contadorSnapshot = await transaction.get(_contador);
 
         final dadosExistentes = osSnapshot.data();
-
         final numeroExistente = dadosExistentes?['numero_os'];
 
         if (numeroExistente is num) {
@@ -72,10 +73,14 @@ class FirestoreOsRepository implements OsRepository {
 
           numeroAtribuido = ultimoNumeroValido + 1;
 
-          transaction.set(_contador, {
-            'last_number': numeroAtribuido,
-            'updated_at': FieldValue.serverTimestamp(),
-          }, SetOptions(merge: true));
+          transaction.set(
+            _contador,
+            {
+              'last_number': numeroAtribuido,
+              'updated_at': FieldValue.serverTimestamp(),
+            },
+            SetOptions(merge: true),
+          );
         }
 
         final dados = os.toFirestore();
@@ -186,6 +191,26 @@ class FirestoreOsRepository implements OsRepository {
       debugPrintStack(stackTrace: stackTrace);
 
       throw Exception('Erro ao listar ordens de serviço: $e');
+    }
+  }
+
+  @override
+  Future<ServiceOrder?> buscarPorId(String id) async {
+    try {
+      final doc = await _colecao.doc(id).get();
+
+      if (!doc.exists) return null;
+
+      final os = ServiceOrder.fromFirestore(doc);
+
+      if (!os.active) return null;
+
+      return os;
+    } catch (e, stackTrace) {
+      debugPrint('Erro ao buscar OS: $e');
+      debugPrintStack(stackTrace: stackTrace);
+
+      throw Exception('Erro ao buscar ordem de serviço: $e');
     }
   }
 

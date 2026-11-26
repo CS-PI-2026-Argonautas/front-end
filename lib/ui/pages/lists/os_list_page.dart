@@ -11,7 +11,6 @@ import 'package:frontend/ui/pages/dashboard.dart';
 import 'package:frontend/ui/pages/edit_item/item_edition.dart';
 import 'package:frontend/ui/pages/os/tabbar/tabbar.dart';
 import 'package:frontend/ui/pages/product_registration/product_registration.dart';
-import 'package:frontend/ui/pages/stand_in_page.dart';
 
 import 'package:frontend/ui/style/ColorScheme.dart' as custom_colors;
 import 'package:frontend/ui/widgets/floatingButton.dart';
@@ -187,6 +186,22 @@ class _OsListPageState extends State<OsListPage> {
     }
   }
 
+  Future<void> _abrirEdicaoOs(ServiceOrder os) async {
+    await Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => Tabbar(
+          serviceOrderNumber: os.numeroOs ?? -1,
+          serviceOrderId: os.id,
+        ),
+      ),
+    );
+
+    if (!mounted) return;
+
+    _carregarOrdemServicos();
+  }
+
   Future<void> _confirmarExclusao(
     ServiceOrder os,
   ) async {
@@ -229,12 +244,14 @@ class _OsListPageState extends State<OsListPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: colors.surface,
+
       appBar: Header(
         onBack: () {
           Navigator.pop(context);
         },
         title: 'Listagem de ordens de serviço',
       ),
+
       endDrawer: Menu(
         currentIndex: 2,
         onTap: (index) {
@@ -276,11 +293,9 @@ class _OsListPageState extends State<OsListPage> {
               ),
             );
           }
-
-          // A lista de serviços permanece disponível
-          // pela navegação própria da aplicação.
         },
       ),
+
       body: SafeArea(
         child: RefreshIndicator(
           onRefresh: _recarregarOrdemServicos,
@@ -560,6 +575,7 @@ class _OsListPageState extends State<OsListPage> {
           ),
         ),
       ),
+
       floatingActionButton: CustomFloatingButton(
         onPressed: _abrirNovaOs,
       ),
@@ -655,21 +671,14 @@ class _OsListPageState extends State<OsListPage> {
                 ],
               ),
             ),
+
             IconButton(
               icon: Icon(
                 Icons.edit,
                 color: colors.secondary,
               ),
               tooltip: 'Editar ordem de serviço',
-              onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) =>
-                        const StandInPage(),
-                  ),
-                );
-              },
+              onPressed: () => _abrirEdicaoOs(os),
             ),
           ],
         ),
