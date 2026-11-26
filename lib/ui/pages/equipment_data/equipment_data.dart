@@ -35,7 +35,8 @@ class _EquipmentDataState extends State<EquipmentData> {
   bool get _osBloqueada => widget.osDados?['equipamento_bloqueado'] == true;
 
   static const _avisoBloqueio =
-      'Equipamento bloqueado. Os dados estão disponíveis apenas para consulta.';
+      'Equipamento bloqueado. Os dados não podem ser alterados após a '
+      'entrega ou o pagamento da ordem de serviço.';
 
   final _formKey = GlobalKey<FormState>();
 
@@ -181,11 +182,12 @@ class _EquipmentDataState extends State<EquipmentData> {
                   formKey: _formKey,
                   title: 'Dados da Balança',
                   subtitle: _osBloqueada
-                      ? _avisoBloqueio
+                      ? 'Consulte as informações técnicas da balança.'
                       : 'Preencha as informações técnicas da balança.',
                   fieldSpacing: 18,
                   autovalidateMode: AutovalidateMode.disabled,
                   children: [
+                    if (_osBloqueada) _buildAvisoBloqueio(),
                     _buildField(
                       label: 'Marca*',
                       icon: Icons.branding_watermark_outlined,
@@ -287,6 +289,24 @@ class _EquipmentDataState extends State<EquipmentData> {
             ),
           ),
         ),
+      ),
+    );
+  }
+
+  Widget _buildAvisoBloqueio() {
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: Colors.amber.shade50,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: Colors.amber.shade300),
+      ),
+      child: Row(
+        spacing: 12,
+        children: [
+          Icon(Icons.lock_outline, color: Colors.orange.shade800),
+          const Expanded(child: Text(_avisoBloqueio)),
+        ],
       ),
     );
   }
