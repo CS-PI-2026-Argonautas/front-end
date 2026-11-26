@@ -1,4 +1,3 @@
-
 import 'package:flutter/material.dart';
 import 'package:frontend/fire_base/models/os.dart';
 import 'package:frontend/fire_base/Enums/StatusOrderService.dart';
@@ -12,9 +11,12 @@ import 'package:frontend/ui/style/ColorScheme.dart' as custom_colors;
 class Tabbar extends StatefulWidget {
   final dynamic serviceOrderNumber;
 
+  final String? serviceOrderId;
+
   const Tabbar({
     super.key,
     required this.serviceOrderNumber,
+    this.serviceOrderId,
   });
 
   @override
@@ -28,10 +30,14 @@ class _TabbarState extends State<Tabbar>
   final OsRepository _osRepository = FirestoreOsRepository();
 
   late final TabController _tabController;
-  late final ServiceOrder _serviceOrder;
+  late ServiceOrder _serviceOrder;
 
   bool _dadosObrigatoriosPreenchidos = false;
   bool _salvando = false;
+
+  bool get _modoEdicao => widget.serviceOrderId != null;
+  bool _carregando = false;
+  String? _erroCarregamento;
 
   @override
   void initState() {
@@ -43,7 +49,57 @@ class _TabbarState extends State<Tabbar>
       length: 4,
       vsync: this,
     );
+
+    if (_modoEdicao) {
+      _carregarOs();
+    }
   }
+Future<void> _carregarOs() async {
+  setState(() {
+    _carregando = true;
+    _erroCarregamento = null;
+  });
+
+  try {
+    final ordens = await _osRepository.listarTodos();
+
+    ServiceOrder? os;
+
+    for (final ordem in ordens) {
+      if (ordem.id == widget.serviceOrderId) {
+        os = ordem;
+        break;
+      }
+    }
+
+    if (!mounted) return;
+
+    if (os == null) {
+      setState(() {
+        _erroCarregamento = 'Ordem de serviço não encontrada.';
+        _carregando = false;
+      });
+      return;
+    }
+
+    setState(() {
+      _serviceOrder = os!;
+      _dadosObrigatoriosPreenchidos =
+          os!.client != null && os.serviceAddress != null;
+      _carregando = false;
+    });
+  } catch (e) {
+    debugPrint('Erro ao carregar OS: $e');
+
+    if (!mounted) return;
+
+    setState(() {
+      _erroCarregamento =
+          'Não foi possível carregar a ordem de serviço.';
+      _carregando = false;
+    });
+  }
+}
 
   @override
   void dispose() {
@@ -51,7 +107,6 @@ class _TabbarState extends State<Tabbar>
     super.dispose();
   }
 
-  // Salva a OS sem alterar o status.
   Future<void> _salvarOs() async {
     if (_salvando) return;
 
@@ -92,7 +147,6 @@ class _TabbarState extends State<Tabbar>
     }
   }
 
-  // Conclui a OS, salva e retorna somente se tudo der certo.
   Future<void> _concluirOs() async {
     if (_salvando) return;
 
@@ -127,7 +181,6 @@ class _TabbarState extends State<Tabbar>
 
       Navigator.pop(context, _serviceOrder);
     } catch (e) {
-      // Se falhar, restaura o status anterior.
       _serviceOrder.changeStatus(statusAnterior);
 
       if (!mounted) return;
@@ -163,6 +216,30 @@ class _TabbarState extends State<Tabbar>
 
   @override
   Widget build(BuildContext context) {
+    if (_carregando || _erroCarregamento != null) {
+      return Scaffold(
+        backgroundColor: colors.surface,
+        appBar: AppBar(
+          title: Text('OS nº ${widget.serviceOrderNumber}'),
+        ),
+        body: Center(
+          child: _carregando
+              ? const CircularProgressIndicator()
+              : Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Text(_erroCarregamento!),
+                    const SizedBox(height: 12),
+                    ElevatedButton(
+                      onPressed: _carregarOs,
+                      child: const Text('Tentar novamente'),
+                    ),
+                  ],
+                ),
+        ),
+      );
+    }
+
     return Scaffold(
       backgroundColor: colors.surface,
 
@@ -247,6 +324,7 @@ class _TabbarState extends State<Tabbar>
       ),
 
       body: TabBarView(
+        key: ValueKey(_serviceOrder),
         controller: _tabController,
         physics: _dadosObrigatoriosPreenchidos
             ? const BouncingScrollPhysics()
