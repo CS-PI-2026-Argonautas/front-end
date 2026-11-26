@@ -1,4 +1,3 @@
-
 import 'package:flutter/material.dart';
 import 'package:frontend/fire_base/models/os.dart';
 import 'package:frontend/fire_base/Enums/StatusOrderService.dart';
@@ -12,17 +11,13 @@ import 'package:frontend/ui/style/ColorScheme.dart' as custom_colors;
 class Tabbar extends StatefulWidget {
   final dynamic serviceOrderNumber;
 
-  const Tabbar({
-    super.key,
-    required this.serviceOrderNumber,
-  });
+  const Tabbar({super.key, required this.serviceOrderNumber});
 
   @override
   State<Tabbar> createState() => _TabbarState();
 }
 
-class _TabbarState extends State<Tabbar>
-    with SingleTickerProviderStateMixin {
+class _TabbarState extends State<Tabbar> with SingleTickerProviderStateMixin {
   final colors = custom_colors.colorScheme;
 
   final OsRepository _osRepository = FirestoreOsRepository();
@@ -39,10 +34,7 @@ class _TabbarState extends State<Tabbar>
 
     _serviceOrder = ServiceOrder.createNew();
 
-    _tabController = TabController(
-      length: 4,
-      vsync: this,
-    );
+    _tabController = TabController(length: 4, vsync: this);
   }
 
   @override
@@ -51,7 +43,6 @@ class _TabbarState extends State<Tabbar>
     super.dispose();
   }
 
-  // Salva a OS sem alterar o status.
   Future<void> _salvarOs() async {
     if (_salvando) return;
 
@@ -76,9 +67,7 @@ class _TabbarState extends State<Tabbar>
 
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text(
-            e.toString().replaceFirst('Exception: ', ''),
-          ),
+          content: Text(e.toString().replaceFirst('Exception: ', '')),
           backgroundColor: Colors.red,
           behavior: SnackBarBehavior.floating,
         ),
@@ -92,7 +81,6 @@ class _TabbarState extends State<Tabbar>
     }
   }
 
-  // Conclui a OS, salva e retorna somente se tudo der certo.
   Future<void> _concluirOs() async {
     if (_salvando) return;
 
@@ -117,9 +105,7 @@ class _TabbarState extends State<Tabbar>
     });
 
     try {
-      _serviceOrder.changeStatus(
-        ServiceOrderStatus.CONCLUIDA,
-      );
+      _serviceOrder.changeStatus(ServiceOrderStatus.CONCLUIDA);
 
       await _osRepository.salvar(_serviceOrder);
 
@@ -127,7 +113,6 @@ class _TabbarState extends State<Tabbar>
 
       Navigator.pop(context, _serviceOrder);
     } catch (e) {
-      // Se falhar, restaura o status anterior.
       _serviceOrder.changeStatus(statusAnterior);
 
       if (!mounted) return;
@@ -175,9 +160,7 @@ class _TabbarState extends State<Tabbar>
 
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
-          onPressed: _salvando
-              ? null
-              : () => Navigator.pop(context),
+          onPressed: _salvando ? null : () => Navigator.pop(context),
         ),
 
         title: Text(
@@ -192,10 +175,7 @@ class _TabbarState extends State<Tabbar>
         flexibleSpace: Container(
           decoration: BoxDecoration(
             gradient: LinearGradient(
-              colors: [
-                colors.primary,
-                colors.tertiary,
-              ],
+              colors: [colors.primary, colors.tertiary],
               begin: Alignment.centerLeft,
               end: Alignment.centerRight,
             ),
@@ -210,8 +190,7 @@ class _TabbarState extends State<Tabbar>
           indicatorWeight: 3,
 
           onTap: (index) {
-            if (index != 0 &&
-                !_dadosObrigatoriosPreenchidos) {
+            if (index != 0 && !_dadosObrigatoriosPreenchidos) {
               _tabController.animateTo(0);
 
               ScaffoldMessenger.of(context).showSnackBar(
@@ -226,22 +205,10 @@ class _TabbarState extends State<Tabbar>
           },
 
           tabs: const [
-            Tab(
-              icon: Icon(Icons.description),
-              text: 'Dados',
-            ),
-            Tab(
-              icon: Icon(Icons.build),
-              text: 'Peças',
-            ),
-            Tab(
-              icon: Icon(Icons.handyman),
-              text: 'Serviços',
-            ),
-            Tab(
-              icon: Icon(Icons.attach_money),
-              text: 'Valores',
-            ),
+            Tab(icon: Icon(Icons.description), text: 'Dados'),
+            Tab(icon: Icon(Icons.build), text: 'Peças'),
+            Tab(icon: Icon(Icons.handyman), text: 'Serviços'),
+            Tab(icon: Icon(Icons.attach_money), text: 'Valores'),
           ],
         ),
       ),
@@ -258,32 +225,19 @@ class _TabbarState extends State<Tabbar>
             avancarTab: () {
               _tabController.animateTo(1);
             },
-            onDadosObrigatoriosChanged:
-                _atualizarDadosObrigatorios,
+            onDadosObrigatoriosChanged: _atualizarDadosObrigatorios,
             onChanged: () {
               setState(() {});
             },
           ),
 
-          TollsOs(
-            serviceOrder: _serviceOrder,
-          ),
+          TollsOs(serviceOrder: _serviceOrder),
 
-          OsServicosTab(
-            serviceOrder: _serviceOrder,
-          ),
+          OsServicosTab(serviceOrder: _serviceOrder),
 
-          ValuesOs(
-            serviceOrder: _serviceOrder,
-            onConcluir: _concluirOs,
-          ),
+          ValuesOs(serviceOrder: _serviceOrder, onConcluir: _concluirOs),
         ],
       ),
-
-  
-          
-        
-      
     );
   }
 }
