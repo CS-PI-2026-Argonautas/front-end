@@ -143,7 +143,26 @@ class FirestoreOsRepository implements OsRepository {
       throw Exception('Erro ao listar ordens de serviço: $e');
     }
   }
+@override
+Future<ServiceOrder?> buscarPorId(String id) async {
+  try {
+    final doc = await _colecao.doc(id).get();
 
+    if (!doc.exists) return null;
+
+    final os = ServiceOrder.fromFirestore(doc);
+
+    // OS excluída logicamente não pode ser editada.
+    if (!os.active) return null;
+
+    return os;
+  } catch (e, stackTrace) {
+    debugPrint('Erro ao buscar OS: $e');
+    debugPrintStack(stackTrace: stackTrace);
+
+    throw Exception('Erro ao buscar ordem de serviço: $e');
+  }
+}
   @override
   Future<void> deletar(String id) async {
     try {

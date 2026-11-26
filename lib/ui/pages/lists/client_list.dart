@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:frontend/fire_base/models/client.dart';
 import 'package:frontend/fire_base/services/client_service.dart';
 import 'package:frontend/ui/pages/dashboard.dart';
-import 'package:frontend/ui/pages/edit_item/item_edition.dart';
 import 'package:frontend/ui/pages/lists/service_list.dart';
 import 'package:frontend/ui/pages/lists/os_list_page.dart';
 import 'package:frontend/ui/pages/person_alteration/person_alteration.dart';
