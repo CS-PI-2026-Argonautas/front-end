@@ -310,7 +310,7 @@ class _TabbarState extends State<Tabbar> with SingleTickerProviderStateMixin {
 
         children: [
           DataOs(
-            serviceOrder: _serviceOrder,
+            serviceOrderState: _serviceOrderState,
             avancarTab: () {
               _tabController.animateTo(1);
             },
