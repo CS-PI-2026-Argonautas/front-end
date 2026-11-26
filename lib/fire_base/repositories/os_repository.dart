@@ -10,6 +10,7 @@ abstract class OsRepository {
   Future<ServiceOrder?> buscarPorId(String id);
 
   Future<void> salvar(ServiceOrder os);
+  Future<void> salvarRascunho(ServiceOrder os);
 
   Future<void> deletar(String id);
 }
@@ -25,6 +26,28 @@ class FirestoreOsRepository implements OsRepository {
 
   DocumentReference<Map<String, dynamic>> get _contador =>
       _firestore.collection('counters').doc('service_orders');
+
+  @override
+  Future<void> salvarRascunho(ServiceOrder os) {
+    final dados = os.toFirestore()
+      ..remove('numero_os')
+      ..['updated_at'] = FieldValue.serverTimestamp();
+
+    if (os.persisted) {
+      dados.remove('deleted_at');
+      if (os.equipmentBlocked) {
+        dados.remove('equipamento');
+      } else {
+        dados.remove('equipamento_bloqueado');
+      }
+    } else {
+      dados['created_at'] = os.createdAt ??= Timestamp.now();
+    }
+
+    return _colecao
+        .doc(os.id)
+        .set(dados, SetOptions(mergeFields: dados.keys.toList()));
+  }
 
   @override
   Future<void> salvar(ServiceOrder os) async {
@@ -73,14 +96,10 @@ class FirestoreOsRepository implements OsRepository {
 
           numeroAtribuido = ultimoNumeroValido + 1;
 
-          transaction.set(
-            _contador,
-            {
-              'last_number': numeroAtribuido,
-              'updated_at': FieldValue.serverTimestamp(),
-            },
-            SetOptions(merge: true),
-          );
+          transaction.set(_contador, {
+            'last_number': numeroAtribuido,
+            'updated_at': FieldValue.serverTimestamp(),
+          }, SetOptions(merge: true));
         }
 
         final dados = os.toFirestore();

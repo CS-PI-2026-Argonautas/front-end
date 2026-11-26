@@ -45,7 +45,10 @@ class _TabbarState extends State<Tabbar> with SingleTickerProviderStateMixin {
   void initState() {
     super.initState();
 
-    _serviceOrderState = ServiceOrderState(ServiceOrder.createNew());
+    _serviceOrderState = ServiceOrderState(
+      ServiceOrder.createNew(),
+      saveDraft: _osRepository.salvarRascunho,
+    );
 
     _tabController = TabController(length: 4, vsync: this);
 
@@ -75,7 +78,10 @@ class _TabbarState extends State<Tabbar> with SingleTickerProviderStateMixin {
 
       setState(() {
         _serviceOrderState.dispose();
-        _serviceOrderState = ServiceOrderState(os);
+        _serviceOrderState = ServiceOrderState(
+          os,
+          saveDraft: _osRepository.salvarRascunho,
+        );
         _dadosObrigatoriosPreenchidos =
             os.client != null && os.serviceAddress != null;
         _carregando = false;
