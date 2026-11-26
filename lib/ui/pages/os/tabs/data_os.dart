@@ -199,17 +199,30 @@ class _DataOsState extends State<DataOs>
       ),
     );
 
-    if (resultado != null && mounted) {
-      setState(() {
-        _os.equipment = _equipamentoDe(resultado);
-      });
+    if (!mounted || resultado == null) return;
 
-      _notificar();
-    }
+    _associarEquipamento(resultado);
+  }
+
+  bool _podeTrocarEquipamento() {
+    if (!_equipamentoBloqueado) return true;
+
+    _mostrarErro('Não é possível trocar um equipamento bloqueado.');
+    return false;
+  }
+
+  void _associarEquipamento(Object equipamento) {
+    if (!_podeTrocarEquipamento()) return;
+
+    setState(() {
+      _os.equipment = _equipamentoDe(equipamento);
+    });
+
+    _notificar();
   }
 
   Future<void> _buscarEquipamento() async {
-    if (_equipamentoBloqueado) return;
+    if (!_podeTrocarEquipamento()) return;
 
     final List<Equipment> equipamentos;
 
@@ -222,7 +235,7 @@ class _DataOsState extends State<DataOs>
       return;
     }
 
-    if (!mounted) return;
+    if (!mounted || !_podeTrocarEquipamento()) return;
 
     showModalBottomSheet(
       context: context,
@@ -243,14 +256,11 @@ class _DataOsState extends State<DataOs>
           loading: false,
           onAction: () {
             Navigator.pop(sheetContext);
+            if (!_podeTrocarEquipamento()) return;
             _abrirCadastroEquipamento();
           },
           onSelect: (e) {
-            setState(() {
-              _os.equipment = _equipamentoDe(e);
-            });
-
-            _notificar();
+            _associarEquipamento(e);
             Navigator.pop(sheetContext);
           },
         );
