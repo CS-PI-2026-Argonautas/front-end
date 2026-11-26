@@ -8,6 +8,8 @@ import 'package:frontend/fire_base/models/os.dart';
 abstract class OsRepository {
   Future<List<ServiceOrder>> listarTodos();
 
+  Future<ServiceOrder?> buscarPorId(String id);
+
   Future<void> salvar(ServiceOrder os);
 
   Future<void> deletar(String id);
@@ -52,19 +54,15 @@ class FirestoreOsRepository implements OsRepository {
       int? numeroAtribuido;
 
       await _firestore.runTransaction((transaction) async {
-        // Todas as leituras precisam ocorrer antes das escritas.
         final osSnapshot = await transaction.get(documento);
         final contadorSnapshot = await transaction.get(_contador);
 
         final dadosExistentes = osSnapshot.data();
-
         final numeroExistente = dadosExistentes?['numero_os'];
 
         if (numeroExistente is num) {
-          // Atualização: preserva o número já atribuído.
           numeroAtribuido = numeroExistente.toInt();
         } else {
-          // Primeira gravação ou OS antiga sem numeração.
           final ultimoNumero =
               contadorSnapshot.data()?['last_number'];
 
@@ -73,10 +71,14 @@ class FirestoreOsRepository implements OsRepository {
 
           numeroAtribuido = ultimoNumeroValido + 1;
 
-          transaction.set(_contador, {
-            'last_number': numeroAtribuido,
-            'updated_at': FieldValue.serverTimestamp(),
-          }, SetOptions(merge: true));
+          transaction.set(
+            _contador,
+            {
+              'last_number': numeroAtribuido,
+              'updated_at': FieldValue.serverTimestamp(),
+            },
+            SetOptions(merge: true),
+          );
         }
 
         final dados = os.toFirestore();
@@ -95,7 +97,6 @@ class FirestoreOsRepository implements OsRepository {
         );
       });
 
-      // Atualiza o objeto somente depois do commit.
       os.numeroOs = numeroAtribuido;
 
       final snapshot = await documento.get();
@@ -130,7 +131,6 @@ class FirestoreOsRepository implements OsRepository {
           .map((doc) => ServiceOrder.fromFirestore(doc))
           .toList();
 
-      // Ordena pelo número da OS, da mais recente para a mais antiga.
       ordens.sort((a, b) {
         return (b.numeroOs ?? 0).compareTo(a.numeroOs ?? 0);
       });
@@ -143,26 +143,27 @@ class FirestoreOsRepository implements OsRepository {
       throw Exception('Erro ao listar ordens de serviço: $e');
     }
   }
-@override
-Future<ServiceOrder?> buscarPorId(String id) async {
-  try {
-    final doc = await _colecao.doc(id).get();
 
-    if (!doc.exists) return null;
+  @override
+  Future<ServiceOrder?> buscarPorId(String id) async {
+    try {
+      final doc = await _colecao.doc(id).get();
 
-    final os = ServiceOrder.fromFirestore(doc);
+      if (!doc.exists) return null;
 
-    // OS excluída logicamente não pode ser editada.
-    if (!os.active) return null;
+      final os = ServiceOrder.fromFirestore(doc);
 
-    return os;
-  } catch (e, stackTrace) {
-    debugPrint('Erro ao buscar OS: $e');
-    debugPrintStack(stackTrace: stackTrace);
+      if (!os.active) return null;
 
-    throw Exception('Erro ao buscar ordem de serviço: $e');
+      return os;
+    } catch (e, stackTrace) {
+      debugPrint('Erro ao buscar OS: $e');
+      debugPrintStack(stackTrace: stackTrace);
+
+      throw Exception('Erro ao buscar ordem de serviço: $e');
+    }
   }
-}
+
   @override
   Future<void> deletar(String id) async {
     try {

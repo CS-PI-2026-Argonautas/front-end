@@ -54,52 +54,45 @@ class _TabbarState extends State<Tabbar>
       _carregarOs();
     }
   }
-Future<void> _carregarOs() async {
-  setState(() {
-    _carregando = true;
-    _erroCarregamento = null;
-  });
 
-  try {
-    final ordens = await _osRepository.listarTodos();
+  Future<void> _carregarOs() async {
+    setState(() {
+      _carregando = true;
+      _erroCarregamento = null;
+    });
 
-    ServiceOrder? os;
+    try {
+      final os = await _osRepository.buscarPorId(
+        widget.serviceOrderId!,
+      );
 
-    for (final ordem in ordens) {
-      if (ordem.id == widget.serviceOrderId) {
-        os = ordem;
-        break;
+      if (!mounted) return;
+
+      if (os == null) {
+        setState(() {
+          _erroCarregamento = 'Ordem de serviço não encontrada.';
+          _carregando = false;
+        });
+        return;
       }
-    }
 
-    if (!mounted) return;
-
-    if (os == null) {
       setState(() {
-        _erroCarregamento = 'Ordem de serviço não encontrada.';
+        _serviceOrder = os;
+        _dadosObrigatoriosPreenchidos =
+            os.client != null && os.serviceAddress != null;
         _carregando = false;
       });
-      return;
+    } catch (e) {
+      debugPrint('Erro ao carregar OS: $e');
+
+      if (!mounted) return;
+
+      setState(() {
+        _erroCarregamento = 'Não foi possível carregar a ordem de serviço.';
+        _carregando = false;
+      });
     }
-
-    setState(() {
-      _serviceOrder = os!;
-      _dadosObrigatoriosPreenchidos =
-          os!.client != null && os.serviceAddress != null;
-      _carregando = false;
-    });
-  } catch (e) {
-    debugPrint('Erro ao carregar OS: $e');
-
-    if (!mounted) return;
-
-    setState(() {
-      _erroCarregamento =
-          'Não foi possível carregar a ordem de serviço.';
-      _carregando = false;
-    });
   }
-}
 
   @override
   void dispose() {
@@ -171,9 +164,11 @@ Future<void> _carregarOs() async {
     });
 
     try {
-      _serviceOrder.changeStatus(
-        ServiceOrderStatus.CONCLUIDA,
-      );
+      if (!_modoEdicao) {
+        _serviceOrder.changeStatus(
+          ServiceOrderStatus.CONCLUIDA,
+        );
+      }
 
       await _osRepository.salvar(_serviceOrder);
 
@@ -181,14 +176,17 @@ Future<void> _carregarOs() async {
 
       Navigator.pop(context, _serviceOrder);
     } catch (e) {
-      _serviceOrder.changeStatus(statusAnterior);
+   
+      if (!_modoEdicao) {
+        _serviceOrder.changeStatus(statusAnterior);
+      }
 
       if (!mounted) return;
 
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(
-            'Não foi possível concluir a OS: '
+            'Não foi possível salvar a OS: '
             '${e.toString().replaceFirst('Exception: ', '')}',
           ),
           backgroundColor: Colors.red,
@@ -258,7 +256,7 @@ Future<void> _carregarOs() async {
         ),
 
         title: Text(
-          'OS nº ${widget.serviceOrderNumber}',
+          'OS nº ${_serviceOrder.numeroOs ?? widget.serviceOrderNumber}',
           style: const TextStyle(
             color: Colors.white,
             fontWeight: FontWeight.bold,
