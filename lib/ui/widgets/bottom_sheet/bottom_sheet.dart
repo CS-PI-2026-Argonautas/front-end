@@ -43,12 +43,10 @@ class SelectionBottomSheet<T> extends StatefulWidget {
       _SelectionBottomSheetState<T>();
 }
 
-class _SelectionBottomSheetState<T>
-    extends State<SelectionBottomSheet<T>> {
+class _SelectionBottomSheetState<T> extends State<SelectionBottomSheet<T>> {
   final colors = custom_colors.colorScheme;
 
-  final TextEditingController _searchController =
-      TextEditingController();
+  final TextEditingController _searchController = TextEditingController();
 
   late List<T> _filteredItems;
 
@@ -70,9 +68,7 @@ class _SelectionBottomSheetState<T>
   }
 
   @override
-  void didUpdateWidget(
-    covariant SelectionBottomSheet<T> oldWidget,
-  ) {
+  void didUpdateWidget(covariant SelectionBottomSheet<T> oldWidget) {
     super.didUpdateWidget(oldWidget);
 
     if (oldWidget.items != widget.items) {
@@ -81,15 +77,11 @@ class _SelectionBottomSheetState<T>
   }
 
   void _filterItems() {
-    final search = removeDiacritics(
-      _searchController.text,
-    ).toLowerCase();
+    final search = removeDiacritics(_searchController.text).toLowerCase();
 
     setState(() {
       _filteredItems = widget.items.where((item) {
-        final title = removeDiacritics(
-          widget.itemTitle(item),
-        ).toLowerCase();
+        final title = removeDiacritics(widget.itemTitle(item)).toLowerCase();
 
         return title.contains(search);
       }).toList();
@@ -102,12 +94,7 @@ class _SelectionBottomSheetState<T>
       child: SizedBox(
         height: MediaQuery.of(context).size.height * 0.7,
         child: Padding(
-          padding: const EdgeInsets.fromLTRB(
-            26,
-            20,
-            26,
-            20,
-          ),
+          padding: const EdgeInsets.fromLTRB(26, 20, 26, 20),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -125,23 +112,39 @@ class _SelectionBottomSheetState<T>
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Text(
-                    widget.title,
-                    style: TextStyle(
-                      color: colors.onSurface,
-                      fontSize: 22,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                  if (widget.onAction != null)
-                    IconButton(
-                      onPressed: widget.onAction,
-                      icon: Icon(
-                        Icons.add_circle,
-                        color: colors.tertiary,
-                        size: 28,
+                  Flexible(
+                    child: Text(
+                      widget.title,
+                      style: TextStyle(
+                        color: colors.onSurface,
+                        fontSize: 22,
+                        fontWeight: FontWeight.bold,
                       ),
                     ),
+                  ),
+                  if (widget.onAction != null) ...[
+                    const SizedBox(width: 12),
+                    Flexible(
+                      flex: 2,
+                      child: ElevatedButton.icon(
+                        onPressed: widget.onAction,
+                        icon: const Icon(Icons.add, size: 18),
+                        label: Text(widget.actionText),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: colors.secondary,
+                          foregroundColor: Colors.white,
+                          elevation: 0,
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 14,
+                            vertical: 10,
+                          ),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
                 ],
               ),
               const SizedBox(height: 12),
@@ -164,96 +167,96 @@ class _SelectionBottomSheetState<T>
               const SizedBox(height: 12),
               Flexible(
                 child: widget.loading
-                    ? const Center(
-                        child: CircularProgressIndicator(),
-                      )
+                    ? const Center(child: CircularProgressIndicator())
                     : _filteredItems.isEmpty
-                        ? Center(
-                            child: Padding(
-                              padding: const EdgeInsets.all(24),
-                              child: Text(
-                                'Nenhum item encontrado',
-                                style: TextStyle(
-                                  color: colors.onSurfaceVariant,
-                                  fontSize: 16,
-                                ),
-                                textAlign: TextAlign.center,
+                    ? Center(
+                        child: Padding(
+                          padding: const EdgeInsets.all(24),
+                          child: Text(
+                            'Nenhum item encontrado',
+                            style: TextStyle(
+                              color: colors.onSurfaceVariant,
+                              fontSize: 16,
+                            ),
+                            textAlign: TextAlign.center,
+                          ),
+                        ),
+                      )
+                    : ListView.builder(
+                        shrinkWrap: true,
+                        itemCount: _filteredItems.length,
+                        itemBuilder: (context, index) {
+                          final item = _filteredItems[index];
+
+                          return Container(
+                            margin: const EdgeInsets.only(bottom: 8),
+                            decoration: BoxDecoration(
+                              color: colors.surfaceContainerHigh,
+                              borderRadius: BorderRadius.circular(12),
+                              border: Border.all(
+                                color: colors.surfaceContainerHighest,
+                                width: 1,
                               ),
                             ),
-                          )
-                        : ListView.builder(
-                            shrinkWrap: true,
-                            itemCount: _filteredItems.length,
-                            itemBuilder: (context, index) {
-                              final item =
-                                  _filteredItems[index];
-
-                              return Container(
-  margin: const EdgeInsets.only(bottom: 8), 
-  decoration: BoxDecoration(
-    color: colors.surfaceContainerHigh,
-    borderRadius: BorderRadius.circular(12),
-    border: Border.all(
-      color: colors.surfaceContainerHighest,
-      width: 1,
-    ),
-  ),
-  child: ListTile(
-    contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
-    leading: widget.itemIcon != null
-        ? Icon(
-            widget.itemIcon,
-            color: colors.secondary,
-            size: 25,
-          )
-        : null,
-    title: Text(
-      widget.itemTitle(item),
-      style: TextStyle(
-        color: colors.onSurface,
-        fontSize: 18,
-        fontWeight: FontWeight.w500,
-      ),
-    ),
-    subtitle: widget.itemSubtitle != null
-        ? Text(
-            widget.itemSubtitle!(item),
-            style: TextStyle(
-              color: Colors.blueGrey.shade700,
-              fontSize: 15,
-            ),
-          )
-        : null,
-    trailing: Row(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        if (widget.onEdit != null)
-          IconButton(
-            onPressed: () => widget.onEdit!(item),
-            icon: Icon(
-              Icons.edit,
-              color: colors.secondary,
-            ),
-          ),
-        if (widget.onDelete != null)
-          IconButton(
-            onPressed: () => widget.onDelete!(item),
-            icon: Icon(
-              Icons.delete,
-              color: colors.error,
-            ),
-          ),
-        Icon(
-          Icons.chevron_right,
-          color: colors.onSurfaceVariant,
-        ),
-      ],
-    ),
-    onTap: () => widget.onSelect(item),
-  ),
-);
-                            },
-                          ),
+                            child: ListTile(
+                              contentPadding: const EdgeInsets.symmetric(
+                                horizontal: 12,
+                                vertical: 4,
+                              ),
+                              leading: widget.itemIcon != null
+                                  ? Icon(
+                                      widget.itemIcon,
+                                      color: colors.secondary,
+                                      size: 25,
+                                    )
+                                  : null,
+                              title: Text(
+                                widget.itemTitle(item),
+                                style: TextStyle(
+                                  color: colors.onSurface,
+                                  fontSize: 18,
+                                  fontWeight: FontWeight.w500,
+                                ),
+                              ),
+                              subtitle: widget.itemSubtitle != null
+                                  ? Text(
+                                      widget.itemSubtitle!(item),
+                                      style: TextStyle(
+                                        color: Colors.blueGrey.shade700,
+                                        fontSize: 15,
+                                      ),
+                                    )
+                                  : null,
+                              trailing: Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  if (widget.onEdit != null)
+                                    IconButton(
+                                      onPressed: () => widget.onEdit!(item),
+                                      icon: Icon(
+                                        Icons.edit,
+                                        color: colors.secondary,
+                                      ),
+                                    ),
+                                  if (widget.onDelete != null)
+                                    IconButton(
+                                      onPressed: () => widget.onDelete!(item),
+                                      icon: Icon(
+                                        Icons.delete,
+                                        color: colors.error,
+                                      ),
+                                    ),
+                                  Icon(
+                                    Icons.chevron_right,
+                                    color: colors.onSurfaceVariant,
+                                  ),
+                                ],
+                              ),
+                              onTap: () => widget.onSelect(item),
+                            ),
+                          );
+                        },
+                      ),
               ),
             ],
           ),

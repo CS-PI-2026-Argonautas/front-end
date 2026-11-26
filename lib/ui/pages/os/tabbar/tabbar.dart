@@ -12,7 +12,13 @@ import 'package:frontend/ui/style/ColorScheme.dart' as custom_colors;
 class Tabbar extends StatefulWidget {
   final dynamic serviceOrderNumber;
 
-  const Tabbar({super.key, required this.serviceOrderNumber});
+  final String? serviceOrderId;
+
+  const Tabbar({
+    super.key,
+    required this.serviceOrderNumber,
+    this.serviceOrderId,
+  });
 
   @override
   State<Tabbar> createState() => _TabbarState();
@@ -24,12 +30,16 @@ class _TabbarState extends State<Tabbar> with SingleTickerProviderStateMixin {
   final OsRepository _osRepository = FirestoreOsRepository();
 
   late final TabController _tabController;
-  late final ServiceOrderState _serviceOrderState;
+  late ServiceOrderState _serviceOrderState;
 
   ServiceOrder get _serviceOrder => _serviceOrderState.serviceOrder;
 
   bool _dadosObrigatoriosPreenchidos = false;
   bool _salvando = false;
+
+  bool get _modoEdicao => widget.serviceOrderId != null;
+  bool _carregando = false;
+  String? _erroCarregamento;
 
   @override
   void initState() {
@@ -38,6 +48,48 @@ class _TabbarState extends State<Tabbar> with SingleTickerProviderStateMixin {
     _serviceOrderState = ServiceOrderState(ServiceOrder.createNew());
 
     _tabController = TabController(length: 4, vsync: this);
+
+    if (_modoEdicao) {
+      _carregarOs();
+    }
+  }
+
+  Future<void> _carregarOs() async {
+    setState(() {
+      _carregando = true;
+      _erroCarregamento = null;
+    });
+
+    try {
+      final os = await _osRepository.buscarPorId(widget.serviceOrderId!);
+
+      if (!mounted) return;
+
+      if (os == null) {
+        setState(() {
+          _erroCarregamento = 'Ordem de serviço não encontrada.';
+          _carregando = false;
+        });
+        return;
+      }
+
+      setState(() {
+        _serviceOrderState.dispose();
+        _serviceOrderState = ServiceOrderState(os);
+        _dadosObrigatoriosPreenchidos =
+            os.client != null && os.serviceAddress != null;
+        _carregando = false;
+      });
+    } catch (e) {
+      debugPrint('Erro ao carregar OS: $e');
+
+      if (!mounted) return;
+
+      setState(() {
+        _erroCarregamento = 'Não foi possível carregar a ordem de serviço.';
+        _carregando = false;
+      });
+    }
   }
 
   @override
@@ -109,7 +161,9 @@ class _TabbarState extends State<Tabbar> with SingleTickerProviderStateMixin {
     });
 
     try {
-      _serviceOrder.changeStatus(ServiceOrderStatus.CONCLUIDA);
+      if (!_modoEdicao) {
+        _serviceOrder.changeStatus(ServiceOrderStatus.CONCLUIDA);
+      }
 
       await _osRepository.salvar(_serviceOrder);
 
@@ -117,14 +171,16 @@ class _TabbarState extends State<Tabbar> with SingleTickerProviderStateMixin {
 
       Navigator.pop(context, _serviceOrder);
     } catch (e) {
-      _serviceOrder.changeStatus(statusAnterior);
+      if (!_modoEdicao) {
+        _serviceOrder.changeStatus(statusAnterior);
+      }
 
       if (!mounted) return;
 
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(
-            'Não foi possível concluir a OS: '
+            'Não foi possível salvar a OS: '
             '${e.toString().replaceFirst('Exception: ', '')}',
           ),
           backgroundColor: Colors.red,
@@ -152,6 +208,28 @@ class _TabbarState extends State<Tabbar> with SingleTickerProviderStateMixin {
 
   @override
   Widget build(BuildContext context) {
+    if (_carregando || _erroCarregamento != null) {
+      return Scaffold(
+        backgroundColor: colors.surface,
+        appBar: AppBar(title: Text('OS nº ${widget.serviceOrderNumber}')),
+        body: Center(
+          child: _carregando
+              ? const CircularProgressIndicator()
+              : Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Text(_erroCarregamento!),
+                    const SizedBox(height: 12),
+                    ElevatedButton(
+                      onPressed: _carregarOs,
+                      child: const Text('Tentar novamente'),
+                    ),
+                  ],
+                ),
+        ),
+      );
+    }
+
     return Scaffold(
       backgroundColor: colors.surface,
 
@@ -168,7 +246,7 @@ class _TabbarState extends State<Tabbar> with SingleTickerProviderStateMixin {
         ),
 
         title: Text(
-          'OS nº ${widget.serviceOrderNumber}',
+          'OS nº ${_serviceOrder.numeroOs ?? widget.serviceOrderNumber}',
           style: const TextStyle(
             color: Colors.white,
             fontWeight: FontWeight.bold,
@@ -218,6 +296,7 @@ class _TabbarState extends State<Tabbar> with SingleTickerProviderStateMixin {
       ),
 
       body: TabBarView(
+        key: ValueKey(_serviceOrder),
         controller: _tabController,
         physics: _dadosObrigatoriosPreenchidos
             ? const BouncingScrollPhysics()
