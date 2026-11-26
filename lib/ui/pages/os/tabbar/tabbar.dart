@@ -320,11 +320,14 @@ class _TabbarState extends State<Tabbar> with SingleTickerProviderStateMixin {
             },
           ),
 
-          TollsOs(serviceOrder: _serviceOrder),
+          TollsOs(serviceOrderState: _serviceOrderState),
 
-          OsServicosTab(serviceOrder: _serviceOrder),
+          OsServicosTab(serviceOrderState: _serviceOrderState),
 
-          ValuesOs(serviceOrder: _serviceOrder, onConcluir: _concluirOs),
+          ValuesOs(
+            serviceOrderState: _serviceOrderState,
+            onConcluir: _concluirOs,
+          ),
         ],
       ),
     );
