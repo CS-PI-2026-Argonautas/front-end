@@ -28,7 +28,7 @@ class FirestoreOsRepository implements OsRepository {
       _firestore.collection('counters').doc('service_orders');
 
   @override
-  Future<void> salvarRascunho(ServiceOrder os) {
+  Future<void> salvarRascunho(ServiceOrder os) async {
     final dados = os.toFirestore()
       ..remove('numero_os')
       ..['updated_at'] = FieldValue.serverTimestamp();
@@ -44,9 +44,61 @@ class FirestoreOsRepository implements OsRepository {
       dados['created_at'] = os.createdAt ??= Timestamp.now();
     }
 
-    return _colecao
-        .doc(os.id)
-        .set(dados, SetOptions(mergeFields: dados.keys.toList()));
+    final documento = _colecao.doc(os.id);
+    final confirmacaoLocal = Completer<void>();
+    final observacao = documento.snapshots(includeMetadataChanges: true).listen(
+      (snapshot) {
+        final dadosLocais = snapshot.data();
+        if (!confirmacaoLocal.isCompleted &&
+            snapshot.metadata.hasPendingWrites &&
+            dadosLocais != null &&
+            dados.entries.every(
+              (campo) => campo.key == 'updated_at' ||
+                  _mesmoValor(campo.value, dadosLocais[campo.key]),
+            )) {
+          confirmacaoLocal.complete();
+        }
+      },
+      onError: (Object erro, StackTrace stackTrace) {
+        if (!confirmacaoLocal.isCompleted) {
+          confirmacaoLocal.completeError(erro, stackTrace);
+        }
+      },
+    );
+
+    try {
+      unawaited(documento
+          .set(dados, SetOptions(mergeFields: dados.keys.toList()))
+          .then<void>((_) {
+        if (!confirmacaoLocal.isCompleted) confirmacaoLocal.complete();
+      }, onError: (Object erro, StackTrace stackTrace) {
+        if (!confirmacaoLocal.isCompleted) {
+          confirmacaoLocal.completeError(erro, stackTrace);
+        } else {
+          debugPrint('Erro ao sincronizar o rascunho da OS ${os.id}: $erro');
+        }
+      }));
+      await confirmacaoLocal.future;
+    } finally {
+      await observacao.cancel();
+    }
+  }
+
+  bool _mesmoValor(Object? esperado, Object? atual) {
+    if (esperado is Map && atual is Map) {
+      return esperado.length == atual.length && esperado.entries.every(
+        (campo) => atual.containsKey(campo.key) &&
+            _mesmoValor(campo.value, atual[campo.key]),
+      );
+    }
+    if (esperado is List && atual is List) {
+      if (esperado.length != atual.length) return false;
+      for (var i = 0; i < esperado.length; i++) {
+        if (!_mesmoValor(esperado[i], atual[i])) return false;
+      }
+      return true;
+    }
+    return esperado == atual;
   }
 
   @override

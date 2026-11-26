@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:frontend/fire_base/models/os.dart';
 import 'package:frontend/fire_base/Enums/StatusOrderService.dart';
@@ -30,12 +32,14 @@ class _TabbarState extends State<Tabbar> with SingleTickerProviderStateMixin {
   final OsRepository _osRepository = FirestoreOsRepository();
 
   late final TabController _tabController;
+  late final AppLifecycleListener _lifecycleListener;
   late ServiceOrderState _serviceOrderState;
 
   ServiceOrder get _serviceOrder => _serviceOrderState.serviceOrder;
 
   bool _dadosObrigatoriosPreenchidos = false;
   bool _salvando = false;
+  bool _saindo = false;
 
   bool get _modoEdicao => widget.serviceOrderId != null;
   bool _carregando = false;
@@ -51,6 +55,9 @@ class _TabbarState extends State<Tabbar> with SingleTickerProviderStateMixin {
     );
 
     _tabController = TabController(length: 4, vsync: this);
+    _lifecycleListener = AppLifecycleListener(
+      onHide: () => unawaited(_serviceOrderState.flushPending()),
+    );
 
     if (_modoEdicao) {
       _carregarOs();
@@ -100,9 +107,22 @@ class _TabbarState extends State<Tabbar> with SingleTickerProviderStateMixin {
 
   @override
   void dispose() {
+    _lifecycleListener.dispose();
+    unawaited(_serviceOrderState.flushPending());
     _tabController.dispose();
     _serviceOrderState.dispose();
     super.dispose();
+  }
+
+  Future<void> _sair() async {
+    if (_salvando || _saindo) return;
+    setState(() => _saindo = true);
+    await _serviceOrderState.flushPending();
+    if (mounted && ModalRoute.of(context)?.isCurrent == true) {
+      Navigator.pop(context);
+      return;
+    }
+    if (mounted) setState(() => _saindo = false);
   }
 
   Future<void> _salvarOs() async {
@@ -144,7 +164,7 @@ class _TabbarState extends State<Tabbar> with SingleTickerProviderStateMixin {
   }
 
   Future<void> _concluirOs() async {
-    if (_salvando) return;
+    if (_salvando || _saindo) return;
 
     if (!_dadosObrigatoriosPreenchidos) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -167,11 +187,15 @@ class _TabbarState extends State<Tabbar> with SingleTickerProviderStateMixin {
     });
 
     try {
+      await _serviceOrderState.beginCompletion();
+      if (!mounted) return;
+
       if (!_modoEdicao) {
         _serviceOrder.changeStatus(ServiceOrderStatus.CONCLUIDA);
       }
 
       await _osRepository.salvar(_serviceOrder);
+      _serviceOrderState.endCompletion(saved: true);
 
       if (!mounted) return;
 
@@ -180,6 +204,9 @@ class _TabbarState extends State<Tabbar> with SingleTickerProviderStateMixin {
       if (!_modoEdicao) {
         _serviceOrder.changeStatus(statusAnterior);
       }
+
+      _serviceOrderState.endCompletion(saved: false);
+      unawaited(_serviceOrderState.flushPending());
 
       if (!mounted) return;
 
@@ -214,6 +241,16 @@ class _TabbarState extends State<Tabbar> with SingleTickerProviderStateMixin {
 
   @override
   Widget build(BuildContext context) {
+    return PopScope<ServiceOrder>(
+      canPop: false,
+      onPopInvokedWithResult: (didPop, _) {
+        if (!didPop) unawaited(_sair());
+      },
+      child: AbsorbPointer(absorbing: _salvando || _saindo, child: _buildPage()),
+    );
+  }
+
+  Widget _buildPage() {
     if (_carregando || _erroCarregamento != null) {
       return Scaffold(
         backgroundColor: colors.surface,
@@ -248,7 +285,7 @@ class _TabbarState extends State<Tabbar> with SingleTickerProviderStateMixin {
 
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
-          onPressed: _salvando ? null : () => Navigator.pop(context),
+          onPressed: _salvando || _saindo ? null : _sair,
         ),
 
         title: Text(
