@@ -153,6 +153,8 @@ class _PersonRegistrationState1 extends State<PersonRegistration> {
         SelectionField<Address>(
           label: 'Endereço',
           iconeLabel: Icons.home_outlined,
+          textoBotao: 'Cadastrar endereço',
+          iconeBotao: Icons.add,
           itens: _enderecos,
           tituloItem: (endereco) =>
               '${endereco.publicPlace}, ${endereco.number} - ${endereco.city}/${endereco.uf.name}',
@@ -211,6 +213,8 @@ class _PersonRegistrationState1 extends State<PersonRegistration> {
         SelectionField<Contact>(
           label: 'Informações de contato',
           iconeLabel: Icons.phone_android_outlined,
+          textoBotao: _contato == null ? 'Adicionar contato' : 'Alterar contato',
+          iconeBotao: _contato == null ? Icons.add : Icons.swap_horiz_outlined,
           itens: _contato != null ? [_contato!] : [],
           tituloItem: (contato) => contato.resumo,
           textoVazio: 'Nenhum contato adicionado.',
