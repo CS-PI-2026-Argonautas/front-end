@@ -12,6 +12,8 @@ abstract class OsRepository {
   Future<void> salvar(ServiceOrder os);
   Future<void> salvarRascunho(
     ServiceOrder os, {
+    required bool includeEquipmentChange,
+    required VoidCallback onSyncSuccess,
     required void Function(Object, StackTrace) onSyncError,
   });
 
@@ -33,6 +35,8 @@ class FirestoreOsRepository implements OsRepository {
   @override
   Future<void> salvarRascunho(
     ServiceOrder os, {
+    required bool includeEquipmentChange,
+    required VoidCallback onSyncSuccess,
     required void Function(Object, StackTrace) onSyncError,
   }) async {
     final dados = os.toFirestore()
@@ -42,7 +46,7 @@ class FirestoreOsRepository implements OsRepository {
     if (os.persisted) {
       dados.remove('deleted_at');
       if (os.equipmentBlocked) {
-        dados.remove('equipamento');
+        if (!includeEquipmentChange) dados.remove('equipamento');
       } else {
         dados.remove('equipamento_bloqueado');
       }
@@ -76,6 +80,7 @@ class FirestoreOsRepository implements OsRepository {
       unawaited(documento
           .set(dados, SetOptions(mergeFields: dados.keys.toList()))
           .then<void>((_) {
+        onSyncSuccess();
         if (!confirmacaoLocal.isCompleted) confirmacaoLocal.complete();
       }, onError: (Object erro, StackTrace stackTrace) {
         if (!confirmacaoLocal.isCompleted) {

@@ -9,19 +9,29 @@ class ServiceOrderState extends ChangeNotifier {
   final ServiceOrder serviceOrder;
   final Future<void> Function(
     ServiceOrder, {
+    required bool includeEquipmentChange,
+    required VoidCallback onSyncSuccess,
     required void Function(Object, StackTrace) onSyncError,
   }) saveDraft;
   Timer? _autosaveTimer;
-  Future<void>? _localWrite;
+  Future<bool>? _localWrite;
   bool _hasPendingEdit = false;
   bool _completing = false;
   bool _disposed = false;
   int _writeRevision = 0;
+  int _equipmentRevision = 0;
+  int _syncedEquipmentRevision = 0;
 
   void applyUserEdit(void Function(ServiceOrder) edit) {
     final before = _editableState();
+    final equipmentWasBlocked = serviceOrder.equipmentBlocked;
     edit(serviceOrder);
-    if (!_sameValue(before, _editableState())) {
+    final after = _editableState();
+    if (!equipmentWasBlocked &&
+        !_sameValue(before['equipamento'], after['equipamento'])) {
+      _equipmentRevision++;
+    }
+    if (!_sameValue(before, after)) {
       _hasPendingEdit = true;
       _autosaveTimer?.cancel();
       if (!_completing) {
@@ -31,14 +41,20 @@ class ServiceOrderState extends ChangeNotifier {
     }
   }
 
-  Future<void> flushPending() async {
-    if (_completing) return;
+  Future<bool> flushPending() async {
+    if (_completing) return false;
     if (_hasPendingEdit) {
       _autosaveTimer?.cancel();
       _hasPendingEdit = false;
       _localWrite = _saveDraft(++_writeRevision);
     }
-    await _localWrite;
+    var write = _localWrite;
+    while (write != null) {
+      final saved = await write;
+      if (identical(write, _localWrite)) return saved && !_hasPendingEdit;
+      write = _localWrite;
+    }
+    return true;
   }
 
   Future<void> beginCompletion() async {
@@ -52,10 +68,12 @@ class ServiceOrderState extends ChangeNotifier {
     if (saved) {
       _writeRevision++;
       _hasPendingEdit = false;
+      _localWrite = null;
     }
   }
 
-  Future<void> _saveDraft(int revision) async {
+  Future<bool> _saveDraft(int revision) async {
+    final equipmentRevision = _equipmentRevision;
     void registerFailure(Object error, StackTrace stackTrace) {
       if (!_disposed && revision == _writeRevision) {
         _hasPendingEdit = true;
@@ -65,9 +83,20 @@ class ServiceOrderState extends ChangeNotifier {
     }
 
     try {
-      await saveDraft(serviceOrder, onSyncError: registerFailure);
+      await saveDraft(
+        serviceOrder,
+        includeEquipmentChange: equipmentRevision > _syncedEquipmentRevision,
+        onSyncSuccess: () {
+          if (equipmentRevision > _syncedEquipmentRevision) {
+            _syncedEquipmentRevision = equipmentRevision;
+          }
+        },
+        onSyncError: registerFailure,
+      );
+      return true;
     } catch (error, stackTrace) {
       registerFailure(error, stackTrace);
+      return false;
     }
   }
 

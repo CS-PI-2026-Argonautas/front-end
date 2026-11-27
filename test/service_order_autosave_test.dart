@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter_test/flutter_test.dart';
+import 'package:frontend/fire_base/Enums/StatusOrderService.dart';
 import 'package:frontend/fire_base/models/os.dart';
 import 'package:frontend/ui/pages/os/service_order_state.dart';
 
@@ -11,7 +12,7 @@ void main() {
     final reports = <String>[];
     final state = ServiceOrderState(
       ServiceOrder.createNew(),
-      saveDraft: (os, {required onSyncError}) async {
+      saveDraft: (os, {required includeEquipmentChange, required onSyncSuccess, required onSyncError}) async {
         reports.add(os.report);
         if (reports.length == 1) throw rejection;
       },
@@ -19,11 +20,11 @@ void main() {
     addTearDown(state.dispose);
 
     state.applyUserEdit((os) => os.report = 'Diagnóstico');
-    await state.flushPending();
+    expect(await state.flushPending(), isFalse);
     expect(state.serviceOrder.report, 'Diagnóstico');
     expect(reports, ['Diagnóstico']);
 
-    await state.flushPending();
+    expect(await state.flushPending(), isTrue);
     expect(reports, ['Diagnóstico', 'Diagnóstico']);
   });
 
@@ -32,7 +33,7 @@ void main() {
     final failures = <void Function(Object, StackTrace)>[];
     final state = ServiceOrderState(
       ServiceOrder.createNew(),
-      saveDraft: (os, {required onSyncError}) async {
+      saveDraft: (os, {required includeEquipmentChange, required onSyncSuccess, required onSyncError}) async {
         reports.add(os.report);
         failures.add(onSyncError);
       },
@@ -58,7 +59,7 @@ void main() {
     var writes = 0;
     final state = ServiceOrderState(
       ServiceOrder.createNew(),
-      saveDraft: (_, {required onSyncError}) {
+      saveDraft: (_, {required includeEquipmentChange, required onSyncSuccess, required onSyncError}) {
         writes++;
         return local.future;
       },
@@ -75,4 +76,38 @@ void main() {
     await Future.wait([first, second]);
     expect(state.serviceOrder.report, 'Na fila');
   });
+
+  for (final status in [ServiceOrderStatus.ENTREGUE, ServiceOrderStatus.PAGA]) {
+    testWidgets('includes the last valid equipment change on ${status.name}', (
+      tester,
+    ) async {
+      final writes = <(bool, bool, String?)>[];
+      final confirmations = <void Function()>[];
+      final os = ServiceOrder(
+        persisted: true,
+        equipment: ServiceOrderEquipment(serialNumber: 'anterior'),
+      );
+      final state = ServiceOrderState(
+        os,
+        saveDraft: (draft, {required includeEquipmentChange, required onSyncSuccess, required onSyncError}) async {
+          writes.add((draft.equipmentBlocked, includeEquipmentChange, draft.equipment?.serialNumber));
+          confirmations.add(onSyncSuccess);
+        },
+      );
+      addTearDown(state.dispose);
+
+      state.applyUserEdit((draft) {
+        draft.equipment = ServiceOrderEquipment(serialNumber: 'novo');
+      });
+      await tester.pump(const Duration(seconds: 2));
+      state.applyUserEdit((draft) => draft.changeStatus(status));
+      await tester.pump(const Duration(seconds: 3));
+      expect(writes, [(true, true, 'novo')]);
+
+      confirmations.single();
+      state.applyUserEdit((draft) => draft.report = 'Relatório');
+      expect(await state.flushPending(), isTrue);
+      expect(writes.last, (true, false, 'novo'));
+    });
+  }
 }

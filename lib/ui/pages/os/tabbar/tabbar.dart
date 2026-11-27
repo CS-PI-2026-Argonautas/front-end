@@ -117,12 +117,23 @@ class _TabbarState extends State<Tabbar> with SingleTickerProviderStateMixin {
   Future<void> _sair() async {
     if (_salvando || _saindo) return;
     setState(() => _saindo = true);
-    await _serviceOrderState.flushPending();
-    if (mounted && ModalRoute.of(context)?.isCurrent == true) {
+    final saved = await _serviceOrderState.flushPending();
+    if (!mounted) return;
+    if (saved && ModalRoute.of(context)?.isCurrent == true) {
       Navigator.pop(context);
       return;
     }
-    if (mounted) setState(() => _saindo = false);
+    setState(() => _saindo = false);
+    if (!saved) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text(
+            'Não foi possível salvar as alterações. Tente voltar novamente.',
+          ),
+          behavior: SnackBarBehavior.floating,
+        ),
+      );
+    }
   }
 
   Future<void> _salvarOs() async {
