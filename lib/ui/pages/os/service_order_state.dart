@@ -7,11 +7,16 @@ class ServiceOrderState extends ChangeNotifier {
   ServiceOrderState(this.serviceOrder, {required this.saveDraft});
 
   final ServiceOrder serviceOrder;
-  final Future<void> Function(ServiceOrder) saveDraft;
+  final Future<void> Function(
+    ServiceOrder, {
+    required void Function(Object, StackTrace) onSyncError,
+  }) saveDraft;
   Timer? _autosaveTimer;
   Future<void>? _localWrite;
   bool _hasPendingEdit = false;
   bool _completing = false;
+  bool _disposed = false;
+  int _writeRevision = 0;
 
   void applyUserEdit(void Function(ServiceOrder) edit) {
     final before = _editableState();
@@ -31,7 +36,7 @@ class ServiceOrderState extends ChangeNotifier {
     if (_hasPendingEdit) {
       _autosaveTimer?.cancel();
       _hasPendingEdit = false;
-      _localWrite = _saveDraft();
+      _localWrite = _saveDraft(++_writeRevision);
     }
     await _localWrite;
   }
@@ -44,20 +49,31 @@ class ServiceOrderState extends ChangeNotifier {
 
   void endCompletion({required bool saved}) {
     _completing = false;
-    if (saved) _hasPendingEdit = false;
+    if (saved) {
+      _writeRevision++;
+      _hasPendingEdit = false;
+    }
   }
 
-  Future<void> _saveDraft() async {
-    try {
-      await saveDraft(serviceOrder);
-    } catch (error, stackTrace) {
+  Future<void> _saveDraft(int revision) async {
+    void registerFailure(Object error, StackTrace stackTrace) {
+      if (!_disposed && revision == _writeRevision) {
+        _hasPendingEdit = true;
+      }
       debugPrint('Erro no autosave da OS ${serviceOrder.id}: $error');
       debugPrintStack(stackTrace: stackTrace);
+    }
+
+    try {
+      await saveDraft(serviceOrder, onSyncError: registerFailure);
+    } catch (error, stackTrace) {
+      registerFailure(error, stackTrace);
     }
   }
 
   @override
   void dispose() {
+    _disposed = true;
     _autosaveTimer?.cancel();
     super.dispose();
   }

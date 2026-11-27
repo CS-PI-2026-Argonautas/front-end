@@ -10,7 +10,10 @@ abstract class OsRepository {
   Future<ServiceOrder?> buscarPorId(String id);
 
   Future<void> salvar(ServiceOrder os);
-  Future<void> salvarRascunho(ServiceOrder os);
+  Future<void> salvarRascunho(
+    ServiceOrder os, {
+    required void Function(Object, StackTrace) onSyncError,
+  });
 
   Future<void> deletar(String id);
 }
@@ -28,7 +31,10 @@ class FirestoreOsRepository implements OsRepository {
       _firestore.collection('counters').doc('service_orders');
 
   @override
-  Future<void> salvarRascunho(ServiceOrder os) async {
+  Future<void> salvarRascunho(
+    ServiceOrder os, {
+    required void Function(Object, StackTrace) onSyncError,
+  }) async {
     final dados = os.toFirestore()
       ..remove('numero_os')
       ..['updated_at'] = FieldValue.serverTimestamp();
@@ -75,7 +81,7 @@ class FirestoreOsRepository implements OsRepository {
         if (!confirmacaoLocal.isCompleted) {
           confirmacaoLocal.completeError(erro, stackTrace);
         } else {
-          debugPrint('Erro ao sincronizar o rascunho da OS ${os.id}: $erro');
+          onSyncError(erro, stackTrace);
         }
       }));
       await confirmacaoLocal.future;
