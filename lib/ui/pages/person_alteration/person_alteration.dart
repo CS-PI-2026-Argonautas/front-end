@@ -7,7 +7,6 @@ import 'package:frontend/fire_base/services/client_service.dart';
 import 'package:frontend/fire_base/services/address_service.dart';
 import 'package:frontend/ui/pages/person_alteration/person_alteration_address.dart';
 import 'package:frontend/ui/pages/person_alteration/person_alteration_contact.dart';
-import 'package:frontend/ui/pages/person_registration/person_registration_contact.dart';
 import 'package:frontend/ui/style/ColorScheme.dart' as custom_colors;
 import 'package:frontend/ui/style/inputDecorationStyles.dart';
 import 'package:frontend/ui/widgets/form/action_buttons.dart';
@@ -165,6 +164,8 @@ class _PersonAlterationState extends State<PersonAlteration> {
           SelectionField<Address>(
             label: 'Endereço',
             iconeLabel: Icons.home_outlined,
+            textoBotao: 'Cadastrar endereço',
+            iconeBotao: Icons.add,
             itens: _enderecos,
             tituloItem: (endereco) =>
                 '${endereco.publicPlace}, ${endereco.number} - ${endereco.city}/${endereco.uf.name}',
@@ -224,6 +225,8 @@ class _PersonAlterationState extends State<PersonAlteration> {
        SelectionField<Contact>(
           label: 'Informações de contato',
           iconeLabel: Icons.phone_android_outlined,
+          textoBotao: _contato == null ? 'Adicionar contato' : 'Alterar contato',
+          iconeBotao: _contato == null ? Icons.add : Icons.swap_horiz_outlined,
           itens: _contato != null ? [_contato!] : [],
           tituloItem: (contato) => contato.resumo,
           textoVazio: 'Nenhum contato adicionado.',

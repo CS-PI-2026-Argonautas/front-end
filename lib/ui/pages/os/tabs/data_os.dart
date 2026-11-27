@@ -5,6 +5,7 @@ import 'package:frontend/fire_base/services/address_service.dart';
 import 'package:frontend/fire_base/models/address.dart';
 import 'package:frontend/fire_base/models/client.dart';
 import 'package:frontend/fire_base/models/os.dart';
+import 'package:frontend/ui/pages/os/service_order_state.dart';
 import 'package:frontend/ui/pages/person_registration/person_registration_address.dart';
 import 'package:frontend/ui/style/ColorScheme.dart' as custom_colors;
 import 'package:frontend/ui/style/inputDecorationStyles.dart';
@@ -17,14 +18,14 @@ import 'package:frontend/fire_base/services/equipment_service.dart';
 import 'package:frontend/ui/pages/equipment_data/equipment_data.dart';
 
 class DataOs extends StatefulWidget {
-  final ServiceOrder serviceOrder;
+  final ServiceOrderState serviceOrderState;
   final VoidCallback? onChanged;
   final VoidCallback? avancarTab;
   final ValueChanged<bool> onDadosObrigatoriosChanged;
 
   const DataOs({
     super.key,
-    required this.serviceOrder,
+    required this.serviceOrderState,
     required this.onDadosObrigatoriosChanged,
     this.onChanged,
     this.avancarTab,
@@ -39,7 +40,11 @@ class _DataOsState extends State<DataOs>
   @override
   bool get wantKeepAlive => true;
 
-  ServiceOrder get _os => widget.serviceOrder;
+  ServiceOrder get _os => widget.serviceOrderState.serviceOrder;
+
+  void _editarOs(void Function(ServiceOrder) editar) {
+    setState(() => widget.serviceOrderState.applyUserEdit(editar));
+  }
 
   final colors = custom_colors.colorScheme;
   final EquipmentService _equipamentoService = EquipmentService();
@@ -94,6 +99,7 @@ class _DataOsState extends State<DataOs>
   Map<String, dynamic> _montarDadosOs() {
     return {
       'status': _os.status.name,
+      'equipamento_bloqueado': _equipamentoBloqueado,
       'dataEntrada': _os.entryDate,
       'dataSaida': _os.exitDate,
       'relatorio': _os.report,
@@ -187,16 +193,12 @@ class _DataOsState extends State<DataOs>
   }
 
   void _selecionarCliente(Client cliente) {
-    setState(() {
-      _os.setClient(cliente);
-    });
+    _editarOs((os) => os.setClient(cliente));
 
     _notificar();
   }
 
   Future<void> _abrirCadastroEquipamento() async {
-    if (_equipamentoBloqueado) return;
-
     final resultado = await Navigator.push<dynamic>(
       context,
       MaterialPageRoute(
@@ -209,17 +211,28 @@ class _DataOsState extends State<DataOs>
       ),
     );
 
-    if (resultado != null && mounted) {
-      setState(() {
-        _os.equipment = _equipamentoDe(resultado);
-      });
+    if (!mounted || resultado == null) return;
 
-      _notificar();
-    }
+    _associarEquipamento(resultado);
+  }
+
+  bool _podeTrocarEquipamento() {
+    if (!_equipamentoBloqueado) return true;
+
+    _mostrarErro('Não é possível trocar um equipamento bloqueado.');
+    return false;
+  }
+
+  void _associarEquipamento(Object equipamento) {
+    if (!_podeTrocarEquipamento()) return;
+
+    _editarOs((os) => os.equipment = _equipamentoDe(equipamento));
+
+    _notificar();
   }
 
   Future<void> _buscarEquipamento() async {
-    if (_equipamentoBloqueado) return;
+    if (!_podeTrocarEquipamento()) return;
 
     final List<Equipment> equipamentos;
 
@@ -232,7 +245,7 @@ class _DataOsState extends State<DataOs>
       return;
     }
 
-    if (!mounted) return;
+    if (!mounted || !_podeTrocarEquipamento()) return;
 
     showModalBottomSheet(
       context: context,
@@ -253,14 +266,11 @@ class _DataOsState extends State<DataOs>
           loading: false,
           onAction: () {
             Navigator.pop(sheetContext);
+            if (!_podeTrocarEquipamento()) return;
             _abrirCadastroEquipamento();
           },
           onSelect: (e) {
-            setState(() {
-              _os.equipment = _equipamentoDe(e);
-            });
-
-            _notificar();
+            _associarEquipamento(e);
             Navigator.pop(sheetContext);
           },
         );
@@ -327,9 +337,7 @@ class _DataOsState extends State<DataOs>
 
     if (selecionada == null || !mounted) return;
 
-    setState(() {
-      _os.entryDate = selecionada;
-    });
+    _editarOs((os) => os.entryDate = selecionada);
 
     widget.onChanged?.call();
   }
@@ -347,9 +355,7 @@ class _DataOsState extends State<DataOs>
 
     if (selecionada == null || !mounted) return;
 
-    setState(() {
-      _os.exitDate = selecionada;
-    });
+    _editarOs((os) => os.exitDate = selecionada);
 
     widget.onChanged?.call();
 
@@ -436,9 +442,7 @@ class _DataOsState extends State<DataOs>
                         onChanged: (value) {
                           setModalState(() {});
 
-                          setState(() {
-                            _os.report = value;
-                          });
+                          _editarOs((os) => os.report = value);
 
                           widget.onChanged?.call();
                         },
@@ -618,9 +622,7 @@ class _DataOsState extends State<DataOs>
 
               if (!mounted) return;
 
-              setState(() {
-                _os.setServiceAddress(novo);
-              });
+              _editarOs((os) => os.setServiceAddress(novo));
 
               _notificar();
             } catch (e) {
@@ -632,9 +634,7 @@ class _DataOsState extends State<DataOs>
             }
           },
           onSelect: (endereco) {
-            setState(() {
-              _os.setServiceAddress(endereco);
-            });
+            _editarOs((os) => os.setServiceAddress(endereco));
 
             _notificar();
             Navigator.pop(sheetContext);
@@ -696,17 +696,11 @@ class _DataOsState extends State<DataOs>
               icon: Icons.home_outlined,
             ),
             _buildEnderecoSelecionado(),
-            Opacity(
-              opacity: _equipamentoBloqueado ? 0.5 : 1.0,
-              child: AbsorbPointer(
-                absorbing: _equipamentoBloqueado,
-                child: EquipmentSection(
-                  equipamento: _equipamentoParaSecao,
-                  onBuscar: _buscarEquipamento,
-                  onOpenCadastro: _abrirCadastroEquipamento,
-                  onEdit: (_) => _abrirCadastroEquipamento(),
-                ),
-              ),
+            EquipmentSection(
+              equipamento: _equipamentoParaSecao,
+              onBuscar: _buscarEquipamento,
+              onOpenCadastro: _abrirCadastroEquipamento,
+              onEdit: (_) => _abrirCadastroEquipamento(),
             ),
             if (!_formHabilitado) _buildAvisoSelecioneCliente(),
             Opacity(
@@ -1150,6 +1144,14 @@ class _DataOsState extends State<DataOs>
   Widget _buildStatusField() {
     final status = _os.status;
 
+    final opcoes = ServiceOrderStatus.values
+        .where(
+          (s) =>
+              s != ServiceOrderStatus.CONCLUIDA ||
+              status == ServiceOrderStatus.CONCLUIDA,
+        )
+        .toList();
+
     if (!editableStatuses.contains(status)) {
       return InputDecorator(
         decoration: customInputDecoration(hintText: 'Status').copyWith(
@@ -1188,7 +1190,7 @@ class _DataOsState extends State<DataOs>
     return DropdownButtonFormField<ServiceOrderStatus>(
       value: status,
       decoration: customInputDecoration(hintText: 'Selecione o status'),
-      items: editableStatuses.map((value) {
+      items: opcoes.map((value) {
         return DropdownMenuItem<ServiceOrderStatus>(
           value: value,
           child: Row(
@@ -1210,9 +1212,7 @@ class _DataOsState extends State<DataOs>
       onChanged: (value) {
         if (value == null) return;
 
-        setState(() {
-          _os.changeStatus(value);
-        });
+        _editarOs((os) => os.changeStatus(value));
 
         widget.onChanged?.call();
       },

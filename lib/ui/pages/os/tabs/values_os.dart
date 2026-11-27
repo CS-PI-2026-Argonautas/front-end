@@ -3,15 +3,16 @@ import 'package:flutter/services.dart';
 import 'package:frontend/ui/style/ColorScheme.dart' as custom_colors;
 import 'package:frontend/fire_base/models/dinheiro.dart';
 import 'package:frontend/fire_base/models/os.dart';
+import 'package:frontend/ui/pages/os/service_order_state.dart';
 
 class ValuesOs extends StatefulWidget {
-  final ServiceOrder serviceOrder;
+  final ServiceOrderState serviceOrderState;
   final VoidCallback? onConcluir;
   final VoidCallback? onChanged;
 
   const ValuesOs({
     super.key,
-    required this.serviceOrder,
+    required this.serviceOrderState,
     this.onConcluir,
     this.onChanged,
   });
@@ -27,7 +28,7 @@ class _ValuesOsState extends State<ValuesOs>
   late final TextEditingController _taxaController;
   late final TextEditingController _descontoController;
 
-  ServiceOrder get os => widget.serviceOrder;
+  ServiceOrder get os => widget.serviceOrderState.serviceOrder;
 
   @override
   bool get wantKeepAlive => true;
@@ -79,18 +80,17 @@ class _ValuesOsState extends State<ValuesOs>
   }
 
   void _atualizarTaxa(String valor) {
-    setState(() {
-      os.globalFeeCents = _converterParaCentavos(valor);
-    });
-
+    _editarOs((os) => os.globalFeeCents = _converterParaCentavos(valor));
     widget.onChanged?.call();
   }
 
   void _atualizarDesconto(String valor) {
-    setState(() {
-      os.globalDiscountCents = _converterParaCentavos(valor);
-    });
+    _editarOs((os) => os.globalFeeCents = _converterParaCentavos(valor));
+    widget.onChanged?.call();
+  }
 
+  void _editarOs(void Function(ServiceOrder) editar) {
+    setState(() => widget.serviceOrderState.applyUserEdit(editar));
     widget.onChanged?.call();
   }
 

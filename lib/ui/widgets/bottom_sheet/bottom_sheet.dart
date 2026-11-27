@@ -112,23 +112,39 @@ class _SelectionBottomSheetState<T> extends State<SelectionBottomSheet<T>> {
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Text(
-                    widget.title,
-                    style: TextStyle(
-                      color: colors.onSurface,
-                      fontSize: 22,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                  if (widget.onAction != null)
-                    IconButton(
-                      onPressed: widget.onAction,
-                      icon: Icon(
-                        Icons.add_circle,
-                        color: colors.tertiary,
-                        size: 28,
+                  Flexible(
+                    child: Text(
+                      widget.title,
+                      style: TextStyle(
+                        color: colors.onSurface,
+                        fontSize: 22,
+                        fontWeight: FontWeight.bold,
                       ),
                     ),
+                  ),
+                  if (widget.onAction != null) ...[
+                    const SizedBox(width: 12),
+                    Flexible(
+                      flex: 2,
+                      child: ElevatedButton.icon(
+                        onPressed: widget.onAction,
+                        icon: const Icon(Icons.add, size: 18),
+                        label: Text(widget.actionText),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: colors.secondary,
+                          foregroundColor: Colors.white,
+                          elevation: 0,
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 14,
+                            vertical: 10,
+                          ),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
                 ],
               ),
               const SizedBox(height: 12),

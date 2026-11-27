@@ -8,7 +8,6 @@ import 'package:frontend/ui/pages/dashboard.dart';
 import 'package:frontend/ui/pages/lists/item_list.dart';
 import 'package:frontend/ui/pages/os/tabbar/tabbar.dart';
 import 'package:frontend/ui/pages/service_registration/service_registration.dart';
-import 'package:frontend/ui/pages/stand_in_page.dart';
 import 'package:frontend/ui/style/ColorScheme.dart' as custom_colors;
 import 'package:frontend/ui/widgets/floatingButton.dart';
 import 'package:frontend/ui/widgets/appBar.dart';
@@ -136,6 +135,10 @@ class _OsListPageState extends State<OsListPage> {
     return resultado;
   }
 
+  Future<void> _restaurarOrdemServico(ServiceOrder os) async {
+    await _repository.restaurar(os.id);
+  }
+
   Future<void> _deletarOrdemServico(ServiceOrder os) async {
     try {
       await _repository.deletar(os.id);
@@ -144,15 +147,71 @@ class _OsListPageState extends State<OsListPage> {
 
       _carregarOrdemServicos();
 
-      ScaffoldMessenger.of(context)
+      final messenger = ScaffoldMessenger.of(context);
+
+      messenger
         ..hideCurrentSnackBar()
         ..showSnackBar(
           SnackBar(
-            content: const Text('Ordem de serviço excluída com sucesso.'),
+            duration: const Duration(seconds: 5),
             backgroundColor: colors.primary,
+            content: Row(
+              children: [
+                Expanded(
+                  child: Text(
+                    'OS Nº ${_formatarNumeroOs(os)} excluída com sucesso!',
+                    style: const TextStyle(color: Colors.white),
+                  ),
+                ),
+                IconButton(
+                  tooltip: 'Fechar',
+                  onPressed: () {
+                    messenger.hideCurrentSnackBar();
+                  },
+                  icon: const Icon(Icons.close, color: Colors.white),
+                ),
+              ],
+            ),
+            action: SnackBarAction(
+              label: 'DESFAZER',
+              textColor: Colors.white,
+              onPressed: () async {
+                try {
+                  await _restaurarOrdemServico(os);
+
+                  if (!mounted) return;
+
+                  _carregarOrdemServicos();
+
+                  ScaffoldMessenger.of(context)
+                    ..hideCurrentSnackBar()
+                    ..showSnackBar(
+                      const SnackBar(
+                        content: Text(
+                          'Ordem de serviço restaurada com sucesso!',
+                        ),
+                      ),
+                    );
+                } catch (e) {
+                  debugPrint('Erro ao restaurar OS: $e');
+
+                  if (!mounted) return;
+
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                      content: Text(
+                        'Não foi possível restaurar a ordem de serviço.',
+                      ),
+                    ),
+                  );
+                }
+              },
+            ),
           ),
         );
     } catch (e) {
+      debugPrint('Erro ao excluir ordem de serviço: $e');
+
       if (!mounted) return;
 
       ScaffoldMessenger.of(context)
@@ -164,6 +223,22 @@ class _OsListPageState extends State<OsListPage> {
           ),
         );
     }
+  }
+
+  Future<void> _abrirEdicaoOs(ServiceOrder os) async {
+    await Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => Tabbar(
+          serviceOrderNumber: os.numeroOs ?? -1,
+          serviceOrderId: os.id,
+        ),
+      ),
+    );
+
+    if (!mounted) return;
+
+    _carregarOrdemServicos();
   }
 
   Future<void> _confirmarExclusao(ServiceOrder os) async {
@@ -202,12 +277,14 @@ class _OsListPageState extends State<OsListPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: colors.surface,
+
       appBar: Header(
         onBack: () {
           Navigator.pop(context);
         },
         title: 'Listagem de ordens de serviço',
       ),
+
       endDrawer: Menu(
         currentIndex: 2,
         onTap: (index) {
@@ -244,6 +321,7 @@ class _OsListPageState extends State<OsListPage> {
           }
         },
       ),
+
       body: SafeArea(
         child: RefreshIndicator(
           onRefresh: _recarregarOrdemServicos,
@@ -573,15 +651,11 @@ class _OsListPageState extends State<OsListPage> {
                 ],
               ),
             ),
+
             IconButton(
               icon: Icon(Icons.edit, color: colors.secondary),
               tooltip: 'Editar ordem de serviço',
-              onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) => const StandInPage()),
-                );
-              },
+              onPressed: () => _abrirEdicaoOs(os),
             ),
           ],
         ),
