@@ -157,7 +157,7 @@ class _ValuesOsState extends State<ValuesOs>
   @override
   Widget build(BuildContext context) {
     super.build(context);
-
+git 
     final subtotalPecas = _subtotalPecas;
     final subtotalServicos = _subtotalServicos;
     final taxas = _taxas;
