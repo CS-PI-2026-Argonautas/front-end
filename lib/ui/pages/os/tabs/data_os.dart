@@ -5,6 +5,7 @@ import 'package:frontend/fire_base/services/address_service.dart';
 import 'package:frontend/fire_base/models/address.dart';
 import 'package:frontend/fire_base/models/client.dart';
 import 'package:frontend/fire_base/models/os.dart';
+import 'package:frontend/ui/pages/os/service_order_state.dart';
 import 'package:frontend/ui/pages/person_registration/person_registration_address.dart';
 import 'package:frontend/ui/style/ColorScheme.dart' as custom_colors;
 import 'package:frontend/ui/style/inputDecorationStyles.dart';
@@ -17,14 +18,14 @@ import 'package:frontend/fire_base/services/equipment_service.dart';
 import 'package:frontend/ui/pages/equipment_data/equipment_data.dart';
 
 class DataOs extends StatefulWidget {
-  final ServiceOrder serviceOrder;
+  final ServiceOrderState serviceOrderState;
   final VoidCallback? onChanged;
   final VoidCallback? avancarTab;
   final ValueChanged<bool> onDadosObrigatoriosChanged;
 
   const DataOs({
     super.key,
-    required this.serviceOrder,
+    required this.serviceOrderState,
     required this.onDadosObrigatoriosChanged,
     this.onChanged,
     this.avancarTab,
@@ -39,7 +40,11 @@ class _DataOsState extends State<DataOs>
   @override
   bool get wantKeepAlive => true;
 
-  ServiceOrder get _os => widget.serviceOrder;
+  ServiceOrder get _os => widget.serviceOrderState.serviceOrder;
+
+  void _editarOs(void Function(ServiceOrder) editar) {
+    setState(() => widget.serviceOrderState.applyUserEdit(editar));
+  }
 
   final colors = custom_colors.colorScheme;
   final EquipmentService _equipamentoService = EquipmentService();
@@ -179,9 +184,7 @@ class _DataOsState extends State<DataOs>
   }
 
   void _selecionarCliente(Client cliente) {
-    setState(() {
-      _os.setClient(cliente);
-    });
+    _editarOs((os) => os.setClient(cliente));
 
     _notificar();
   }
@@ -214,9 +217,7 @@ class _DataOsState extends State<DataOs>
   void _associarEquipamento(Object equipamento) {
     if (!_podeTrocarEquipamento()) return;
 
-    setState(() {
-      _os.equipment = _equipamentoDe(equipamento);
-    });
+    _editarOs((os) => os.equipment = _equipamentoDe(equipamento));
 
     _notificar();
   }
@@ -327,9 +328,7 @@ class _DataOsState extends State<DataOs>
 
     if (selecionada == null || !mounted) return;
 
-    setState(() {
-      _os.entryDate = selecionada;
-    });
+    _editarOs((os) => os.entryDate = selecionada);
 
     widget.onChanged?.call();
   }
@@ -347,9 +346,7 @@ class _DataOsState extends State<DataOs>
 
     if (selecionada == null || !mounted) return;
 
-    setState(() {
-      _os.exitDate = selecionada;
-    });
+    _editarOs((os) => os.exitDate = selecionada);
 
     widget.onChanged?.call();
 
@@ -436,9 +433,7 @@ class _DataOsState extends State<DataOs>
                         onChanged: (value) {
                           setModalState(() {});
 
-                          setState(() {
-                            _os.report = value;
-                          });
+                          _editarOs((os) => os.report = value);
 
                           widget.onChanged?.call();
                         },
@@ -617,9 +612,7 @@ class _DataOsState extends State<DataOs>
 
               if (!mounted) return;
 
-              setState(() {
-                _os.setServiceAddress(novo);
-              });
+              _editarOs((os) => os.setServiceAddress(novo));
 
               _notificar();
             } catch (e) {
@@ -631,9 +624,7 @@ class _DataOsState extends State<DataOs>
             }
           },
           onSelect: (endereco) {
-            setState(() {
-              _os.setServiceAddress(endereco);
-            });
+            _editarOs((os) => os.setServiceAddress(endereco));
 
             _notificar();
             Navigator.pop(sheetContext);
@@ -1192,9 +1183,7 @@ class _DataOsState extends State<DataOs>
       onChanged: (value) {
         if (value == null) return;
 
-        setState(() {
-          _os.changeStatus(value);
-        });
+        _editarOs((os) => os.changeStatus(value));
 
         widget.onChanged?.call();
       },

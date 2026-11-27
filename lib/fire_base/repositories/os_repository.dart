@@ -10,6 +10,12 @@ abstract class OsRepository {
   Future<ServiceOrder?> buscarPorId(String id);
 
   Future<void> salvar(ServiceOrder os);
+  Future<void> salvarRascunho(
+    ServiceOrder os, {
+    required bool includeEquipmentChange,
+    required VoidCallback onSyncSuccess,
+    required void Function(Object, StackTrace) onSyncError,
+  });
 
   Future<void> deletar(String id);
 }
@@ -25,6 +31,86 @@ class FirestoreOsRepository implements OsRepository {
 
   DocumentReference<Map<String, dynamic>> get _contador =>
       _firestore.collection('counters').doc('service_orders');
+
+  @override
+  Future<void> salvarRascunho(
+    ServiceOrder os, {
+    required bool includeEquipmentChange,
+    required VoidCallback onSyncSuccess,
+    required void Function(Object, StackTrace) onSyncError,
+  }) async {
+    final dados = os.toFirestore()
+      ..remove('numero_os')
+      ..['updated_at'] = FieldValue.serverTimestamp();
+
+    if (os.persisted) {
+      dados.remove('deleted_at');
+      if (os.equipmentBlocked) {
+        if (!includeEquipmentChange) dados.remove('equipamento');
+      } else {
+        dados.remove('equipamento_bloqueado');
+      }
+    } else {
+      dados['created_at'] = os.createdAt ??= Timestamp.now();
+    }
+
+    final documento = _colecao.doc(os.id);
+    final confirmacaoLocal = Completer<void>();
+    final observacao = documento.snapshots(includeMetadataChanges: true).listen(
+      (snapshot) {
+        final dadosLocais = snapshot.data();
+        if (!confirmacaoLocal.isCompleted &&
+            snapshot.metadata.hasPendingWrites &&
+            dadosLocais != null &&
+            dados.entries.every(
+              (campo) => campo.key == 'updated_at' ||
+                  _mesmoValor(campo.value, dadosLocais[campo.key]),
+            )) {
+          confirmacaoLocal.complete();
+        }
+      },
+      onError: (Object erro, StackTrace stackTrace) {
+        if (!confirmacaoLocal.isCompleted) {
+          confirmacaoLocal.completeError(erro, stackTrace);
+        }
+      },
+    );
+
+    try {
+      unawaited(documento
+          .set(dados, SetOptions(mergeFields: dados.keys.toList()))
+          .then<void>((_) {
+        onSyncSuccess();
+        if (!confirmacaoLocal.isCompleted) confirmacaoLocal.complete();
+      }, onError: (Object erro, StackTrace stackTrace) {
+        if (!confirmacaoLocal.isCompleted) {
+          confirmacaoLocal.completeError(erro, stackTrace);
+        } else {
+          onSyncError(erro, stackTrace);
+        }
+      }));
+      await confirmacaoLocal.future;
+    } finally {
+      await observacao.cancel();
+    }
+  }
+
+  bool _mesmoValor(Object? esperado, Object? atual) {
+    if (esperado is Map && atual is Map) {
+      return esperado.length == atual.length && esperado.entries.every(
+        (campo) => atual.containsKey(campo.key) &&
+            _mesmoValor(campo.value, atual[campo.key]),
+      );
+    }
+    if (esperado is List && atual is List) {
+      if (esperado.length != atual.length) return false;
+      for (var i = 0; i < esperado.length; i++) {
+        if (!_mesmoValor(esperado[i], atual[i])) return false;
+      }
+      return true;
+    }
+    return esperado == atual;
+  }
 
   @override
   Future<void> salvar(ServiceOrder os) async {
@@ -73,14 +159,10 @@ class FirestoreOsRepository implements OsRepository {
 
           numeroAtribuido = ultimoNumeroValido + 1;
 
-          transaction.set(
-            _contador,
-            {
-              'last_number': numeroAtribuido,
-              'updated_at': FieldValue.serverTimestamp(),
-            },
-            SetOptions(merge: true),
-          );
+          transaction.set(_contador, {
+            'last_number': numeroAtribuido,
+            'updated_at': FieldValue.serverTimestamp(),
+          }, SetOptions(merge: true));
         }
 
         final dados = os.toFirestore();

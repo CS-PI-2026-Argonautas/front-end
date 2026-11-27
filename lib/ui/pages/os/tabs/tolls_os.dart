@@ -8,16 +8,17 @@ import 'package:frontend/fire_base/models/item.dart';
 import 'package:frontend/fire_base/models/os.dart';
 import 'package:frontend/fire_base/repositories/item_repository.dart';
 import 'package:frontend/fire_base/services/item_service.dart';
+import 'package:frontend/ui/pages/os/service_order_state.dart';
 import 'package:frontend/ui/pages/product_registration/product_registration.dart';
 import 'package:frontend/ui/widgets/bottom_sheet/bottom_sheet.dart';
 import 'package:frontend/ui/widgets/floatingButton.dart';
 
 class TollsOs extends StatefulWidget {
-  final ServiceOrder serviceOrder;
+  final ServiceOrderState serviceOrderState;
 
   const TollsOs({
     super.key,
-    required this.serviceOrder,
+    required this.serviceOrderState,
   });
 
   @override
@@ -28,7 +29,7 @@ class OrderServiceState extends State<TollsOs>
     with AutomaticKeepAliveClientMixin {
   final colors = custom_colors.colorScheme;
 
-  late final ServiceOrder _os;
+  ServiceOrder get _os => widget.serviceOrderState.serviceOrder;
   late final ItemService _itemService;
   late final Stream<List<Item>> _pecasStream;
 
@@ -39,11 +40,13 @@ class OrderServiceState extends State<TollsOs>
   void initState() {
     super.initState();
 
-    _os = widget.serviceOrder;
-
     _itemService = ItemService(ItemRepository());
 
     _pecasStream = _itemService.watchParts();
+  }
+
+  void _editarOs(void Function(ServiceOrder) editar) {
+    setState(() => widget.serviceOrderState.applyUserEdit(editar));
   }
 
   int _calcularSubtotal() {
@@ -230,19 +233,19 @@ class OrderServiceState extends State<TollsOs>
       return;
     }
 
-    setState(() {
-      final index = _os.parts.indexWhere(
+    _editarOs((os) {
+      final index = os.parts.indexWhere(
         (item) => item.partId == peca.id,
       );
 
       if (index != -1) {
-        final parteExistente = _os.parts[index];
+        final parteExistente = os.parts[index];
 
-        _os.parts[index] = parteExistente.withQuantity(
+        os.parts[index] = parteExistente.withQuantity(
           parteExistente.quantity + 1,
         );
       } else {
-        _os.parts.add(
+        os.parts.add(
           ServiceOrderPart(
             partId: peca.id!,
             name: peca.name,
@@ -258,8 +261,8 @@ class OrderServiceState extends State<TollsOs>
   void _aumentarQuantidade(int index) {
     final peca = _os.parts[index];
 
-    setState(() {
-      _os.parts[index] = peca.withQuantity(
+    _editarOs((os) {
+      os.parts[index] = peca.withQuantity(
         peca.quantity + 1,
       );
     });
@@ -270,8 +273,8 @@ class OrderServiceState extends State<TollsOs>
 
     if (peca.quantity <= 1) return;
 
-    setState(() {
-      _os.parts[index] = peca.withQuantity(
+    _editarOs((os) {
+      os.parts[index] = peca.withQuantity(
         peca.quantity - 1,
       );
     });
@@ -297,9 +300,7 @@ class OrderServiceState extends State<TollsOs>
         children: [
           SlidableAction(
             onPressed: (context) {
-              setState(() {
-                _os.parts.removeAt(index);
-              });
+              _editarOs((os) => os.parts.removeAt(index));
             },
             backgroundColor: Colors.red.shade600,
             foregroundColor: Colors.white,

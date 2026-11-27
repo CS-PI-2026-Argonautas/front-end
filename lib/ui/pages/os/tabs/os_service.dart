@@ -6,6 +6,7 @@ import 'package:frontend/fire_base/models/dinheiro.dart';
 import 'package:frontend/fire_base/models/os.dart';
 import 'package:frontend/fire_base/models/service.dart';
 import 'package:frontend/fire_base/services/service_service.dart';
+import 'package:frontend/ui/pages/os/service_order_state.dart';
 import 'package:frontend/ui/pages/service_registration/service_registration.dart';
 import 'package:frontend/ui/style/ColorScheme.dart' as custom_colors;
 import 'package:frontend/ui/style/inputDecorationStyles.dart';
@@ -14,11 +15,11 @@ import 'package:frontend/ui/widgets/bottom_sheet/bottom_sheet.dart';
 import 'package:frontend/utils/formatters/currency_input_formatter.dart';
 
 class OsServicosTab extends StatefulWidget {
-  final ServiceOrder serviceOrder;
+  final ServiceOrderState serviceOrderState;
 
   const OsServicosTab({
     super.key,
-    required this.serviceOrder,
+    required this.serviceOrderState,
   });
 
   @override
@@ -37,16 +38,22 @@ class _OsServicosTabState extends State<OsServicosTab> {
 
   bool _carregandoServicos = true;
 
+  ServiceOrder get _os => widget.serviceOrderState.serviceOrder;
+
+  void _editarOs(void Function(ServiceOrder) editar) {
+    setState(() => widget.serviceOrderState.applyUserEdit(editar));
+  }
+
   List<ServiceOrderService> get _servicosExibidos {
     final query = _searchController.text.toLowerCase().trim();
 
-    return widget.serviceOrder.services.where((servico) {
+    return _os.services.where((servico) {
       return servico.description.toLowerCase().contains(query);
     }).toList();
   }
 
   int get _subtotal {
-    return widget.serviceOrder.services.fold<int>(
+    return _os.services.fold<int>(
       0,
       (total, servico) => total + servico.subtotalCents,
     );
@@ -139,8 +146,8 @@ class _OsServicosTabState extends State<OsServicosTab> {
     final nome = servico['nome']?.toString() ?? '';
     final descricao = servico['descricao']?.toString().trim() ?? '';
 
-    setState(() {
-      widget.serviceOrder.services.add(
+    _editarOs((os) {
+      os.services.add(
         ServiceOrderService(
           serviceId: serviceId,
           description: descricao.isNotEmpty ? descricao : nome,
@@ -151,14 +158,11 @@ class _OsServicosTabState extends State<OsServicosTab> {
   }
 
   void _removerServico(ServiceOrderService servico) {
-    final indiceOriginal =
-        widget.serviceOrder.services.indexOf(servico);
+    final indiceOriginal = _os.services.indexOf(servico);
 
     if (indiceOriginal == -1) return;
 
-    setState(() {
-      widget.serviceOrder.services.removeAt(indiceOriginal);
-    });
+    _editarOs((os) => os.services.removeAt(indiceOriginal));
 
     final messenger = ScaffoldMessenger.of(context);
 
@@ -175,11 +179,11 @@ class _OsServicosTabState extends State<OsServicosTab> {
           onPressed: () {
             if (!mounted) return;
 
-            setState(() {
-              widget.serviceOrder.services.insert(
+            _editarOs((os) {
+              os.services.insert(
                 indiceOriginal.clamp(
                   0,
-                  widget.serviceOrder.services.length,
+                  os.services.length,
                 ),
                 servico,
               );
@@ -235,20 +239,17 @@ class _OsServicosTabState extends State<OsServicosTab> {
 
     if (!mounted) return;
 
-    setState(() {
-      for (final servico in _servicosDisponiveis) {
-        if (servico['servicoId']?.toString() ==
-            atualizado.id?.toString()) {
-          servico['nome'] = atualizado.name;
-          servico['descricao'] = atualizado.description;
-          servico['valueInCents'] = atualizado.valueInCents;
-        }
+    for (final servico in _servicosDisponiveis) {
+      if (servico['servicoId']?.toString() == atualizado.id?.toString()) {
+        servico['nome'] = atualizado.name;
+        servico['descricao'] = atualizado.description;
+        servico['valueInCents'] = atualizado.valueInCents;
       }
+    }
 
-      for (int i = 0;
-          i < widget.serviceOrder.services.length;
-          i++) {
-        final servicoOS = widget.serviceOrder.services[i];
+    _editarOs((os) {
+      for (int i = 0; i < os.services.length; i++) {
+        final servicoOS = os.services[i];
 
         if (servicoOS.serviceId == atualizado.id) {
           final descricao =
@@ -256,7 +257,7 @@ class _OsServicosTabState extends State<OsServicosTab> {
                   ? atualizado.description
                   : atualizado.name;
 
-          widget.serviceOrder.services[i] = ServiceOrderService(
+          os.services[i] = ServiceOrderService(
             serviceId: servicoOS.serviceId,
             description: descricao,
             valueCents: atualizado.valueInCents,
