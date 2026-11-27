@@ -1,3 +1,4 @@
+
 import 'dart:async';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -9,7 +10,12 @@ abstract class OsRepository {
 
   Future<ServiceOrder?> buscarPorId(String id);
 
+  Stream<DocumentSnapshot<Map<String, dynamic>>> observarSincronizacao(
+    String id,
+  );
+
   Future<void> salvar(ServiceOrder os);
+
   Future<void> salvarRascunho(
     ServiceOrder os, {
     required bool includeEquipmentChange,
@@ -31,6 +37,13 @@ class FirestoreOsRepository implements OsRepository {
 
   DocumentReference<Map<String, dynamic>> get _contador =>
       _firestore.collection('counters').doc('service_orders');
+
+  @override
+  Stream<DocumentSnapshot<Map<String, dynamic>>> observarSincronizacao(
+    String id,
+  ) {
+    return _colecao.doc(id).snapshots(includeMetadataChanges: true);
+  }
 
   @override
   Future<void> salvarRascunho(
@@ -56,39 +69,53 @@ class FirestoreOsRepository implements OsRepository {
 
     final documento = _colecao.doc(os.id);
     final confirmacaoLocal = Completer<void>();
-    final observacao = documento.snapshots(includeMetadataChanges: true).listen(
-      (snapshot) {
-        final dadosLocais = snapshot.data();
-        if (!confirmacaoLocal.isCompleted &&
-            snapshot.metadata.hasPendingWrites &&
-            dadosLocais != null &&
-            dados.entries.every(
-              (campo) => campo.key == 'updated_at' ||
-                  _mesmoValor(campo.value, dadosLocais[campo.key]),
-            )) {
-          confirmacaoLocal.complete();
-        }
-      },
-      onError: (Object erro, StackTrace stackTrace) {
-        if (!confirmacaoLocal.isCompleted) {
-          confirmacaoLocal.completeError(erro, stackTrace);
-        }
-      },
-    );
+
+    final observacao = documento
+        .snapshots(includeMetadataChanges: true)
+        .listen(
+          (snapshot) {
+            final dadosLocais = snapshot.data();
+
+            if (!confirmacaoLocal.isCompleted &&
+                snapshot.metadata.hasPendingWrites &&
+                dadosLocais != null &&
+                dados.entries.every(
+                  (campo) =>
+                      campo.key == 'updated_at' ||
+                      _mesmoValor(campo.value, dadosLocais[campo.key]),
+                )) {
+              confirmacaoLocal.complete();
+            }
+          },
+          onError: (Object erro, StackTrace stackTrace) {
+            if (!confirmacaoLocal.isCompleted) {
+              confirmacaoLocal.completeError(erro, stackTrace);
+            }
+          },
+        );
 
     try {
-      unawaited(documento
-          .set(dados, SetOptions(mergeFields: dados.keys.toList()))
-          .then<void>((_) {
-        onSyncSuccess();
-        if (!confirmacaoLocal.isCompleted) confirmacaoLocal.complete();
-      }, onError: (Object erro, StackTrace stackTrace) {
-        if (!confirmacaoLocal.isCompleted) {
-          confirmacaoLocal.completeError(erro, stackTrace);
-        } else {
-          onSyncError(erro, stackTrace);
-        }
-      }));
+      unawaited(
+        documento
+            .set(dados, SetOptions(mergeFields: dados.keys.toList()))
+            .then<void>(
+              (_) {
+                onSyncSuccess();
+
+                if (!confirmacaoLocal.isCompleted) {
+                  confirmacaoLocal.complete();
+                }
+              },
+              onError: (Object erro, StackTrace stackTrace) {
+                if (!confirmacaoLocal.isCompleted) {
+                  confirmacaoLocal.completeError(erro, stackTrace);
+                } else {
+                  onSyncError(erro, stackTrace);
+                }
+              },
+            ),
+      );
+
       await confirmacaoLocal.future;
     } finally {
       await observacao.cancel();
@@ -97,18 +124,24 @@ class FirestoreOsRepository implements OsRepository {
 
   bool _mesmoValor(Object? esperado, Object? atual) {
     if (esperado is Map && atual is Map) {
-      return esperado.length == atual.length && esperado.entries.every(
-        (campo) => atual.containsKey(campo.key) &&
-            _mesmoValor(campo.value, atual[campo.key]),
-      );
+      return esperado.length == atual.length &&
+          esperado.entries.every(
+            (campo) =>
+                atual.containsKey(campo.key) &&
+                _mesmoValor(campo.value, atual[campo.key]),
+          );
     }
+
     if (esperado is List && atual is List) {
       if (esperado.length != atual.length) return false;
+
       for (var i = 0; i < esperado.length; i++) {
         if (!_mesmoValor(esperado[i], atual[i])) return false;
       }
+
       return true;
     }
+
     return esperado == atual;
   }
 
@@ -166,6 +199,7 @@ class FirestoreOsRepository implements OsRepository {
         }
 
         final dados = os.toFirestore();
+
         if (osSnapshot.exists && !os.equipmentBlocked) {
           dados.remove('equipamento_bloqueado');
         }
@@ -189,6 +223,7 @@ class FirestoreOsRepository implements OsRepository {
         if (dadosSalvos['equipamento_bloqueado'] == true) {
           os.equipmentBlocked = true;
         }
+
         os.createdAt = dadosSalvos['created_at'] as Timestamp?;
         os.updatedAt = dadosSalvos['updated_at'] as Timestamp?;
       }
@@ -211,6 +246,7 @@ class FirestoreOsRepository implements OsRepository {
     final dados = os.toFirestore()
       ..remove('numero_os')
       ..['updated_at'] = FieldValue.serverTimestamp();
+
     final confirmacaoLocal = Completer<void>();
 
     final gravacao = documento
@@ -223,6 +259,7 @@ class FirestoreOsRepository implements OsRepository {
                 'Erro ao sincronizar o bloqueio da OS ${os.id}: $erro',
               );
             }
+
             Error.throwWithStackTrace(erro, stackTrace);
           },
         );
@@ -232,6 +269,7 @@ class FirestoreOsRepository implements OsRepository {
         .listen(
           (snapshot) {
             final dadosLocais = snapshot.data();
+
             if (!confirmacaoLocal.isCompleted &&
                 snapshot.metadata.hasPendingWrites &&
                 dadosLocais?['equipamento_bloqueado'] == true &&
