@@ -7,8 +7,14 @@ import 'package:frontend/fire_base/models/os.dart';
 class ValuesOs extends StatefulWidget {
   final ServiceOrder serviceOrder;
   final VoidCallback? onConcluir;
+  final VoidCallback? onChanged;
 
-  const ValuesOs({super.key, required this.serviceOrder, this.onConcluir});
+  const ValuesOs({
+    super.key,
+    required this.serviceOrder,
+    this.onConcluir,
+    this.onChanged,
+  });
 
   @override
   State<ValuesOs> createState() => _ValuesOsState();
@@ -76,12 +82,16 @@ class _ValuesOsState extends State<ValuesOs>
     setState(() {
       os.globalFeeCents = _converterParaCentavos(valor);
     });
+
+    widget.onChanged?.call();
   }
 
   void _atualizarDesconto(String valor) {
     setState(() {
       os.globalDiscountCents = _converterParaCentavos(valor);
     });
+
+    widget.onChanged?.call();
   }
 
   int get _subtotalPecas {
@@ -104,12 +114,6 @@ class _ValuesOsState extends State<ValuesOs>
   }
 
   void _concluir() {
-    debugPrint('================================');
-    debugPrint('BOTÃO CONCLUIR CLICADO');
-    debugPrint('Total: $_total centavos');
-    debugPrint('Callback conectado: ${widget.onConcluir != null}');
-    debugPrint('================================');
-
     if (_total < 0) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(

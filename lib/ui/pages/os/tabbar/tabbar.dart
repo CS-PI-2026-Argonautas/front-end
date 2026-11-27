@@ -27,6 +27,7 @@ class _TabbarState extends State<Tabbar> with SingleTickerProviderStateMixin {
 
   bool _dadosObrigatoriosPreenchidos = false;
   bool _salvando = false;
+  bool _somenteServicos = false;
 
   @override
   void initState() {
@@ -149,6 +150,40 @@ class _TabbarState extends State<Tabbar> with SingleTickerProviderStateMixin {
     });
   }
 
+  void _notificarAlteracaoOS() {
+    if (!mounted) return;
+
+    setState(() {});
+  }
+
+  bool _podeAcessarAba(int index) {
+    switch (index) {
+      case 0:
+        return true;
+
+      case 1:
+        return _dadosObrigatoriosPreenchidos;
+
+      case 2:
+        return _dadosObrigatoriosPreenchidos &&
+            (_serviceOrder.parts.isNotEmpty || _somenteServicos);
+
+      case 3:
+        return _dadosObrigatoriosPreenchidos &&
+            (_somenteServicos || _serviceOrder.services.isNotEmpty) &&
+            (_serviceOrder.parts.isNotEmpty || _somenteServicos);
+
+      default:
+        return false;
+    }
+  }
+
+  void _atualizarSomenteServicos(bool valor) {
+    setState(() {
+      _somenteServicos = valor;
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -193,14 +228,23 @@ class _TabbarState extends State<Tabbar> with SingleTickerProviderStateMixin {
           indicatorWeight: 3,
 
           onTap: (index) {
-            if (index != 0 && !_dadosObrigatoriosPreenchidos) {
-              _tabController.animateTo(0);
+            if (!_podeAcessarAba(index)) {
+              _tabController.animateTo(_tabController.previousIndex);
+
+              String mensagem;
+
+              if (!_dadosObrigatoriosPreenchidos) {
+                mensagem = 'Selecione um cliente e um endereço primeiro.';
+              } else if (_serviceOrder.parts.isEmpty && index >= 2) {
+                mensagem =
+                    'Adicione pelo menos uma peça ou marque a caixa de selecao antes de continuar.';
+              } else {
+                mensagem = 'Adicione pelo menos um serviço antes de continuar.';
+              }
 
               ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(
-                  content: Text(
-                    'Selecione um cliente e um endereço antes de continuar.',
-                  ),
+                SnackBar(
+                  content: Text(mensagem),
                   behavior: SnackBarBehavior.floating,
                 ),
               );
@@ -218,7 +262,10 @@ class _TabbarState extends State<Tabbar> with SingleTickerProviderStateMixin {
 
       body: TabBarView(
         controller: _tabController,
-        physics: _dadosObrigatoriosPreenchidos
+        physics:
+            _dadosObrigatoriosPreenchidos &&
+                (_serviceOrder.parts.isNotEmpty || _somenteServicos) &&
+                _serviceOrder.services.isNotEmpty
             ? const BouncingScrollPhysics()
             : const NeverScrollableScrollPhysics(),
 
@@ -229,9 +276,7 @@ class _TabbarState extends State<Tabbar> with SingleTickerProviderStateMixin {
               _tabController.animateTo(1);
             },
             onDadosObrigatoriosChanged: _atualizarDadosObrigatorios,
-            onChanged: () {
-              setState(() {});
-            },
+            onChanged: _notificarAlteracaoOS,
           ),
 
           TollsOs(
@@ -239,6 +284,8 @@ class _TabbarState extends State<Tabbar> with SingleTickerProviderStateMixin {
             avancarTab: () {
               _tabController.animateTo(2);
             },
+            onChanged: _notificarAlteracaoOS,
+            onSomenteServicosChanged: _atualizarSomenteServicos,
           ),
 
           OsServicosTab(
@@ -246,9 +293,14 @@ class _TabbarState extends State<Tabbar> with SingleTickerProviderStateMixin {
             avancarTab: () {
               _tabController.animateTo(3);
             },
+            onChanged: _notificarAlteracaoOS,
           ),
 
-          ValuesOs(serviceOrder: _serviceOrder, onConcluir: _concluirOs),
+          ValuesOs(
+            serviceOrder: _serviceOrder,
+            onConcluir: _concluirOs,
+            onChanged: _notificarAlteracaoOS,
+          ),
         ],
       ),
     );

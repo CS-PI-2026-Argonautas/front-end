@@ -16,8 +16,14 @@ import 'package:frontend/utils/formatters/currency_input_formatter.dart';
 class OsServicosTab extends StatefulWidget {
   final ServiceOrder serviceOrder;
   final VoidCallback? avancarTab;
+  final VoidCallback? onChanged;
 
-  const OsServicosTab({super.key, required this.serviceOrder, this.avancarTab});
+  const OsServicosTab({
+    super.key,
+    required this.serviceOrder,
+    this.avancarTab,
+    this.onChanged,
+  });
 
   @override
   State<OsServicosTab> createState() => _OsServicosTabState();
@@ -143,6 +149,8 @@ class _OsServicosTabState extends State<OsServicosTab> {
         ),
       );
     });
+
+    widget.onChanged?.call();
   }
 
   void _removerServico(ServiceOrderService servico) {
@@ -153,6 +161,8 @@ class _OsServicosTabState extends State<OsServicosTab> {
     setState(() {
       widget.serviceOrder.services.removeAt(indiceOriginal);
     });
+
+    widget.onChanged?.call();
 
     final messenger = ScaffoldMessenger.of(context);
 
@@ -167,7 +177,6 @@ class _OsServicosTabState extends State<OsServicosTab> {
         behavior: SnackBarBehavior.floating,
         showCloseIcon: true,
         closeIconColor: Colors.white,
-
         action: SnackBarAction(
           label: 'DESFAZER',
           textColor: Colors.white,
@@ -182,6 +191,8 @@ class _OsServicosTabState extends State<OsServicosTab> {
                 servico,
               );
             });
+
+            widget.onChanged?.call();
           },
         ),
       ),
@@ -258,6 +269,8 @@ class _OsServicosTabState extends State<OsServicosTab> {
         }
       }
     });
+
+    widget.onChanged?.call();
 
     await _carregarServicosDoBanco();
   }

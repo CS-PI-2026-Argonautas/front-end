@@ -16,8 +16,16 @@ import 'package:frontend/ui/widgets/floatingButton.dart';
 class TollsOs extends StatefulWidget {
   final ServiceOrder serviceOrder;
   final VoidCallback? avancarTab;
+  final VoidCallback? onChanged;
+  final ValueChanged<bool>? onSomenteServicosChanged;
 
-  const TollsOs({super.key, required this.serviceOrder, this.avancarTab});
+  const TollsOs({
+    super.key,
+    required this.serviceOrder,
+    this.avancarTab,
+    this.onChanged,
+    this.onSomenteServicosChanged,
+  });
 
   @override
   State<TollsOs> createState() => OrderServiceState();
@@ -87,6 +95,8 @@ class OrderServiceState extends State<TollsOs>
         discountCents: pecaAntiga.discountCents,
       );
     });
+
+    widget.onChanged?.call();
   }
 
   void _removerPeca(int index) {
@@ -97,6 +107,8 @@ class OrderServiceState extends State<TollsOs>
     setState(() {
       _os.parts.removeAt(index);
     });
+
+    widget.onChanged?.call();
 
     final messenger = ScaffoldMessenger.of(context);
 
@@ -123,6 +135,8 @@ class OrderServiceState extends State<TollsOs>
             setState(() {
               _os.parts.insert(index.clamp(0, _os.parts.length), pecaRemovida);
             });
+
+            widget.onChanged?.call();
           },
         ),
       ),
@@ -296,12 +310,22 @@ class OrderServiceState extends State<TollsOs>
                                   _somenteServicos = true;
                                 });
 
+                                widget.onChanged?.call();
+                                widget.onSomenteServicosChanged?.call(
+                                  _somenteServicos,
+                                );
+
                                 return;
                               }
 
                               setState(() {
                                 _somenteServicos = marcarSomenteServicos;
                               });
+
+                              widget.onChanged?.call();
+                              widget.onSomenteServicosChanged?.call(
+                                _somenteServicos,
+                              );
                             },
                             contentPadding: EdgeInsets.zero,
                             controlAffinity: ListTileControlAffinity.leading,
@@ -491,14 +515,7 @@ class OrderServiceState extends State<TollsOs>
   }
 
   void _adicionarPeca(Item peca) {
-    if (peca.id == null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Essa peça não possui um identificador válido.'),
-        ),
-      );
-      return;
-    }
+    if (peca.id == null) return;
 
     setState(() {
       final index = _os.parts.indexWhere((item) => item.partId == peca.id);
@@ -521,6 +538,8 @@ class OrderServiceState extends State<TollsOs>
         );
       }
     });
+
+    widget.onChanged?.call();
   }
 
   void _aumentarQuantidade(int index) {
@@ -529,6 +548,8 @@ class OrderServiceState extends State<TollsOs>
     setState(() {
       _os.parts[index] = peca.withQuantity(peca.quantity + 1);
     });
+
+    widget.onChanged?.call();
   }
 
   void _diminuirQuantidade(int index) {
@@ -539,6 +560,8 @@ class OrderServiceState extends State<TollsOs>
     setState(() {
       _os.parts[index] = peca.withQuantity(peca.quantity - 1);
     });
+
+    widget.onChanged?.call();
   }
 
   Widget _buildPieceCard(ServiceOrderPart peca, int index) {
