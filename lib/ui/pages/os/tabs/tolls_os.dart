@@ -82,6 +82,15 @@ class OrderServiceState extends State<TollsOs>
     _atualizarPecaNaOS(pecaAtualizada);
   }
 
+  Future<void> _atualizarItem(Item itemAtualizado) async {
+    await _itemService.update(itemAtualizado);
+
+    if (!mounted) return;
+
+    // Sincroniza nome e preço da peça que já está na OS
+    _atualizarPecaNaOS(itemAtualizado);
+  }
+
   void _atualizarPecaNaOS(Item pecaAtualizada) {
     if (pecaAtualizada.id == null) return;
 
@@ -186,6 +195,88 @@ class OrderServiceState extends State<TollsOs>
 
     _removerPeca(index);
   }
+Future<void> _excluirPecaDoCadastro(Item peca) async {
+  final itemId = peca.id;
+
+  final bool naOs = _os.parts.any(
+    (item) => item.partId == itemId,
+  );
+
+  final confirmar = await showDialog<bool>(
+    context: context,
+    builder: (dialogContext) {
+      return AlertDialog(
+        title: const Text('Excluir peça'),
+        content: Text(
+          naOs
+              ? 'Deseja excluir "${peca.name}" do cadastro? '
+                  'Ela também será removida desta OS.'
+              : 'Deseja excluir "${peca.name}" do cadastro?',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(dialogContext, false),
+            child: const Text('CANCELAR'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(dialogContext, true),
+            child: Text(
+              'EXCLUIR',
+              style: TextStyle(color: colors.error),
+            ),
+          ),
+        ],
+      );
+    },
+  );
+
+  if (confirmar != true || !mounted) return;
+
+  // Verifica se a peça possui um ID válido.
+  if (itemId == null || itemId.isEmpty) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text(
+          'Não foi possível excluir: ID da peça não encontrado.',
+        ),
+        behavior: SnackBarBehavior.floating,
+      ),
+    );
+    return;
+  }
+
+  try {
+    // Exclui a peça do cadastro no Firestore.
+    await _itemService.delete(itemId);
+
+    if (!mounted) return;
+
+    // Remove a referência da peça desta Ordem de Serviço.
+    _editarOs((os) {
+      os.parts.removeWhere(
+        (item) => item.partId == itemId,
+      );
+    });
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text('Peça excluída com sucesso.'),
+        behavior: SnackBarBehavior.floating,
+      ),
+    );
+  } catch (e) {
+    debugPrint('Erro ao excluir peça: $e');
+
+    if (!mounted) return;
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text('Não foi possível excluir a peça.'),
+        behavior: SnackBarBehavior.floating,
+      ),
+    );
+  }
+}
 
   @override
   void dispose() {
@@ -495,6 +586,10 @@ class OrderServiceState extends State<TollsOs>
 
               onEdit: (peca) async {
                 await _abrirEdicao(peca);
+              },
+
+              onDelete: (peca) async {
+                await _excluirPecaDoCadastro(peca);
               },
 
               onSelect: (peca) {
