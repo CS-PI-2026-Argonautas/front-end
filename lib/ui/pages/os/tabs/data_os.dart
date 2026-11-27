@@ -59,7 +59,11 @@ class _DataOsState extends State<DataOs>
 
   bool get _formHabilitado => _os.client != null;
 
-  bool get _formValido => _os.client != null && _os.serviceAddress != null;
+  bool get _formValido =>
+      _os.client != null &&
+      _os.serviceAddress != null &&
+      _os.equipment != null &&
+      !_os.equipment!.isEmpty;
 
   bool get _equipamentoBloqueado => _os.equipmentBlocked;
 
@@ -147,6 +151,11 @@ class _DataOsState extends State<DataOs>
 
     if (_os.serviceAddress == null) {
       _mostrarErro('Selecione um endereço.');
+      return false;
+    }
+
+    if (_os.equipment == null || _os.equipment!.isEmpty) {
+      _mostrarErro('Selecione um equipamento.');
       return false;
     }
 

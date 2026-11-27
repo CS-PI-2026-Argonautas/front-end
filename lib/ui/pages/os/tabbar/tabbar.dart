@@ -91,7 +91,7 @@ class _TabbarState extends State<Tabbar> with SingleTickerProviderStateMixin {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
           content: Text(
-            'Selecione um cliente e um endereço antes de concluir.',
+            'Selecione um cliente, um endereço e um equipamento antes de concluir.',
           ),
           behavior: SnackBarBehavior.floating,
         ),
@@ -234,7 +234,8 @@ class _TabbarState extends State<Tabbar> with SingleTickerProviderStateMixin {
               String mensagem;
 
               if (!_dadosObrigatoriosPreenchidos) {
-                mensagem = 'Selecione um cliente e um endereço primeiro.';
+                mensagem =
+                    'Selecione um cliente, um endereço e um equipamento antes de concluir.';
               } else if (_serviceOrder.parts.isEmpty && index >= 2) {
                 mensagem =
                     'Adicione pelo menos uma peça ou marque a caixa de selecao antes de continuar.';
