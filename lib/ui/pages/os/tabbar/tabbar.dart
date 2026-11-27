@@ -198,8 +198,11 @@ class _TabbarState extends State<Tabbar> with SingleTickerProviderStateMixin {
     });
 
     try {
-      await _serviceOrderState.beginCompletion();
+      final savedLocally = await _serviceOrderState.beginCompletion();
       if (!mounted) return;
+      if (!savedLocally) {
+        throw Exception('Não foi possível gravar as alterações na fila local.');
+      }
 
       if (!_modoEdicao) {
         _serviceOrder.changeStatus(ServiceOrderStatus.CONCLUIDA);

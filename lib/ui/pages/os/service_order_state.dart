@@ -57,10 +57,11 @@ class ServiceOrderState extends ChangeNotifier {
     return true;
   }
 
-  Future<void> beginCompletion() async {
+  Future<bool> beginCompletion() {
+    final localWrite = flushPending();
     _completing = true;
     _autosaveTimer?.cancel();
-    await _localWrite;
+    return localWrite;
   }
 
   void endCompletion({required bool saved}) {

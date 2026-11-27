@@ -8,6 +8,68 @@ import 'package:frontend/ui/pages/os/service_order_state.dart';
 void main() {
   final rejection = StateError('Gravação rejeitada');
 
+  testWidgets('completion queues pending edits before the transaction', (
+    tester,
+  ) async {
+    final local = Completer<void>();
+    final writes = <(String, String)>[];
+    final os = ServiceOrder.createNew();
+    final state = ServiceOrderState(
+      os,
+      saveDraft: (
+        draft, {
+        required includeEquipmentChange,
+        required onSyncSuccess,
+        required onSyncError,
+      }) {
+        writes.add((draft.id, draft.report));
+        return local.future;
+      },
+    );
+    addTearDown(state.dispose);
+
+    state.applyUserEdit((draft) => draft.report = 'Diagnóstico pendente');
+    var ready = false;
+    final completion = state.beginCompletion().then((saved) => ready = saved);
+    expect(writes, [(os.id, 'Diagnóstico pendente')]);
+    await tester.pump(const Duration(seconds: 4));
+    expect(ready, isFalse);
+    expect(writes, hasLength(1));
+
+    local.complete();
+    expect(await completion, isTrue);
+    state.endCompletion(saved: false);
+    expect(await state.flushPending(), isTrue);
+    expect(writes, hasLength(1));
+    expect(os.report, 'Diagnóstico pendente');
+    expect(os.numeroOs, isNull);
+  });
+
+  testWidgets('completion reports a local failure and keeps edits for retry', (
+    tester,
+  ) async {
+    final reports = <String>[];
+    final state = ServiceOrderState(
+      ServiceOrder.createNew(),
+      saveDraft: (
+        draft, {
+        required includeEquipmentChange,
+        required onSyncSuccess,
+        required onSyncError,
+      }) async {
+        reports.add(draft.report);
+        if (reports.length == 1) throw rejection;
+      },
+    );
+    addTearDown(state.dispose);
+
+    state.applyUserEdit((draft) => draft.report = 'Preservar');
+    expect(await state.beginCompletion(), isFalse);
+    state.endCompletion(saved: false);
+    expect(await state.flushPending(), isTrue);
+    expect(reports, ['Preservar', 'Preservar']);
+  });
+
   testWidgets('a failed local write is retried on the next flush', (tester) async {
     final reports = <String>[];
     final state = ServiceOrderState(
