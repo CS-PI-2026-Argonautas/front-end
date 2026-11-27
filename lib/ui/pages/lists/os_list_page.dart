@@ -1,17 +1,13 @@
-
 import 'package:flutter/material.dart';
-
 import 'package:frontend/fire_base/Enums/StatusOrderService.dart';
 import 'package:frontend/fire_base/models/dinheiro.dart';
 import 'package:frontend/fire_base/models/os.dart';
 import 'package:frontend/fire_base/repositories/os_repository.dart';
-
 import 'package:frontend/ui/pages/lists/client_list.dart';
 import 'package:frontend/ui/pages/dashboard.dart';
-import 'package:frontend/ui/pages/edit_item/item_edition.dart';
+import 'package:frontend/ui/pages/lists/item_list.dart';
 import 'package:frontend/ui/pages/os/tabbar/tabbar.dart';
-import 'package:frontend/ui/pages/product_registration/product_registration.dart';
-
+import 'package:frontend/ui/pages/service_registration/service_registration.dart';
 import 'package:frontend/ui/style/ColorScheme.dart' as custom_colors;
 import 'package:frontend/ui/widgets/floatingButton.dart';
 import 'package:frontend/ui/widgets/appBar.dart';
@@ -31,8 +27,7 @@ class _OsListPageState extends State<OsListPage> {
 
   late Future<List<ServiceOrder>> _futureOrdemServicos;
 
-  final TextEditingController _searchController =
-      TextEditingController();
+  final TextEditingController _searchController = TextEditingController();
 
   String _searchQuery = '';
 
@@ -50,8 +45,7 @@ class _OsListPageState extends State<OsListPage> {
 
     _searchController.addListener(() {
       setState(() {
-        _searchQuery =
-            _searchController.text.trim().toLowerCase();
+        _searchQuery = _searchController.text.trim().toLowerCase();
       });
     });
   }
@@ -107,20 +101,15 @@ class _OsListPageState extends State<OsListPage> {
     return numero.toString().padLeft(4, '0');
   }
 
-  List<ServiceOrder> _filtrarOrdens(
-    List<ServiceOrder> ordens,
-  ) {
+  List<ServiceOrder> _filtrarOrdens(List<ServiceOrder> ordens) {
     final resultado = ordens.where((os) {
       final numeroOs = os.numeroOs?.toString() ?? '';
 
-      final numeroFormatado =
-          _formatarNumeroOs(os).toLowerCase();
+      final numeroFormatado = _formatarNumeroOs(os).toLowerCase();
 
-      final nomeCliente =
-          (os.client?.name ?? '').toLowerCase();
+      final nomeCliente = (os.client?.name ?? '').toLowerCase();
 
-      final cidade =
-          (os.serviceAddress?.city ?? '').toLowerCase();
+      final cidade = (os.serviceAddress?.city ?? '').toLowerCase();
 
       final status = os.status.value.toLowerCase();
 
@@ -132,27 +121,25 @@ class _OsListPageState extends State<OsListPage> {
           status.contains(_searchQuery);
 
       final correspondeStatus =
-          _statusSelecionado == null ||
-          os.status == _statusSelecionado;
+          _statusSelecionado == null || os.status == _statusSelecionado;
 
       return correspondePesquisa && correspondeStatus;
     }).toList();
 
     resultado.sort((a, b) {
-      final comparacao =
-          a.entryDate.compareTo(b.entryDate);
+      final comparacao = a.entryDate.compareTo(b.entryDate);
 
-      return _ordemCrescente
-          ? comparacao
-          : -comparacao;
+      return _ordemCrescente ? comparacao : -comparacao;
     });
 
     return resultado;
   }
 
-  Future<void> _deletarOrdemServico(
-    ServiceOrder os,
-  ) async {
+  Future<void> _restaurarOrdemServico(ServiceOrder os) async {
+    await _repository.restaurar(os.id);
+  }
+
+  Future<void> _deletarOrdemServico(ServiceOrder os) async {
     try {
       await _repository.deletar(os.id);
 
@@ -160,26 +147,78 @@ class _OsListPageState extends State<OsListPage> {
 
       _carregarOrdemServicos();
 
-      ScaffoldMessenger.of(context)
+      final messenger = ScaffoldMessenger.of(context);
+
+      messenger
         ..hideCurrentSnackBar()
         ..showSnackBar(
           SnackBar(
-            content: const Text(
-              'Ordem de serviço excluída com sucesso.',
-            ),
+            duration: const Duration(seconds: 5),
             backgroundColor: colors.primary,
+            content: Row(
+              children: [
+                Expanded(
+                  child: Text(
+                    'OS Nº ${_formatarNumeroOs(os)} excluída com sucesso!',
+                    style: const TextStyle(color: Colors.white),
+                  ),
+                ),
+                IconButton(
+                  tooltip: 'Fechar',
+                  onPressed: () {
+                    messenger.hideCurrentSnackBar();
+                  },
+                  icon: const Icon(Icons.close, color: Colors.white),
+                ),
+              ],
+            ),
+            action: SnackBarAction(
+              label: 'DESFAZER',
+              textColor: Colors.white,
+              onPressed: () async {
+                try {
+                  await _restaurarOrdemServico(os);
+
+                  if (!mounted) return;
+
+                  _carregarOrdemServicos();
+
+                  ScaffoldMessenger.of(context)
+                    ..hideCurrentSnackBar()
+                    ..showSnackBar(
+                      const SnackBar(
+                        content: Text(
+                          'Ordem de serviço restaurada com sucesso!',
+                        ),
+                      ),
+                    );
+                } catch (e) {
+                  debugPrint('Erro ao restaurar OS: $e');
+
+                  if (!mounted) return;
+
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                      content: Text(
+                        'Não foi possível restaurar a ordem de serviço.',
+                      ),
+                    ),
+                  );
+                }
+              },
+            ),
           ),
         );
     } catch (e) {
+      debugPrint('Erro ao excluir ordem de serviço: $e');
+
       if (!mounted) return;
 
       ScaffoldMessenger.of(context)
         ..hideCurrentSnackBar()
         ..showSnackBar(
           SnackBar(
-            content: Text(
-              'Erro ao excluir ordem de serviço: $e',
-            ),
+            content: Text('Erro ao excluir ordem de serviço: $e'),
             backgroundColor: colors.error,
           ),
         );
@@ -202,9 +241,7 @@ class _OsListPageState extends State<OsListPage> {
     _carregarOrdemServicos();
   }
 
-  Future<void> _confirmarExclusao(
-    ServiceOrder os,
-  ) async {
+  Future<void> _confirmarExclusao(ServiceOrder os) async {
     final confirmar = await showDialog<bool>(
       context: context,
       builder: (_) => ShowDeleteOsDialog(
@@ -222,11 +259,7 @@ class _OsListPageState extends State<OsListPage> {
   Future<void> _abrirNovaOs() async {
     await Navigator.push(
       context,
-      MaterialPageRoute(
-        builder: (context) => Tabbar(
-          serviceOrderNumber: -1,
-        ),
-      ),
+      MaterialPageRoute(builder: (context) => Tabbar(serviceOrderNumber: -1)),
     );
 
     if (!mounted) return;
@@ -257,30 +290,25 @@ class _OsListPageState extends State<OsListPage> {
         onTap: (index) {
           Navigator.pop(context);
 
-          if (index == 1) {
-            Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (context) =>
-                    const ProductRegistration(),
-              ),
-            );
-          }
-
           if (index == 0) {
             Navigator.push(
               context,
-              MaterialPageRoute(
-                builder: (context) => const ClientList(),
-              ),
+              MaterialPageRoute(builder: (context) => const ClientList()),
             );
           }
+          if (index == 1) {
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => const ItemList()),
+            );
+          }
+          if (index == 2) {}
 
           if (index == 3) {
             Navigator.push(
               context,
               MaterialPageRoute(
-                builder: (context) => const ItemEdition(),
+                builder: (context) => const ServiceRegistration(),
               ),
             );
           }
@@ -288,9 +316,7 @@ class _OsListPageState extends State<OsListPage> {
           if (index == 4) {
             Navigator.push(
               context,
-              MaterialPageRoute(
-                builder: (context) => const Dashboard(),
-              ),
+              MaterialPageRoute(builder: (context) => const Dashboard()),
             );
           }
         },
@@ -302,37 +328,21 @@ class _OsListPageState extends State<OsListPage> {
           child: Align(
             alignment: Alignment.topCenter,
             child: ConstrainedBox(
-              constraints: const BoxConstraints(
-                maxWidth: 650,
-              ),
+              constraints: const BoxConstraints(maxWidth: 650),
               child: SingleChildScrollView(
-                physics:
-                    const AlwaysScrollableScrollPhysics(),
-                padding: const EdgeInsets.fromLTRB(
-                  20,
-                  30,
-                  20,
-                  100,
-                ),
+                physics: const AlwaysScrollableScrollPhysics(),
+                padding: const EdgeInsets.fromLTRB(20, 30, 20, 100),
                 child: Column(
-                  crossAxisAlignment:
-                      CrossAxisAlignment.stretch,
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
                     TextFormField(
                       controller: _searchController,
                       decoration: InputDecoration(
-                        hintText:
-                            'Procurar ordem de serviço',
+                        hintText: 'Procurar ordem de serviço',
                         filled: true,
-                        fillColor:
-                            colors.surfaceContainer,
-                        hintStyle: TextStyle(
-                          color: colors.onSurface,
-                        ),
-                        prefixIcon: Icon(
-                          Icons.search,
-                          color: colors.secondary,
-                        ),
+                        fillColor: colors.surfaceContainer,
+                        hintStyle: TextStyle(color: colors.onSurface),
+                        prefixIcon: Icon(Icons.search, color: colors.secondary),
                         suffixIcon: _searchQuery.isNotEmpty
                             ? IconButton(
                                 icon: Icon(
@@ -345,80 +355,16 @@ class _OsListPageState extends State<OsListPage> {
                               )
                             : null,
                         border: OutlineInputBorder(
-                          borderRadius:
-                              BorderRadius.circular(14),
+                          borderRadius: BorderRadius.circular(14),
                           borderSide: BorderSide.none,
                         ),
                       ),
                     ),
 
                     Padding(
-                      padding:
-                          const EdgeInsets.only(top: 20),
+                      padding: const EdgeInsets.only(top: 20),
                       child: Row(
                         children: [
-                          PopupMenuButton<
-                              ServiceOrderStatus?>(
-                            onSelected: (status) {
-                              setState(() {
-                                _statusSelecionado = status;
-                              });
-                            },
-                            itemBuilder: (context) {
-                              return [
-                                const PopupMenuItem<
-                                    ServiceOrderStatus?>(
-                                  value: null,
-                                  child: Text(
-                                    'Todos os status',
-                                  ),
-                                ),
-                                ...ServiceOrderStatus.values
-                                    .map((status) {
-                                  return PopupMenuItem<
-                                      ServiceOrderStatus?>(
-                                    value: status,
-                                    child: Text(status.value),
-                                  );
-                                }),
-                              ];
-                            },
-                            child: Container(
-                              padding:
-                                  const EdgeInsets.symmetric(
-                                horizontal: 16,
-                                vertical: 12,
-                              ),
-                              decoration: BoxDecoration(
-                                color: colors.primary,
-                                borderRadius:
-                                    BorderRadius.circular(8),
-                              ),
-                              child: const Row(
-                                mainAxisSize:
-                                    MainAxisSize.min,
-                                children: [
-                                  Icon(
-                                    Icons.tune,
-                                    color: Colors.white,
-                                  ),
-                                  SizedBox(width: 8),
-                                  Text(
-                                    'Filtrar',
-                                    style: TextStyle(
-                                      color: Colors.white,
-                                      fontWeight:
-                                          FontWeight.bold,
-                                      fontSize: 14.8,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ),
-
-                          const SizedBox(width: 10),
-
                           ElevatedButton.icon(
                             onPressed: _alternarOrdenacao,
                             icon: Icon(
@@ -438,6 +384,75 @@ class _OsListPageState extends State<OsListPage> {
                             style: ElevatedButton.styleFrom(
                               backgroundColor: colors.primary,
                               foregroundColor: Colors.white,
+                              fixedSize: const Size.fromHeight(40),
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 16,
+                              ),
+                              tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(30),
+                              ),
+                            ),
+                          ),
+
+                          const SizedBox(width: 10),
+
+                          PopupMenuButton<String>(
+                            onSelected: (valor) {
+                              setState(() {
+                                if (valor == 'TODOS') {
+                                  _statusSelecionado = null;
+                                } else {
+                                  _statusSelecionado = ServiceOrderStatus.values
+                                      .firstWhere(
+                                        (status) => status.name == valor,
+                                      );
+                                }
+                              });
+                            },
+                            itemBuilder: (context) {
+                              return [
+                                const PopupMenuItem<String>(
+                                  value: 'TODOS',
+                                  child: Text('Todos os status'),
+                                ),
+                                ...ServiceOrderStatus.values.map((status) {
+                                  return PopupMenuItem<String>(
+                                    value: status.name,
+                                    child: Text(status.value),
+                                  );
+                                }),
+                              ];
+                            },
+                            child: Container(
+                              height: 40,
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 16,
+                              ),
+                              alignment: Alignment.center,
+                              decoration: BoxDecoration(
+                                color: colors.primary,
+                                borderRadius: BorderRadius.circular(30),
+                              ),
+                              child: const Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  Icon(
+                                    Icons.tune,
+                                    color: Colors.white,
+                                    size: 20,
+                                  ),
+                                  SizedBox(width: 8),
+                                  Text(
+                                    'Filtrar',
+                                    style: TextStyle(
+                                      color: Colors.white,
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 14.8,
+                                    ),
+                                  ),
+                                ],
+                              ),
                             ),
                           ),
                         ],
@@ -445,10 +460,7 @@ class _OsListPageState extends State<OsListPage> {
                     ),
 
                     Padding(
-                      padding: const EdgeInsets.only(
-                        top: 20,
-                        bottom: 10,
-                      ),
+                      padding: const EdgeInsets.only(top: 20, bottom: 10),
                       child: Align(
                         alignment: Alignment.centerLeft,
                         child: Text(
@@ -469,17 +481,13 @@ class _OsListPageState extends State<OsListPage> {
                             ConnectionState.waiting) {
                           return const Padding(
                             padding: EdgeInsets.only(top: 30),
-                            child: Center(
-                              child:
-                                  CircularProgressIndicator(),
-                            ),
+                            child: Center(child: CircularProgressIndicator()),
                           );
                         }
 
                         if (snapshot.hasError) {
                           return Padding(
-                            padding:
-                                const EdgeInsets.only(top: 20),
+                            padding: const EdgeInsets.only(top: 20),
                             child: Column(
                               children: [
                                 const Icon(
@@ -493,25 +501,18 @@ class _OsListPageState extends State<OsListPage> {
                                 ),
                                 const SizedBox(height: 10),
                                 ElevatedButton.icon(
-                                  onPressed:
-                                      _carregarOrdemServicos,
-                                  icon: const Icon(
-                                    Icons.refresh,
-                                  ),
-                                  label: const Text(
-                                    'Tentar novamente',
-                                  ),
+                                  onPressed: _carregarOrdemServicos,
+                                  icon: const Icon(Icons.refresh),
+                                  label: const Text('Tentar novamente'),
                                 ),
                               ],
                             ),
                           );
                         }
 
-                        if (!snapshot.hasData ||
-                            snapshot.data!.isEmpty) {
+                        if (!snapshot.hasData || snapshot.data!.isEmpty) {
                           return const Padding(
-                            padding:
-                                EdgeInsets.only(top: 30),
+                            padding: EdgeInsets.only(top: 30),
                             child: Center(
                               child: Text(
                                 'Nenhuma ordem de serviço encontrada.',
@@ -520,19 +521,16 @@ class _OsListPageState extends State<OsListPage> {
                           );
                         }
 
-                        final ordensFiltradas =
-                            _filtrarOrdens(snapshot.data!);
+                        final ordensFiltradas = _filtrarOrdens(snapshot.data!);
 
                         if (ordensFiltradas.isEmpty) {
                           return Padding(
-                            padding:
-                                const EdgeInsets.only(top: 20),
+                            padding: const EdgeInsets.only(top: 20),
                             child: Center(
                               child: Text(
                                 'Nenhuma ordem de serviço corresponde à pesquisa.',
                                 style: TextStyle(
-                                  color:
-                                      colors.onSurfaceVariant,
+                                  color: colors.onSurfaceVariant,
                                 ),
                               ),
                             ),
@@ -543,26 +541,19 @@ class _OsListPageState extends State<OsListPage> {
                           elevation: 4,
                           color: colors.surfaceContainer,
                           shape: RoundedRectangleBorder(
-                            borderRadius:
-                                BorderRadius.circular(12),
+                            borderRadius: BorderRadius.circular(12),
                           ),
                           clipBehavior: Clip.antiAlias,
                           child: ListView.separated(
                             shrinkWrap: true,
-                            physics:
-                                const NeverScrollableScrollPhysics(),
-                            itemCount:
-                                ordensFiltradas.length,
-                            separatorBuilder:
-                                (context, index) => Divider(
+                            physics: const NeverScrollableScrollPhysics(),
+                            itemCount: ordensFiltradas.length,
+                            separatorBuilder: (context, index) => Divider(
                               height: 1,
-                              color: colors.onSurfaceVariant
-                                  .withOpacity(0.2),
+                              color: colors.onSurfaceVariant.withOpacity(0.2),
                             ),
                             itemBuilder: (context, index) {
-                              return _buildOsCard(
-                                ordensFiltradas[index],
-                              );
+                              return _buildOsCard(ordensFiltradas[index]);
                             },
                           ),
                         );
@@ -575,22 +566,16 @@ class _OsListPageState extends State<OsListPage> {
           ),
         ),
       ),
-
-      floatingActionButton: CustomFloatingButton(
-        onPressed: _abrirNovaOs,
-      ),
+      floatingActionButton: CustomFloatingButton(onPressed: _abrirNovaOs),
     );
   }
 
   Widget _buildOsCard(ServiceOrder os) {
-    final nomeCliente =
-        os.client?.name ?? 'Cliente não informado';
+    final nomeCliente = os.client?.name ?? 'Cliente não informado';
 
-    final cidade =
-        os.serviceAddress?.city ?? 'Cidade não informada';
+    final cidade = os.serviceAddress?.city ?? 'Cidade não informada';
 
-    final estado =
-        os.serviceAddress?.state ?? '';
+    final estado = os.serviceAddress?.state ?? '';
 
     final status = os.status.value;
 
@@ -603,17 +588,13 @@ class _OsListPageState extends State<OsListPage> {
       },
       extentRatio: 0.20,
       child: Padding(
-        padding: const EdgeInsets.symmetric(
-          horizontal: 16,
-          vertical: 12,
-        ),
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Expanded(
               child: Column(
-                crossAxisAlignment:
-                    CrossAxisAlignment.start,
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
                     'OS Nº $numeroOs - $nomeCliente',
@@ -643,8 +624,7 @@ class _OsListPageState extends State<OsListPage> {
                       Text(
                         status,
                         style: TextStyle(
-                          color:
-                              _obterCorDoStatus(os.status),
+                          color: _obterCorDoStatus(os.status),
                           fontSize: 14,
                           fontWeight: FontWeight.w600,
                         ),
@@ -673,10 +653,7 @@ class _OsListPageState extends State<OsListPage> {
             ),
 
             IconButton(
-              icon: Icon(
-                Icons.edit,
-                color: colors.secondary,
-              ),
+              icon: Icon(Icons.edit, color: colors.secondary),
               tooltip: 'Editar ordem de serviço',
               onPressed: () => _abrirEdicaoOs(os),
             ),

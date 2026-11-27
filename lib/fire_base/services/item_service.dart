@@ -4,33 +4,44 @@ import 'package:frontend/fire_base/repositories/item_repository.dart';
 class ItemService {
   final ItemRepository _repository;
 
-  ItemService(this._repository);
+  ItemService({ItemRepository? repository})
+    : _repository = repository ?? ItemRepository();
 
-  Future<void> create(Item item) async {
+  Future<String> create(Item item) async {
     _validate(item);
-
-    await _repository.create(item);
+    return await _repository.create(item);
   }
 
   Future<void> update(Item item) async {
-    if (item.id == null) {
-      throw ArgumentError('Item ID is required for update.');
+    if (item.id == null || item.id!.isEmpty) {
+      throw ArgumentError('ID do item é obrigatório para edição.');
     }
 
     _validate(item);
-
     await _repository.update(item);
   }
 
-  Future<void> delete(Item item) async {
-    if (item.id == null) {
-      throw ArgumentError('Item ID is required for deletion.');
+  Future<void> delete(String id) async {
+    if (id.trim().isEmpty) {
+      throw ArgumentError('ID do item é obrigatório para exclusão.');
     }
 
-    await _repository.delete(item.id!);
+    await _repository.delete(id);
   }
 
-  Future<Item?> getById(String id) async {
+  Future<void> restore(String id) async {
+    if (id.trim().isEmpty) {
+      throw ArgumentError('ID do item é obrigatório para restauração.');
+    }
+
+    await _repository.restore(id);
+  }
+
+  Future<Item?> getById(String id) {
+    if (id.trim().isEmpty) {
+      throw ArgumentError('ID do item é obrigatório.');
+    }
+
     return _repository.getById(id);
   }
 
@@ -44,15 +55,19 @@ class ItemService {
 
   void _validate(Item item) {
     if (item.name.trim().isEmpty) {
-      throw ArgumentError('Item name is required.');
+      throw ArgumentError('Informe o nome do item.');
     }
 
-    if (item.description != null && item.description!.length > 50) {
-      throw ArgumentError('Item description cannot exceed 50 characters.');
+    if (item.description != null && item.description!.trim().length > 50) {
+      throw ArgumentError('A descrição não pode ultrapassar 50 caracteres.');
     }
 
-    if (item.valueInCents < 0) {
-      throw ArgumentError('Item value cannot be negative.');
+    if (item.valueInCents <= 0) {
+      throw ArgumentError('O valor do item deve ser maior que zero.');
+    }
+
+    if (item.minimumQuantity < 0) {
+      throw ArgumentError('A quantidade mínima não pode ser negativa.');
     }
   }
 }

@@ -64,7 +64,11 @@ class _DataOsState extends State<DataOs>
 
   bool get _formHabilitado => _os.client != null;
 
-  bool get _formValido => _os.client != null && _os.serviceAddress != null;
+  bool get _formValido =>
+      _os.client != null &&
+      _os.serviceAddress != null &&
+      _os.equipment != null &&
+      !_os.equipment!.isEmpty;
 
   bool get _equipamentoBloqueado => _os.equipmentBlocked;
 
@@ -153,6 +157,11 @@ class _DataOsState extends State<DataOs>
 
     if (_os.serviceAddress == null) {
       _mostrarErro('Selecione um endereço.');
+      return false;
+    }
+
+    if (_os.equipment == null || _os.equipment!.isEmpty) {
+      _mostrarErro('Selecione um equipamento.');
       return false;
     }
 
@@ -601,7 +610,8 @@ class _DataOsState extends State<DataOs>
             final novo = await Navigator.push<Address>(
               context,
               MaterialPageRoute(
-                builder: (_) => const PersonRegistrationAddress(),
+                builder: (_) =>
+                    const PersonRegistrationAddress(abertoPelaOS: true),
               ),
             );
 
@@ -639,7 +649,12 @@ class _DataOsState extends State<DataOs>
     super.build(context);
 
     return SingleChildScrollView(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 18),
+      padding: EdgeInsets.only(
+        left: 16,
+        right: 16,
+        top: 18,
+        bottom: MediaQuery.of(context).viewInsets.bottom + 18,
+      ),
       child: Center(
         child: ConstrainedBox(
           constraints: const BoxConstraints(maxWidth: 650),
@@ -1087,13 +1102,19 @@ class _DataOsState extends State<DataOs>
       spacing: 6,
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(
-          title,
-          style: TextStyle(
-            fontSize: 20,
-            fontWeight: FontWeight.bold,
-            color: colors.onSurface,
-          ),
+        Row(
+          children: [
+            Icon(Icons.description, color: colors.secondary),
+            const SizedBox(width: 8),
+            Text(
+              title,
+              style: TextStyle(
+                fontSize: 20,
+                fontWeight: FontWeight.bold,
+                color: colors.onSurface,
+              ),
+            ),
+          ],
         ),
         Text(
           subtitle,
@@ -1122,6 +1143,14 @@ class _DataOsState extends State<DataOs>
 
   Widget _buildStatusField() {
     final status = _os.status;
+
+    final opcoes = ServiceOrderStatus.values
+        .where(
+          (s) =>
+              s != ServiceOrderStatus.CONCLUIDA ||
+              status == ServiceOrderStatus.CONCLUIDA,
+        )
+        .toList();
 
     if (!editableStatuses.contains(status)) {
       return InputDecorator(
@@ -1161,7 +1190,7 @@ class _DataOsState extends State<DataOs>
     return DropdownButtonFormField<ServiceOrderStatus>(
       value: status,
       decoration: customInputDecoration(hintText: 'Selecione o status'),
-      items: editableStatuses.map((value) {
+      items: opcoes.map((value) {
         return DropdownMenuItem<ServiceOrderStatus>(
           value: value,
           child: Row(

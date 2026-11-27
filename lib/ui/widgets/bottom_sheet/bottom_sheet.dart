@@ -191,10 +191,10 @@ class _SelectionBottomSheetState<T> extends State<SelectionBottomSheet<T>> {
                           return Container(
                             margin: const EdgeInsets.only(bottom: 8),
                             decoration: BoxDecoration(
-                              color: colors.surfaceContainerHigh,
+                              color: colors.surfaceContainerLow,
                               borderRadius: BorderRadius.circular(12),
                               border: Border.all(
-                                color: colors.surfaceContainerHighest,
+                                color: colors.surfaceContainerLow,
                                 width: 1,
                               ),
                             ),
