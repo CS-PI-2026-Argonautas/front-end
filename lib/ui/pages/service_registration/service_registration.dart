@@ -1,24 +1,20 @@
 import 'dart:async';
-
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-
 import 'package:frontend/fire_base/models/dinheiro.dart';
 import 'package:frontend/fire_base/models/service.dart';
 import 'package:frontend/fire_base/services/service_service.dart';
-
+import 'package:frontend/ui/pages/lists/item_list.dart';
+import 'package:frontend/ui/pages/person_registration/person_registration.dart';
 import 'package:frontend/ui/style/ColorScheme.dart' as custom_colors;
 import 'package:frontend/ui/style/inputDecorationStyles.dart';
-
 import 'package:frontend/ui/widgets/appBar.dart';
 import 'package:frontend/ui/widgets/menu.dart';
 import 'package:frontend/ui/widgets/form/form_card.dart';
 import 'package:frontend/ui/widgets/form/form_field_label.dart';
 import 'package:frontend/ui/widgets/form/action_buttons.dart';
-
 import 'package:frontend/ui/pages/lists/os_list_page.dart';
 import 'package:frontend/ui/pages/lists/service_list.dart';
-import 'package:frontend/ui/pages/product_registration/product_registration.dart';
 import 'package:frontend/ui/pages/dashboard.dart';
 import 'package:frontend/utils/formatters/currency_input_formatter.dart';
 
@@ -30,8 +26,6 @@ class ServiceRegistration extends StatefulWidget {
 
   final Service? initialService;
 
-  // Indica se a tela foi aberta pela OS.
-  // Quando true, o menu lateral não será apresentado.
   final bool abertoPelaOS;
 
   const ServiceRegistration({
@@ -78,7 +72,6 @@ class _ServiceRegistrationState extends State<ServiceRegistration> {
     _nameController.text = service.name;
     _descriptionController.text = service.description;
 
-    // Converte centavos para o formato monetário brasileiro.
     _valueController.text = Dinheiro(
       service.valueInCents,
     ).formatado().replaceFirst('R\$', '').trim();
@@ -97,8 +90,6 @@ class _ServiceRegistrationState extends State<ServiceRegistration> {
     return Dinheiro.fromTexto(_valueController.text).centavos;
   }
 
-  // Executa a gravação sem bloquear a navegação.
-  // O Firestore mantém as operações pendentes para sincronização.
   Future<void> _persistir(Service service) async {
     try {
       if (_editando) {
@@ -145,10 +136,8 @@ class _ServiceRegistrationState extends State<ServiceRegistration> {
       _salvando = true;
     });
 
-    // Não aguarda a confirmação do servidor.
     unawaited(_persistir(service));
 
-    // A listagem será atualizada pelo watchServices().
     widget.onSubmit?.call();
 
     Navigator.maybePop(context);
@@ -169,10 +158,13 @@ class _ServiceRegistrationState extends State<ServiceRegistration> {
 
       appBar: Header(
         onBack: widget.onBack ?? () => Navigator.maybePop(context),
-        title: _editando ? 'Edição de serviços' : 'Cadastro de serviços',
+        title: _editando
+            ? 'Editar serviço'
+            : widget.abertoPelaOS
+            ? 'Novo serviço'
+            : 'Cadastro de serviços',
       ),
 
-      // A OS não deve apresentar o menu lateral.
       endDrawer: widget.abertoPelaOS
           ? null
           : Menu(
@@ -180,12 +172,19 @@ class _ServiceRegistrationState extends State<ServiceRegistration> {
               onTap: (index) {
                 Navigator.pop(context);
 
-                if (index == 1) {
+                if (index == 0) {
                   Navigator.push(
                     context,
                     MaterialPageRoute(
-                      builder: (context) => const ProductRegistration(),
+                      builder: (context) => const PersonRegistration(),
                     ),
+                  );
+                }
+
+                if (index == 1) {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => const ItemList()),
                   );
                 }
 

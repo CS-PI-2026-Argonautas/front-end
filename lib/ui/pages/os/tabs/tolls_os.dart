@@ -1,3 +1,4 @@
+import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
@@ -15,10 +16,16 @@ import 'package:frontend/ui/widgets/floatingButton.dart';
 
 class TollsOs extends StatefulWidget {
   final ServiceOrderState serviceOrderState;
+  final VoidCallback? avancarTab;
+  final VoidCallback? onChanged;
+  final ValueChanged<bool>? onSomenteServicosChanged;
 
   const TollsOs({
     super.key,
     required this.serviceOrderState,
+    this.avancarTab,
+    this.onChanged,
+    this.onSomenteServicosChanged,
   });
 
   @override
@@ -30,8 +37,12 @@ class OrderServiceState extends State<TollsOs>
   final colors = custom_colors.colorScheme;
 
   ServiceOrder get _os => widget.serviceOrderState.serviceOrder;
+
   late final ItemService _itemService;
   late final Stream<List<Item>> _pecasStream;
+
+  Timer? _snackBarTimer;
+  bool _somenteServicos = false;
 
   @override
   bool get wantKeepAlive => true;
@@ -40,20 +51,146 @@ class OrderServiceState extends State<TollsOs>
   void initState() {
     super.initState();
 
-    _itemService = ItemService(ItemRepository());
-
+    _itemService = ItemService(repository: ItemRepository());
     _pecasStream = _itemService.watchParts();
+
+    _somenteServicos = _os.parts.isEmpty && _os.services.isNotEmpty;
   }
 
   void _editarOs(void Function(ServiceOrder) editar) {
-    setState(() => widget.serviceOrderState.applyUserEdit(editar));
+    widget.serviceOrderState.applyUserEdit(editar);
+    widget.onChanged?.call();
   }
 
   int _calcularSubtotal() {
-    return _os.parts.fold<int>(
-      0,
-      (total, peca) => total + peca.subtotalCents,
+    return _os.parts.fold<int>(0, (total, peca) => total + peca.subtotalCents);
+  }
+
+  Future<void> _abrirEdicao(Item peca) async {
+    if (peca.id == null) return;
+
+    final Item? pecaAtualizada = await Navigator.push<Item>(
+      context,
+      MaterialPageRoute(
+        builder: (context) =>
+            ProductRegistration(abertoPelaOS: true, itemEdicao: peca),
+      ),
     );
+
+    if (!mounted || pecaAtualizada == null) return;
+
+    _atualizarPecaNaOS(pecaAtualizada);
+  }
+
+  void _atualizarPecaNaOS(Item pecaAtualizada) {
+    if (pecaAtualizada.id == null) return;
+
+    final index = _os.parts.indexWhere(
+      (item) => item.partId == pecaAtualizada.id,
+    );
+
+    if (index == -1) return;
+
+    _editarOs((os) {
+      final pecaAntiga = os.parts[index];
+      os.parts[index] = ServiceOrderPart(
+        partId: pecaAntiga.partId,
+        name: pecaAtualizada.name,
+        quantity: pecaAntiga.quantity,
+        unitPriceCents: pecaAtualizada.valueInCents,
+        discountCents: pecaAntiga.discountCents,
+      );
+    });
+
+    widget.onChanged?.call();
+  }
+
+  void _removerPeca(int index) {
+    if (index < 0 || index >= _os.parts.length) return;
+
+    final pecaRemovida = _os.parts[index];
+
+    _editarOs((os) => os.parts.removeAt(index));
+
+    widget.onChanged?.call();
+
+    final messenger = ScaffoldMessenger.of(context);
+
+    _snackBarTimer?.cancel();
+    messenger.hideCurrentSnackBar();
+
+    messenger.showSnackBar(
+      SnackBar(
+        content: Text('${pecaRemovida.name} removida.'),
+        backgroundColor: colors.primary,
+        duration: const Duration(seconds: 5),
+        behavior: SnackBarBehavior.floating,
+        showCloseIcon: true,
+        closeIconColor: Colors.white,
+
+        action: SnackBarAction(
+          label: 'DESFAZER',
+          textColor: Colors.white,
+          onPressed: () {
+            _snackBarTimer?.cancel();
+
+            if (!mounted) return;
+
+            _editarOs((os) {
+              os.parts.insert(index.clamp(0, os.parts.length), pecaRemovida);
+            });
+
+            widget.onChanged?.call();
+          },
+        ),
+      ),
+    );
+
+    _snackBarTimer = Timer(const Duration(seconds: 5), () {
+      if (mounted) {
+        messenger.hideCurrentSnackBar();
+      }
+    });
+  }
+
+  Future<void> _confirmarRemocaoPeca(int index) async {
+    if (index < 0 || index >= _os.parts.length) return;
+
+    final peca = _os.parts[index];
+
+    final confirmar = await showDialog<bool>(
+      context: context,
+      builder: (dialogContext) {
+        return AlertDialog(
+          title: const Text('Remover peça'),
+          content: Text('Deseja remover "${peca.name}" da OS?'),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.pop(dialogContext, false);
+              },
+              child: const Text('CANCELAR'),
+            ),
+            TextButton(
+              onPressed: () {
+                Navigator.pop(dialogContext, true);
+              },
+              child: Text('REMOVER', style: TextStyle(color: colors.error)),
+            ),
+          ],
+        );
+      },
+    );
+
+    if (confirmar != true || !mounted) return;
+
+    _removerPeca(index);
+  }
+
+  @override
+  void dispose() {
+    _snackBarTimer?.cancel();
+    super.dispose();
   }
 
   @override
@@ -70,15 +207,16 @@ class OrderServiceState extends State<TollsOs>
 
           body: SafeArea(
             child: Padding(
-              padding: const EdgeInsets.symmetric(
-                horizontal: 16,
-                vertical: 18,
+              padding: EdgeInsets.only(
+                left: 16,
+                right: 16,
+                top: 18,
+                bottom: MediaQuery.of(context).viewInsets.bottom + 18,
               ),
-              child: Center(
+              child: Align(
+                alignment: Alignment.topCenter,
                 child: ConstrainedBox(
-                  constraints: const BoxConstraints(
-                    maxWidth: 650,
-                  ),
+                  constraints: const BoxConstraints(maxWidth: 650),
                   child: Card(
                     color: Colors.white,
                     elevation: 8,
@@ -92,33 +230,128 @@ class OrderServiceState extends State<TollsOs>
                         vertical: 28,
                       ),
                       child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        mainAxisSize: MainAxisSize.min,
                         children: [
                           Row(
-                            mainAxisAlignment:
-                                MainAxisAlignment.spaceBetween,
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
+                              Row(
+                                children: [
+                                  Icon(Icons.build, color: colors.secondary),
+                                  const SizedBox(width: 8),
+                                  Text(
+                                    'Subtotal de peças',
+                                    style: TextStyle(
+                                      color: colors.onSurface,
+                                      fontSize: 20,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                ],
+                              ),
                               Text(
-                                'Subtotal de peças',
+                                Dinheiro(_calcularSubtotal()).formatado(),
                                 style: TextStyle(
                                   color: colors.onSurface,
                                   fontSize: 20,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                              Text(
-                                Dinheiro(
-                                  _calcularSubtotal(),
-                                ).formatado(),
-                                style: TextStyle(
-                                  color: Colors.blueGrey.shade600,
-                                  fontSize: 18,
                                   fontWeight: FontWeight.w600,
                                 ),
                               ),
                             ],
                           ),
+                          const SizedBox(height: 6),
+                          Text(
+                            'Selecione as peças utilizadas nesta Ordem de Serviço.',
+                            style: TextStyle(
+                              fontSize: 14,
+                              color: colors.onSurfaceVariant,
+                            ),
+                          ),
+                          CheckboxListTile(
+                            value: _somenteServicos,
+                            onChanged: (value) async {
+                              final marcarSomenteServicos = value ?? false;
 
-                          const SizedBox(height: 20),
+                              if (marcarSomenteServicos &&
+                                  _os.parts.isNotEmpty) {
+                                final confirmar = await showDialog<bool>(
+                                  context: context,
+                                  builder: (dialogContext) {
+                                    return AlertDialog(
+                                      title: const Text('Remover peças da OS?'),
+                                      content: const Text(
+                                        'Ao selecionar esta opção, todas as peças adicionadas '
+                                        'serão removidas da Ordem de Serviço. Deseja continuar?',
+                                      ),
+                                      actions: [
+                                        TextButton(
+                                          onPressed: () {
+                                            Navigator.pop(dialogContext, false);
+                                          },
+                                          child: const Text('CANCELAR'),
+                                        ),
+                                        TextButton(
+                                          onPressed: () {
+                                            Navigator.pop(dialogContext, true);
+                                          },
+                                          child: Text(
+                                            'REMOVER PEÇAS',
+                                            style: TextStyle(
+                                              color: colors.error,
+                                            ),
+                                          ),
+                                        ),
+                                      ],
+                                    );
+                                  },
+                                );
+
+                                if (!mounted || confirmar != true) return;
+
+                                setState(() {
+                                  _os.parts.clear();
+                                  _somenteServicos = true;
+                                });
+
+                                widget.onChanged?.call();
+                                widget.onSomenteServicosChanged?.call(
+                                  _somenteServicos,
+                                );
+
+                                return;
+                              }
+
+                              setState(() {
+                                _somenteServicos = marcarSomenteServicos;
+                              });
+
+                              widget.onChanged?.call();
+                              widget.onSomenteServicosChanged?.call(
+                                _somenteServicos,
+                              );
+                            },
+                            contentPadding: EdgeInsets.zero,
+                            controlAffinity: ListTileControlAffinity.leading,
+                            activeColor: colors.primary,
+                            title: Text(
+                              'OS somente de serviços (sem peças)',
+                              style: TextStyle(
+                                fontSize: 14,
+                                color: colors.onSurface,
+                                fontWeight: FontWeight.w500,
+                              ),
+                            ),
+                            subtitle: Text(
+                              'Marque esta opção caso não sejam necessárias peças nesta OS.',
+                              style: TextStyle(
+                                fontSize: 12,
+                                color: colors.onSurfaceVariant,
+                              ),
+                            ),
+                          ),
+
+                          const SizedBox(height: 18),
 
                           if (snapshot.connectionState ==
                               ConnectionState.waiting)
@@ -129,36 +362,89 @@ class OrderServiceState extends State<TollsOs>
                               padding: const EdgeInsets.all(12),
                               child: Text(
                                 'Erro ao carregar peças: ${snapshot.error}',
-                                style: TextStyle(
-                                  color: colors.error,
-                                ),
+                                style: TextStyle(color: colors.error),
                               ),
                             ),
 
-                          Expanded(
-                            child: _os.parts.isEmpty
-                                ? Center(
-                                    child: Text(
-                                      'Nenhuma peça adicionada',
-                                      style: TextStyle(
-                                        color: colors.onSurfaceVariant,
-                                        fontSize: 16,
-                                      ),
+                          _os.parts.isEmpty
+                              ? Center(
+                                  child: Text(
+                                    'Nenhuma peça adicionada.',
+                                    style: TextStyle(
+                                      color: colors.onSurfaceVariant,
+                                      fontSize: 16,
                                     ),
-                                  )
-                                : ListView.separated(
-                                    padding: const EdgeInsets.all(4),
-                                    itemCount: _os.parts.length,
-                                    separatorBuilder: (context, index) {
-                                      return const SizedBox(height: 12);
-                                    },
-                                    itemBuilder: (context, index) {
-                                      return _buildPieceCard(
-                                        _os.parts[index],
-                                        index,
-                                      );
-                                    },
                                   ),
+                                )
+                              : ListView.separated(
+                                  shrinkWrap: true,
+                                  physics: const NeverScrollableScrollPhysics(),
+                                  padding: const EdgeInsets.all(4),
+                                  itemCount: _os.parts.length,
+                                  separatorBuilder: (context, index) {
+                                    return const SizedBox(height: 12);
+                                  },
+                                  itemBuilder: (context, index) {
+                                    return _buildPieceCard(
+                                      _os.parts[index],
+                                      index,
+                                    );
+                                  },
+                                ),
+                          const SizedBox(height: 20),
+
+                          SizedBox(
+                            width: double.infinity,
+                            child: ElevatedButton.icon(
+                              onPressed:
+                                  (_os.parts.isNotEmpty || _somenteServicos) &&
+                                      widget.avancarTab != null
+                                  ? () {
+                                      widget.avancarTab?.call();
+                                    }
+                                  : null,
+                              icon: const Icon(Icons.handyman),
+                              label: const Text(
+                                'Adicionar Serviços',
+                                style: TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 16,
+                                ),
+                              ),
+                              style: ElevatedButton.styleFrom(
+                                elevation:
+                                    (_os.parts.isNotEmpty || _somenteServicos)
+                                    ? 3
+                                    : 0,
+                                backgroundColor: colors.primary,
+                                foregroundColor: colors.onSecondary,
+                                disabledBackgroundColor:
+                                    colors.surfaceContainerLow,
+                                disabledForegroundColor:
+                                    colors.onSurfaceVariant,
+                                padding: const EdgeInsets.symmetric(
+                                  vertical: 18,
+                                ),
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(14),
+                                ),
+                              ),
+                            ),
+                          ),
+
+                          const SizedBox(height: 12),
+
+                          Center(
+                            child: Text(
+                              _somenteServicos
+                                  ? 'OS configurada para serviços sem utilização de peças.'
+                                  : 'Adicione peças ou marque a opção de OS somente de serviços.',
+                              textAlign: TextAlign.center,
+                              style: TextStyle(
+                                fontSize: 12,
+                                color: colors.onSurfaceVariant,
+                              ),
+                            ),
                           ),
                         ],
                       ),
@@ -185,35 +471,46 @@ class OrderServiceState extends State<TollsOs>
       backgroundColor: colors.surfaceContainer,
       isScrollControlled: true,
       shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(
-          top: Radius.circular(24),
-        ),
+        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
       ),
-      builder: (context) {
-        return SelectionBottomSheet<Item>(
-          title: 'Selecionar peça',
-          items: pecasDisponiveis,
-          searchText: 'Buscar peça...',
-          actionText: 'Nova peça',
-          itemIcon: Icons.build,
+      builder: (sheetContext) {
+        return StreamBuilder<List<Item>>(
+          stream: _pecasStream,
+          initialData: pecasDisponiveis,
+          builder: (context, snapshot) {
+            final pecas = snapshot.data ?? pecasDisponiveis;
 
-          itemTitle: (peca) => peca.name,
+            return SelectionBottomSheet<Item>(
+              title: 'Selecionar peça',
+              items: pecas,
+              searchText: 'Buscar peça...',
+              actionText: 'Nova peça',
+              itemIcon: Icons.build,
 
-          itemSubtitle: (peca) {
-            return Dinheiro(peca.valueInCents).formatado();
-          },
+              itemTitle: (peca) => peca.name,
 
-          onSelect: (peca) {
-            _adicionarPeca(peca);
-            Navigator.pop(context);
-          },
+              itemSubtitle: (peca) {
+                return Dinheiro(peca.valueInCents).formatado();
+              },
 
-          onAction: () {
-            Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (context) => const ProductRegistration(),
-              ),
+              onEdit: (peca) async {
+                await _abrirEdicao(peca);
+              },
+
+              onSelect: (peca) {
+                _adicionarPeca(peca);
+                Navigator.pop(sheetContext);
+              },
+
+              onAction: () async {
+                await Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) =>
+                        const ProductRegistration(abertoPelaOS: true),
+                  ),
+                );
+              },
             );
           },
         );
@@ -222,21 +519,10 @@ class OrderServiceState extends State<TollsOs>
   }
 
   void _adicionarPeca(Item peca) {
-    if (peca.id == null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text(
-            'Essa peça não possui um identificador válido.',
-          ),
-        ),
-      );
-      return;
-    }
+    if (peca.id == null) return;
 
     _editarOs((os) {
-      final index = os.parts.indexWhere(
-        (item) => item.partId == peca.id,
-      );
+      final index = os.parts.indexWhere((item) => item.partId == peca.id);
 
       if (index != -1) {
         final parteExistente = os.parts[index];
@@ -256,16 +542,18 @@ class OrderServiceState extends State<TollsOs>
         );
       }
     });
+
+    widget.onChanged?.call();
   }
 
   void _aumentarQuantidade(int index) {
     final peca = _os.parts[index];
 
     _editarOs((os) {
-      os.parts[index] = peca.withQuantity(
-        peca.quantity + 1,
-      );
+      os.parts[index] = peca.withQuantity(peca.quantity + 1);
     });
+
+    widget.onChanged?.call();
   }
 
   void _diminuirQuantidade(int index) {
@@ -274,22 +562,18 @@ class OrderServiceState extends State<TollsOs>
     if (peca.quantity <= 1) return;
 
     _editarOs((os) {
-      os.parts[index] = peca.withQuantity(
-        peca.quantity - 1,
-      );
+      os.parts[index] = peca.withQuantity(peca.quantity - 1);
     });
+
+    widget.onChanged?.call();
   }
 
   Widget _buildPieceCard(ServiceOrderPart peca, int index) {
     final int quantidade = peca.quantity;
 
-    final Dinheiro preco = Dinheiro(
-      peca.unitPriceCents,
-    );
+    final Dinheiro preco = Dinheiro(peca.unitPriceCents);
 
-    final Dinheiro totalItem = Dinheiro(
-      peca.subtotalCents,
-    );
+    final Dinheiro totalItem = Dinheiro(peca.subtotalCents);
 
     return Slidable(
       key: ValueKey(peca.partId),
@@ -300,7 +584,7 @@ class OrderServiceState extends State<TollsOs>
         children: [
           SlidableAction(
             onPressed: (context) {
-              _editarOs((os) => os.parts.removeAt(index));
+              _confirmarRemocaoPeca(index);
             },
             backgroundColor: Colors.red.shade600,
             foregroundColor: Colors.white,
@@ -313,9 +597,9 @@ class OrderServiceState extends State<TollsOs>
       child: Container(
         padding: const EdgeInsets.all(14),
         decoration: BoxDecoration(
-          color: colors.surfaceContainer,
+          color: colors.surfaceContainerLow,
           borderRadius: BorderRadius.circular(18),
-          boxShadow: kElevationToShadow[4],
+          // boxShadow: kElevationToShadow[4],
         ),
         child: Row(
           children: [
@@ -328,7 +612,7 @@ class OrderServiceState extends State<TollsOs>
                     style: TextStyle(
                       color: colors.onSurface,
                       fontWeight: FontWeight.bold,
-                      fontSize: 18,
+                      fontSize: 16,
                     ),
                   ),
 
@@ -338,7 +622,7 @@ class OrderServiceState extends State<TollsOs>
                     '$quantidade un x ${preco.formatado()}/un',
                     style: TextStyle(
                       color: colors.onSurfaceVariant,
-                      fontSize: 13,
+                      fontSize: 14,
                     ),
                   ),
 
@@ -347,9 +631,9 @@ class OrderServiceState extends State<TollsOs>
                   Text(
                     totalItem.formatado(),
                     style: TextStyle(
-                      color: Colors.blueGrey.shade600,
+                      color: colors.onSurfaceVariant,
                       fontWeight: FontWeight.bold,
-                      fontSize: 17,
+                      fontSize: 15,
                     ),
                   ),
                 ],
@@ -360,10 +644,7 @@ class OrderServiceState extends State<TollsOs>
               children: [
                 IconButton(
                   onPressed: () => _aumentarQuantidade(index),
-                  icon: Icon(
-                    Icons.add,
-                    color: colors.primary,
-                  ),
+                  icon: Icon(Icons.add, color: colors.primary),
                 ),
 
                 Text(

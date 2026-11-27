@@ -4,8 +4,8 @@ import 'package:frontend/fire_base/models/service.dart';
 import 'package:frontend/fire_base/services/service_service.dart';
 import 'package:frontend/ui/pages/dashboard.dart';
 import 'package:frontend/ui/pages/lists/client_list.dart';
+import 'package:frontend/ui/pages/lists/item_list.dart';
 import 'package:frontend/ui/pages/lists/os_list_page.dart';
-import 'package:frontend/ui/pages/product_registration/product_registration.dart';
 import 'package:frontend/ui/pages/service_registration/service_registration.dart';
 import 'package:frontend/ui/style/ColorScheme.dart' as custom_colors;
 import 'package:frontend/ui/widgets/floatingButton.dart';
@@ -202,7 +202,7 @@ class _ServiceListState extends State<ServiceList> {
           if (index == 1) {
             Navigator.push(
               context,
-              MaterialPageRoute(builder: (_) => const ProductRegistration()),
+              MaterialPageRoute(builder: (_) => const ItemList()),
             );
           }
 

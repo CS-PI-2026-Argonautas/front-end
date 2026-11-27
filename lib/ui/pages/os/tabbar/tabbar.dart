@@ -1,6 +1,4 @@
-
 import 'dart:async';
-
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:frontend/fire_base/models/os.dart';
@@ -43,6 +41,7 @@ class _TabbarState extends State<Tabbar> with SingleTickerProviderStateMixin {
 
   bool _dadosObrigatoriosPreenchidos = false;
   bool _salvando = false;
+  bool _somenteServicos = false;
   bool _saindo = false;
 
   bool get _modoEdicao => widget.serviceOrderId != null;
@@ -121,7 +120,12 @@ class _TabbarState extends State<Tabbar> with SingleTickerProviderStateMixin {
         );
 
         _dadosObrigatoriosPreenchidos =
-            os.client != null && os.serviceAddress != null;
+            os.client != null &&
+            os.serviceAddress != null &&
+            os.equipment != null &&
+            !os.equipment!.isEmpty;
+
+        _somenteServicos = os.parts.isEmpty && os.services.isNotEmpty;
 
         _carregando = false;
       });
@@ -222,7 +226,7 @@ class _TabbarState extends State<Tabbar> with SingleTickerProviderStateMixin {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
           content: Text(
-            'Selecione um cliente e um endereço antes de concluir.',
+            'Selecione um cliente, um endereço e um equipamento antes de concluir.',
           ),
           behavior: SnackBarBehavior.floating,
         ),
@@ -244,12 +248,11 @@ class _TabbarState extends State<Tabbar> with SingleTickerProviderStateMixin {
       if (!mounted) return;
 
       if (!savedLocally) {
-        throw Exception(
-          'Não foi possível gravar as alterações na fila local.',
-        );
+        throw Exception('Não foi possível gravar as alterações na fila local.');
       }
 
-      if (!_modoEdicao) {
+      if (_serviceOrder.status == ServiceOrderStatus.EM_ORCAMENTO ||
+          _serviceOrder.status == ServiceOrderStatus.EM_CONSERTO) {
         _serviceOrder.changeStatus(ServiceOrderStatus.CONCLUIDA);
       }
 
@@ -260,9 +263,7 @@ class _TabbarState extends State<Tabbar> with SingleTickerProviderStateMixin {
 
       Navigator.pop(context, _serviceOrder);
     } catch (e) {
-      if (!_modoEdicao) {
-        _serviceOrder.changeStatus(statusAnterior);
-      }
+      _serviceOrder.changeStatus(statusAnterior);
 
       _serviceOrderState.endCompletion(saved: false);
       unawaited(_serviceOrderState.flushPending());
@@ -295,6 +296,40 @@ class _TabbarState extends State<Tabbar> with SingleTickerProviderStateMixin {
 
     setState(() {
       _dadosObrigatoriosPreenchidos = preenchidos;
+    });
+  }
+
+  void _notificarAlteracaoOS() {
+    if (!mounted) return;
+
+    setState(() {});
+  }
+
+  bool _podeAcessarAba(int index) {
+    switch (index) {
+      case 0:
+        return true;
+
+      case 1:
+        return _dadosObrigatoriosPreenchidos;
+
+      case 2:
+        return _dadosObrigatoriosPreenchidos &&
+            (_serviceOrder.parts.isNotEmpty || _somenteServicos);
+
+      case 3:
+        return _dadosObrigatoriosPreenchidos &&
+            (_somenteServicos || _serviceOrder.services.isNotEmpty) &&
+            (_serviceOrder.parts.isNotEmpty || _somenteServicos);
+
+      default:
+        return false;
+    }
+  }
+
+  void _atualizarSomenteServicos(bool valor) {
+    setState(() {
+      _somenteServicos = valor;
     });
   }
 
@@ -356,9 +391,7 @@ class _TabbarState extends State<Tabbar> with SingleTickerProviderStateMixin {
     if (_carregando || _erroCarregamento != null) {
       return Scaffold(
         backgroundColor: colors.surface,
-        appBar: AppBar(
-          title: Text('OS nº ${widget.serviceOrderNumber}'),
-        ),
+        appBar: AppBar(title: Text('OS nº ${widget.serviceOrderNumber}')),
         body: Center(
           child: _carregando
               ? const CircularProgressIndicator()
@@ -435,14 +468,24 @@ class _TabbarState extends State<Tabbar> with SingleTickerProviderStateMixin {
           indicatorColor: Colors.white,
           indicatorWeight: 3,
           onTap: (index) {
-            if (index != 0 && !_dadosObrigatoriosPreenchidos) {
-              _tabController.animateTo(0);
+            if (!_podeAcessarAba(index)) {
+              _tabController.animateTo(_tabController.previousIndex);
+
+              String mensagem;
+
+              if (!_dadosObrigatoriosPreenchidos) {
+                mensagem =
+                    'Selecione um cliente, um endereço e um equipamento antes de concluir.';
+              } else if (_serviceOrder.parts.isEmpty && index >= 2) {
+                mensagem =
+                    'Adicione pelo menos uma peça ou marque a caixa de selecao antes de continuar.';
+              } else {
+                mensagem = 'Adicione pelo menos um serviço antes de continuar.';
+              }
 
               ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(
-                  content: Text(
-                    'Selecione um cliente e um endereço antes de continuar.',
-                  ),
+                SnackBar(
+                  content: Text(mensagem),
                   behavior: SnackBarBehavior.floating,
                 ),
               );
@@ -459,7 +502,10 @@ class _TabbarState extends State<Tabbar> with SingleTickerProviderStateMixin {
       body: TabBarView(
         key: ValueKey(_serviceOrder),
         controller: _tabController,
-        physics: _dadosObrigatoriosPreenchidos
+        physics:
+            _dadosObrigatoriosPreenchidos &&
+                (_serviceOrder.parts.isNotEmpty || _somenteServicos) &&
+                _serviceOrder.services.isNotEmpty
             ? const BouncingScrollPhysics()
             : const NeverScrollableScrollPhysics(),
         children: [
@@ -469,15 +515,29 @@ class _TabbarState extends State<Tabbar> with SingleTickerProviderStateMixin {
               _tabController.animateTo(1);
             },
             onDadosObrigatoriosChanged: _atualizarDadosObrigatorios,
-            onChanged: () {
-              setState(() {});
-            },
+            onChanged: _notificarAlteracaoOS,
           ),
-          TollsOs(serviceOrderState: _serviceOrderState),
-          OsServicosTab(serviceOrderState: _serviceOrderState),
+
+          TollsOs(
+            serviceOrderState: _serviceOrderState,
+            avancarTab: () {
+              _tabController.animateTo(2);
+            },
+            onChanged: _notificarAlteracaoOS,
+            onSomenteServicosChanged: _atualizarSomenteServicos,
+          ),
+
+          OsServicosTab(
+            serviceOrderState: _serviceOrderState,
+            avancarTab: () {
+              _tabController.animateTo(3);
+            },
+            onChanged: _notificarAlteracaoOS,
+          ),
           ValuesOs(
             serviceOrderState: _serviceOrderState,
             onConcluir: _concluirOs,
+            onChanged: _notificarAlteracaoOS,
           ),
         ],
       ),

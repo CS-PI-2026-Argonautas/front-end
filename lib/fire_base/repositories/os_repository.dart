@@ -1,4 +1,3 @@
-
 import 'dart:async';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -24,6 +23,8 @@ abstract class OsRepository {
   });
 
   Future<void> deletar(String id);
+
+  Future<void> restaurar(String id);
 }
 
 class FirestoreOsRepository implements OsRepository {
@@ -348,6 +349,23 @@ class FirestoreOsRepository implements OsRepository {
       debugPrintStack(stackTrace: stackTrace);
 
       throw Exception('Erro ao excluir ordem de serviço: $e');
+    }
+  }
+
+  @override
+  Future<void> restaurar(String id) async {
+    try {
+      await _colecao.doc(id).update({
+        'deleted_at': null,
+        'updated_at': FieldValue.serverTimestamp(),
+      });
+
+      debugPrint('OS $id restaurada com sucesso.');
+    } catch (e, stackTrace) {
+      debugPrint('Erro ao restaurar OS: $e');
+      debugPrintStack(stackTrace: stackTrace);
+
+      throw Exception('Erro ao restaurar ordem de serviço: $e');
     }
   }
 }

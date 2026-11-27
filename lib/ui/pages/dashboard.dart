@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:frontend/ui/pages/lists/client_list.dart';
+import 'package:frontend/ui/pages/lists/item_list.dart';
 import 'package:frontend/ui/pages/lists/service_list.dart';
 import 'package:frontend/ui/pages/os/tabbar/tabbar.dart';
 import 'package:frontend/ui/pages/lists/os_list_page.dart';
@@ -97,9 +98,7 @@ class Dashboard extends StatelessWidget {
           if (index == 1) {
             Navigator.push(
               context,
-              MaterialPageRoute(
-                builder: (context) => const ProductRegistration(),
-              ),
+              MaterialPageRoute(builder: (context) => const ItemList()),
             );
           }
 
