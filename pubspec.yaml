@@ -1,3 +1,4 @@
+
 name: frontend
 description: "A new Flutter project."
 publish_to: "none"
@@ -5,6 +6,7 @@ version: 0.1.0+1
 
 environment:
   sdk: ^3.11.1
+
 dependencies:
   drift: ^2.34.3
   drift_flutter: ^0.3.1
@@ -23,14 +25,37 @@ dependencies:
   firebase_auth: ^6.7.1
   connectivity_plus: ^7.3.2
   email_validator: ^3.0.0
+  flutter_slidable: ^3.1.2
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
   flutter_lints: ^6.0.0
-  flutter_slidable: ^3.1.2
   drift_dev: ^2.34.0
   build_runner: ^2.15.1
+  names_launcher: ^0.0.2
+  flutter_launcher_icons: ^0.14.4
+
+names_launcher:
+  name: "Bernadelli Balanças"
+  platforms:
+    android:
+      enable: true
+    ios:
+      enable: true
+    web:
+      enable: false
+    macos:
+      enable: false
+    windows:
+      enable: false
+    linux:
+      enable: false
+
+flutter_launcher_icons:
+  android: "launcher_icon"
+  ios: true
+  image_path: "lib/assets/icons/logo_bb.png"
 
 flutter:
   uses-material-design: true
