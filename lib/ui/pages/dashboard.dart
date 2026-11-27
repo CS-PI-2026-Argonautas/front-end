@@ -16,9 +16,6 @@ class Dashboard extends StatelessWidget {
     Navigator.push(context, MaterialPageRoute(builder: (_) => pagina));
   }
 
-  // O WorkOrderRepository grava com `.doc(order.id).set(...)`, então cada nova
-  // OS precisa de um id próprio (como Client e Item, que usam uuid v4).
-  // Com um id fixo, toda OS nova sobrescreveria a mesma.
   String _novoIdOrdemServico() => const Uuid().v4();
 
   void _aoSelecionarMenu(BuildContext context, int index) {
@@ -66,18 +63,19 @@ class Dashboard extends StatelessWidget {
         ),
         actions: [
           Builder(
-            builder: (context) => Padding(
-              padding: const EdgeInsets.only(right: 8),
-              child: TextButton.icon(
-                onPressed: () => Scaffold.of(context).openEndDrawer(),
-                icon: const Icon(Icons.menu),
-                label: const Text('Menu'),
-                style: TextButton.styleFrom(
-                  foregroundColor: colors.onPrimary,
-                ),
-              ),
-            ),
-          ),
+  builder: (context) => Padding(
+    padding: const EdgeInsets.only(right: 8),
+    child: TextButton.icon(
+      onPressed: () => Scaffold.of(context).openEndDrawer(),
+      label: const Text('Menu'),
+      icon: const Icon(Icons.menu),
+      iconAlignment: IconAlignment.end,
+      style: TextButton.styleFrom(
+        foregroundColor: colors.onPrimary,
+      ),
+    ),
+  ),
+),
         ],
         flexibleSpace: Container(
           decoration: BoxDecoration(
@@ -114,7 +112,7 @@ class Dashboard extends StatelessWidget {
                 ),
                 const SizedBox(height: 4),
 
-                // Ação principal
+               
                 _BotaoDashboard(
                   texto: 'Criar Ordem de Serviço',
                   icone: Icons.assignment,
