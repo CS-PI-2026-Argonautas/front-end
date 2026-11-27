@@ -287,55 +287,6 @@ class _OsListPageState extends State<OsListPage> {
                       padding: const EdgeInsets.only(top: 20),
                       child: Row(
                         children: [
-                          PopupMenuButton<ServiceOrderStatus?>(
-                            onSelected: (status) {
-                              setState(() {
-                                _statusSelecionado = status;
-                              });
-                            },
-                            itemBuilder: (context) {
-                              return [
-                                const PopupMenuItem<ServiceOrderStatus?>(
-                                  value: null,
-                                  child: Text('Todos os status'),
-                                ),
-                                ...ServiceOrderStatus.values.map((status) {
-                                  return PopupMenuItem<ServiceOrderStatus?>(
-                                    value: status,
-                                    child: Text(status.value),
-                                  );
-                                }),
-                              ];
-                            },
-                            child: Container(
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: 16,
-                                vertical: 12,
-                              ),
-                              decoration: BoxDecoration(
-                                color: colors.primary,
-                                borderRadius: BorderRadius.circular(8),
-                              ),
-                              child: const Row(
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  Icon(Icons.tune, color: Colors.white),
-                                  SizedBox(width: 8),
-                                  Text(
-                                    'Filtrar',
-                                    style: TextStyle(
-                                      color: Colors.white,
-                                      fontWeight: FontWeight.bold,
-                                      fontSize: 14.8,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ),
-
-                          const SizedBox(width: 10),
-
                           ElevatedButton.icon(
                             onPressed: _alternarOrdenacao,
                             icon: Icon(
@@ -355,6 +306,75 @@ class _OsListPageState extends State<OsListPage> {
                             style: ElevatedButton.styleFrom(
                               backgroundColor: colors.primary,
                               foregroundColor: Colors.white,
+                              fixedSize: const Size.fromHeight(40),
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 16,
+                              ),
+                              tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(30),
+                              ),
+                            ),
+                          ),
+
+                          const SizedBox(width: 10),
+
+                          PopupMenuButton<String>(
+                            onSelected: (valor) {
+                              setState(() {
+                                if (valor == 'TODOS') {
+                                  _statusSelecionado = null;
+                                } else {
+                                  _statusSelecionado = ServiceOrderStatus.values
+                                      .firstWhere(
+                                        (status) => status.name == valor,
+                                      );
+                                }
+                              });
+                            },
+                            itemBuilder: (context) {
+                              return [
+                                const PopupMenuItem<String>(
+                                  value: 'TODOS',
+                                  child: Text('Todos os status'),
+                                ),
+                                ...ServiceOrderStatus.values.map((status) {
+                                  return PopupMenuItem<String>(
+                                    value: status.name,
+                                    child: Text(status.value),
+                                  );
+                                }),
+                              ];
+                            },
+                            child: Container(
+                              height: 40,
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 16,
+                              ),
+                              alignment: Alignment.center,
+                              decoration: BoxDecoration(
+                                color: colors.primary,
+                                borderRadius: BorderRadius.circular(30),
+                              ),
+                              child: const Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  Icon(
+                                    Icons.tune,
+                                    color: Colors.white,
+                                    size: 20,
+                                  ),
+                                  SizedBox(width: 8),
+                                  Text(
+                                    'Filtrar',
+                                    style: TextStyle(
+                                      color: Colors.white,
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 14.8,
+                                    ),
+                                  ),
+                                ],
+                              ),
                             ),
                           ),
                         ],
