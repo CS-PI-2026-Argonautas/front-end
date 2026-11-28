@@ -1,0 +1,665 @@
+import 'package:flutter/material.dart';
+import 'package:frontend/fire_base/Enums/StatusOrderService.dart';
+import 'package:frontend/fire_base/models/dinheiro.dart';
+import 'package:frontend/fire_base/models/os.dart';
+import 'package:frontend/fire_base/repositories/os_repository.dart';
+import 'package:frontend/ui/pages/lists/client_list.dart';
+import 'package:frontend/ui/pages/dashboard.dart';
+import 'package:frontend/ui/pages/lists/item_list.dart';
+import 'package:frontend/ui/pages/os/tabbar/tabbar.dart';
+import 'package:frontend/ui/pages/service_registration/service_registration.dart';
+import 'package:frontend/ui/style/ColorScheme.dart' as custom_colors;
+import 'package:frontend/ui/widgets/floatingButton.dart';
+import 'package:frontend/ui/widgets/appBar.dart';
+import 'package:frontend/ui/widgets/menu.dart';
+import 'package:frontend/ui/widgets/show_dialog/show_delete_os.dart';
+import 'package:frontend/ui/widgets/slidable/slidable_delete_card.dart';
+
+class OsListPage extends StatefulWidget {
+  const OsListPage({super.key});
+
+  @override
+  State<OsListPage> createState() => _OsListPageState();
+}
+
+class _OsListPageState extends State<OsListPage> {
+  final OsRepository _repository = FirestoreOsRepository();
+
+  late Future<List<ServiceOrder>> _futureOrdemServicos;
+
+  final TextEditingController _searchController = TextEditingController();
+
+  String _searchQuery = '';
+
+  ServiceOrderStatus? _statusSelecionado;
+
+  bool _ordemCrescente = false;
+
+  final colors = custom_colors.colorScheme;
+
+  @override
+  void initState() {
+    super.initState();
+
+    _futureOrdemServicos = _repository.listarTodos();
+
+    _searchController.addListener(() {
+      setState(() {
+        _searchQuery = _searchController.text.trim().toLowerCase();
+      });
+    });
+  }
+
+  @override
+  void dispose() {
+    _searchController.dispose();
+    super.dispose();
+  }
+
+  void _carregarOrdemServicos() {
+    setState(() {
+      _futureOrdemServicos = _repository.listarTodos();
+    });
+  }
+
+  Future<void> _recarregarOrdemServicos() async {
+    _carregarOrdemServicos();
+    await _futureOrdemServicos;
+  }
+
+  Color _obterCorDoStatus(ServiceOrderStatus status) {
+    switch (status) {
+      case ServiceOrderStatus.EM_ORCAMENTO:
+      case ServiceOrderStatus.EM_CONSERTO:
+        return Colors.orange;
+
+      case ServiceOrderStatus.ENTREGUE:
+      case ServiceOrderStatus.PAGA:
+      case ServiceOrderStatus.CONCLUIDA:
+        return Colors.green;
+
+      case ServiceOrderStatus.CANCELADA:
+        return Colors.red;
+    }
+  }
+
+  String _formatarData(DateTime data) {
+    final dia = data.day.toString().padLeft(2, '0');
+    final mes = data.month.toString().padLeft(2, '0');
+    final ano = data.year.toString();
+
+    return '$dia/$mes/$ano';
+  }
+
+  String _formatarNumeroOs(ServiceOrder os) {
+    final numero = os.numeroOs;
+
+    if (numero == null) {
+      return 'Sem número';
+    }
+
+    return numero.toString().padLeft(4, '0');
+  }
+
+  List<ServiceOrder> _filtrarOrdens(List<ServiceOrder> ordens) {
+    final resultado = ordens.where((os) {
+      final numeroOs = os.numeroOs?.toString() ?? '';
+
+      final numeroFormatado = _formatarNumeroOs(os).toLowerCase();
+
+      final nomeCliente = (os.client?.name ?? '').toLowerCase();
+
+      final cidade = (os.serviceAddress?.city ?? '').toLowerCase();
+
+      final status = os.status.value.toLowerCase();
+
+      final correspondePesquisa =
+          numeroOs.contains(_searchQuery) ||
+          numeroFormatado.contains(_searchQuery) ||
+          nomeCliente.contains(_searchQuery) ||
+          cidade.contains(_searchQuery) ||
+          status.contains(_searchQuery);
+
+      final correspondeStatus =
+          _statusSelecionado == null || os.status == _statusSelecionado;
+
+      return correspondePesquisa && correspondeStatus;
+    }).toList();
+
+    resultado.sort((a, b) {
+      final comparacao = a.entryDate.compareTo(b.entryDate);
+
+      return _ordemCrescente ? comparacao : -comparacao;
+    });
+
+    return resultado;
+  }
+
+  Future<void> _restaurarOrdemServico(ServiceOrder os) async {
+    await _repository.restaurar(os.id);
+  }
+
+  Future<void> _deletarOrdemServico(ServiceOrder os) async {
+    try {
+      await _repository.deletar(os.id);
+
+      if (!mounted) return;
+
+      _carregarOrdemServicos();
+
+      final messenger = ScaffoldMessenger.of(context);
+
+      messenger
+        ..hideCurrentSnackBar()
+        ..showSnackBar(
+          SnackBar(
+            duration: const Duration(seconds: 5),
+            backgroundColor: colors.primary,
+            content: Row(
+              children: [
+                Expanded(
+                  child: Text(
+                    'OS Nº ${_formatarNumeroOs(os)} excluída com sucesso!',
+                    style: const TextStyle(color: Colors.white),
+                  ),
+                ),
+                IconButton(
+                  tooltip: 'Fechar',
+                  onPressed: () {
+                    messenger.hideCurrentSnackBar();
+                  },
+                  icon: const Icon(Icons.close, color: Colors.white),
+                ),
+              ],
+            ),
+            action: SnackBarAction(
+              label: 'DESFAZER',
+              textColor: Colors.white,
+              onPressed: () async {
+                try {
+                  await _restaurarOrdemServico(os);
+
+                  if (!mounted) return;
+
+                  _carregarOrdemServicos();
+
+                  ScaffoldMessenger.of(context)
+                    ..hideCurrentSnackBar()
+                    ..showSnackBar(
+                      const SnackBar(
+                        content: Text(
+                          'Ordem de serviço restaurada com sucesso!',
+                        ),
+                      ),
+                    );
+                } catch (e) {
+                  debugPrint('Erro ao restaurar OS: $e');
+
+                  if (!mounted) return;
+
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                      content: Text(
+                        'Não foi possível restaurar a ordem de serviço.',
+                      ),
+                    ),
+                  );
+                }
+              },
+            ),
+          ),
+        );
+    } catch (e) {
+      debugPrint('Erro ao excluir ordem de serviço: $e');
+
+      if (!mounted) return;
+
+      ScaffoldMessenger.of(context)
+        ..hideCurrentSnackBar()
+        ..showSnackBar(
+          SnackBar(
+            content: Text('Erro ao excluir ordem de serviço: $e'),
+            backgroundColor: colors.error,
+          ),
+        );
+    }
+  }
+
+  Future<void> _abrirEdicaoOs(ServiceOrder os) async {
+    await Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => Tabbar(
+          serviceOrderNumber: os.numeroOs ?? -1,
+          serviceOrderId: os.id,
+        ),
+      ),
+    );
+
+    if (!mounted) return;
+
+    _carregarOrdemServicos();
+  }
+
+  Future<void> _confirmarExclusao(ServiceOrder os) async {
+    final confirmar = await showDialog<bool>(
+      context: context,
+      builder: (_) => ShowDeleteOsDialog(
+        nome: os.numeroOs == null
+            ? 'OS sem número'
+            : 'OS Nº ${_formatarNumeroOs(os)}',
+      ),
+    );
+
+    if (confirmar != true || !mounted) return;
+
+    await _deletarOrdemServico(os);
+  }
+
+  Future<void> _abrirNovaOs() async {
+    await Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => Tabbar(serviceOrderNumber: -1)),
+    );
+
+    if (!mounted) return;
+
+    _carregarOrdemServicos();
+  }
+
+  void _alternarOrdenacao() {
+    setState(() {
+      _ordemCrescente = !_ordemCrescente;
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: colors.surface,
+
+      appBar: Header(
+        onBack: () {
+          Navigator.pop(context);
+        },
+        title: 'Listagem de ordens de serviço',
+      ),
+
+      endDrawer: Menu(
+        currentIndex: 2,
+        onTap: (index) {
+          Navigator.pop(context);
+
+          if (index == 0) {
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => const ClientList()),
+            );
+          }
+          if (index == 1) {
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => const ItemList()),
+            );
+          }
+          if (index == 2) {}
+
+          if (index == 3) {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => const ServiceRegistration(),
+              ),
+            );
+          }
+
+          if (index == 4) {
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => const Dashboard()),
+            );
+          }
+        },
+      ),
+
+      body: SafeArea(
+        child: RefreshIndicator(
+          onRefresh: _recarregarOrdemServicos,
+          child: Align(
+            alignment: Alignment.topCenter,
+            child: ConstrainedBox(
+              constraints: const BoxConstraints(maxWidth: 650),
+              child: SingleChildScrollView(
+                physics: const AlwaysScrollableScrollPhysics(),
+                padding: const EdgeInsets.fromLTRB(20, 30, 20, 100),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    TextFormField(
+                      controller: _searchController,
+                      decoration: InputDecoration(
+                        hintText: 'Procurar ordem de serviço',
+                        filled: true,
+                        fillColor: colors.surfaceContainer,
+                        hintStyle: TextStyle(color: colors.onSurface),
+                        prefixIcon: Icon(Icons.search, color: colors.secondary),
+                        suffixIcon: _searchQuery.isNotEmpty
+                            ? IconButton(
+                                icon: Icon(
+                                  Icons.clear,
+                                  color: colors.secondary,
+                                ),
+                                onPressed: () {
+                                  _searchController.clear();
+                                },
+                              )
+                            : null,
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(14),
+                          borderSide: BorderSide.none,
+                        ),
+                      ),
+                    ),
+
+                    Padding(
+                      padding: const EdgeInsets.only(top: 20),
+                      child: Row(
+                        children: [
+                          ElevatedButton.icon(
+                            onPressed: _alternarOrdenacao,
+                            icon: Icon(
+                              _ordemCrescente
+                                  ? Icons.arrow_upward
+                                  : Icons.arrow_downward,
+                            ),
+                            label: Text(
+                              _ordemCrescente
+                                  ? 'Mais antigas'
+                                  : 'Mais recentes',
+                              style: const TextStyle(
+                                fontWeight: FontWeight.bold,
+                                fontSize: 14.8,
+                              ),
+                            ),
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: colors.primary,
+                              foregroundColor: Colors.white,
+                              fixedSize: const Size.fromHeight(40),
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 16,
+                              ),
+                              tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(30),
+                              ),
+                            ),
+                          ),
+
+                          const SizedBox(width: 10),
+
+                          PopupMenuButton<String>(
+                            onSelected: (valor) {
+                              setState(() {
+                                if (valor == 'TODOS') {
+                                  _statusSelecionado = null;
+                                } else {
+                                  _statusSelecionado = ServiceOrderStatus.values
+                                      .firstWhere(
+                                        (status) => status.name == valor,
+                                      );
+                                }
+                              });
+                            },
+                            itemBuilder: (context) {
+                              return [
+                                const PopupMenuItem<String>(
+                                  value: 'TODOS',
+                                  child: Text('Todos os status'),
+                                ),
+                                ...ServiceOrderStatus.values.map((status) {
+                                  return PopupMenuItem<String>(
+                                    value: status.name,
+                                    child: Text(status.value),
+                                  );
+                                }),
+                              ];
+                            },
+                            child: Container(
+                              height: 40,
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 16,
+                              ),
+                              alignment: Alignment.center,
+                              decoration: BoxDecoration(
+                                color: colors.primary,
+                                borderRadius: BorderRadius.circular(30),
+                              ),
+                              child: const Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  Icon(
+                                    Icons.tune,
+                                    color: Colors.white,
+                                    size: 20,
+                                  ),
+                                  SizedBox(width: 8),
+                                  Text(
+                                    'Filtrar',
+                                    style: TextStyle(
+                                      color: Colors.white,
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 14.8,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+
+                    Padding(
+                      padding: const EdgeInsets.only(top: 20, bottom: 10),
+                      child: Align(
+                        alignment: Alignment.centerLeft,
+                        child: Text(
+                          'Ordens de serviço',
+                          style: TextStyle(
+                            color: colors.onSurface,
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ),
+                    ),
+
+                    FutureBuilder<List<ServiceOrder>>(
+                      future: _futureOrdemServicos,
+                      builder: (context, snapshot) {
+                        if (snapshot.connectionState ==
+                            ConnectionState.waiting) {
+                          return const Padding(
+                            padding: EdgeInsets.only(top: 30),
+                            child: Center(child: CircularProgressIndicator()),
+                          );
+                        }
+
+                        if (snapshot.hasError) {
+                          return Padding(
+                            padding: const EdgeInsets.only(top: 20),
+                            child: Column(
+                              children: [
+                                const Icon(
+                                  Icons.error_outline,
+                                  size: 40,
+                                  color: Colors.red,
+                                ),
+                                const SizedBox(height: 10),
+                                const Text(
+                                  'Erro ao carregar ordens de serviço.',
+                                ),
+                                const SizedBox(height: 10),
+                                ElevatedButton.icon(
+                                  onPressed: _carregarOrdemServicos,
+                                  icon: const Icon(Icons.refresh),
+                                  label: const Text('Tentar novamente'),
+                                ),
+                              ],
+                            ),
+                          );
+                        }
+
+                        if (!snapshot.hasData || snapshot.data!.isEmpty) {
+                          return const Padding(
+                            padding: EdgeInsets.only(top: 30),
+                            child: Center(
+                              child: Text(
+                                'Nenhuma ordem de serviço encontrada.',
+                              ),
+                            ),
+                          );
+                        }
+
+                        final ordensFiltradas = _filtrarOrdens(snapshot.data!);
+
+                        if (ordensFiltradas.isEmpty) {
+                          return Padding(
+                            padding: const EdgeInsets.only(top: 20),
+                            child: Center(
+                              child: Text(
+                                'Nenhuma ordem de serviço corresponde à pesquisa.',
+                                style: TextStyle(
+                                  color: colors.onSurfaceVariant,
+                                ),
+                              ),
+                            ),
+                          );
+                        }
+
+                        return Card(
+                          elevation: 4,
+                          color: colors.surfaceContainer,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          clipBehavior: Clip.antiAlias,
+                          child: ListView.separated(
+                            shrinkWrap: true,
+                            physics: const NeverScrollableScrollPhysics(),
+                            itemCount: ordensFiltradas.length,
+                            separatorBuilder: (context, index) => Divider(
+                              height: 1,
+                              color: colors.onSurfaceVariant.withOpacity(0.2),
+                            ),
+                            itemBuilder: (context, index) {
+                              return _buildOsCard(ordensFiltradas[index]);
+                            },
+                          ),
+                        );
+                      },
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+        ),
+      ),
+      floatingActionButton: CustomFloatingButton(onPressed: _abrirNovaOs),
+    );
+  }
+
+  Widget _buildOsCard(ServiceOrder os) {
+    final nomeCliente = os.client?.name ?? 'Cliente não informado';
+
+    final cidade = os.serviceAddress?.city ?? 'Cidade não informada';
+
+    final estado = os.serviceAddress?.state ?? '';
+
+    final status = os.status.value;
+
+    final numeroOs = _formatarNumeroOs(os);
+
+    return SlidableDeleteCard(
+      slidableKey: ValueKey(os.id),
+      onDelete: () async {
+        await _confirmarExclusao(os);
+      },
+      extentRatio: 0.20,
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'OS Nº $numeroOs - $nomeCliente',
+                    style: TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.blueGrey.shade600,
+                    ),
+                  ),
+                  const SizedBox(height: 5),
+                  Text(
+                    '$cidade${estado.isNotEmpty ? ' - $estado' : ''}',
+                    style: TextStyle(
+                      color: colors.onSurfaceVariant,
+                      fontSize: 14,
+                    ),
+                  ),
+                  const SizedBox(height: 5),
+                  Row(
+                    children: [
+                      Icon(
+                        Icons.circle,
+                        size: 9,
+                        color: _obterCorDoStatus(os.status),
+                      ),
+                      const SizedBox(width: 6),
+                      Text(
+                        status,
+                        style: TextStyle(
+                          color: _obterCorDoStatus(os.status),
+                          fontSize: 14,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 5),
+                  Text(
+                    'Entrada: ${_formatarData(os.entryDate)}',
+                    style: TextStyle(
+                      color: colors.onSurfaceVariant,
+                      fontSize: 12,
+                    ),
+                  ),
+                  const SizedBox(height: 5),
+                  Text(
+                    'Total: ${Dinheiro(os.values.totalCents).formatado()}',
+                    style: TextStyle(
+                      color: colors.secondary,
+                      fontSize: 14,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+
+            IconButton(
+              icon: Icon(Icons.edit, color: colors.secondary),
+              tooltip: 'Editar ordem de serviço',
+              onPressed: () => _abrirEdicaoOs(os),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}

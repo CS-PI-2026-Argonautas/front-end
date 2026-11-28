@@ -1,0 +1,371 @@
+import 'package:flutter/material.dart';
+import 'package:frontend/fire_base/models/client.dart';
+import 'package:frontend/fire_base/services/client_service.dart';
+import 'package:frontend/ui/pages/dashboard.dart';
+import 'package:frontend/ui/pages/lists/item_list.dart';
+import 'package:frontend/ui/pages/lists/service_list.dart';
+import 'package:frontend/ui/pages/lists/os_list_page.dart';
+import 'package:frontend/ui/pages/person_alteration/person_alteration.dart';
+import 'package:frontend/ui/pages/person_registration/person_registration.dart';
+import 'package:frontend/ui/style/ColorScheme.dart' as custom_colors;
+import 'package:frontend/ui/widgets/floatingButton.dart';
+import 'package:frontend/ui/widgets/appBar.dart';
+import 'package:frontend/ui/widgets/menu.dart';
+import 'package:frontend/ui/widgets/show_dialog/show_delete_client_dialog.dart';
+import 'package:frontend/ui/widgets/show_snackbar/show_delete_client_snackbar.dart';
+import 'package:frontend/ui/widgets/slidable/slidable_delete_card.dart';
+
+class ClientList extends StatefulWidget {
+  const ClientList({super.key});
+
+  @override
+  State<ClientList> createState() => _ClientListState();
+}
+
+class _ClientListState extends State<ClientList> {
+  final ClientService _service = ClientService();
+
+  late final Stream<List<Client>> _clientes = _service.observar();
+
+  final TextEditingController _searchController = TextEditingController();
+  String _searchQuery = '';
+
+  final colors = custom_colors.colorScheme;
+
+  @override
+  void initState() {
+    super.initState();
+    _searchController.addListener(() {
+      setState(() {
+        _searchQuery = _searchController.text.trim().toLowerCase();
+      });
+    });
+  }
+
+  @override
+  void dispose() {
+    _searchController.dispose();
+    super.dispose();
+  }
+
+  Future<void> _deletarCliente(Client cliente) async {
+    await _service.excluir(cliente.id);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: colors.surface,
+
+      appBar: Header(
+        onBack: () {
+          Navigator.pop(context);
+        },
+        title: 'Listagem de clientes',
+      ),
+
+      endDrawer: Menu(
+        currentIndex: 0,
+        onTap: (index) {
+          Navigator.pop(context);
+
+          if (index == 1) {
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => const ItemList()),
+            );
+          }
+
+          if (index == 2) {
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => const OsListPage()),
+            );
+          }
+
+          if (index == 3) {
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => const ServiceList()),
+            );
+          }
+
+          if (index == 4) {
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => const Dashboard()),
+            );
+          }
+        },
+      ),
+      body: SafeArea(
+        child: Align(
+          alignment: Alignment.topCenter,
+          child: ConstrainedBox(
+            constraints: const BoxConstraints(maxWidth: 650),
+            child: SingleChildScrollView(
+              padding: const EdgeInsets.fromLTRB(20, 30, 20, 100),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  TextFormField(
+                    controller: _searchController,
+                    decoration: InputDecoration(
+                      hintText: 'Procurar cliente',
+                      filled: true,
+                      fillColor: colors.surfaceContainer,
+                      hintStyle: TextStyle(color: colors.onSurface),
+                      prefixIcon: Icon(Icons.search, color: colors.secondary),
+                      suffixIcon: _searchQuery.isNotEmpty
+                          ? IconButton(
+                              icon: Icon(Icons.clear, color: colors.secondary),
+                              onPressed: () {
+                                _searchController.clear();
+                              },
+                            )
+                          : null,
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(14),
+                        borderSide: BorderSide.none,
+                      ),
+                    ),
+                  ),
+
+                  Padding(
+                    padding: const EdgeInsets.only(top: 20.0),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.start,
+                      children: [
+                        ElevatedButton.icon(
+                          onPressed: () {},
+                          icon: const Icon(Icons.tune),
+                          label: const Text(
+                            'Filtrar',
+                            style: TextStyle(
+                              fontWeight: FontWeight.bold,
+                              fontSize: 14.8,
+                            ),
+                          ),
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: colors.primary,
+                            foregroundColor: Colors.white,
+                          ),
+                        ),
+
+                        Padding(
+                          padding: const EdgeInsets.only(left: 10.0),
+                          child: ElevatedButton.icon(
+                            onPressed: () {},
+                            icon: const Icon(Icons.swap_vert),
+                            label: const Text(
+                              'Ordenar',
+                              style: TextStyle(
+                                fontWeight: FontWeight.bold,
+                                fontSize: 14.8,
+                              ),
+                            ),
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: colors.primary,
+                              foregroundColor: Colors.white,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+
+                  Padding(
+                    padding: const EdgeInsets.only(top: 10.0, bottom: 10.0),
+                    child: Align(
+                      alignment: Alignment.centerLeft,
+                      child: Text(
+                        'Recentes',
+                        style: TextStyle(
+                          color: colors.onSurface,
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ),
+                  ),
+
+                  StreamBuilder<List<Client>>(
+                    stream: _clientes,
+                    builder: (context, snapshot) {
+                      if (snapshot.connectionState == ConnectionState.waiting) {
+                        return const Padding(
+                          padding: EdgeInsets.only(top: 20.0),
+                          child: Center(child: CircularProgressIndicator()),
+                        );
+                      }
+
+                      if (snapshot.hasError) {
+                        return const Center(
+                          child: Text('Erro ao carregar clientes.'),
+                        );
+                      }
+
+                      if (!snapshot.hasData || snapshot.data!.isEmpty) {
+                        return const Center(
+                          child: Text('Nenhum cliente encontrado.'),
+                        );
+                      }
+
+                      final todosClientes = snapshot.data!;
+
+                      final clientesFiltrados = todosClientes.where((cliente) {
+                        final nomeMatch = cliente.name.toLowerCase().contains(
+                          _searchQuery,
+                        );
+                        final resumoMatch = cliente.contact.resumo
+                            .toLowerCase()
+                            .contains(_searchQuery);
+                        return nomeMatch || resumoMatch;
+                      }).toList();
+
+                      if (clientesFiltrados.isEmpty) {
+                        return Padding(
+                          padding: const EdgeInsets.only(top: 20.0),
+                          child: Center(
+                            child: Text(
+                              'Nenhum cliente corresponde à pesquisa.',
+                              style: TextStyle(color: colors.onSurfaceVariant),
+                            ),
+                          ),
+                        );
+                      }
+
+                      return Card(
+                        elevation: 4,
+                        color: colors.surfaceContainer,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        clipBehavior: Clip.antiAlias,
+                        child: ListView.separated(
+                          shrinkWrap: true,
+                          physics: const NeverScrollableScrollPhysics(),
+                          itemCount: clientesFiltrados.length,
+                          separatorBuilder: (context, index) => Divider(
+                            height: 1,
+                            color: colors.onSurfaceVariant.withOpacity(0.2),
+                          ),
+                          itemBuilder: (context, index) {
+                            return _buildClientCard(clientesFiltrados[index]);
+                          },
+                        ),
+                      );
+                    },
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ),
+      ),
+      floatingActionButton: CustomFloatingButton(
+        onPressed: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => const PersonRegistration()),
+          );
+        },
+      ),
+    );
+  }
+
+  Widget _buildClientCard(Client cliente) {
+    return SlidableDeleteCard(
+      slidableKey: ValueKey(cliente.id),
+
+      extentRatio: 0.20,
+
+      onDelete: () async {
+        final confirmarExclusao =
+            await showDialog<bool>(
+              context: context,
+              builder: (_) => ShowDeleteClientDialog(nome: cliente.name),
+            ) ??
+            false;
+
+        if (!confirmarExclusao) return;
+
+        await _deletarCliente(cliente);
+
+        if (!mounted) return;
+
+        final messenger = ScaffoldMessenger.of(context);
+
+        messenger.hideCurrentSnackBar();
+
+        messenger.showSnackBar(
+          ShowDeleteClientSnackbar(
+            color: colors.primary,
+
+            onPressed: () async {
+              await _service.restaurar(cliente.id);
+
+              if (!mounted) return;
+
+              messenger.hideCurrentSnackBar();
+            },
+
+            duration: const Duration(seconds: 5),
+          ),
+        );
+      },
+
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 12.0),
+
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+
+          children: [
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+
+                children: [
+                  Text(
+                    cliente.name,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+
+                    style: TextStyle(
+                      color: Colors.blueGrey.shade600,
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+
+                  Text(
+                    cliente.contact.resumo,
+
+                    style: TextStyle(
+                      color: colors.onSurfaceVariant,
+                      fontSize: 14,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+
+            IconButton(
+              icon: Icon(Icons.edit, color: colors.secondary),
+
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => PersonAlteration(cliente: cliente),
+                  ),
+                );
+              },
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}

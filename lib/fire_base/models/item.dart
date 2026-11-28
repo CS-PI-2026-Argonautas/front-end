@@ -8,10 +8,12 @@ class Item {
   final int valueInCents;
   final int minimumQuantity;
   final ProductType type;
+
   final Timestamp? createdAt;
   final Timestamp? updatedAt;
   final Timestamp? deletedAt;
-  Item({
+
+  const Item({
     this.id,
     required this.name,
     this.description,
@@ -22,26 +24,49 @@ class Item {
     this.updatedAt,
     this.deletedAt,
   });
+
+  bool get ativo => deletedAt == null;
+
   factory Item.fromFirestore(DocumentSnapshot<Map<String, dynamic>> document) {
-    final data = document.data()!;
+    final data = document.data();
+
+    if (data == null) {
+      throw StateError('Documento de item sem dados.');
+    }
+
+    final valor = data['value_in_cents'];
+    final quantidade = data['minimum_quantity'];
+    final tipo = data['type'];
+
+    if (valor is! num) {
+      throw FormatException('Valor inválido: value_in_cents.');
+    }
+
+    if (quantidade is! num) {
+      throw FormatException('Quantidade inválida: minimum_quantity.');
+    }
+
+    if (tipo is! String) {
+      throw FormatException('Tipo de produto inválido.');
+    }
 
     return Item(
       id: document.id,
       name: data['name'] as String,
       description: data['description'] as String?,
-      valueInCents: data['value_in_cents'] as int,
-      minimumQuantity: data['minimum_quantity'] as int,
-      type: _typeFromFirestore(data['type'] as String),
-      createdAt: data['created_at'] as Timestamp,
-      updatedAt: data['updated_at'] as Timestamp,
+      valueInCents: valor.toInt(),
+      minimumQuantity: quantidade.toInt(),
+      type: _typeFromFirestore(tipo),
+      createdAt: data['created_at'] as Timestamp?,
+      updatedAt: data['updated_at'] as Timestamp?,
       deletedAt: data['deleted_at'] as Timestamp?,
     );
   }
 
   Map<String, dynamic> toFirestore() {
     return {
-      'name': name,
-      'description': description,
+      'name': name.trim(),
+      'description': description?.trim(),
       'value_in_cents': valueInCents,
       'minimum_quantity': minimumQuantity,
       'type': _typeToFirestore(type),
@@ -55,12 +80,10 @@ class Item {
     switch (value) {
       case 'PECAS':
         return ProductType.parts;
-
       case 'BALANCAS':
         return ProductType.scales;
-
       default:
-        throw ArgumentError('Invalid product type: $value');
+        throw ArgumentError('Tipo de produto inválido: $value');
     }
   }
 
@@ -68,7 +91,6 @@ class Item {
     switch (type) {
       case ProductType.parts:
         return 'PECAS';
-
       case ProductType.scales:
         return 'BALANCAS';
     }
@@ -84,17 +106,19 @@ class Item {
     Timestamp? createdAt,
     Timestamp? updatedAt,
     Timestamp? deletedAt,
+    bool limparDeletedAt = false,
+    bool limparDescription = false,
   }) {
     return Item(
       id: id ?? this.id,
       name: name ?? this.name,
-      description: description ?? this.description,
+      description: limparDescription ? null : description ?? this.description,
       valueInCents: valueInCents ?? this.valueInCents,
       minimumQuantity: minimumQuantity ?? this.minimumQuantity,
       type: type ?? this.type,
       createdAt: createdAt ?? this.createdAt,
       updatedAt: updatedAt ?? this.updatedAt,
-      deletedAt: deletedAt ?? this.deletedAt,
+      deletedAt: limparDeletedAt ? null : deletedAt ?? this.deletedAt,
     );
   }
 }

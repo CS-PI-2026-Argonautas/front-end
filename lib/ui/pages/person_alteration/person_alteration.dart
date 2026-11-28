@@ -98,7 +98,7 @@ class _PersonAlterationState extends State<PersonAlteration> {
 
   Future<void> _carregarEnderecos() async {
     try {
-      final lista = await _enderecoService.listar(widget.cliente.id);
+      final lista = await _enderecoService.getByClientId(widget.cliente.id);
 
       if (!mounted) return;
 
@@ -336,6 +336,8 @@ class _PersonAlterationState extends State<PersonAlteration> {
           SelectionField<Address>(
             label: 'Endereço *',
             iconeLabel: Icons.home_outlined,
+            textoBotao: 'Cadastrar endereço',
+            iconeBotao: Icons.add,
             itens: _enderecos,
             tituloItem: (endereco) {
               final complementoStr = endereco.complement.trim().isNotEmpty
@@ -402,6 +404,8 @@ class _PersonAlterationState extends State<PersonAlteration> {
         SelectionField<Contact>(
           label: 'Informações de contato *',
           iconeLabel: Icons.phone_android_outlined,
+          textoBotao: _contato == null ? 'Adicionar contato' : 'Alterar contato',
+          iconeBotao: _contato == null ? Icons.add : Icons.swap_horiz_outlined,
           itens: _contato != null ? [_contato!] : [],
           tituloItem: (contato) => contato.resumo,
           textoVazio: 'Nenhum contato adicionado.',

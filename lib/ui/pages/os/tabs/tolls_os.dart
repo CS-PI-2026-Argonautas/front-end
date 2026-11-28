@@ -1,198 +1,570 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
-import 'package:frontend/fire_base/Enums/ProductType.dart';
+
+import 'package:frontend/ui/style/ColorScheme.dart' as custom_colors;
+import 'package:frontend/fire_base/models/dinheiro.dart';
 import 'package:frontend/fire_base/models/item.dart';
+import 'package:frontend/fire_base/models/os.dart';
 import 'package:frontend/fire_base/repositories/item_repository.dart';
 import 'package:frontend/fire_base/services/item_service.dart';
+<<<<<<< HEAD
 import 'package:frontend/ui/pages/os/tabs/values_os.dart';
+=======
+import 'package:frontend/ui/pages/os/service_order_state.dart';
+>>>>>>> 6e881a1b1949c2773039a0aa79c90b3bd05e1fec
 import 'package:frontend/ui/pages/product_registration/product_registration.dart';
-import 'package:frontend/ui/style/ColorScheme.dart' as custom_colors;
-import 'package:frontend/ui/style/inputDecorationStyles.dart';
 import 'package:frontend/ui/widgets/bottom_sheet/bottom_sheet.dart';
 import 'package:frontend/ui/widgets/floatingButton.dart';
 
 class TollsOs extends StatefulWidget {
+<<<<<<< HEAD
   const TollsOs({super.key, required void Function(List<ItemResumoOs> itens) onItensChanged, required void Function() onAvancar});
+=======
+  final ServiceOrderState serviceOrderState;
+  final VoidCallback? avancarTab;
+  final VoidCallback? onChanged;
+  final ValueChanged<bool>? onSomenteServicosChanged;
+
+  const TollsOs({
+    super.key,
+    required this.serviceOrderState,
+    this.avancarTab,
+    this.onChanged,
+    this.onSomenteServicosChanged,
+  });
+>>>>>>> 6e881a1b1949c2773039a0aa79c90b3bd05e1fec
 
   @override
-  State<TollsOs> createState() => TollsOsState();
+  State<TollsOs> createState() => OrderServiceState();
 }
 
-class TollsOsState extends State<TollsOs> with AutomaticKeepAliveClientMixin {
+class OrderServiceState extends State<TollsOs>
+    with AutomaticKeepAliveClientMixin {
   final colors = custom_colors.colorScheme;
 
-  final ItemService _itemService = ItemService(ItemRepository());
+  ServiceOrder get _os => widget.serviceOrderState.serviceOrder;
 
-  final List<Map<String, dynamic>> orderParts = [];
+  late final ItemService _itemService;
+  late final Stream<List<Item>> _pecasStream;
+
+  Timer? _snackBarTimer;
+  bool _somenteServicos = false;
 
   @override
   bool get wantKeepAlive => true;
 
-  int _calculateSubtotal() {
-    int subtotal = 0;
+  @override
+  void initState() {
+    super.initState();
 
-    for (final part in orderParts) {
-      final int quantity = part['quantity'] as int;
-      final int priceInCents = part['price'] as int;
+    _itemService = ItemService(repository: ItemRepository());
+    _pecasStream = _itemService.watchParts();
 
-      subtotal += quantity * priceInCents;
-    }
-
-    return subtotal;
+    _somenteServicos = _os.parts.isEmpty && _os.services.isNotEmpty;
   }
 
-  String _formatPrice(int cents) {
-    final int reais = cents ~/ 100;
-    final int decimal = cents % 100;
-
-    return 'R\$${reais.toString().replaceAllMapped(RegExp(r'\B(?=(\d{3})+(?!\d))'), (match) => '.')},${decimal.toString().padLeft(2, '0')}';
+  void _editarOs(void Function(ServiceOrder) editar) {
+    widget.serviceOrderState.applyUserEdit(editar);
+    widget.onChanged?.call();
   }
 
-  int _parseValueInCents(String value) {
-    final input = value.trim();
-
-    if (input.isEmpty) {
-      throw const FormatException('Valor vazio.');
-    }
-
-    String integerPart;
-    String decimalPart;
-
-    if (input.contains(',')) {
-      final parts = input.split(',');
-
-      if (parts.length != 2) {
-        throw const FormatException('Valor inválido.');
-      }
-
-      integerPart = parts[0].replaceAll('.', '');
-      decimalPart = parts[1];
-    } else if (input.contains('.')) {
-      final parts = input.split('.');
-
-      if (parts.length == 2 && parts[1].length <= 2) {
-        integerPart = parts[0];
-        decimalPart = parts[1];
-      } else {
-        integerPart = input.replaceAll('.', '');
-        decimalPart = '00';
-      }
-    } else {
-      integerPart = input;
-      decimalPart = '00';
-    }
-
-    if (integerPart.isEmpty) {
-      integerPart = '0';
-    }
-
-    if (decimalPart.length == 1) {
-      decimalPart += '0';
-    }
-
-    if (decimalPart.length != 2 ||
-        !RegExp(r'^\d+$').hasMatch(integerPart) ||
-        !RegExp(r'^\d{2}$').hasMatch(decimalPart)) {
-      throw const FormatException('Valor inválido.');
-    }
-
-    return int.parse(integerPart) * 100 + int.parse(decimalPart);
+  int _calcularSubtotal() {
+    return _os.parts.fold<int>(0, (total, peca) => total + peca.subtotalCents);
   }
 
-  void _showMessage(String message) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text(message), behavior: SnackBarBehavior.floating),
+  Future<void> _abrirEdicao(Item peca) async {
+    if (peca.id == null) return;
+
+    final Item? pecaAtualizada = await Navigator.push<Item>(
+      context,
+      MaterialPageRoute(
+        builder: (context) =>
+            ProductRegistration(abertoPelaOS: true, itemEdicao: peca),
+      ),
     );
+
+    if (!mounted || pecaAtualizada == null) return;
+
+    _atualizarPecaNaOS(pecaAtualizada);
+  }
+
+  Future<void> _atualizarItem(Item itemAtualizado) async {
+    await _itemService.update(itemAtualizado);
+
+    if (!mounted) return;
+
+    // Sincroniza nome e preço da peça que já está na OS
+    _atualizarPecaNaOS(itemAtualizado);
+  }
+
+  void _atualizarPecaNaOS(Item pecaAtualizada) {
+    if (pecaAtualizada.id == null) return;
+
+    final index = _os.parts.indexWhere(
+      (item) => item.partId == pecaAtualizada.id,
+    );
+
+    if (index == -1) return;
+
+    _editarOs((os) {
+      final pecaAntiga = os.parts[index];
+      os.parts[index] = ServiceOrderPart(
+        partId: pecaAntiga.partId,
+        name: pecaAtualizada.name,
+        quantity: pecaAntiga.quantity,
+        unitPriceCents: pecaAtualizada.valueInCents,
+        discountCents: pecaAntiga.discountCents,
+      );
+    });
+
+    widget.onChanged?.call();
+  }
+
+  void _removerPeca(int index) {
+    if (index < 0 || index >= _os.parts.length) return;
+
+    final pecaRemovida = _os.parts[index];
+
+    _editarOs((os) => os.parts.removeAt(index));
+
+    widget.onChanged?.call();
+
+    final messenger = ScaffoldMessenger.of(context);
+
+    _snackBarTimer?.cancel();
+    messenger.hideCurrentSnackBar();
+
+    messenger.showSnackBar(
+      SnackBar(
+        content: Text('${pecaRemovida.name} removida.'),
+        backgroundColor: colors.primary,
+        duration: const Duration(seconds: 5),
+        behavior: SnackBarBehavior.floating,
+        showCloseIcon: true,
+        closeIconColor: Colors.white,
+
+        action: SnackBarAction(
+          label: 'DESFAZER',
+          textColor: Colors.white,
+          onPressed: () {
+            _snackBarTimer?.cancel();
+
+            if (!mounted) return;
+
+            _editarOs((os) {
+              os.parts.insert(index.clamp(0, os.parts.length), pecaRemovida);
+            });
+
+            widget.onChanged?.call();
+          },
+        ),
+      ),
+    );
+
+    _snackBarTimer = Timer(const Duration(seconds: 5), () {
+      if (mounted) {
+        messenger.hideCurrentSnackBar();
+      }
+    });
+  }
+
+  Future<void> _confirmarRemocaoPeca(int index) async {
+    if (index < 0 || index >= _os.parts.length) return;
+
+    final peca = _os.parts[index];
+
+    final confirmar = await showDialog<bool>(
+      context: context,
+      builder: (dialogContext) {
+        return AlertDialog(
+          title: const Text('Remover peça'),
+          content: Text('Deseja remover "${peca.name}" da OS?'),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.pop(dialogContext, false);
+              },
+              child: const Text('CANCELAR'),
+            ),
+            TextButton(
+              onPressed: () {
+                Navigator.pop(dialogContext, true);
+              },
+              child: Text('REMOVER', style: TextStyle(color: colors.error)),
+            ),
+          ],
+        );
+      },
+    );
+
+    if (confirmar != true || !mounted) return;
+
+    _removerPeca(index);
+  }
+Future<void> _excluirPecaDoCadastro(Item peca) async {
+  final itemId = peca.id;
+
+  final bool naOs = _os.parts.any(
+    (item) => item.partId == itemId,
+  );
+
+  final confirmar = await showDialog<bool>(
+    context: context,
+    builder: (dialogContext) {
+      return AlertDialog(
+        title: const Text('Excluir peça'),
+        content: Text(
+          naOs
+              ? 'Deseja excluir "${peca.name}" do cadastro? '
+                  'Ela também será removida desta OS.'
+              : 'Deseja excluir "${peca.name}" do cadastro?',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(dialogContext, false),
+            child: const Text('CANCELAR'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(dialogContext, true),
+            child: Text(
+              'EXCLUIR',
+              style: TextStyle(color: colors.error),
+            ),
+          ),
+        ],
+      );
+    },
+  );
+
+  if (confirmar != true || !mounted) return;
+
+  // Verifica se a peça possui um ID válido.
+  if (itemId == null || itemId.isEmpty) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text(
+          'Não foi possível excluir: ID da peça não encontrado.',
+        ),
+        behavior: SnackBarBehavior.floating,
+      ),
+    );
+    return;
+  }
+
+  try {
+    // Exclui a peça do cadastro no Firestore.
+    await _itemService.delete(itemId);
+
+    if (!mounted) return;
+
+    // Remove a referência da peça desta Ordem de Serviço.
+    _editarOs((os) {
+      os.parts.removeWhere(
+        (item) => item.partId == itemId,
+      );
+    });
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text('Peça excluída com sucesso.'),
+        behavior: SnackBarBehavior.floating,
+      ),
+    );
+  } catch (e) {
+    debugPrint('Erro ao excluir peça: $e');
+
+    if (!mounted) return;
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text('Não foi possível excluir a peça.'),
+        behavior: SnackBarBehavior.floating,
+      ),
+    );
+  }
+}
+
+  @override
+  void dispose() {
+    _snackBarTimer?.cancel();
+    super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
     super.build(context);
 
-    final int subtotal = _calculateSubtotal();
+    return StreamBuilder<List<Item>>(
+      stream: _pecasStream,
+      builder: (context, snapshot) {
+        final pecasDisponiveis = snapshot.data ?? [];
 
-    return Scaffold(
-      backgroundColor: colors.surface,
-      body: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 18),
-          child: Center(
-            child: ConstrainedBox(
-              constraints: const BoxConstraints(maxWidth: 650),
-              child: Card(
-                color: Colors.white,
-                elevation: 8,
-                shadowColor: Colors.black26,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(22),
-                ),
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 24,
-                    vertical: 28,
-                  ),
-                  child: Column(
-                    children: [
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        return Scaffold(
+          backgroundColor: colors.surface,
+
+          body: SafeArea(
+            child: Padding(
+              padding: EdgeInsets.only(
+                left: 16,
+                right: 16,
+                top: 18,
+                bottom: MediaQuery.of(context).viewInsets.bottom + 18,
+              ),
+              child: Align(
+                alignment: Alignment.topCenter,
+                child: ConstrainedBox(
+                  constraints: const BoxConstraints(maxWidth: 650),
+                  child: Card(
+                    color: Colors.white,
+                    elevation: 8,
+                    shadowColor: Colors.black26,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(22),
+                    ),
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 24,
+                        vertical: 28,
+                      ),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        mainAxisSize: MainAxisSize.min,
                         children: [
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Row(
+                                children: [
+                                  Icon(Icons.build, color: colors.secondary),
+                                  const SizedBox(width: 8),
+                                  Text(
+                                    'Subtotal de peças',
+                                    style: TextStyle(
+                                      color: colors.onSurface,
+                                      fontSize: 20,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                              Text(
+                                Dinheiro(_calcularSubtotal()).formatado(),
+                                style: TextStyle(
+                                  color: colors.onSurface,
+                                  fontSize: 20,
+                                  fontWeight: FontWeight.w600,
+                                ),
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 6),
                           Text(
-                            'Subtotal de peças',
+                            'Selecione as peças utilizadas nesta Ordem de Serviço.',
                             style: TextStyle(
-                              color: colors.onSurface,
-                              fontSize: 20,
-                              fontWeight: FontWeight.bold,
+                              fontSize: 14,
+                              color: colors.onSurfaceVariant,
                             ),
                           ),
-                          Text(
-                            _formatPrice(subtotal),
-                            style: TextStyle(
-                              color: Colors.blueGrey.shade600,
-                              fontSize: 18,
-                              fontWeight: FontWeight.w600,
+                          CheckboxListTile(
+                            value: _somenteServicos,
+                            onChanged: (value) async {
+                              final marcarSomenteServicos = value ?? false;
+
+                              if (marcarSomenteServicos &&
+                                  _os.parts.isNotEmpty) {
+                                final confirmar = await showDialog<bool>(
+                                  context: context,
+                                  builder: (dialogContext) {
+                                    return AlertDialog(
+                                      title: const Text('Remover peças da OS?'),
+                                      content: const Text(
+                                        'Ao selecionar esta opção, todas as peças adicionadas '
+                                        'serão removidas da Ordem de Serviço. Deseja continuar?',
+                                      ),
+                                      actions: [
+                                        TextButton(
+                                          onPressed: () {
+                                            Navigator.pop(dialogContext, false);
+                                          },
+                                          child: const Text('CANCELAR'),
+                                        ),
+                                        TextButton(
+                                          onPressed: () {
+                                            Navigator.pop(dialogContext, true);
+                                          },
+                                          child: Text(
+                                            'REMOVER PEÇAS',
+                                            style: TextStyle(
+                                              color: colors.error,
+                                            ),
+                                          ),
+                                        ),
+                                      ],
+                                    );
+                                  },
+                                );
+
+                                if (!mounted || confirmar != true) return;
+
+                                setState(() {
+                                  _os.parts.clear();
+                                  _somenteServicos = true;
+                                });
+
+                                widget.onChanged?.call();
+                                widget.onSomenteServicosChanged?.call(
+                                  _somenteServicos,
+                                );
+
+                                return;
+                              }
+
+                              setState(() {
+                                _somenteServicos = marcarSomenteServicos;
+                              });
+
+                              widget.onChanged?.call();
+                              widget.onSomenteServicosChanged?.call(
+                                _somenteServicos,
+                              );
+                            },
+                            contentPadding: EdgeInsets.zero,
+                            controlAffinity: ListTileControlAffinity.leading,
+                            activeColor: colors.primary,
+                            title: Text(
+                              'OS somente de serviços (sem peças)',
+                              style: TextStyle(
+                                fontSize: 14,
+                                color: colors.onSurface,
+                                fontWeight: FontWeight.w500,
+                              ),
+                            ),
+                            subtitle: Text(
+                              'Marque esta opção caso não sejam necessárias peças nesta OS.',
+                              style: TextStyle(
+                                fontSize: 12,
+                                color: colors.onSurfaceVariant,
+                              ),
+                            ),
+                          ),
+
+                          const SizedBox(height: 18),
+
+                          if (snapshot.connectionState ==
+                              ConnectionState.waiting)
+                            const LinearProgressIndicator(),
+
+                          if (snapshot.hasError)
+                            Padding(
+                              padding: const EdgeInsets.all(12),
+                              child: Text(
+                                'Erro ao carregar peças: ${snapshot.error}',
+                                style: TextStyle(color: colors.error),
+                              ),
+                            ),
+
+                          _os.parts.isEmpty
+                              ? Center(
+                                  child: Text(
+                                    'Nenhuma peça adicionada.',
+                                    style: TextStyle(
+                                      color: colors.onSurfaceVariant,
+                                      fontSize: 16,
+                                    ),
+                                  ),
+                                )
+                              : ListView.separated(
+                                  shrinkWrap: true,
+                                  physics: const NeverScrollableScrollPhysics(),
+                                  padding: const EdgeInsets.all(4),
+                                  itemCount: _os.parts.length,
+                                  separatorBuilder: (context, index) {
+                                    return const SizedBox(height: 12);
+                                  },
+                                  itemBuilder: (context, index) {
+                                    return _buildPieceCard(
+                                      _os.parts[index],
+                                      index,
+                                    );
+                                  },
+                                ),
+                          const SizedBox(height: 20),
+
+                          SizedBox(
+                            width: double.infinity,
+                            child: ElevatedButton.icon(
+                              onPressed:
+                                  (_os.parts.isNotEmpty || _somenteServicos) &&
+                                      widget.avancarTab != null
+                                  ? () {
+                                      widget.avancarTab?.call();
+                                    }
+                                  : null,
+                              icon: const Icon(Icons.handyman),
+                              label: const Text(
+                                'Adicionar Serviços',
+                                style: TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 16,
+                                ),
+                              ),
+                              style: ElevatedButton.styleFrom(
+                                elevation:
+                                    (_os.parts.isNotEmpty || _somenteServicos)
+                                    ? 3
+                                    : 0,
+                                backgroundColor: colors.primary,
+                                foregroundColor: colors.onSecondary,
+                                disabledBackgroundColor:
+                                    colors.surfaceContainerLow,
+                                disabledForegroundColor:
+                                    colors.onSurfaceVariant,
+                                padding: const EdgeInsets.symmetric(
+                                  vertical: 18,
+                                ),
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(14),
+                                ),
+                              ),
+                            ),
+                          ),
+
+                          const SizedBox(height: 12),
+
+                          Center(
+                            child: Text(
+                              _somenteServicos
+                                  ? 'OS configurada para serviços sem utilização de peças.'
+                                  : 'Adicione peças ou marque a opção de OS somente de serviços.',
+                              textAlign: TextAlign.center,
+                              style: TextStyle(
+                                fontSize: 12,
+                                color: colors.onSurfaceVariant,
+                              ),
                             ),
                           ),
                         ],
                       ),
-                      const SizedBox(height: 20),
-                      Expanded(
-                        child: orderParts.isEmpty
-                            ? Center(
-                                child: Text(
-                                  'Nenhuma peça adicionada',
-                                  style: TextStyle(
-                                    color: colors.onSurfaceVariant,
-                                    fontSize: 16,
-                                  ),
-                                ),
-                              )
-                            : ListView.separated(
-                                padding: const EdgeInsets.all(4),
-                                itemCount: orderParts.length,
-                                separatorBuilder: (context, index) {
-                                  return const SizedBox(height: 12);
-                                },
-                                itemBuilder: (context, index) {
-                                  return _buildPartCard(
-                                    orderParts[index],
-                                    index,
-                                  );
-                                },
-                              ),
-                      ),
-                    ],
+                    ),
                   ),
                 ),
               ),
             ),
           ),
-        ),
-      ),
-      floatingActionButton: CustomFloatingButton(onPressed: _openPartList),
+
+          floatingActionButton: CustomFloatingButton(
+            onPressed: snapshot.hasData && !snapshot.hasError
+                ? () => abrirListaPecas(pecasDisponiveis)
+                : () {},
+          ),
+        );
+      },
     );
   }
 
-  void _openPartList() {
+  void abrirListaPecas(List<Item> pecasDisponiveis) {
     showModalBottomSheet(
       context: context,
       backgroundColor: colors.surfaceContainer,
@@ -200,57 +572,45 @@ class TollsOsState extends State<TollsOs> with AutomaticKeepAliveClientMixin {
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
       ),
-      builder: (bottomSheetContext) {
+      builder: (sheetContext) {
         return StreamBuilder<List<Item>>(
-          stream: _itemService.watchParts(),
+          stream: _pecasStream,
+          initialData: pecasDisponiveis,
           builder: (context, snapshot) {
-            if (snapshot.hasError) {
-              return Center(
-                child: Text(
-                  'Erro ao carregar peças.',
-                  style: TextStyle(color: colors.onSurface),
-                ),
-              );
-            }
-
-            if (snapshot.connectionState == ConnectionState.waiting) {
-              return const Center(child: CircularProgressIndicator());
-            }
-
-            final List<Item> parts = snapshot.data ?? [];
+            final pecas = snapshot.data ?? pecasDisponiveis;
 
             return SelectionBottomSheet<Item>(
               title: 'Selecionar peça',
-              items: parts,
+              items: pecas,
               searchText: 'Buscar peça...',
               actionText: 'Nova peça',
               itemIcon: Icons.build,
-              itemTitle: (part) => part.name,
-              itemSubtitle: (part) => _formatPrice(part.valueInCents),
-              onEdit: (part) {
-                _showEditItemSheet(part);
-              },
-              onDelete: (part) {
-                _showDeleteConfirmation(part);
-              },
-              onSelect: (part) {
-                final bool alreadyAdded = orderParts.any(
-                  (item) => item['id'] == part.id,
-                );
 
-                if (alreadyAdded) {
-                  _showDuplicatePartDialog(part);
-                  return;
-                }
+              itemTitle: (peca) => peca.name,
 
-                _addPart(part);
-                Navigator.pop(bottomSheetContext);
+              itemSubtitle: (peca) {
+                return Dinheiro(peca.valueInCents).formatado();
               },
-              onAction: () {
-                Navigator.push(
-                  bottomSheetContext,
+
+              onEdit: (peca) async {
+                await _abrirEdicao(peca);
+              },
+
+              onDelete: (peca) async {
+                await _excluirPecaDoCadastro(peca);
+              },
+
+              onSelect: (peca) {
+                _adicionarPeca(peca);
+                Navigator.pop(sheetContext);
+              },
+
+              onAction: () async {
+                await Navigator.push(
+                  context,
                   MaterialPageRoute(
-                    builder: (context) => const ProductRegistration(),
+                    builder: (context) =>
+                        const ProductRegistration(abertoPelaOS: true),
                   ),
                 );
               },
@@ -261,163 +621,73 @@ class TollsOsState extends State<TollsOs> with AutomaticKeepAliveClientMixin {
     );
   }
 
-  void _showDuplicatePartDialog(Item part) {
-    showDialog(
-      context: context,
-      builder: (dialogContext) {
-        return AlertDialog(
-          title: const Text('Peça já adicionada'),
-          content: Text('A peça "${part.name}" já está adicionada nesta OS.'),
-          actions: [
-            TextButton(
-              onPressed: () {
-                Navigator.pop(dialogContext);
-              },
-              child: const Text('OK'),
-            ),
-          ],
+  void _adicionarPeca(Item peca) {
+    if (peca.id == null) return;
+
+    _editarOs((os) {
+      final index = os.parts.indexWhere((item) => item.partId == peca.id);
+
+      if (index != -1) {
+        final parteExistente = os.parts[index];
+
+        os.parts[index] = parteExistente.withQuantity(
+          parteExistente.quantity + 1,
         );
-      },
-    );
-  }
-
-  void _addPart(Item part) {
-    setState(() {
-      orderParts.add({
-        'id': part.id,
-        'name': part.name,
-        'price': part.valueInCents,
-        'quantity': 1,
-      });
-    });
-  }
-
-  void _increaseQuantity(int index) {
-    setState(() {
-      orderParts[index]['quantity'] =
-          (orderParts[index]['quantity'] as int) + 1;
-    });
-  }
-
-  void _decreaseQuantity(int index) {
-    final int quantity = orderParts[index]['quantity'] as int;
-
-    if (quantity <= 1) {
-      return;
-    }
-
-    setState(() {
-      orderParts[index]['quantity'] = quantity - 1;
-    });
-  }
-
-  void _removePart(int index) {
-    setState(() {
-      orderParts.removeAt(index);
-    });
-  }
-
-  Future<void> _updateItem(Item updatedItem) async {
-    await _itemService.update(updatedItem);
-
-    if (!mounted) return;
-
-    setState(() {
-      for (final part in orderParts) {
-        if (part['id'] == updatedItem.id) {
-          part['name'] = updatedItem.name;
-          part['price'] = updatedItem.valueInCents;
-        }
+      } else {
+        os.parts.add(
+          ServiceOrderPart(
+            partId: peca.id!,
+            name: peca.name,
+            quantity: 1,
+            unitPriceCents: peca.valueInCents,
+            discountCents: 0,
+          ),
+        );
       }
     });
+
+    widget.onChanged?.call();
   }
 
-  Future<void> _showEditItemSheet(Item item) async {
-    await showModalBottomSheet<void>(
-      context: context,
-      isScrollControlled: true,
-      backgroundColor: Colors.transparent,
-      builder: (sheetContext) {
-        return _EditItemSheet(
-          item: item,
-          formatPrice: _formatPrice,
-          parseValueInCents: _parseValueInCents,
-          onSave: _updateItem,
-        );
-      },
-    );
+  void _aumentarQuantidade(int index) {
+    final peca = _os.parts[index];
+
+    _editarOs((os) {
+      os.parts[index] = peca.withQuantity(peca.quantity + 1);
+    });
+
+    widget.onChanged?.call();
   }
 
-  Future<void> _showDeleteConfirmation(Item item) async {
-    final bool inOrder = orderParts.any((part) => part['id'] == item.id);
+  void _diminuirQuantidade(int index) {
+    final peca = _os.parts[index];
 
-    final bool confirmed =
-        await showDialog<bool>(
-          context: context,
-          builder: (dialogContext) {
-            return AlertDialog(
-              title: const Text('Excluir peça'),
-              content: Text(
-                inOrder
-                    ? 'Deseja excluir "${item.name}"? '
-                          'Ela também será removida desta OS.'
-                    : 'Deseja excluir "${item.name}"?',
-              ),
-              actions: [
-                TextButton(
-                  onPressed: () {
-                    Navigator.pop(dialogContext, false);
-                  },
-                  child: const Text('CANCELAR'),
-                ),
-                TextButton(
-                  onPressed: () {
-                    Navigator.pop(dialogContext, true);
-                  },
-                  child: Text('EXCLUIR', style: TextStyle(color: colors.error)),
-                ),
-              ],
-            );
-          },
-        ) ??
-        false;
+    if (peca.quantity <= 1) return;
 
-    if (!confirmed) return;
+    _editarOs((os) {
+      os.parts[index] = peca.withQuantity(peca.quantity - 1);
+    });
 
-    try {
-      await _itemService.delete(item);
-
-      if (!mounted) return;
-
-      setState(() {
-        orderParts.removeWhere((part) => part['id'] == item.id);
-      });
-
-      _showMessage('Peça excluída com sucesso.');
-    } catch (e) {
-      debugPrint('Erro ao excluir peça: $e');
-
-      if (!mounted) return;
-
-      _showMessage('Não foi possível excluir a peça.');
-    }
+    widget.onChanged?.call();
   }
 
-  Widget _buildPartCard(Map<String, dynamic> part, int index) {
-    final int quantity = part['quantity'] as int;
-    final int priceInCents = part['price'] as int;
+  Widget _buildPieceCard(ServiceOrderPart peca, int index) {
+    final int quantidade = peca.quantity;
 
-    final int totalItem = quantity * priceInCents;
+    final Dinheiro preco = Dinheiro(peca.unitPriceCents);
+
+    final Dinheiro totalItem = Dinheiro(peca.subtotalCents);
 
     return Slidable(
-      key: ValueKey(part['id']),
+      key: ValueKey(peca.partId),
+
       endActionPane: ActionPane(
         motion: const DrawerMotion(),
         extentRatio: 0.22,
         children: [
           SlidableAction(
             onPressed: (context) {
-              _removePart(index);
+              _confirmarRemocaoPeca(index);
             },
             backgroundColor: Colors.red.shade600,
             foregroundColor: Colors.white,
@@ -426,12 +696,13 @@ class TollsOsState extends State<TollsOs> with AutomaticKeepAliveClientMixin {
           ),
         ],
       ),
+
       child: Container(
         padding: const EdgeInsets.all(14),
         decoration: BoxDecoration(
-          color: colors.surfaceContainer,
+          color: colors.surfaceContainerLow,
           borderRadius: BorderRadius.circular(18),
-          boxShadow: kElevationToShadow[4],
+          // boxShadow: kElevationToShadow[4],
         ),
         child: Row(
           children: [
@@ -440,58 +711,60 @@ class TollsOsState extends State<TollsOs> with AutomaticKeepAliveClientMixin {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    part['name'] as String,
+                    peca.name,
                     style: TextStyle(
                       color: colors.onSurface,
                       fontWeight: FontWeight.bold,
-                      fontSize: 18,
+                      fontSize: 16,
                     ),
                   ),
+
                   const SizedBox(height: 6),
+
                   Text(
-                    '$quantity un x '
-                    '${_formatPrice(priceInCents)}/un',
+                    '$quantidade un x ${preco.formatado()}/un',
                     style: TextStyle(
                       color: colors.onSurfaceVariant,
-                      fontSize: 13,
+                      fontSize: 14,
                     ),
                   ),
+
                   const SizedBox(height: 2),
+
                   Text(
-                    _formatPrice(totalItem),
+                    totalItem.formatado(),
                     style: TextStyle(
-                      color: Colors.blueGrey.shade600,
+                      color: colors.onSurfaceVariant,
                       fontWeight: FontWeight.bold,
-                      fontSize: 17,
+                      fontSize: 15,
                     ),
                   ),
                 ],
               ),
             ),
+
             Row(
               children: [
                 IconButton(
-                  onPressed: () {
-                    _increaseQuantity(index);
-                  },
+                  onPressed: () => _aumentarQuantidade(index),
                   icon: Icon(Icons.add, color: colors.primary),
                 ),
+
                 Text(
-                  '$quantity',
+                  '$quantidade',
                   style: TextStyle(
                     color: colors.onSurface,
                     fontWeight: FontWeight.bold,
                   ),
                 ),
+
                 IconButton(
-                  onPressed: quantity > 1
-                      ? () {
-                          _decreaseQuantity(index);
-                        }
+                  onPressed: quantidade > 1
+                      ? () => _diminuirQuantidade(index)
                       : null,
                   icon: Icon(
                     Icons.remove,
-                    color: quantity > 1
+                    color: quantidade > 1
                         ? colors.primary
                         : colors.onSurfaceVariant,
                   ),
@@ -499,297 +772,6 @@ class TollsOsState extends State<TollsOs> with AutomaticKeepAliveClientMixin {
               ],
             ),
           ],
-        ),
-      ),
-    );
-  }
-}
-
-class _EditItemSheet extends StatefulWidget {
-  final Item item;
-  final String Function(int cents) formatPrice;
-  final int Function(String value) parseValueInCents;
-  final Future<void> Function(Item updatedItem) onSave;
-
-  const _EditItemSheet({
-    required this.item,
-    required this.formatPrice,
-    required this.parseValueInCents,
-    required this.onSave,
-  });
-
-  @override
-  State<_EditItemSheet> createState() => _EditItemSheetState();
-}
-
-class _EditItemSheetState extends State<_EditItemSheet> {
-  final colors = custom_colors.colorScheme;
-
-  final _formKey = GlobalKey<FormState>();
-
-  late final TextEditingController _nameController;
-  late final TextEditingController _descriptionController;
-  late final TextEditingController _valueController;
-  late final TextEditingController _minimumQuantityController;
-
-  late ProductType _selectedType;
-  bool _saving = false;
-
-  @override
-  void initState() {
-    super.initState();
-
-    final item = widget.item;
-
-    _nameController = TextEditingController(text: item.name);
-    _descriptionController = TextEditingController(
-      text: item.description ?? '',
-    );
-    _valueController = TextEditingController(
-      text: widget.formatPrice(item.valueInCents).replaceFirst('R\$', ''),
-    );
-    _minimumQuantityController = TextEditingController(
-      text: item.minimumQuantity.toString(),
-    );
-
-    _selectedType = item.type;
-  }
-
-  @override
-  void dispose() {
-    _nameController.dispose();
-    _descriptionController.dispose();
-    _valueController.dispose();
-    _minimumQuantityController.dispose();
-    super.dispose();
-  }
-
-  Future<void> _save() async {
-    if (_saving) return;
-    if (!_formKey.currentState!.validate()) return;
-
-    final navigator = Navigator.of(context);
-    final messenger = ScaffoldMessenger.of(context);
-
-    final String description = _descriptionController.text.trim();
-
-    final Item updatedItem = Item(
-      id: widget.item.id,
-      name: _nameController.text.trim(),
-      description: description.isEmpty ? null : description,
-      valueInCents: widget.parseValueInCents(_valueController.text),
-      minimumQuantity: int.parse(_minimumQuantityController.text.trim()),
-      type: _selectedType,
-      createdAt: widget.item.createdAt,
-      updatedAt: widget.item.updatedAt,
-      deletedAt: widget.item.deletedAt,
-    );
-
-    setState(() {
-      _saving = true;
-    });
-
-    try {
-      await widget.onSave(updatedItem);
-
-      navigator.pop();
-
-      messenger.showSnackBar(
-        const SnackBar(
-          content: Text('Peça atualizada com sucesso.'),
-          behavior: SnackBarBehavior.floating,
-        ),
-      );
-    } catch (e) {
-      debugPrint('Erro ao atualizar peça: $e');
-
-      if (mounted) {
-        setState(() {
-          _saving = false;
-        });
-      }
-
-      messenger.showSnackBar(
-        const SnackBar(
-          content: Text('Não foi possível atualizar a peça.'),
-          behavior: SnackBarBehavior.floating,
-        ),
-      );
-    }
-  }
-
-  Widget _buildLabel(String text) {
-    return Text(
-      text,
-      style: TextStyle(
-        fontWeight: FontWeight.bold,
-        fontSize: 16,
-        color: colors.onSurface,
-      ),
-    );
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: EdgeInsets.only(
-        bottom: MediaQuery.of(context).viewInsets.bottom,
-      ),
-      child: Container(
-        decoration: const BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.vertical(top: Radius.circular(26)),
-        ),
-        padding: const EdgeInsets.fromLTRB(24, 16, 24, 24),
-        child: SafeArea(
-          top: false,
-          child: SingleChildScrollView(
-            child: Form(
-              key: _formKey,
-              child: Column(
-                spacing: 12,
-                mainAxisSize: MainAxisSize.min,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Center(
-                    child: Container(
-                      width: 45,
-                      height: 5,
-                      decoration: BoxDecoration(
-                        color: Colors.grey.shade300,
-                        borderRadius: BorderRadius.circular(10),
-                      ),
-                    ),
-                  ),
-                  const SizedBox(height: 6),
-                  Row(
-                    spacing: 6,
-                    children: [
-                      Icon(Icons.edit_outlined, color: colors.primary),
-                      Text(
-                        'Editar peça',
-                        style: TextStyle(
-                          fontSize: 20,
-                          fontWeight: FontWeight.bold,
-                          color: colors.onSurface,
-                        ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 6),
-                  _buildLabel('Nome'),
-                  TextFormField(
-                    controller: _nameController,
-                    textCapitalization: TextCapitalization.sentences,
-                    decoration: customInputDecoration(hintText: 'Nome da peça'),
-                    validator: (value) {
-                      if (value == null || value.trim().isEmpty) {
-                        return 'Informe o nome.';
-                      }
-
-                      return null;
-                    },
-                  ),
-                  _buildLabel('Descrição'),
-                  TextFormField(
-                    controller: _descriptionController,
-                    maxLength: 50,
-                    textCapitalization: TextCapitalization.sentences,
-                    decoration:
-                        customInputDecoration(
-                          hintText: 'Descrição (opcional)',
-                        ).copyWith(
-                          counterStyle: TextStyle(
-                            color: colors.onSurfaceVariant,
-                          ),
-                        ),
-                  ),
-                  _buildLabel('Valor'),
-                  TextFormField(
-                    controller: _valueController,
-                    keyboardType: const TextInputType.numberWithOptions(
-                      decimal: true,
-                    ),
-                    decoration: customInputDecoration(
-                      hintText: '0,00',
-                    ).copyWith(prefixText: 'R\$ '),
-                    validator: (value) {
-                      try {
-                        widget.parseValueInCents(value ?? '');
-                        return null;
-                      } catch (_) {
-                        return 'Informe um valor válido.';
-                      }
-                    },
-                  ),
-                  _buildLabel('Quantidade mínima'),
-                  TextFormField(
-                    controller: _minimumQuantityController,
-                    keyboardType: TextInputType.number,
-                    decoration: customInputDecoration(hintText: '0'),
-                    validator: (value) {
-                      final int? quantity = int.tryParse((value ?? '').trim());
-
-                      if (quantity == null || quantity < 0) {
-                        return 'Informe uma quantidade válida.';
-                      }
-
-                      return null;
-                    },
-                  ),
-                  _buildLabel('Tipo'),
-                  DropdownButtonFormField<ProductType>(
-                    value: _selectedType,
-                    decoration: customInputDecoration(
-                      hintText: 'Selecione o tipo',
-                    ),
-                    items: ProductType.values.map((type) {
-                      return DropdownMenuItem<ProductType>(
-                        value: type,
-                        child: Text(type.label),
-                      );
-                    }).toList(),
-                    onChanged: (type) {
-                      if (type == null) return;
-
-                      setState(() {
-                        _selectedType = type;
-                      });
-                    },
-                  ),
-                  const SizedBox(height: 6),
-                  SizedBox(
-                    width: double.infinity,
-                    child: ElevatedButton.icon(
-                      onPressed: _saving ? null : _save,
-                      icon: _saving
-                          ? const SizedBox(
-                              width: 18,
-                              height: 18,
-                              child: CircularProgressIndicator(strokeWidth: 2),
-                            )
-                          : const Icon(Icons.check),
-                      label: const Text(
-                        'Salvar alterações',
-                        style: TextStyle(fontWeight: FontWeight.bold),
-                      ),
-                      style: ElevatedButton.styleFrom(
-                        elevation: 3,
-                        backgroundColor: colors.primary,
-                        foregroundColor: colors.onSecondary,
-                        disabledBackgroundColor: Colors.grey.shade300,
-                        disabledForegroundColor: Colors.grey.shade600,
-                        padding: const EdgeInsets.symmetric(vertical: 16),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(14),
-                        ),
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ),
         ),
       ),
     );
