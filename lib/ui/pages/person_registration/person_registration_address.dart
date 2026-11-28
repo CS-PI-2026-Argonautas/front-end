@@ -4,12 +4,17 @@ import 'package:flutter/services.dart';
 import 'package:frontend/fire_base/Enums/Uf.dart';
 import 'package:frontend/fire_base/models/address.dart';
 import 'package:frontend/fire_base/services/person_registration/uppercaser.dart';
+import 'package:frontend/ui/pages/dashboard.dart';
+import 'package:frontend/ui/pages/lists/item_list.dart';
+import 'package:frontend/ui/pages/lists/os_list_page.dart';
+import 'package:frontend/ui/pages/lists/service_list.dart';
 import 'package:frontend/ui/style/ColorScheme.dart' as custom_colors;
 import 'package:frontend/ui/style/inputDecorationStyles.dart';
 import 'package:frontend/ui/widgets/form/action_buttons.dart';
 import 'package:frontend/ui/widgets/form/form_card.dart';
 import 'package:frontend/ui/widgets/form/form_field_label.dart';
 import 'package:frontend/ui/widgets/appBar.dart';
+import 'package:frontend/ui/widgets/menu.dart';
 import 'package:http/http.dart' as http;
 
 class CepInputFormatter extends TextInputFormatter {
@@ -38,11 +43,13 @@ class CepInputFormatter extends TextInputFormatter {
 class PersonRegistrationAddress extends StatefulWidget {
   final Address? enderecoInicial;
   final String titulo;
+  final bool abertoPelaOS;
 
   const PersonRegistrationAddress({
     super.key,
     this.enderecoInicial,
     this.titulo = 'Endereço',
+    this.abertoPelaOS = false,
   });
 
   @override
@@ -180,6 +187,44 @@ class _PersonRegistration2State extends State<PersonRegistrationAddress> {
         onBack: () => Navigator.pop(context),
         title: widget.titulo,
       ),
+      endDrawer: widget.abertoPelaOS
+          ? null
+          : Menu(
+              currentIndex: 3,
+              onTap: (index) {
+                Navigator.pop(context);
+
+                if (index == 1) {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => const ItemList()),
+                  );
+                }
+
+                if (index == 2) {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => const OsListPage()),
+                  );
+                }
+
+                if (index == 3) {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => const ServiceList(),
+                    ),
+                  );
+                }
+
+                if (index == 4) {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => const Dashboard()),
+                  );
+                }
+              },
+            ),
       body: SafeArea(
         child: SingleChildScrollView(
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 18),
@@ -259,13 +304,13 @@ class _PersonRegistration2State extends State<PersonRegistrationAddress> {
         const FormFieldLabel(icon: Icons.home_outlined, label: "Logradouro *"),
 
         TextFormField(
-          controller: _ruaController,
-          decoration: customInputDecoration(
-            hintText: "Rua, avenida ou rodovia do endereço",
-          ),
-          validator: (value) =>
-              (value == null || value.trim().isEmpty) ? 'Informe a rua' : null,
-        ),
+  controller: _ruaController,
+  decoration: customInputDecoration(
+    hintText: "Rua, avenida ou rodovia do endereço",
+  ),
+  validator: (value) =>
+      (value == null || value.trim().isEmpty) ? 'Informe a rua' : null,
+),
 
         const FormFieldLabel(icon: Icons.numbers_outlined, label: "Número"),
 

@@ -33,7 +33,7 @@ class AddressRepository {
 
     final lista = snapshot.docs
         .map(Address.fromFirestore)
-        .where((e) => e.ativo)
+        .where((e) => e.active)
         .toList();
 
     lista.sort(

@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:frontend/fire_base/exceptions/login_exception.dart';
@@ -60,7 +61,9 @@ class AuthenticationService {
         surname: surname,
       );
 
-      final userRepository = AppUserRepository();
+      final userRepository = AppUserRepository(
+        firestore: FirebaseFirestore.instanceFor(app: app),
+      );
 
       try {
         await userRepository.save(user);
@@ -76,6 +79,16 @@ class AuthenticationService {
       await auth.signOut();
     }
   }
+  
+  Future<AppUser?> getLoggedUser() async {
+  final user = currentUser;
+
+  if (user == null) {
+    return null;
+  }
+
+  return await AppUserRepository().findById(user.uid);
+}
 
   Future<FirebaseApp> _accountCreationApp() async {
     for (final app in Firebase.apps) {

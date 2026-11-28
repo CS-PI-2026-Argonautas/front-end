@@ -7,7 +7,6 @@ import 'package:frontend/ui/pages/person_registration/person_registration.dart';
 import 'package:frontend/ui/pages/product_registration/product_registration.dart';
 import 'package:frontend/ui/style/ColorScheme.dart' as custom_Colors;
 import 'package:frontend/ui/widgets/menu.dart';
-import 'package:uuid/uuid.dart';
 
 class Dashboard extends StatelessWidget {
   const Dashboard({super.key});
@@ -15,8 +14,6 @@ class Dashboard extends StatelessWidget {
   void _abrir(BuildContext context, Widget pagina) {
     Navigator.push(context, MaterialPageRoute(builder: (_) => pagina));
   }
-
-  String _novoIdOrdemServico() => const Uuid().v4();
 
   void _aoSelecionarMenu(BuildContext context, int index) {
     Navigator.pop(context);
@@ -63,19 +60,18 @@ class Dashboard extends StatelessWidget {
         ),
         actions: [
           Builder(
-  builder: (context) => Padding(
-    padding: const EdgeInsets.only(right: 8),
-    child: TextButton.icon(
-      onPressed: () => Scaffold.of(context).openEndDrawer(),
-      label: const Text('Menu'),
-      icon: const Icon(Icons.menu),
-      iconAlignment: IconAlignment.end,
-      style: TextButton.styleFrom(
-        foregroundColor: colors.onPrimary,
-      ),
-    ),
-  ),
-),
+            builder: (context) => Padding(
+              padding: const EdgeInsets.only(right: 8),
+              child: TextButton.icon(
+                onPressed: () => Scaffold.of(context).openEndDrawer(),
+                icon: const Icon(Icons.menu),
+                label: const Text('Menu'),
+                style: TextButton.styleFrom(
+                  foregroundColor: colors.onPrimary,
+                ),
+              ),
+            ),
+          ),
         ],
         flexibleSpace: Container(
           decoration: BoxDecoration(
@@ -112,14 +108,14 @@ class Dashboard extends StatelessWidget {
                 ),
                 const SizedBox(height: 4),
 
-               
+                // Ação principal
                 _BotaoDashboard(
                   texto: 'Criar Ordem de Serviço',
                   icone: Icons.assignment,
                   preenchido: true,
                   onPressed: () => _abrir(
                     context,
-                    Tabbar(serviceOrderNumber: _novoIdOrdemServico()),
+                    const Tabbar(serviceOrderNumber: null),
                   ),
                 ),
 
@@ -140,7 +136,7 @@ class Dashboard extends StatelessWidget {
                 ),
                 _BotaoDashboard(
                   texto: 'Cadastrar Produto',
-                  icone: Icons.inventory_2,
+                  icone: Icons.add_box,
                   onPressed: () => _abrir(context, const ProductRegistration()),
                 ),
               ],

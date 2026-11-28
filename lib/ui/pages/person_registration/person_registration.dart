@@ -4,6 +4,9 @@ import 'package:frontend/fire_base/models/address.dart';
 import 'package:frontend/fire_base/Enums/PersonType.dart';
 import 'package:frontend/fire_base/models/contact.dart';
 import 'package:frontend/fire_base/services/client_service.dart';
+import 'package:frontend/ui/pages/lists/item_list.dart';
+import 'package:frontend/ui/pages/lists/os_list_page.dart';
+import 'package:frontend/ui/pages/lists/service_list.dart';
 import 'package:frontend/ui/pages/person_registration/person_registration_contact.dart';
 import 'package:frontend/ui/style/ColorScheme.dart' as custom_colors;
 import 'package:frontend/ui/pages/person_registration/person_registration_address.dart';
@@ -12,12 +15,18 @@ import 'package:frontend/ui/widgets/form/action_buttons.dart';
 import 'package:frontend/ui/widgets/form/form_card.dart';
 import 'package:frontend/ui/widgets/form/form_field_label.dart';
 import 'package:frontend/ui/widgets/fields/selection_field.dart';
+import 'package:frontend/ui/widgets/menu.dart';
 import 'package:mask_text_input_formatter/mask_text_input_formatter.dart';
 import 'package:frontend/ui/widgets/appBar.dart';
 
 class PersonRegistration extends StatefulWidget {
   final bool retornarDadosAoFechar;
-  const PersonRegistration({super.key, this.retornarDadosAoFechar = false});
+  final bool abertoPelaOS;
+  const PersonRegistration({
+    super.key,
+    this.retornarDadosAoFechar = false,
+    this.abertoPelaOS = false,
+  });
 
   @override
   State<PersonRegistration> createState() => _PersonRegistrationState1();
@@ -273,6 +282,8 @@ class _PersonRegistrationState1 extends State<PersonRegistration> {
         SelectionField<Address>(
           label: 'Endereço *',
           iconeLabel: Icons.home_outlined,
+          textoBotao: 'Cadastrar endereço',
+          iconeBotao: Icons.add,
           itens: _enderecos,
           tituloItem: (endereco) {
             final complementoStr = endereco.complement.trim().isNotEmpty
@@ -338,6 +349,8 @@ class _PersonRegistrationState1 extends State<PersonRegistration> {
         SelectionField<Contact>(
           label: 'Informações de contato *',
           iconeLabel: Icons.phone_android_outlined,
+          textoBotao: _contato == null ? 'Adicionar contato' : 'Alterar contato',
+          iconeBotao: _contato == null ? Icons.add : Icons.swap_horiz_outlined,
           itens: _contato != null ? [_contato!] : [],
           tituloItem: (contato) => contato.resumo,
           textoVazio: 'Nenhum contato adicionado.',

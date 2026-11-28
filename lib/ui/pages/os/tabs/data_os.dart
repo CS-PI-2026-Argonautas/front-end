@@ -1,131 +1,90 @@
 import 'package:flutter/material.dart';
+import 'package:frontend/fire_base/Enums/StatusOrderService.dart';
 import 'package:frontend/fire_base/services/client_service.dart';
 import 'package:frontend/fire_base/services/address_service.dart';
 import 'package:frontend/fire_base/models/address.dart';
+import 'package:frontend/fire_base/models/client.dart';
+import 'package:frontend/fire_base/models/os.dart';
+import 'package:frontend/ui/pages/os/service_order_state.dart';
 import 'package:frontend/ui/pages/person_registration/person_registration_address.dart';
 import 'package:frontend/ui/style/ColorScheme.dart' as custom_colors;
 import 'package:frontend/ui/style/inputDecorationStyles.dart';
 import 'package:frontend/ui/widgets/bottom_sheet/bottom_sheet.dart';
 import 'package:frontend/ui/widgets/fields/equipment_field.dart';
-import 'package:frontend/ui/widgets/fields/selection_field.dart';
-import 'package:frontend/ui/widgets/form/labeled_form.dart';
 import 'package:frontend/ui/widgets/form/section_label.dart';
-import 'package:frontend/utils/formatters/address_formatter.dart';
 import 'package:frontend/ui/pages/person_registration/person_registration.dart';
-import 'package:frontend/ui/pages/stand_in_page.dart';
 import 'package:frontend/fire_base/models/equipment.dart';
 import 'package:frontend/fire_base/services/equipment_service.dart';
 import 'package:frontend/ui/pages/equipment_data/equipment_data.dart';
 
 class DataOs extends StatefulWidget {
-  final DateTime? dataEntrada;
-  final DateTime? dataSaida;
-  final String? status;
-  final String? relatorio;
-
-  final ValueChanged<DateTime>? onDataEntradaChanged;
-  final ValueChanged<String>? onStatusChanged;
-  final ValueChanged<String>? onRelatorioChanged;
-  final ValueChanged<DateTime>? onDataSaidaChanged;
-  final ValueChanged<bool> onDadosObrigatoriosChanged;
-
+  final ServiceOrderState serviceOrderState;
+  final VoidCallback? onChanged;
   final VoidCallback? avancarTab;
+  final ValueChanged<bool> onDadosObrigatoriosChanged;
 
   const DataOs({
     super.key,
-    this.dataEntrada,
-    this.dataSaida,
-    this.status,
-    this.relatorio,
-    this.onDataEntradaChanged,
-    this.onStatusChanged,
-    this.onRelatorioChanged,
-    this.onDataSaidaChanged,
-    this.avancarTab,
+    required this.serviceOrderState,
     required this.onDadosObrigatoriosChanged,
+    this.onChanged,
+    this.avancarTab,
   });
 
   @override
   State<DataOs> createState() => _DataOsState();
 }
 
-class _DataOsState extends State<DataOs> with AutomaticKeepAliveClientMixin {
-  // Mantém os dados preenchidos ao trocar de aba.
+class _DataOsState extends State<DataOs>
+    with AutomaticKeepAliveClientMixin<DataOs> {
   @override
   bool get wantKeepAlive => true;
 
-  Map<String, dynamic> _montarDadosOs() {
-    return {
-      'status': status,
-      'dataEntrada': dataEntrada,
-      'dataSaida': dataSaida,
-      'relatorio': relatorio,
-      'cliente': clienteSelecionado,
-      'endereco': _enderecoSelecionado,
-      'equipamento': _equipamentoSelecionado,
-    };
+  ServiceOrder get _os => widget.serviceOrderState.serviceOrder;
+
+  void _editarOs(void Function(ServiceOrder) editar) {
+    setState(() => widget.serviceOrderState.applyUserEdit(editar));
   }
 
-  final EquipmentService _equipamentoService = EquipmentService();
   final colors = custom_colors.colorScheme;
-
+  final EquipmentService _equipamentoService = EquipmentService();
   final AddressService _enderecoService = AddressService();
-  Address? _enderecoSelecionado;
-
   final ClientService _clienteService = ClientService();
-  List<Map<String, dynamic>> clientesDisponiveis = [];
-  Map<String, dynamic>? clienteSelecionado;
-
-  dynamic _equipamentoSelecionado;
-
-  bool get _formHabilitado => clienteSelecionado != null;
-
-  late DateTime dataEntrada;
-  DateTime? dataSaida;
-  late String status;
-  late String relatorio;
-
   final _relatorioController = TextEditingController();
 
-  bool get _formValido {
-    return clienteSelecionado != null &&
-        _enderecoSelecionado != null &&
-        _equipamentoSelecionado != null &&
-        relatorio.trim().isNotEmpty;
-  }
-
-  bool get _dadosObrigatoriosPreenchidos {
-    return clienteSelecionado != null &&
-        _enderecoSelecionado != null &&
-        _equipamentoSelecionado != null;
-  }
-
-  void _verificarDadosObrigatorios() {
-    widget.onDadosObrigatoriosChanged(_dadosObrigatoriosPreenchidos);
-  }
+  List<Client> clientesDisponiveis = [];
 
   static const editableStatuses = [
-    'CANCELADA',
-    'EM_CONSERTO',
-    'EM_ORCAMENTO',
-    'ENTREGUE',
-    'PAGA',
+    ServiceOrderStatus.CANCELADA,
+    ServiceOrderStatus.EM_CONSERTO,
+    ServiceOrderStatus.EM_ORCAMENTO,
+    ServiceOrderStatus.ENTREGUE,
+    ServiceOrderStatus.PAGA,
   ];
+
+  bool get _formHabilitado => _os.client != null;
+
+  bool get _formValido =>
+      _os.client != null &&
+      _os.serviceAddress != null &&
+      _os.equipment != null &&
+      !_os.equipment!.isEmpty;
+
+  bool get _equipamentoBloqueado => _os.equipmentBlocked;
+
+  void _notificar() {
+    widget.onDadosObrigatoriosChanged(_formValido);
+    widget.onChanged?.call();
+  }
 
   @override
   void initState() {
     super.initState();
 
-    dataEntrada = widget.dataEntrada ?? DateTime.now();
-    dataSaida = widget.dataSaida;
-
-    status = widget.status ?? 'EM_CONSERTO';
-
-    relatorio = widget.relatorio ?? '';
-    _relatorioController.text = relatorio;
+    _relatorioController.text = _os.report;
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      _verificarDadosObrigatorios();
+      if (mounted) _notificar();
     });
 
     _carregarClientes();
@@ -137,35 +96,72 @@ class _DataOsState extends State<DataOs> with AutomaticKeepAliveClientMixin {
     super.dispose();
   }
 
-  @override
-  void didUpdateWidget(covariant DataOs oldWidget) {
-    super.didUpdateWidget(oldWidget);
+  Map<String, dynamic> _montarDadosOs() {
+    return {
+      'status': _os.status.name,
+      'equipamento_bloqueado': _equipamentoBloqueado,
+      'dataEntrada': _os.entryDate,
+      'dataSaida': _os.exitDate,
+      'relatorio': _os.report,
+      'cliente': _os.client?.toFirestore(),
+      'endereco': _os.serviceAddress?.toFirestore(),
+      'equipamento': _os.equipment?.toFirestore(),
+    };
+  }
 
-    if (widget.status != oldWidget.status && widget.status != null) {
-      setState(() {
-        status = widget.status!;
-      });
+  ServiceOrderEquipment _equipamentoDe(Object? dados) {
+    if (dados is ServiceOrderEquipment) {
+      return dados;
     }
+
+    if (dados is Equipment) {
+      return ServiceOrderEquipment(
+        brand: dados.brand,
+        model: dados.model,
+        serialNumber: dados.serialNumber,
+      );
+    }
+
+    return ServiceOrderEquipment.fromMap(
+      Map<String, dynamic>.from(dados as Map),
+    );
+  }
+
+  Map<String, dynamic>? get _equipamentoParaSecao {
+    final equipamento = _os.equipment;
+
+    if (equipamento == null || equipamento.isEmpty) {
+      return null;
+    }
+
+    return equipamento.toFirestore();
+  }
+
+  String _formatarEnderecoServico(ServiceAddress e) {
+    final numero = (e.number == null || e.number!.isEmpty)
+        ? ''
+        : ', ${e.number}';
+
+    final complemento = (e.complement == null || e.complement!.isEmpty)
+        ? ''
+        : ', ${e.complement}';
+
+    return '${e.street}$numero$complemento - ${e.city}/${e.state}';
   }
 
   bool _validarFormulario() {
-    if (clienteSelecionado == null) {
+    if (_os.client == null) {
       _mostrarErro('Selecione um cliente.');
       return false;
     }
 
-    if (_enderecoSelecionado == null) {
+    if (_os.serviceAddress == null) {
       _mostrarErro('Selecione um endereço.');
       return false;
     }
 
-    if (_equipamentoSelecionado == null) {
-      _mostrarErro('Selecione ou cadastre um equipamento.');
-      return false;
-    }
-
-    if (relatorio.trim().isEmpty) {
-      _mostrarErro('Preencha o relatório da ordem de serviço.');
+    if (_os.equipment == null || _os.equipment!.isEmpty) {
+      _mostrarErro('Selecione um equipamento.');
       return false;
     }
 
@@ -185,9 +181,7 @@ class _DataOsState extends State<DataOs> with AutomaticKeepAliveClientMixin {
       if (!mounted) return;
 
       setState(() {
-        clientesDisponiveis = clientes.map((c) {
-          return {'id': c.id, 'name': c.name, 'phone': c.contact.phone};
-        }).toList();
+        clientesDisponiveis = clientes;
       });
     } catch (e) {
       debugPrint('Erro ao carregar clientes: $e');
@@ -198,22 +192,43 @@ class _DataOsState extends State<DataOs> with AutomaticKeepAliveClientMixin {
     }
   }
 
-  Future<void> _abrirCadastroEquipamento([dynamic equipamentoInicial]) async {
+  void _selecionarCliente(Client cliente) {
+    _editarOs((os) => os.setClient(cliente));
+
+    _notificar();
+  }
+
+  Future<void> _abrirCadastroEquipamento() async {
     final resultado = await Navigator.push<dynamic>(
       context,
       MaterialPageRoute(
         builder: (routeContext) => EquipmentData(
           osDados: _montarDadosOs(),
-          onSubmit: (dados) => Navigator.pop(routeContext, dados),
+          onSubmit: (dados) {
+            Navigator.pop(routeContext, dados);
+          },
         ),
       ),
     );
 
-    if (resultado != null && mounted) {
-      setState(() => _equipamentoSelecionado = resultado);
+    if (!mounted || resultado == null) return;
 
-      _verificarDadosObrigatorios();
-    }
+    _associarEquipamento(resultado);
+  }
+
+  bool _podeTrocarEquipamento() {
+    if (!_equipamentoBloqueado) return true;
+
+    _mostrarErro('Não é possível trocar um equipamento bloqueado.');
+    return false;
+  }
+
+  void _associarEquipamento(Object equipamento) {
+    if (!_podeTrocarEquipamento()) return;
+
+    _editarOs((os) => os.equipment = _equipamentoDe(equipamento));
+
+    _notificar();
   }
 
   Future<void> _confirmarEdicaoEquipamento(dynamic equipamento) async {
@@ -242,10 +257,12 @@ class _DataOsState extends State<DataOs> with AutomaticKeepAliveClientMixin {
 
     if (!confirmou || !mounted) return;
 
-    await _abrirCadastroEquipamento(equipamento);
+    await _abrirCadastroEquipamento();
   }
 
   Future<void> _buscarEquipamento() async {
+    if (!_podeTrocarEquipamento()) return;
+
     final List<Equipment> equipamentos;
 
     try {
@@ -257,7 +274,7 @@ class _DataOsState extends State<DataOs> with AutomaticKeepAliveClientMixin {
       return;
     }
 
-    if (!mounted) return;
+    if (!mounted || !_podeTrocarEquipamento()) return;
 
     showModalBottomSheet(
       context: context,
@@ -276,23 +293,13 @@ class _DataOsState extends State<DataOs> with AutomaticKeepAliveClientMixin {
           itemSubtitle: (e) => 'Nº série ${e.serialNumber}',
           itemIcon: Icons.scale_outlined,
           loading: false,
-
           onAction: () {
             Navigator.pop(sheetContext);
+            if (!_podeTrocarEquipamento()) return;
             _abrirCadastroEquipamento();
           },
-
           onSelect: (e) {
-            setState(() {
-              _equipamentoSelecionado = {
-                'id': e.id,
-                'marca': e.brand,
-                'modelo': e.model,
-              };
-            });
-
-            _verificarDadosObrigatorios();
-
+            _associarEquipamento(e);
             Navigator.pop(sheetContext);
           },
         );
@@ -349,7 +356,7 @@ class _DataOsState extends State<DataOs> with AutomaticKeepAliveClientMixin {
   Future<void> _selecionarDataEntrada() async {
     final selecionada = await showDatePicker(
       context: context,
-      initialDate: dataEntrada,
+      initialDate: _os.entryDate,
       firstDate: DateTime(2000),
       lastDate: DateTime.now().add(const Duration(days: 365)),
       helpText: 'Selecione a data de entrada',
@@ -357,21 +364,17 @@ class _DataOsState extends State<DataOs> with AutomaticKeepAliveClientMixin {
       confirmText: 'Selecionar',
     );
 
-    if (selecionada == null) return;
+    if (selecionada == null || !mounted) return;
 
-    setState(() {
-      dataEntrada = selecionada;
-    });
+    _editarOs((os) => os.entryDate = selecionada);
 
-    widget.onDataEntradaChanged?.call(selecionada);
+    widget.onChanged?.call();
   }
 
   Future<void> _alterarDataSaida() async {
-    final dataInicial = dataSaida ?? DateTime.now();
-
     final selecionada = await showDatePicker(
       context: context,
-      initialDate: dataInicial,
+      initialDate: _os.exitDate ?? DateTime.now(),
       firstDate: DateTime(2000),
       lastDate: DateTime.now().add(const Duration(days: 365)),
       helpText: 'Alterar data de saída',
@@ -379,32 +382,25 @@ class _DataOsState extends State<DataOs> with AutomaticKeepAliveClientMixin {
       confirmText: 'Salvar',
     );
 
-    if (selecionada == null) return;
+    if (selecionada == null || !mounted) return;
 
-    setState(() {
-      dataSaida = selecionada;
-    });
+    _editarOs((os) => os.exitDate = selecionada);
 
-    widget.onDataSaidaChanged?.call(selecionada);
+    widget.onChanged?.call();
 
     if (mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Data de saída alterada com sucesso.'),
-          behavior: SnackBarBehavior.floating,
-        ),
-      );
+      _mostrarErro('Data de saída alterada com sucesso.');
     }
   }
 
   Future<void> _editarRelatorio() async {
-    _relatorioController.text = relatorio;
+    _relatorioController.text = _os.report;
 
     await showModalBottomSheet(
       context: context,
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
-      builder: (context) {
+      builder: (modalContext) {
         return StatefulBuilder(
           builder: (context, setModalState) {
             return Padding(
@@ -461,7 +457,7 @@ class _DataOsState extends State<DataOs> with AutomaticKeepAliveClientMixin {
                         controller: _relatorioController,
                         autofocus: true,
                         maxLines: 7,
-                        maxLength: 256,
+                        maxLength: ServiceOrder.reportLimit,
                         textCapitalization: TextCapitalization.sentences,
                         decoration:
                             customInputDecoration(
@@ -475,17 +471,17 @@ class _DataOsState extends State<DataOs> with AutomaticKeepAliveClientMixin {
                         onChanged: (value) {
                           setModalState(() {});
 
-                          setState(() {
-                            relatorio = value;
-                          });
+                          _editarOs((os) => os.report = value);
 
-                          widget.onRelatorioChanged?.call(value);
+                          widget.onChanged?.call();
                         },
                       ),
                       SizedBox(
                         width: double.infinity,
                         child: ElevatedButton.icon(
-                          onPressed: () => Navigator.pop(context),
+                          onPressed: () {
+                            Navigator.pop(modalContext);
+                          },
                           icon: const Icon(Icons.check),
                           label: const Text(
                             'Concluir edição',
@@ -513,7 +509,9 @@ class _DataOsState extends State<DataOs> with AutomaticKeepAliveClientMixin {
     );
   }
 
-  void _abrirListaClientes() {
+  Future<void> _abrirListaClientes() async {
+    if (!mounted) return;
+
     showModalBottomSheet(
       context: context,
       backgroundColor: colors.surface,
@@ -521,45 +519,75 @@ class _DataOsState extends State<DataOs> with AutomaticKeepAliveClientMixin {
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
       ),
-      builder: (context) {
-        return SelectionBottomSheet<Map<String, dynamic>>(
+      builder: (sheetContext) {
+        return SelectionBottomSheet<Client>(
           title: 'Selecionar cliente',
           items: clientesDisponiveis,
           searchText: 'Procurar cliente',
           actionText: 'Novo cliente',
-          itemTitle: (cliente) => cliente['name'].toString(),
-          itemSubtitle: (cliente) => cliente['phone'].toString(),
+          itemTitle: (c) => c.name,
+          itemSubtitle: (c) => c.contact.phone,
           itemIcon: Icons.person_outline,
           loading: false,
           onAction: () async {
-            Navigator.pop(context);
+            Navigator.pop(sheetContext);
 
-            final novoCliente = await Navigator.push<Map<String, dynamic>>(
+            final retorno = await Navigator.push<dynamic>(
               context,
               MaterialPageRoute(
-                builder: (context) =>
-                    const PersonRegistration(retornarDadosAoFechar: true),
+                builder: (_) => const PersonRegistration(
+                  retornarDadosAoFechar: true,
+                  abertoPelaOS: true,
+                ),
               ),
             );
 
-            if (novoCliente != null) {
+            if (retorno == null || !mounted) return;
+
+            final idCliente = retorno is Map ? retorno['id']?.toString() : null;
+
+            if (idCliente == null || idCliente.isEmpty) {
+              _mostrarErro(
+                'Não foi possível identificar o cliente cadastrado.',
+              );
+              return;
+            }
+
+            try {
+              final clientes = await _clienteService.listar();
+
+              if (!mounted) return;
+
               setState(() {
-                clientesDisponiveis.add(novoCliente);
-                clienteSelecionado = novoCliente;
-                _enderecoSelecionado = null;
+                clientesDisponiveis = clientes;
               });
-              _verificarDadosObrigatorios();
+
+              Client? clienteEncontrado;
+
+              for (final cliente in clientes) {
+                if (cliente.id.toString() == idCliente) {
+                  clienteEncontrado = cliente;
+                  break;
+                }
+              }
+
+              if (clienteEncontrado == null) {
+                _mostrarErro('Cliente cadastrado não foi encontrado.');
+                return;
+              }
+
+              _selecionarCliente(clienteEncontrado);
+            } catch (e) {
+              debugPrint('Erro ao atualizar clientes: $e');
+
+              if (mounted) {
+                _mostrarErro('Não foi possível atualizar a lista de clientes.');
+              }
             }
           },
           onSelect: (cliente) {
-            setState(() {
-              clienteSelecionado = cliente;
-              _enderecoSelecionado = null;
-            });
-
-            _verificarDadosObrigatorios();
-
-            Navigator.pop(context);
+            _selecionarCliente(cliente);
+            Navigator.pop(sheetContext);
           },
         );
       },
@@ -567,22 +595,20 @@ class _DataOsState extends State<DataOs> with AutomaticKeepAliveClientMixin {
   }
 
   Future<void> _abrirListaEnderecos() async {
+    final cliente = _os.client;
+
+    if (cliente == null) return;
+
     final List<Address> enderecos;
 
     try {
-      enderecos = await _enderecoService.listar(
-        clienteSelecionado!['id'].toString(),
-      );
+      enderecos = await _enderecoService.getByClientId(cliente.id.toString());
     } catch (e) {
+      debugPrint('Erro ao carregar endereços: $e');
+
       if (!mounted) return;
 
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Não foi possível carregar os endereços.'),
-          behavior: SnackBarBehavior.floating,
-        ),
-      );
-
+      _mostrarErro('Não foi possível carregar os endereços.');
       return;
     }
 
@@ -595,52 +621,52 @@ class _DataOsState extends State<DataOs> with AutomaticKeepAliveClientMixin {
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
       ),
-      builder: (context) {
+      builder: (sheetContext) {
         return SelectionBottomSheet<Address>(
           title: 'Selecionar endereço',
           items: enderecos,
           searchText: 'Procurar endereço',
           actionText: 'Novo endereço',
-          itemTitle: (endereco) =>
-              '${endereco.publicPlace}, ${endereco.number}, '
-              '${endereco.complement}',
-          itemSubtitle: (endereco) =>
-              '${endereco.city} - ${endereco.uf.name}'
-              '${endereco.zipCode.isEmpty ? '' : ' • CEP ${endereco.zipCode}'}',
+          itemTitle: (e) => '${e.publicPlace}, ${e.number}, ${e.complement}',
+          itemSubtitle: (e) =>
+              '${e.city} - ${e.uf.name}'
+              '${e.zipCode.isEmpty ? '' : ' • CEP ${e.zipCode}'}',
           itemIcon: Icons.location_on_outlined,
           loading: false,
           onAction: () async {
-            Navigator.pop(context);
+            Navigator.pop(sheetContext);
 
             final novo = await Navigator.push<Address>(
               context,
               MaterialPageRoute(
-                builder: (_) => const PersonRegistrationAddress(),
+                builder: (_) =>
+                    const PersonRegistrationAddress(abertoPelaOS: true),
               ),
             );
 
-            if (novo == null) return;
-            final salvo = await _enderecoService.salvar(
-              clienteSelecionado!['id'].toString(),
-              novo,
-            );
+            if (novo == null || !mounted) return;
 
-            if (!mounted) return;
+            try {
+              await _enderecoService.save(cliente.id.toString(), novo);
 
-            setState(() {
-              _enderecoSelecionado = novo;
-            });
+              if (!mounted) return;
 
-            _verificarDadosObrigatorios();
+              _editarOs((os) => os.setServiceAddress(novo));
+
+              _notificar();
+            } catch (e) {
+              debugPrint('Erro ao salvar endereço: $e');
+
+              if (mounted) {
+                _mostrarErro('Não foi possível salvar o endereço.');
+              }
+            }
           },
           onSelect: (endereco) {
-            setState(() {
-              _enderecoSelecionado = endereco;
-            });
+            _editarOs((os) => os.setServiceAddress(endereco));
 
-            _verificarDadosObrigatorios();
-
-            Navigator.pop(context);
+            _notificar();
+            Navigator.pop(sheetContext);
           },
         );
       },
@@ -650,8 +676,14 @@ class _DataOsState extends State<DataOs> with AutomaticKeepAliveClientMixin {
   @override
   Widget build(BuildContext context) {
     super.build(context);
+
     return SingleChildScrollView(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 18),
+      padding: EdgeInsets.only(
+        left: 16,
+        right: 16,
+        top: 18,
+        bottom: MediaQuery.of(context).viewInsets.bottom + 18,
+      ),
       child: Center(
         child: ConstrainedBox(
           constraints: const BoxConstraints(maxWidth: 650),
@@ -662,6 +694,8 @@ class _DataOsState extends State<DataOs> with AutomaticKeepAliveClientMixin {
   }
 
   Widget _buildFormCard() {
+    final relatorio = _os.report;
+
     return Card(
       color: Colors.white,
       elevation: 8,
@@ -684,28 +718,26 @@ class _DataOsState extends State<DataOs> with AutomaticKeepAliveClientMixin {
               icon: Icons.person_outline,
             ),
             _buildClienteSelecionado(),
-
             _buildClienteEnderecoLabel(
               'Endereço*',
-              onAdd: clienteSelecionado == null ? null : _abrirListaEnderecos,
+              onAdd: _os.client == null ? null : _abrirListaEnderecos,
               addLabel: 'Adicionar Endereço',
               icon: Icons.home_outlined,
               dicaDesabilitado: 'Selecione um cliente primeiro.',
             ),
             _buildEnderecoSelecionado(),
-
             EquipmentSection(
-              equipamento: _equipamentoSelecionado,
+              equipamento: _equipamentoParaSecao,
               onBuscar: _buscarEquipamento,
-              onOpenCadastro: () =>
-                  _abrirCadastroEquipamento(_equipamentoSelecionado),
+              onOpenCadastro: _abrirCadastroEquipamento,
               onEdit: _confirmarEdicaoEquipamento,
             ),
-
             if (!_formHabilitado) _buildAvisoSelecioneCliente(),
-
-            if (_formHabilitado)
-              Column(
+            Opacity(
+              opacity: _formHabilitado ? 1.0 : 0.4,
+              child: AbsorbPointer(
+                absorbing: !_formHabilitado,
+                child: Column(
                   spacing: 18,
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
@@ -745,7 +777,7 @@ class _DataOsState extends State<DataOs> with AutomaticKeepAliveClientMixin {
                                             ),
                                       ),
                                   child: Text(
-                                    _formatDate(dataEntrada),
+                                    _formatDate(_os.entryDate),
                                     style: const TextStyle(fontSize: 14),
                                   ),
                                 ),
@@ -772,7 +804,7 @@ class _DataOsState extends State<DataOs> with AutomaticKeepAliveClientMixin {
                                       ).copyWith(
                                         filled: true,
                                         fillColor: colors.surfaceContainerLow,
-                                        suffixIcon: dataSaida == null
+                                        suffixIcon: _os.exitDate == null
                                             ? Icon(
                                                 Icons.hourglass_empty,
                                                 color: Colors.blueGrey.shade400,
@@ -790,12 +822,12 @@ class _DataOsState extends State<DataOs> with AutomaticKeepAliveClientMixin {
                                             ),
                                       ),
                                   child: Text(
-                                    dataSaida == null
+                                    _os.exitDate == null
                                         ? 'Indefinida'
-                                        : _formatDate(dataSaida),
+                                        : _formatDate(_os.exitDate),
                                     style: TextStyle(
                                       fontSize: 14,
-                                      color: dataSaida == null
+                                      color: _os.exitDate == null
                                           ? Colors.blueGrey.shade600
                                           : colors.onSurface,
                                     ),
@@ -807,7 +839,7 @@ class _DataOsState extends State<DataOs> with AutomaticKeepAliveClientMixin {
                         ),
                       ],
                     ),
-                    if (dataSaida != null) ...[
+                    if (_os.exitDate != null)
                       Row(
                         spacing: 6,
                         children: [
@@ -825,7 +857,6 @@ class _DataOsState extends State<DataOs> with AutomaticKeepAliveClientMixin {
                           ),
                         ],
                       ),
-                    ],
                     _buildFieldLabel(Icons.sync_alt, 'Status'),
                     _buildStatusField(),
                     _buildFieldLabel(Icons.description_outlined, 'Relatório *'),
@@ -887,7 +918,7 @@ class _DataOsState extends State<DataOs> with AutomaticKeepAliveClientMixin {
                       ),
                     ),
                     Text(
-                      '${relatorio.length}/256 caracteres',
+                      '${relatorio.length}/${ServiceOrder.reportLimit} caracteres',
                       style: TextStyle(
                         fontSize: 12,
                         color: colors.onSurfaceVariant,
@@ -896,11 +927,12 @@ class _DataOsState extends State<DataOs> with AutomaticKeepAliveClientMixin {
                     SizedBox(
                       width: double.infinity,
                       child: ElevatedButton.icon(
-                        onPressed: () {
-                          if (!_validarFormulario()) return;
-
-                          widget.avancarTab?.call();
-                        },
+                        onPressed: _formValido
+                            ? () {
+                                if (!_validarFormulario()) return;
+                                widget.avancarTab?.call();
+                              }
+                            : null,
                         icon: const Icon(Icons.build),
                         label: const Text(
                           'Adicionar Peças',
@@ -934,6 +966,8 @@ class _DataOsState extends State<DataOs> with AutomaticKeepAliveClientMixin {
                     ),
                   ],
                 ),
+              ),
+            ),
           ],
         ),
       ),
@@ -975,7 +1009,6 @@ class _DataOsState extends State<DataOs> with AutomaticKeepAliveClientMixin {
               ),
           ],
         ),
-        // Explica por que o botão está desabilitado.
         if (onAdd == null && dicaDesabilitado != null)
           Text(
             dicaDesabilitado,
@@ -986,7 +1019,9 @@ class _DataOsState extends State<DataOs> with AutomaticKeepAliveClientMixin {
   }
 
   Widget _buildClienteSelecionado() {
-    if (clienteSelecionado == null) {
+    final cliente = _os.client;
+
+    if (cliente == null) {
       return const SizedBox.shrink();
     }
 
@@ -1014,7 +1049,7 @@ class _DataOsState extends State<DataOs> with AutomaticKeepAliveClientMixin {
                 ),
                 const SizedBox(height: 2),
                 Text(
-                  clienteSelecionado!['name'],
+                  cliente.name,
                   style: TextStyle(
                     color: colors.onSurface,
                     fontSize: 16,
@@ -1035,7 +1070,7 @@ class _DataOsState extends State<DataOs> with AutomaticKeepAliveClientMixin {
   }
 
   Widget _buildEnderecoSelecionado() {
-    final endereco = _enderecoSelecionado;
+    final endereco = _os.serviceAddress;
 
     if (endereco == null) {
       return const SizedBox.shrink();
@@ -1065,7 +1100,7 @@ class _DataOsState extends State<DataOs> with AutomaticKeepAliveClientMixin {
                 ),
                 const SizedBox(height: 2),
                 Text(
-                  formatarEndereco(endereco),
+                  _formatarEnderecoServico(endereco),
                   style: TextStyle(
                     color: colors.onSurface,
                     fontSize: 16,
@@ -1114,13 +1149,19 @@ class _DataOsState extends State<DataOs> with AutomaticKeepAliveClientMixin {
       spacing: 6,
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(
-          title,
-          style: TextStyle(
-            fontSize: 20,
-            fontWeight: FontWeight.bold,
-            color: colors.onSurface,
-          ),
+        Row(
+          children: [
+            Icon(Icons.description, color: colors.secondary),
+            const SizedBox(width: 8),
+            Text(
+              title,
+              style: TextStyle(
+                fontSize: 20,
+                fontWeight: FontWeight.bold,
+                color: colors.onSurface,
+              ),
+            ),
+          ],
         ),
         Text(
           subtitle,
@@ -1148,7 +1189,17 @@ class _DataOsState extends State<DataOs> with AutomaticKeepAliveClientMixin {
   }
 
   Widget _buildStatusField() {
-    if (status == 'CONCLUIDA') {
+    final status = _os.status;
+
+    final opcoes = ServiceOrderStatus.values
+        .where(
+          (s) =>
+              s != ServiceOrderStatus.CONCLUIDA ||
+              status == ServiceOrderStatus.CONCLUIDA,
+        )
+        .toList();
+
+    if (!editableStatuses.contains(status)) {
       return InputDecorator(
         decoration: customInputDecoration(hintText: 'Status').copyWith(
           filled: true,
@@ -1165,13 +1216,13 @@ class _DataOsState extends State<DataOs> with AutomaticKeepAliveClientMixin {
               width: 9,
               height: 9,
               decoration: BoxDecoration(
-                color: _statusColor(status),
+                color: _statusColor(status.name),
                 shape: BoxShape.circle,
               ),
             ),
             const SizedBox(width: 8),
             Text(
-              _statusLabel(status),
+              _statusLabel(status.name),
               style: TextStyle(
                 fontSize: 14,
                 color: colors.onSurface,
@@ -1183,23 +1234,24 @@ class _DataOsState extends State<DataOs> with AutomaticKeepAliveClientMixin {
       );
     }
 
-    return DropdownButtonFormField<String>(
+    return DropdownButtonFormField<ServiceOrderStatus>(
       value: status,
       decoration: customInputDecoration(hintText: 'Selecione o status'),
-      items: editableStatuses.map((value) {
-        final color = _statusColor(value);
-
-        return DropdownMenuItem<String>(
+      items: opcoes.map((value) {
+        return DropdownMenuItem<ServiceOrderStatus>(
           value: value,
           child: Row(
             children: [
               Container(
                 width: 9,
                 height: 9,
-                decoration: BoxDecoration(color: color, shape: BoxShape.circle),
+                decoration: BoxDecoration(
+                  color: _statusColor(value.name),
+                  shape: BoxShape.circle,
+                ),
               ),
               const SizedBox(width: 6),
-              Text(_statusLabel(value)),
+              Text(_statusLabel(value.name)),
             ],
           ),
         );
@@ -1207,34 +1259,10 @@ class _DataOsState extends State<DataOs> with AutomaticKeepAliveClientMixin {
       onChanged: (value) {
         if (value == null) return;
 
-        setState(() {
-          status = value;
-        });
+        _editarOs((os) => os.changeStatus(value));
 
-        widget.onStatusChanged?.call(value);
+        widget.onChanged?.call();
       },
     );
   }
-}
-
-Widget _buildSectionTitle(String title, String subtitle) {
-  final colors = custom_colors.colorScheme;
-  return Column(
-    spacing: 6,
-    crossAxisAlignment: CrossAxisAlignment.start,
-    children: [
-      Text(
-        title,
-        style: TextStyle(
-          fontSize: 20,
-          fontWeight: FontWeight.bold,
-          color: colors.onSurface,
-        ),
-      ),
-      Text(
-        subtitle,
-        style: TextStyle(fontSize: 14, color: colors.onSurfaceVariant),
-      ),
-    ],
-  );
 }

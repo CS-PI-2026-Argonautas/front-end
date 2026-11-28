@@ -1,0 +1,110 @@
+rules_version = '2';
+
+// RODAR:
+// firebase deploy --only firestore:rules
+// PARA PERSISTIR AS MUDANÇAS DAS REGRAS
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // =================================== Funções auxiliares ======================
+
+    function autenticado() {
+      return request.auth != null;
+    }
+
+    // Documento como fica DEPOIS da gravação
+    function novo() {
+      return request.resource.data;
+    }
+
+    // Documento como estava ANTES da gravação
+    function antigo() {
+      return resource.data;
+    }
+
+    // Na criação: created_at e updated_at precisam vir do servidor
+    // (FieldValue.serverTimestamp() no app chega aqui igual a request.time)
+    function auditoriaNaCriacao() {
+      return novo().created_at == request.time
+        && novo().updated_at == request.time;
+    }
+
+    // Na alteração: created_at não muda e updated_at é renovado pelo servidor
+    // Isso cobre "recusa gravação sem updated_at": um update que não manda
+    // updated_at fica com o valor antigo, que é diferente de request.time
+    function auditoriaNaAlteracao() {
+      return novo().get('created_at', null) is timestamp
+        && novo().created_at == antigo().get('created_at', null)
+        && novo().updated_at == request.time;
+    }
+
+    function podeCriar() {
+      return autenticado() && auditoriaNaCriacao();
+    }
+
+    function podeAlterar() {
+      return autenticado() && auditoriaNaAlteracao();
+    }
+
+    // data_saida preenchida não pode voltar para nula (nem ser removida)
+    function dataSaidaNaoZerada() {
+      return antigo().get('data_saida', null) == null
+        || novo().get('data_saida', null) != null;
+    }
+
+    // ================= Coleções ==================
+
+    match /clients/{clienteId} {
+      allow read: if autenticado();
+      allow create: if podeCriar();
+      allow update: if podeAlterar();
+      allow delete: if false;
+
+      match /addresses/{enderecoId} {
+        allow read: if autenticado();
+        allow create: if podeCriar();
+        allow update: if podeAlterar();
+        allow delete: if false;
+      }
+    }
+
+    match /itens/{itemId} {
+      allow read: if autenticado();
+      allow create: if podeCriar();
+      allow update: if podeAlterar();
+      allow delete: if false;
+    }
+
+    match /services/{servicoId} {
+      allow read: if autenticado();
+      allow create: if podeCriar();
+      allow update: if podeAlterar();
+      allow delete: if false;
+    }
+
+    match /service_orders/{osId} {
+      allow read: if autenticado();
+      allow create: if podeCriar();
+      allow update: if podeAlterar() && dataSaidaNaoZerada();
+      allow delete: if false;
+    }
+
+    // Contador sequencial do número da OS (atualizado em transação)
+    match /counters/{contadorId} {
+      allow read, create, update: if autenticado();
+      allow delete: if false;
+    }
+
+    // Equipamentos: o app só cria e lista (sem updated_at no modelo)
+    match /equipments/{equipamentoId} {
+      allow read, create, update: if autenticado();
+      allow delete: if false;
+    }
+
+    match /users/{uid} {
+      allow read, create, update: if autenticado() && request.auth.uid == uid;
+      allow delete: if false;
+    }
+  }
+}

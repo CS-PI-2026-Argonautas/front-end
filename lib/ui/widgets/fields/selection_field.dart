@@ -46,10 +46,9 @@ class SelectionField<T> extends StatelessWidget {
       children: [
         LayoutBuilder(
           builder: (context, constraints) {
-            // Se a largura disponível for menor que 320px, muda para Column
-            final bool eTelaPequena = constraints.maxWidth < 320;
+            final larguraMinima = (textoBotao?.isNotEmpty ?? false) ? 420 : 320;
 
-            if (eTelaPequena) {
+            if (constraints.maxWidth < larguraMinima) {
               return Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -131,7 +130,7 @@ class SelectionField<T> extends StatelessWidget {
     return ElevatedButton.icon(
       onPressed: onPressed,
       icon: Icon(iconeBotao, size: 18),
-      label: Text(textoBotao!, maxLines: 1, overflow: TextOverflow.ellipsis),
+      label: Text(textoBotao!),
       style: ElevatedButton.styleFrom(
         backgroundColor: colors.secondary,
         foregroundColor: Colors.white,
