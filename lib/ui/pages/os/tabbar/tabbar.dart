@@ -1,6 +1,9 @@
+
 import 'dart:async';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+
 import 'package:frontend/fire_base/models/os.dart';
 import 'package:frontend/fire_base/Enums/StatusOrderService.dart';
 import 'package:frontend/fire_base/repositories/os_repository.dart';
@@ -25,7 +28,8 @@ class Tabbar extends StatefulWidget {
   State<Tabbar> createState() => _TabbarState();
 }
 
-class _TabbarState extends State<Tabbar> with SingleTickerProviderStateMixin {
+class _TabbarState extends State<Tabbar>
+    with SingleTickerProviderStateMixin {
   final colors = custom_colors.colorScheme;
 
   final OsRepository _osRepository = FirestoreOsRepository();
@@ -51,7 +55,10 @@ class _TabbarState extends State<Tabbar> with SingleTickerProviderStateMixin {
   String get _titulo {
     final rawNumero = _serviceOrder.numeroOs ?? widget.serviceOrderNumber;
     final numero = rawNumero?.toString().trim() ?? '';
-    return (numero.isEmpty || numero == '-1') ? 'Nova OS' : 'OS nº $numero';
+
+    return (numero.isEmpty || numero == '-1')
+        ? 'Nova OS'
+        : 'OS nº $numero';
   }
 
   bool get _temDados =>
@@ -87,19 +94,19 @@ class _TabbarState extends State<Tabbar> with SingleTickerProviderStateMixin {
     _sincronizacaoSubscription = _osRepository
         .observarSincronizacao(_serviceOrder.id)
         .listen(
-          (snapshot) {
-            if (!mounted) return;
+      (snapshot) {
+        if (!mounted) return;
 
-            _serviceOrderState.updateSyncSnapshot(
-              documentExists: snapshot.exists,
-              hasPendingWrites: snapshot.metadata.hasPendingWrites,
-            );
-          },
-          onError: (Object erro, StackTrace stackTrace) {
-            debugPrint('Erro ao observar sincronização da OS: $erro');
-            debugPrintStack(stackTrace: stackTrace);
-          },
+        _serviceOrderState.updateSyncSnapshot(
+          documentExists: snapshot.exists,
+          hasPendingWrites: snapshot.metadata.hasPendingWrites,
         );
+      },
+      onError: (Object erro, StackTrace stackTrace) {
+        debugPrint('Erro ao observar sincronização da OS: $erro');
+        debugPrintStack(stackTrace: stackTrace);
+      },
+    );
   }
 
   Future<void> _carregarOs() async {
@@ -166,8 +173,7 @@ class _TabbarState extends State<Tabbar> with SingleTickerProviderStateMixin {
   Future<bool> _confirmarSaida() async {
     if (!_temDados) return true;
 
-    final sair =
-        await showDialog<bool>(
+    final sair = await showDialog<bool>(
           context: context,
           builder: (dialogContext) => AlertDialog(
             title: const Text('Sair da ordem de serviço?'),
@@ -202,6 +208,7 @@ class _TabbarState extends State<Tabbar> with SingleTickerProviderStateMixin {
     if (_salvando || _saindo) return;
 
     final podeSair = await _confirmarSaida();
+
     if (!podeSair || !mounted) return;
 
     setState(() => _saindo = true);
@@ -258,7 +265,9 @@ class _TabbarState extends State<Tabbar> with SingleTickerProviderStateMixin {
       if (!mounted) return;
 
       if (!savedLocally) {
-        throw Exception('Não foi possível gravar as alterações na fila local.');
+        throw Exception(
+          'Não foi possível gravar as alterações na fila local.',
+        );
       }
 
       if (_serviceOrder.status == ServiceOrderStatus.EM_ORCAMENTO ||
@@ -267,6 +276,7 @@ class _TabbarState extends State<Tabbar> with SingleTickerProviderStateMixin {
       }
 
       await _osRepository.salvar(_serviceOrder);
+
       _serviceOrderState.endCompletion(saved: true);
 
       if (!mounted) return;
@@ -488,9 +498,10 @@ class _TabbarState extends State<Tabbar> with SingleTickerProviderStateMixin {
                     'Selecione um cliente, um endereço e um equipamento antes de concluir.';
               } else if (_serviceOrder.parts.isEmpty && index >= 2) {
                 mensagem =
-                    'Adicione pelo menos uma peça ou marque a caixa de selecao antes de continuar.';
+                    'Adicione pelo menos uma peça ou marque a caixa de seleção antes de continuar.';
               } else {
-                mensagem = 'Adicione pelo menos um serviço antes de continuar.';
+                mensagem =
+                    'Adicione pelo menos um serviço antes de continuar.';
               }
 
               ScaffoldMessenger.of(context).showSnackBar(
@@ -514,10 +525,10 @@ class _TabbarState extends State<Tabbar> with SingleTickerProviderStateMixin {
         controller: _tabController,
         physics:
             _dadosObrigatoriosPreenchidos &&
-                (_serviceOrder.parts.isNotEmpty || _somenteServicos) &&
-                _serviceOrder.services.isNotEmpty
-            ? const BouncingScrollPhysics()
-            : const NeverScrollableScrollPhysics(),
+                    (_serviceOrder.parts.isNotEmpty || _somenteServicos) &&
+                    _serviceOrder.services.isNotEmpty
+                ? const BouncingScrollPhysics()
+                : const NeverScrollableScrollPhysics(),
         children: [
           DataOs(
             serviceOrderState: _serviceOrderState,

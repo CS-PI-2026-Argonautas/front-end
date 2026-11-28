@@ -1,3 +1,4 @@
+
 import 'dart:async';
 
 import 'package:flutter/material.dart';
@@ -13,7 +14,6 @@ import 'package:frontend/ui/style/inputDecorationStyles.dart';
 import 'package:frontend/ui/widgets/bottom_sheet/bottom_sheet.dart';
 import 'package:frontend/utils/formatters/currency_input_formatter.dart';
 import 'package:frontend/ui/widgets/floatingButton.dart';
-
 
 class OsServicosTab extends StatefulWidget {
   final ServiceOrderState serviceOrderState;
@@ -125,7 +125,9 @@ class _OsServicosTabState extends State<OsServicosTab>
   }
 
   String _formatar(int centavos) {
-    return Dinheiro(centavos).formatado().replaceAll(RegExp(r'[\s\u00A0]'), '');
+    return Dinheiro(centavos)
+        .formatado()
+        .replaceAll(RegExp(r'[\s\u00A0]'), '');
   }
 
   void _adicionarServico(Map<String, dynamic> servico) {
@@ -241,7 +243,10 @@ class _OsServicosTabState extends State<OsServicosTab>
                   onPressed: () {
                     Navigator.pop(dialogContext, true);
                   },
-                  child: Text('REMOVER', style: TextStyle(color: colors.error)),
+                  child: Text(
+                    'REMOVER',
+                    style: TextStyle(color: colors.error),
+                  ),
                 ),
               ],
             );
@@ -299,8 +304,10 @@ class _OsServicosTabState extends State<OsServicosTab>
       context: context,
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
-      builder: (_) =>
-          _EditServiceSheet(servico: servico, onSave: _atualizarServico),
+      builder: (_) => _EditServiceSheet(
+        servico: servico,
+        onSave: _atualizarServico,
+      ),
     );
   }
 
@@ -401,22 +408,26 @@ class _OsServicosTabState extends State<OsServicosTab>
 
   void _mostrarMensagem(String mensagem) {
     ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text(mensagem), behavior: SnackBarBehavior.floating),
+      SnackBar(
+        content: Text(mensagem),
+        behavior: SnackBarBehavior.floating,
+      ),
     );
   }
 
   @override
   Widget build(BuildContext context) {
     super.build(context);
+
     final listaAtual = _servicosExibidos;
 
     return Scaffold(
       backgroundColor: colors.surface,
       floatingActionButton: CustomFloatingButton(
-  onPressed: _abrirListaServicos,
-  icon: Icons.add,
-  tooltip: 'Adicionar serviço',
-),
+        onPressed: _abrirListaServicos,
+        icon: Icons.add,
+        tooltip: 'Adicionar serviço',
+      ),
       body: SafeArea(
         child: SingleChildScrollView(
           padding: const EdgeInsets.fromLTRB(16, 18, 16, 90),
@@ -446,7 +457,10 @@ class _OsServicosTabState extends State<OsServicosTab>
                           children: [
                             Row(
                               children: [
-                                Icon(Icons.handyman, color: colors.secondary),
+                                Icon(
+                                  Icons.handyman,
+                                  color: colors.secondary,
+                                ),
                                 const SizedBox(width: 8),
                                 Text(
                                   'Subtotal de serviços',
@@ -595,29 +609,13 @@ class _OsServicosTabState extends State<OsServicosTab>
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Row(
-                    children: [
-                      Expanded(
-                        child: Text(
-                          servico.name,
-                          style: TextStyle(
-                            color: colors.onSurface,
-                            fontWeight: FontWeight.bold,
-                            fontSize: 16,
-                          ),
-                        ),
-                      ),
-                      IconButton(
-                        onPressed: () => _confirmarRemocao(servico),
-                        tooltip: 'Remover serviço',
-                        visualDensity: VisualDensity.compact,
-                        icon: Icon(
-                          Icons.delete_outline,
-                          color: colors.error,
-                          size: 22,
-                        ),
-                      ),
-                    ],
+                  Text(
+                    servico.name,
+                    style: TextStyle(
+                      color: colors.onSurface,
+                      fontWeight: FontWeight.bold,
+                      fontSize: 16,
+                    ),
                   ),
                   if (servico.description.isNotEmpty) ...[
                     const SizedBox(height: 4),
@@ -652,7 +650,10 @@ class _EditServiceSheet extends StatefulWidget {
   final Map<String, dynamic> servico;
   final Future<void> Function(Service atualizado) onSave;
 
-  const _EditServiceSheet({required this.servico, required this.onSave});
+  const _EditServiceSheet({
+    required this.servico,
+    required this.onSave,
+  });
 
   @override
   State<_EditServiceSheet> createState() => _EditServiceSheetState();
@@ -771,7 +772,10 @@ class _EditServiceSheetState extends State<_EditServiceSheet> {
 
   void _mostrarErro(String mensagem) {
     ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text(mensagem), behavior: SnackBarBehavior.floating),
+      SnackBar(
+        content: Text(mensagem),
+        behavior: SnackBarBehavior.floating,
+      ),
     );
   }
 
@@ -798,9 +802,14 @@ class _EditServiceSheetState extends State<_EditServiceSheet> {
       child: Container(
         decoration: const BoxDecoration(
           color: Colors.white,
-          borderRadius: BorderRadius.vertical(top: Radius.circular(26)),
+          borderRadius: BorderRadius.vertical(
+            top: Radius.circular(26),
+          ),
         ),
-        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 28),
+        padding: const EdgeInsets.symmetric(
+          horizontal: 24,
+          vertical: 28,
+        ),
         child: SafeArea(
           top: false,
           child: SingleChildScrollView(
@@ -825,7 +834,10 @@ class _EditServiceSheetState extends State<_EditServiceSheet> {
                   Row(
                     spacing: 6,
                     children: [
-                      Icon(Icons.edit_outlined, color: colors.primary),
+                      Icon(
+                        Icons.edit_outlined,
+                        color: colors.primary,
+                      ),
                       Text(
                         'Editar serviço',
                         style: TextStyle(
@@ -857,14 +869,13 @@ class _EditServiceSheetState extends State<_EditServiceSheet> {
                     controller: _descricaoController,
                     maxLength: 50,
                     textCapitalization: TextCapitalization.sentences,
-                    decoration:
-                        customInputDecoration(
-                          hintText: 'Descrição (opcional)',
-                        ).copyWith(
-                          counterStyle: TextStyle(
-                            color: colors.onSurfaceVariant,
-                          ),
-                        ),
+                    decoration: customInputDecoration(
+                      hintText: 'Descrição (opcional)',
+                    ).copyWith(
+                      counterStyle: TextStyle(
+                        color: colors.onSurfaceVariant,
+                      ),
+                    ),
                   ),
                   _label('Valor'),
                   TextFormField(
@@ -872,10 +883,14 @@ class _EditServiceSheetState extends State<_EditServiceSheet> {
                     keyboardType: const TextInputType.numberWithOptions(
                       decimal: true,
                     ),
-                    inputFormatters: [CurrencyInputFormatter()],
+                    inputFormatters: [
+                      CurrencyInputFormatter(),
+                    ],
                     decoration: customInputDecoration(
                       hintText: '0,00',
-                    ).copyWith(prefixText: 'R\$ '),
+                    ).copyWith(
+                      prefixText: 'R\$ ',
+                    ),
                     validator: (value) {
                       final valor = _parseCentavos(value ?? '');
 
@@ -895,12 +910,16 @@ class _EditServiceSheetState extends State<_EditServiceSheet> {
                           ? const SizedBox(
                               width: 18,
                               height: 18,
-                              child: CircularProgressIndicator(strokeWidth: 2),
+                              child: CircularProgressIndicator(
+                                strokeWidth: 2,
+                              ),
                             )
                           : const Icon(Icons.check),
                       label: const Text(
                         'Salvar alterações',
-                        style: TextStyle(fontWeight: FontWeight.bold),
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                        ),
                       ),
                       style: ElevatedButton.styleFrom(
                         elevation: 3,
@@ -908,7 +927,9 @@ class _EditServiceSheetState extends State<_EditServiceSheet> {
                         foregroundColor: colors.onSecondary,
                         disabledBackgroundColor: Colors.grey.shade300,
                         disabledForegroundColor: Colors.grey.shade600,
-                        padding: const EdgeInsets.symmetric(vertical: 16),
+                        padding: const EdgeInsets.symmetric(
+                          vertical: 16,
+                        ),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(14),
                         ),

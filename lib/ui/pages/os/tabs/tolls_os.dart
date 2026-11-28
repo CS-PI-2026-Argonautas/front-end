@@ -1,3 +1,4 @@
+
 import 'dart:async';
 
 import 'package:flutter/material.dart';
@@ -63,7 +64,10 @@ class OrderServiceState extends State<TollsOs>
   }
 
   int _calcularSubtotal() {
-    return _os.parts.fold<int>(0, (total, peca) => total + peca.subtotalCents);
+    return _os.parts.fold<int>(
+      0,
+      (total, peca) => total + peca.subtotalCents,
+    );
   }
 
   Future<void> _abrirEdicao(Item peca) async {
@@ -93,6 +97,7 @@ class OrderServiceState extends State<TollsOs>
 
     _editarOs((os) {
       final pecaAntiga = os.parts[index];
+
       os.parts[index] = ServiceOrderPart(
         partId: pecaAntiga.partId,
         name: pecaAtualizada.name,
@@ -132,7 +137,10 @@ class OrderServiceState extends State<TollsOs>
             if (!mounted) return;
 
             _editarOs((os) {
-              os.parts.insert(index.clamp(0, os.parts.length), pecaRemovida);
+              os.parts.insert(
+                index.clamp(0, os.parts.length),
+                pecaRemovida,
+              );
             });
           },
         ),
@@ -168,7 +176,10 @@ class OrderServiceState extends State<TollsOs>
               onPressed: () {
                 Navigator.pop(dialogContext, true);
               },
-              child: Text('REMOVER', style: TextStyle(color: colors.error)),
+              child: Text(
+                'REMOVER',
+                style: TextStyle(color: colors.error),
+              ),
             ),
           ],
         );
@@ -183,7 +194,9 @@ class OrderServiceState extends State<TollsOs>
   Future<void> _excluirPecaDoCadastro(Item peca) async {
     final itemId = peca.id;
 
-    final bool naOs = _os.parts.any((item) => item.partId == itemId);
+    final bool naOs = _os.parts.any(
+      (item) => item.partId == itemId,
+    );
 
     final confirmar = await showDialog<bool>(
       context: context,
@@ -193,7 +206,7 @@ class OrderServiceState extends State<TollsOs>
           content: Text(
             naOs
                 ? 'Deseja excluir "${peca.name}" do cadastro? '
-                      'Ela também será removida desta OS.'
+                    'Ela também será removida desta OS.'
                 : 'Deseja excluir "${peca.name}" do cadastro?',
           ),
           actions: [
@@ -203,7 +216,10 @@ class OrderServiceState extends State<TollsOs>
             ),
             TextButton(
               onPressed: () => Navigator.pop(dialogContext, true),
-              child: Text('EXCLUIR', style: TextStyle(color: colors.error)),
+              child: Text(
+                'EXCLUIR',
+                style: TextStyle(color: colors.error),
+              ),
             ),
           ],
         );
@@ -215,7 +231,9 @@ class OrderServiceState extends State<TollsOs>
     if (itemId == null || itemId.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
-          content: Text('Não foi possível excluir: ID da peça não encontrado.'),
+          content: Text(
+            'Não foi possível excluir: ID da peça não encontrado.',
+          ),
           behavior: SnackBarBehavior.floating,
         ),
       );
@@ -301,7 +319,10 @@ class OrderServiceState extends State<TollsOs>
                             children: [
                               Row(
                                 children: [
-                                  Icon(Icons.build, color: colors.secondary),
+                                  Icon(
+                                    Icons.build,
+                                    color: colors.secondary,
+                                  ),
                                   const SizedBox(width: 8),
                                   Text(
                                     'Subtotal de peças',
@@ -342,7 +363,9 @@ class OrderServiceState extends State<TollsOs>
                                   context: context,
                                   builder: (dialogContext) {
                                     return AlertDialog(
-                                      title: const Text('Remover peças da OS?'),
+                                      title: const Text(
+                                        'Remover peças da OS?',
+                                      ),
                                       content: const Text(
                                         'Ao selecionar esta opção, todas as peças adicionadas '
                                         'serão removidas da Ordem de Serviço. Deseja continuar?',
@@ -350,13 +373,19 @@ class OrderServiceState extends State<TollsOs>
                                       actions: [
                                         TextButton(
                                           onPressed: () {
-                                            Navigator.pop(dialogContext, false);
+                                            Navigator.pop(
+                                              dialogContext,
+                                              false,
+                                            );
                                           },
                                           child: const Text('CANCELAR'),
                                         ),
                                         TextButton(
                                           onPressed: () {
-                                            Navigator.pop(dialogContext, true);
+                                            Navigator.pop(
+                                              dialogContext,
+                                              true,
+                                            );
                                           },
                                           child: Text(
                                             'REMOVER PEÇAS',
@@ -375,9 +404,11 @@ class OrderServiceState extends State<TollsOs>
                                 _editarOs((os) {
                                   os.parts.clear();
                                 });
+
                                 setState(() {
                                   _somenteServicos = true;
                                 });
+
                                 widget.onSomenteServicosChanged?.call(
                                   _somenteServicos,
                                 );
@@ -390,12 +421,14 @@ class OrderServiceState extends State<TollsOs>
                               });
 
                               widget.onChanged?.call();
+
                               widget.onSomenteServicosChanged?.call(
                                 _somenteServicos,
                               );
                             },
                             contentPadding: EdgeInsets.zero,
-                            controlAffinity: ListTileControlAffinity.leading,
+                            controlAffinity:
+                                ListTileControlAffinity.leading,
                             activeColor: colors.primary,
                             title: Text(
                               'OS somente de serviços (sem peças)',
@@ -437,7 +470,8 @@ class OrderServiceState extends State<TollsOs>
                                 )
                               : ListView.separated(
                                   shrinkWrap: true,
-                                  physics: const NeverScrollableScrollPhysics(),
+                                  physics:
+                                      const NeverScrollableScrollPhysics(),
                                   padding: const EdgeInsets.all(4),
                                   itemCount: _os.parts.length,
                                   separatorBuilder: (context, index) {
@@ -526,7 +560,9 @@ class OrderServiceState extends State<TollsOs>
       backgroundColor: colors.surfaceContainer,
       isScrollControlled: true,
       shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+        borderRadius: BorderRadius.vertical(
+          top: Radius.circular(24),
+        ),
       ),
       builder: (sheetContext) {
         return StreamBuilder<List<Item>>(
@@ -575,7 +611,9 @@ class OrderServiceState extends State<TollsOs>
     if (peca.id == null) return;
 
     _editarOs((os) {
-      final index = os.parts.indexWhere((item) => item.partId == peca.id);
+      final index = os.parts.indexWhere(
+        (item) => item.partId == peca.id,
+      );
 
       if (index != -1) {
         final parteExistente = os.parts[index];

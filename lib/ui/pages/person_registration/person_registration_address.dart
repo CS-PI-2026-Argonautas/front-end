@@ -1,4 +1,6 @@
+
 import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:frontend/fire_base/Enums/Uf.dart';
@@ -53,11 +55,13 @@ class PersonRegistrationAddress extends StatefulWidget {
   });
 
   @override
-  State<PersonRegistrationAddress> createState() => _PersonRegistration2State();
+  State<PersonRegistrationAddress> createState() =>
+      _PersonRegistration2State();
 }
 
 class _PersonRegistration2State extends State<PersonRegistrationAddress> {
   final _formKey = GlobalKey<FormState>();
+
   final colors = custom_colors.colorScheme;
 
   final _cepController = TextEditingController();
@@ -73,6 +77,7 @@ class _PersonRegistration2State extends State<PersonRegistrationAddress> {
 
   bool get _cepEhOpcionalNaEdicao {
     final inicial = widget.enderecoInicial;
+
     return inicial != null && inicial.zipCode.trim().isEmpty;
   }
 
@@ -90,11 +95,14 @@ class _PersonRegistration2State extends State<PersonRegistrationAddress> {
     _complementoController.dispose();
     _cidadeController.dispose();
     _ufController.dispose();
+
     super.dispose();
   }
 
+  // Preenche os campos quando estiver editando um endereço.
   void _preencherCamposSeEdicao() {
     final endereco = widget.enderecoInicial;
+
     if (endereco == null) return;
 
     _cepController.text = endereco.zipCode;
@@ -103,16 +111,32 @@ class _PersonRegistration2State extends State<PersonRegistrationAddress> {
     _complementoController.text = endereco.complement;
     _cidadeController.text = endereco.city;
     _ufController.text = endereco.uf.name;
-    final digitos = endereco.zipCode.replaceAll(RegExp(r'[^0-9]'), '');
+
+    final digitos = endereco.zipCode.replaceAll(
+      RegExp(r'[^0-9]'),
+      '',
+    );
+
     if (digitos.length == 8) {
       _ultimoCepConsultado = digitos;
     }
   }
 
-  Future<bool> _consultarViaCep(String cepFormatadoOuBruto, {bool forcar = false}) async {
-    final digitos = cepFormatadoOuBruto.replaceAll(RegExp(r'[^0-9]'), '');
+  // Consulta o CEP na API ViaCEP.
+  Future<bool> _consultarViaCep(
+    String cepFormatadoOuBruto, {
+    bool forcar = false,
+  }) async {
+    final digitos = cepFormatadoOuBruto.replaceAll(
+      RegExp(r'[^0-9]'),
+      '',
+    );
+
     if (digitos.length != 8) return false;
-    if (!forcar && _ultimoCepConsultado == digitos && _erroCepRemoto == null) {
+
+    if (!forcar &&
+        _ultimoCepConsultado == digitos &&
+        _erroCepRemoto == null) {
       return true;
     }
 
@@ -122,8 +146,13 @@ class _PersonRegistration2State extends State<PersonRegistrationAddress> {
     });
 
     try {
-      final uri = Uri.parse('https://viacep.com.br/ws/$digitos/json/');
-      final response = await http.get(uri).timeout(const Duration(seconds: 8));
+      final uri = Uri.parse(
+        'https://viacep.com.br/ws/$digitos/json/',
+      );
+
+      final response = await http
+          .get(uri)
+          .timeout(const Duration(seconds: 8));
 
       if (!mounted) return false;
 
@@ -132,22 +161,28 @@ class _PersonRegistration2State extends State<PersonRegistrationAddress> {
           _buscandoCep = false;
           _erroCepRemoto = 'Não foi possível consultar o CEP';
         });
+
         return false;
       }
 
       final Map<String, dynamic> data = jsonDecode(response.body);
+
       if (data['erro'] == true || data['erro'] == 'true') {
         setState(() {
           _buscandoCep = false;
           _ultimoCepConsultado = digitos;
           _erroCepRemoto = 'CEP inexistente';
         });
+
         _formKey.currentState?.validate();
+
         return false;
       }
 
       final logradouro = (data['logradouro'] ?? '').toString().trim();
+
       final cidade = (data['localidade'] ?? '').toString().trim();
+
       final ufSigla = (data['uf'] ?? '').toString().trim().toUpperCase();
 
       setState(() {
@@ -158,23 +193,30 @@ class _PersonRegistration2State extends State<PersonRegistrationAddress> {
         if (logradouro.isNotEmpty) {
           _ruaController.text = logradouro;
         }
+
         if (cidade.isNotEmpty) {
           _cidadeController.text = cidade;
         }
-        if (ufSigla.isNotEmpty && Uf.values.any((u) => u.name == ufSigla)) {
+
+        if (ufSigla.isNotEmpty &&
+            Uf.values.any((u) => u.name == ufSigla)) {
           _ufController.text = ufSigla;
         }
       });
 
       _formKey.currentState?.validate();
+
       return true;
     } catch (_) {
       if (!mounted) return false;
+
       setState(() {
         _buscandoCep = false;
         _erroCepRemoto = 'Falha ao consultar CEP';
       });
+
       _formKey.currentState?.validate();
+
       return false;
     }
   }
@@ -183,10 +225,12 @@ class _PersonRegistration2State extends State<PersonRegistrationAddress> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: colors.surface,
+
       appBar: Header(
         onBack: () => Navigator.pop(context),
         title: widget.titulo,
       ),
+
       endDrawer: widget.abertoPelaOS
           ? null
           : Menu(
@@ -197,14 +241,18 @@ class _PersonRegistration2State extends State<PersonRegistrationAddress> {
                 if (index == 1) {
                   Navigator.push(
                     context,
-                    MaterialPageRoute(builder: (context) => const ItemList()),
+                    MaterialPageRoute(
+                      builder: (context) => const ItemList(),
+                    ),
                   );
                 }
 
                 if (index == 2) {
                   Navigator.push(
                     context,
-                    MaterialPageRoute(builder: (context) => const OsListPage()),
+                    MaterialPageRoute(
+                      builder: (context) => const OsListPage(),
+                    ),
                   );
                 }
 
@@ -220,18 +268,29 @@ class _PersonRegistration2State extends State<PersonRegistrationAddress> {
                 if (index == 4) {
                   Navigator.push(
                     context,
-                    MaterialPageRoute(builder: (context) => const Dashboard()),
+                    MaterialPageRoute(
+                      builder: (context) => const Dashboard(),
+                    ),
                   );
                 }
               },
             ),
+
       body: SafeArea(
         child: SingleChildScrollView(
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 18),
+          padding: const EdgeInsets.symmetric(
+            horizontal: 16,
+            vertical: 18,
+          ),
           child: Center(
             child: ConstrainedBox(
               constraints: const BoxConstraints(maxWidth: 650),
-              child: Column(spacing: 24, children: [_buildFormCard()]),
+              child: Column(
+                spacing: 24,
+                children: [
+                  _buildFormCard(),
+                ],
+              ),
             ),
           ),
         ),
@@ -246,7 +305,9 @@ class _PersonRegistration2State extends State<PersonRegistrationAddress> {
       subtitle: "Campos obrigatórios estão marcados com *",
       fieldSpacing: 18,
       autovalidateMode: AutovalidateMode.disabled,
+
       children: [
+        // CEP
         FormFieldLabel(
           icon: Icons.pin_drop_outlined,
           label: _cepEhOpcionalNaEdicao ? "CEP" : "CEP *",
@@ -254,65 +315,97 @@ class _PersonRegistration2State extends State<PersonRegistrationAddress> {
 
         TextFormField(
           controller: _cepController,
-          decoration: customInputDecoration(hintText: "00000-000").copyWith(
+
+          decoration: customInputDecoration(
+            hintText: "00000-000",
+          ).copyWith(
             suffixIcon: _buscandoCep
                 ? const Padding(
                     padding: EdgeInsets.all(12),
                     child: SizedBox(
                       width: 18,
                       height: 18,
-                      child: CircularProgressIndicator(strokeWidth: 2),
+                      child: CircularProgressIndicator(
+                        strokeWidth: 2,
+                      ),
                     ),
                   )
                 : IconButton(
                     tooltip: 'Buscar CEP',
                     icon: const Icon(Icons.search),
-                    onPressed: () =>
-                        _consultarViaCep(_cepController.text, forcar: true),
+                    onPressed: () => _consultarViaCep(
+                      _cepController.text,
+                      forcar: true,
+                    ),
                   ),
           ),
+
           keyboardType: TextInputType.number,
+
           inputFormatters: [
             FilteringTextInputFormatter.digitsOnly,
             CepInputFormatter(),
           ],
+
           onChanged: (value) {
             if (_erroCepRemoto != null) {
               setState(() => _erroCepRemoto = null);
             }
-            final digitos = value.replaceAll(RegExp(r'[^0-9]'), '');
-            if (digitos.length == 8 && digitos != _ultimoCepConsultado) {
+
+            final digitos = value.replaceAll(
+              RegExp(r'[^0-9]'),
+              '',
+            );
+
+            if (digitos.length == 8 &&
+                digitos != _ultimoCepConsultado) {
               _consultarViaCep(value);
             }
           },
+
           validator: (value) {
             final texto = (value ?? '').trim();
+
             if (texto.isEmpty) {
               if (_cepEhOpcionalNaEdicao) return null;
+
               return 'Preencha o CEP';
             }
+
             if (texto.length != 9) {
               return 'CEP inválido';
             }
+
             if (_erroCepRemoto != null) {
               return _erroCepRemoto;
             }
+
             return null;
           },
         ),
 
-        const FormFieldLabel(icon: Icons.home_outlined, label: "Logradouro *"),
+        // LOGRADOURO
+        const FormFieldLabel(
+          icon: Icons.home_outlined,
+          label: "Logradouro *",
+        ),
 
         TextFormField(
-  controller: _ruaController,
-  decoration: customInputDecoration(
-    hintText: "Rua, avenida ou rodovia do endereço",
-  ),
-  validator: (value) =>
-      (value == null || value.trim().isEmpty) ? 'Informe a rua' : null,
-),
+          controller: _ruaController,
+          decoration: customInputDecoration(
+            hintText: "Rua, avenida ou rodovia do endereço",
+          ),
+          validator: (value) =>
+              (value == null || value.trim().isEmpty)
+                  ? 'Informe a rua'
+                  : null,
+        ),
 
-        const FormFieldLabel(icon: Icons.numbers_outlined, label: "Número"),
+        // NÚMERO
+        const FormFieldLabel(
+          icon: Icons.numbers_outlined,
+          label: "Número",
+        ),
 
         TextFormField(
           controller: _numeroController,
@@ -322,6 +415,7 @@ class _PersonRegistration2State extends State<PersonRegistrationAddress> {
           keyboardType: TextInputType.text,
         ),
 
+        // COMPLEMENTO
         const FormFieldLabel(
           icon: Icons.apartment_outlined,
           label: "Complemento",
@@ -334,6 +428,7 @@ class _PersonRegistration2State extends State<PersonRegistrationAddress> {
           ),
         ),
 
+        // CIDADE E UF
         Row(
           spacing: 18,
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -354,9 +449,10 @@ class _PersonRegistration2State extends State<PersonRegistrationAddress> {
                     decoration: customInputDecoration(
                       hintText: "Informe a cidade",
                     ),
-                    validator: (value) => (value == null || value.trim().isEmpty)
-                        ? 'Informe a cidade'
-                        : null,
+                    validator: (value) =>
+                        (value == null || value.trim().isEmpty)
+                            ? 'Informe a cidade'
+                            : null,
                   ),
                 ],
               ),
@@ -368,25 +464,39 @@ class _PersonRegistration2State extends State<PersonRegistrationAddress> {
                 spacing: 18,
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const FormFieldLabel(icon: Icons.flag_outlined, label: "UF *"),
+                  const FormFieldLabel(
+                    icon: Icons.flag_outlined,
+                    label: "UF *",
+                  ),
 
                   TextFormField(
                     controller: _ufController,
+
                     inputFormatters: [
                       UpperCaseTextFormatter(),
-                      FilteringTextInputFormatter.allow(RegExp(r'[a-zA-Z]')),
+                      FilteringTextInputFormatter.allow(
+                        RegExp(r'[a-zA-Z]'),
+                      ),
                       LengthLimitingTextInputFormatter(2),
                     ],
-                    decoration: customInputDecoration(hintText: "UF"),
+
+                    decoration: customInputDecoration(
+                      hintText: "UF",
+                    ),
+
                     textCapitalization: TextCapitalization.characters,
+
                     validator: (value) {
                       final uf = (value ?? '').trim().toUpperCase();
+
                       if (uf.isEmpty) {
                         return 'Informe a UF';
                       }
+
                       if (!Uf.values.any((u) => u.name == uf)) {
                         return 'UF inválida';
                       }
+
                       return null;
                     },
                   ),
@@ -396,19 +506,32 @@ class _PersonRegistration2State extends State<PersonRegistrationAddress> {
           ],
         ),
 
+        // BOTÕES
         ActionButtons(
           formKey: _formKey,
           colors: colors,
-          textoConfirmar:
-              widget.enderecoInicial == null ? 'Adicionar' : 'Salvar',
+
+          textoConfirmar: widget.enderecoInicial == null
+              ? 'Adicionar'
+              : 'Salvar',
+
           onCancel: () => Navigator.pop(context),
+
           onSave: () async {
             final cepTexto = _cepController.text.trim();
-            final digitosCep = cepTexto.replaceAll(RegExp(r'[^0-9]'), '');
+
+            final digitosCep = cepTexto.replaceAll(
+              RegExp(r'[^0-9]'),
+              '',
+            );
 
             if (digitosCep.length == 8 &&
-                (digitosCep != _ultimoCepConsultado || _erroCepRemoto != null)) {
-              await _consultarViaCep(cepTexto, forcar: true);
+                (digitosCep != _ultimoCepConsultado ||
+                    _erroCepRemoto != null)) {
+              await _consultarViaCep(
+                cepTexto,
+                forcar: true,
+              );
             }
 
             if (!_formKey.currentState!.validate()) {
@@ -419,9 +542,12 @@ class _PersonRegistration2State extends State<PersonRegistrationAddress> {
             final numero = _numeroController.text.trim();
             final complemento = _complementoController.text.trim();
             final cidade = _cidadeController.text.trim();
+
             final ufTexto = _ufController.text.trim().toUpperCase();
 
-            final uf = Uf.values.firstWhere((u) => u.name == ufTexto);
+            final uf = Uf.values.firstWhere(
+              (u) => u.name == ufTexto,
+            );
 
             final endereco = Address(
               id: widget.enderecoInicial?.id,

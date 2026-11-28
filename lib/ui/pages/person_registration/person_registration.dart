@@ -1,27 +1,25 @@
+
 import 'package:flutter/material.dart';
 import 'package:frontend/fire_base/models/client.dart';
 import 'package:frontend/fire_base/models/address.dart';
 import 'package:frontend/fire_base/Enums/PersonType.dart';
 import 'package:frontend/fire_base/models/contact.dart';
 import 'package:frontend/fire_base/services/client_service.dart';
-import 'package:frontend/ui/pages/lists/item_list.dart';
-import 'package:frontend/ui/pages/lists/os_list_page.dart';
-import 'package:frontend/ui/pages/lists/service_list.dart';
 import 'package:frontend/ui/pages/person_registration/person_registration_contact.dart';
-import 'package:frontend/ui/style/ColorScheme.dart' as custom_colors;
 import 'package:frontend/ui/pages/person_registration/person_registration_address.dart';
+import 'package:frontend/ui/style/ColorScheme.dart' as custom_colors;
 import 'package:frontend/ui/style/inputDecorationStyles.dart';
 import 'package:frontend/ui/widgets/form/action_buttons.dart';
 import 'package:frontend/ui/widgets/form/form_card.dart';
 import 'package:frontend/ui/widgets/form/form_field_label.dart';
 import 'package:frontend/ui/widgets/fields/selection_field.dart';
-import 'package:frontend/ui/widgets/menu.dart';
-import 'package:mask_text_input_formatter/mask_text_input_formatter.dart';
 import 'package:frontend/ui/widgets/appBar.dart';
+import 'package:mask_text_input_formatter/mask_text_input_formatter.dart';
 
 class PersonRegistration extends StatefulWidget {
   final bool retornarDadosAoFechar;
   final bool abertoPelaOS;
+
   const PersonRegistration({
     super.key,
     this.retornarDadosAoFechar = false,
@@ -62,7 +60,10 @@ class _PersonRegistrationState1 extends State<PersonRegistration> {
 
   bool get _possuiDadosPreenchidos {
     return _nomeController.text.trim().isNotEmpty ||
-        _documentoController.text.replaceAll(RegExp(r'[^0-9]'), '').isNotEmpty ||
+        _documentoController
+            .text
+            .replaceAll(RegExp(r'[^0-9]'), '')
+            .isNotEmpty ||
         _enderecos.isNotEmpty ||
         _contato != null;
   }
@@ -90,18 +91,18 @@ class _PersonRegistrationState1 extends State<PersonRegistration> {
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context, false),
-            child: const Text('Continuar editando'),
             style: TextButton.styleFrom(
               foregroundColor: colors.onSurfaceVariant,
             ),
+            child: const Text('Continuar editando'),
           ),
           FilledButton(
             onPressed: () => Navigator.pop(context, true),
-            child: const Text('Descartar'),
             style: FilledButton.styleFrom(
               backgroundColor: colors.error,
               foregroundColor: colors.onError,
             ),
+            child: const Text('Descartar'),
           ),
         ],
       ),
@@ -117,11 +118,13 @@ class _PersonRegistrationState1 extends State<PersonRegistration> {
     if (erroService != null) return erroService;
 
     final digitos = value.replaceAll(RegExp(r'[^0-9]'), '');
+
     if (tipo == PersonType.physical) {
       if (!_isCpfValido(digitos)) return 'CPF inválido';
     } else {
       if (!_isCnpjValido(digitos)) return 'CNPJ inválido';
     }
+
     return null;
   }
 
@@ -131,19 +134,25 @@ class _PersonRegistrationState1 extends State<PersonRegistration> {
     }
 
     int soma = 0;
+
     for (int i = 0; i < 9; i++) {
       soma += int.parse(cpf[i]) * (10 - i);
     }
+
     int digito1 = (soma * 10) % 11;
     if (digito1 == 10) digito1 = 0;
+
     if (digito1 != int.parse(cpf[9])) return false;
 
     soma = 0;
+
     for (int i = 0; i < 10; i++) {
       soma += int.parse(cpf[i]) * (11 - i);
     }
+
     int digito2 = (soma * 10) % 11;
     if (digito2 == 10) digito2 = 0;
+
     return digito2 == int.parse(cpf[10]);
   }
 
@@ -153,21 +162,29 @@ class _PersonRegistrationState1 extends State<PersonRegistration> {
     }
 
     const pesos1 = [5, 4, 3, 2, 9, 8, 7, 6, 5, 4, 3, 2];
+
     int soma = 0;
+
     for (int i = 0; i < 12; i++) {
       soma += int.parse(cnpj[i]) * pesos1[i];
     }
+
     int resto = soma % 11;
     final digito1 = resto < 2 ? 0 : 11 - resto;
+
     if (digito1 != int.parse(cnpj[12])) return false;
 
     const pesos2 = [6, 5, 4, 3, 2, 9, 8, 7, 6, 5, 4, 3, 2];
+
     soma = 0;
+
     for (int i = 0; i < 13; i++) {
       soma += int.parse(cnpj[i]) * pesos2[i];
     }
+
     resto = soma % 11;
     final digito2 = resto < 2 ? 0 : 11 - resto;
+
     return digito2 == int.parse(cnpj[13]);
   }
 
@@ -188,11 +205,17 @@ class _PersonRegistrationState1 extends State<PersonRegistration> {
         ),
         body: SafeArea(
           child: SingleChildScrollView(
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 18),
+            padding: const EdgeInsets.symmetric(
+              horizontal: 16,
+              vertical: 18,
+            ),
             child: Center(
               child: ConstrainedBox(
                 constraints: const BoxConstraints(maxWidth: 650),
-                child: Column(spacing: 24, children: [_buildFormCard()]),
+                child: Column(
+                  spacing: 24,
+                  children: [_buildFormCard()],
+                ),
               ),
             ),
           ),
@@ -216,7 +239,9 @@ class _PersonRegistrationState1 extends State<PersonRegistration> {
 
         TextFormField(
           controller: _nomeController,
-          decoration: customInputDecoration(hintText: "Digite o nome aqui"),
+          decoration: customInputDecoration(
+            hintText: "Digite o nome aqui",
+          ),
           validator: (value) {
             if (value == null || value.trim().isEmpty) {
               return 'Informe o nome';
@@ -246,7 +271,9 @@ class _PersonRegistrationState1 extends State<PersonRegistration> {
           selected: {_isPessoaFisica},
           onSelectionChanged: (selection) {
             final novoValor = selection.first;
+
             if (novoValor == _isPessoaFisica) return;
+
             setState(() {
               _isPessoaFisica = novoValor;
               _documentoController.clear();
@@ -254,13 +281,13 @@ class _PersonRegistrationState1 extends State<PersonRegistration> {
               _cnpjFormatter.clear();
             });
           },
-           style: SegmentedButton.styleFrom(
+          style: SegmentedButton.styleFrom(
             side: const BorderSide(color: Colors.transparent),
             backgroundColor: colors.surfaceContainerHighest,
             foregroundColor: colors.onSurfaceVariant,
             selectedBackgroundColor: colors.secondary,
             selectedForegroundColor: colors.onSecondary,
-           )
+          ),
         ),
 
         FormFieldLabel(
@@ -272,11 +299,16 @@ class _PersonRegistrationState1 extends State<PersonRegistration> {
           key: ValueKey(_isPessoaFisica),
           controller: _documentoController,
           decoration: customInputDecoration(
-            hintText: _isPessoaFisica ? "000.000.000-00" : "00.000.000/0000-00",
+            hintText: _isPessoaFisica
+                ? "000.000.000-00"
+                : "00.000.000/0000-00",
           ),
           keyboardType: TextInputType.number,
-          inputFormatters: [_isPessoaFisica ? _cpfFormatter : _cnpjFormatter],
-          validator: (value) => _validarCpfCnpj(value ?? '', _tipoPessoa),
+          inputFormatters: [
+            _isPessoaFisica ? _cpfFormatter : _cnpjFormatter,
+          ],
+          validator: (value) =>
+              _validarCpfCnpj(value ?? '', _tipoPessoa),
         ),
 
         SelectionField<Address>(
@@ -289,9 +321,11 @@ class _PersonRegistrationState1 extends State<PersonRegistration> {
             final complementoStr = endereco.complement.trim().isNotEmpty
                 ? ' (${endereco.complement.trim()})'
                 : '';
+
             final numeroStr = endereco.number.trim().isNotEmpty
                 ? ', ${endereco.number.trim()}'
                 : '';
+
             return '${endereco.publicPlace}$numeroStr$complementoStr - ${endereco.city}/${endereco.uf.name}';
           },
           textoVazio: 'Nenhum endereço adicionado.',
@@ -314,8 +348,9 @@ class _PersonRegistrationState1 extends State<PersonRegistration> {
             final enderecoEditado = await Navigator.push<Address>(
               context,
               MaterialPageRoute(
-                builder: (context) =>
-                    PersonRegistrationAddress(enderecoInicial: endereco),
+                builder: (context) => PersonRegistrationAddress(
+                  enderecoInicial: endereco,
+                ),
               ),
             );
 
@@ -349,8 +384,12 @@ class _PersonRegistrationState1 extends State<PersonRegistration> {
         SelectionField<Contact>(
           label: 'Informações de contato *',
           iconeLabel: Icons.phone_android_outlined,
-          textoBotao: _contato == null ? 'Adicionar contato' : 'Alterar contato',
-          iconeBotao: _contato == null ? Icons.add : Icons.swap_horiz_outlined,
+          textoBotao: _contato == null
+              ? 'Adicionar contato'
+              : 'Alterar contato',
+          iconeBotao: _contato == null
+              ? Icons.add
+              : Icons.swap_horiz_outlined,
           itens: _contato != null ? [_contato!] : [],
           tituloItem: (contato) => contato.resumo,
           textoVazio: 'Nenhum contato adicionado.',
@@ -359,8 +398,9 @@ class _PersonRegistrationState1 extends State<PersonRegistration> {
             final resultadoContato = await Navigator.push<Contact>(
               context,
               MaterialPageRoute(
-                builder: (context) =>
-                    PersonRegistrationContact(contatoInicial: _contato),
+                builder: (context) => PersonRegistrationContact(
+                  contatoInicial: _contato,
+                ),
               ),
             );
 
@@ -374,8 +414,9 @@ class _PersonRegistrationState1 extends State<PersonRegistration> {
             final contatoEditado = await Navigator.push<Contact>(
               context,
               MaterialPageRoute(
-                builder: (context) =>
-                    PersonRegistrationContact(contatoInicial: contato),
+                builder: (context) => PersonRegistrationContact(
+                  contatoInicial: contato,
+                ),
               ),
             );
 
@@ -387,6 +428,7 @@ class _PersonRegistrationState1 extends State<PersonRegistration> {
           },
           onDelete: (contato, index) {
             final contatoRemovido = _contato;
+
             setState(() {
               _contato = null;
             });
@@ -434,6 +476,7 @@ class _PersonRegistrationState1 extends State<PersonRegistration> {
     }
 
     final contato = _contato;
+
     if (contato == null) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
@@ -458,6 +501,7 @@ class _PersonRegistrationState1 extends State<PersonRegistration> {
 
     try {
       final duplicado = await _service.buscarDuplicado(documentoLimpo);
+
       if (duplicado != null) {
         throw ArgumentError(
           'Já existe um cliente cadastrado com este ${_isPessoaFisica ? 'CPF' : 'CNPJ'}.',
@@ -483,11 +527,14 @@ class _PersonRegistrationState1 extends State<PersonRegistration> {
             behavior: SnackBarBehavior.floating,
           ),
         );
+
         Navigator.pop(context, true);
       }
     } on ArgumentError catch (e) {
       if (!mounted) return;
+
       setState(() => _salvando = false);
+
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(e.message?.toString() ?? 'Dados inválidos.'),
@@ -498,7 +545,9 @@ class _PersonRegistrationState1 extends State<PersonRegistration> {
       if (!mounted) return;
 
       debugPrint('Erro ao cadastrar cliente: $e');
+
       setState(() => _salvando = false);
+
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
           content: Text('Não foi possível salvar o cliente.'),

@@ -1,3 +1,4 @@
+
 import 'package:flutter/material.dart';
 import 'package:frontend/fire_base/Enums/StatusOrderService.dart';
 import 'package:frontend/fire_base/services/client_service.dart';
@@ -170,7 +171,10 @@ class _DataOsState extends State<DataOs>
 
   void _mostrarErro(String mensagem) {
     ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text(mensagem), behavior: SnackBarBehavior.floating),
+      SnackBar(
+        content: Text(mensagem),
+        behavior: SnackBarBehavior.floating,
+      ),
     );
   }
 
@@ -248,7 +252,10 @@ class _DataOsState extends State<DataOs>
               ),
               TextButton(
                 onPressed: () => Navigator.pop(dialogContext, true),
-                child: Text('EDITAR', style: TextStyle(color: colors.primary)),
+                child: Text(
+                  'EDITAR',
+                  style: TextStyle(color: colors.primary),
+                ),
               ),
             ],
           ),
@@ -281,7 +288,9 @@ class _DataOsState extends State<DataOs>
       backgroundColor: colors.surfaceContainer,
       isScrollControlled: true,
       shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+        borderRadius: BorderRadius.vertical(
+          top: Radius.circular(24),
+        ),
       ),
       builder: (sheetContext) {
         return SelectionBottomSheet<Equipment>(
@@ -295,7 +304,9 @@ class _DataOsState extends State<DataOs>
           loading: false,
           onAction: () {
             Navigator.pop(sheetContext);
+
             if (!_podeTrocarEquipamento()) return;
+
             _abrirCadastroEquipamento();
           },
           onSelect: (e) {
@@ -410,7 +421,9 @@ class _DataOsState extends State<DataOs>
               child: Container(
                 decoration: const BoxDecoration(
                   color: Colors.white,
-                  borderRadius: BorderRadius.vertical(top: Radius.circular(26)),
+                  borderRadius: BorderRadius.vertical(
+                    top: Radius.circular(26),
+                  ),
                 ),
                 padding: const EdgeInsets.fromLTRB(24, 16, 24, 24),
                 child: SafeArea(
@@ -459,15 +472,14 @@ class _DataOsState extends State<DataOs>
                         maxLines: 7,
                         maxLength: ServiceOrder.reportLimit,
                         textCapitalization: TextCapitalization.sentences,
-                        decoration:
-                            customInputDecoration(
-                              hintText: 'Digite observações sobre a OS...',
-                            ).copyWith(
-                              alignLabelWithHint: true,
-                              counterStyle: TextStyle(
-                                color: colors.onSurfaceVariant,
-                              ),
-                            ),
+                        decoration: customInputDecoration(
+                          hintText: 'Digite observações sobre a OS...',
+                        ).copyWith(
+                          alignLabelWithHint: true,
+                          counterStyle: TextStyle(
+                            color: colors.onSurfaceVariant,
+                          ),
+                        ),
                         onChanged: (value) {
                           setModalState(() {});
 
@@ -491,7 +503,9 @@ class _DataOsState extends State<DataOs>
                             elevation: 3,
                             backgroundColor: colors.primary,
                             foregroundColor: colors.onSecondary,
-                            padding: const EdgeInsets.symmetric(vertical: 16),
+                            padding: const EdgeInsets.symmetric(
+                              vertical: 16,
+                            ),
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(14),
                             ),
@@ -517,7 +531,9 @@ class _DataOsState extends State<DataOs>
       backgroundColor: colors.surface,
       isScrollControlled: true,
       shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+        borderRadius: BorderRadius.vertical(
+          top: Radius.circular(24),
+        ),
       ),
       builder: (sheetContext) {
         return SelectionBottomSheet<Client>(
@@ -544,7 +560,8 @@ class _DataOsState extends State<DataOs>
 
             if (retorno == null || !mounted) return;
 
-            final idCliente = retorno is Map ? retorno['id']?.toString() : null;
+            final idCliente =
+                retorno is Map ? retorno['id']?.toString() : null;
 
             if (idCliente == null || idCliente.isEmpty) {
               _mostrarErro(
@@ -581,7 +598,9 @@ class _DataOsState extends State<DataOs>
               debugPrint('Erro ao atualizar clientes: $e');
 
               if (mounted) {
-                _mostrarErro('Não foi possível atualizar a lista de clientes.');
+                _mostrarErro(
+                  'Não foi possível atualizar a lista de clientes.',
+                );
               }
             }
           },
@@ -602,7 +621,9 @@ class _DataOsState extends State<DataOs>
     final List<Address> enderecos;
 
     try {
-      enderecos = await _enderecoService.getByClientId(cliente.id.toString());
+      enderecos = await _enderecoService.getByClientId(
+        cliente.id.toString(),
+      );
     } catch (e) {
       debugPrint('Erro ao carregar endereços: $e');
 
@@ -619,7 +640,9 @@ class _DataOsState extends State<DataOs>
       backgroundColor: colors.surfaceContainer,
       isScrollControlled: true,
       shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+        borderRadius: BorderRadius.vertical(
+          top: Radius.circular(24),
+        ),
       ),
       builder: (sheetContext) {
         return SelectionBottomSheet<Address>(
@@ -639,15 +662,19 @@ class _DataOsState extends State<DataOs>
             final novo = await Navigator.push<Address>(
               context,
               MaterialPageRoute(
-                builder: (_) =>
-                    const PersonRegistrationAddress(abertoPelaOS: true),
+                builder: (_) => const PersonRegistrationAddress(
+                  abertoPelaOS: true,
+                ),
               ),
             );
 
             if (novo == null || !mounted) return;
 
             try {
-              await _enderecoService.save(cliente.id.toString(), novo);
+              await _enderecoService.save(
+                cliente.id.toString(),
+                novo,
+              );
 
               if (!mounted) return;
 
@@ -687,7 +714,10 @@ class _DataOsState extends State<DataOs>
       child: Center(
         child: ConstrainedBox(
           constraints: const BoxConstraints(maxWidth: 650),
-          child: Column(spacing: 24, children: [_buildFormCard()]),
+          child: Column(
+            spacing: 24,
+            children: [_buildFormCard()],
+          ),
         ),
       ),
     );
@@ -700,9 +730,14 @@ class _DataOsState extends State<DataOs>
       color: Colors.white,
       elevation: 8,
       shadowColor: Colors.black26,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(22)),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(22),
+      ),
       child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 28),
+        padding: const EdgeInsets.symmetric(
+          horizontal: 24,
+          vertical: 28,
+        ),
         child: Column(
           spacing: 18,
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -730,7 +765,7 @@ class _DataOsState extends State<DataOs>
               equipamento: _equipamentoParaSecao,
               onBuscar: _buscarEquipamento,
               onOpenCadastro: _abrirCadastroEquipamento,
-              onEdit: _confirmarEdicaoEquipamento,
+              onEdit: (_) => _abrirCadastroEquipamento(),
             ),
             if (!_formHabilitado) _buildAvisoSelecioneCliente(),
             Opacity(
@@ -762,20 +797,18 @@ class _DataOsState extends State<DataOs>
                                 borderRadius: BorderRadius.circular(14),
                                 onTap: _selecionarDataEntrada,
                                 child: InputDecorator(
-                                  decoration:
-                                      customInputDecoration(
-                                        hintText: 'Data',
-                                      ).copyWith(
-                                        suffixIcon: const Icon(
-                                          Icons.calendar_month_outlined,
-                                          size: 20,
-                                        ),
-                                        contentPadding:
-                                            const EdgeInsets.symmetric(
-                                              horizontal: 12,
-                                              vertical: 14,
-                                            ),
-                                      ),
+                                  decoration: customInputDecoration(
+                                    hintText: 'Data',
+                                  ).copyWith(
+                                    suffixIcon: const Icon(
+                                      Icons.calendar_month_outlined,
+                                      size: 20,
+                                    ),
+                                    contentPadding: const EdgeInsets.symmetric(
+                                      horizontal: 12,
+                                      vertical: 14,
+                                    ),
+                                  ),
                                   child: Text(
                                     _formatDate(_os.entryDate),
                                     style: const TextStyle(fontSize: 14),
@@ -798,29 +831,27 @@ class _DataOsState extends State<DataOs>
                                 borderRadius: BorderRadius.circular(14),
                                 onTap: _alterarDataSaida,
                                 child: InputDecorator(
-                                  decoration:
-                                      customInputDecoration(
-                                        hintText: 'Automática',
-                                      ).copyWith(
-                                        filled: true,
-                                        fillColor: colors.surfaceContainerLow,
-                                        suffixIcon: _os.exitDate == null
-                                            ? Icon(
-                                                Icons.hourglass_empty,
-                                                color: Colors.blueGrey.shade400,
-                                                size: 20,
-                                              )
-                                            : Icon(
-                                                Icons.edit_calendar_outlined,
-                                                color: Colors.blueGrey.shade400,
-                                                size: 20,
-                                              ),
-                                        contentPadding:
-                                            const EdgeInsets.symmetric(
-                                              horizontal: 12,
-                                              vertical: 14,
-                                            ),
-                                      ),
+                                  decoration: customInputDecoration(
+                                    hintText: 'Automática',
+                                  ).copyWith(
+                                    filled: true,
+                                    fillColor: colors.surfaceContainerLow,
+                                    suffixIcon: _os.exitDate == null
+                                        ? Icon(
+                                            Icons.hourglass_empty,
+                                            color: Colors.blueGrey.shade400,
+                                            size: 20,
+                                          )
+                                        : Icon(
+                                            Icons.edit_calendar_outlined,
+                                            color: Colors.blueGrey.shade400,
+                                            size: 20,
+                                          ),
+                                    contentPadding: const EdgeInsets.symmetric(
+                                      horizontal: 12,
+                                      vertical: 14,
+                                    ),
+                                  ),
                                   child: Text(
                                     _os.exitDate == null
                                         ? 'Indefinida'
@@ -859,7 +890,10 @@ class _DataOsState extends State<DataOs>
                       ),
                     _buildFieldLabel(Icons.sync_alt, 'Status'),
                     _buildStatusField(),
-                    _buildFieldLabel(Icons.description_outlined, 'Relatório *'),
+                    _buildFieldLabel(
+                      Icons.description_outlined,
+                      'Relatório *',
+                    ),
                     InkWell(
                       onTap: _editarRelatorio,
                       borderRadius: BorderRadius.circular(16),
@@ -989,30 +1023,32 @@ class _DataOsState extends State<DataOs>
           children: [
             SectionLabel(icon: icon, text: text),
             const Spacer(),
-            if (onAdd != null || addLabel.isNotEmpty)
-              ElevatedButton.icon(
-                onPressed: onAdd,
-                icon: const Icon(Icons.add, size: 18),
-                label: Text(addLabel),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: colors.secondary,
-                  foregroundColor: Colors.white,
-                  elevation: 0,
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 14,
-                    vertical: 10,
-                  ),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(8),
-                  ),
+            ElevatedButton.icon(
+              onPressed: onAdd,
+              icon: const Icon(Icons.add, size: 18),
+              label: Text(addLabel),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: colors.secondary,
+                foregroundColor: Colors.white,
+                elevation: 0,
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 14,
+                  vertical: 10,
+                ),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(8),
                 ),
               ),
+            ),
           ],
         ),
         if (onAdd == null && dicaDesabilitado != null)
           Text(
             dicaDesabilitado,
-            style: TextStyle(fontSize: 12, color: colors.onSurfaceVariant),
+            style: TextStyle(
+              fontSize: 12,
+              color: colors.onSurfaceVariant,
+            ),
           ),
       ],
     );
@@ -1130,13 +1166,20 @@ class _DataOsState extends State<DataOs>
       ),
       child: Row(
         children: [
-          Icon(Icons.info_outline, color: Colors.amber.shade800, size: 18),
+          Icon(
+            Icons.info_outline,
+            color: Colors.amber.shade800,
+            size: 18,
+          ),
           const SizedBox(width: 8),
           Expanded(
             child: Text(
               'Selecione um cliente para preencher o andamento da OS '
               '(datas, status e relatório).',
-              style: TextStyle(fontSize: 13, color: Colors.amber.shade900),
+              style: TextStyle(
+                fontSize: 13,
+                color: Colors.amber.shade900,
+              ),
             ),
           ),
         ],
@@ -1165,7 +1208,10 @@ class _DataOsState extends State<DataOs>
         ),
         Text(
           subtitle,
-          style: TextStyle(fontSize: 14, color: colors.onSurfaceVariant),
+          style: TextStyle(
+            fontSize: 14,
+            color: colors.onSurfaceVariant,
+          ),
         ),
       ],
     );
@@ -1201,7 +1247,9 @@ class _DataOsState extends State<DataOs>
 
     if (!editableStatuses.contains(status)) {
       return InputDecorator(
-        decoration: customInputDecoration(hintText: 'Status').copyWith(
+        decoration: customInputDecoration(
+          hintText: 'Status',
+        ).copyWith(
           filled: true,
           fillColor: Colors.grey.shade100,
           suffixIcon: const Icon(
@@ -1236,7 +1284,9 @@ class _DataOsState extends State<DataOs>
 
     return DropdownButtonFormField<ServiceOrderStatus>(
       value: status,
-      decoration: customInputDecoration(hintText: 'Selecione o status'),
+      decoration: customInputDecoration(
+        hintText: 'Selecione o status',
+      ),
       items: opcoes.map((value) {
         return DropdownMenuItem<ServiceOrderStatus>(
           value: value,
