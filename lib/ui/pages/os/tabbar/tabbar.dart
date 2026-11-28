@@ -21,6 +21,8 @@ class _TabbarState extends State<Tabbar> with SingleTickerProviderStateMixin {
 
   late TabController _tabController;
 
+  final OsValoresController _valores = OsValoresController();
+
   bool _dadosObrigatoriosPreenchidos = false;
 
   @override
@@ -33,6 +35,7 @@ class _TabbarState extends State<Tabbar> with SingleTickerProviderStateMixin {
   @override
   void dispose() {
     _tabController.dispose();
+    _valores.dispose();
     super.dispose();
   }
 
@@ -54,9 +57,58 @@ class _TabbarState extends State<Tabbar> with SingleTickerProviderStateMixin {
     });
   }
 
+  /// Sem número real a OS é nova (null, vazio ou -1).
+  String get _titulo {
+    final numero = widget.serviceOrderNumber?.toString().trim() ?? '';
+    return (numero.isEmpty || numero == '-1') ? 'Nova OS' : 'OS nº $numero';
+  }
+
+  void _irParaAba(int index) => _tabController.animateTo(index);
+
+  bool get _temDados =>
+      _dadosObrigatoriosPreenchidos || _valores.quantidadeItens > 0;
+
+  /// Nada nesta tela é gravado ainda; avisa antes de descartar o que foi
+  /// preenchido (voltar pela seta ou pelo gesto/botão do sistema).
+  Future<void> _tentarSair() async {
+    if (!_temDados) {
+      Navigator.pop(context);
+      return;
+    }
+
+    final sair =
+        await showDialog<bool>(
+          context: context,
+          builder: (dialogContext) => AlertDialog(
+            title: const Text('Sair da OS?'),
+            content: const Text(
+              'Os dados desta OS ainda não foram salvos e serão perdidos.',
+            ),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(dialogContext, false),
+                child: const Text('CONTINUAR EDITANDO'),
+              ),
+              TextButton(
+                onPressed: () => Navigator.pop(dialogContext, true),
+                child: Text('SAIR', style: TextStyle(color: colors.error)),
+              ),
+            ],
+          ),
+        ) ??
+        false;
+
+    if (sair && mounted) Navigator.pop(context);
+  }
+
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
+    return PopScope(
+      canPop: false,
+      onPopInvokedWithResult: (didPop, result) {
+        if (!didPop) _tentarSair();
+      },
+      child: Scaffold(
       backgroundColor: colors.surface,
 
       appBar: AppBar(
@@ -68,11 +120,11 @@ class _TabbarState extends State<Tabbar> with SingleTickerProviderStateMixin {
 
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
-          onPressed: () => Navigator.pop(context),
+          onPressed: _tentarSair,
         ),
 
         title: Text(
-          'OS nº ${widget.serviceOrderNumber}',
+          _titulo,
           style: const TextStyle(
             color: Colors.white,
             fontWeight: FontWeight.bold,
@@ -133,15 +185,27 @@ class _TabbarState extends State<Tabbar> with SingleTickerProviderStateMixin {
             status: _status,
             onStatusChanged: _alterarStatus,
             onDadosObrigatoriosChanged: _atualizarDadosObrigatorios,
+            avancarTab: () => _irParaAba(1),
           ),
 
-          TollsOs(),
+          TollsOs(
+            onItensChanged: _valores.definirPecas,
+            onAvancar: () => _irParaAba(2),
+          ),
 
-          OsServicosTab(),
+          OsServicosTab(
+            onItensChanged: _valores.definirServicos,
+            onAvancar: () => _irParaAba(3),
+          ),
 
-          ValuesOs(onConcluir: _concluirOs),
+          ValuesOs(
+            valores: _valores,
+            concluida: _status == 'CONCLUIDA',
+            onConcluir: _concluirOs,
+          ),
         ],
       ),
+    ),
     );
   }
 }

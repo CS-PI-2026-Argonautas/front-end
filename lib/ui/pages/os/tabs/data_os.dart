@@ -49,7 +49,11 @@ class DataOs extends StatefulWidget {
   State<DataOs> createState() => _DataOsState();
 }
 
-class _DataOsState extends State<DataOs> {
+class _DataOsState extends State<DataOs> with AutomaticKeepAliveClientMixin {
+  // Mantém os dados preenchidos ao trocar de aba.
+  @override
+  bool get wantKeepAlive => true;
+
   Map<String, dynamic> _montarDadosOs() {
     return {
       'status': status,
@@ -210,6 +214,35 @@ class _DataOsState extends State<DataOs> {
 
       _verificarDadosObrigatorios();
     }
+  }
+
+  Future<void> _confirmarEdicaoEquipamento(dynamic equipamento) async {
+    final confirmou =
+        await showDialog<bool>(
+          context: context,
+          builder: (dialogContext) => AlertDialog(
+            title: const Text('Editar equipamento?'),
+            content: const Text(
+              'As alterações podem substituir os dados deste equipamento. '
+              'Deseja continuar?',
+            ),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(dialogContext, false),
+                child: const Text('CANCELAR'),
+              ),
+              TextButton(
+                onPressed: () => Navigator.pop(dialogContext, true),
+                child: Text('EDITAR', style: TextStyle(color: colors.primary)),
+              ),
+            ],
+          ),
+        ) ??
+        false;
+
+    if (!confirmou || !mounted) return;
+
+    await _abrirCadastroEquipamento(equipamento);
   }
 
   Future<void> _buscarEquipamento() async {
@@ -616,6 +649,7 @@ class _DataOsState extends State<DataOs> {
 
   @override
   Widget build(BuildContext context) {
+    super.build(context);
     return SingleChildScrollView(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 18),
       child: Center(
@@ -656,6 +690,7 @@ class _DataOsState extends State<DataOs> {
               onAdd: clienteSelecionado == null ? null : _abrirListaEnderecos,
               addLabel: 'Adicionar Endereço',
               icon: Icons.home_outlined,
+              dicaDesabilitado: 'Selecione um cliente primeiro.',
             ),
             _buildEnderecoSelecionado(),
 
@@ -664,16 +699,13 @@ class _DataOsState extends State<DataOs> {
               onBuscar: _buscarEquipamento,
               onOpenCadastro: () =>
                   _abrirCadastroEquipamento(_equipamentoSelecionado),
-              onEdit: (equip) => _abrirCadastroEquipamento(equip),
+              onEdit: _confirmarEdicaoEquipamento,
             ),
 
             if (!_formHabilitado) _buildAvisoSelecioneCliente(),
 
-            Opacity(
-              opacity: _formHabilitado ? 1.0 : 0.4,
-              child: AbsorbPointer(
-                absorbing: !_formHabilitado,
-                child: Column(
+            if (_formHabilitado)
+              Column(
                   spacing: 18,
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
@@ -796,7 +828,7 @@ class _DataOsState extends State<DataOs> {
                     ],
                     _buildFieldLabel(Icons.sync_alt, 'Status'),
                     _buildStatusField(),
-                    _buildFieldLabel(Icons.description_outlined, 'Relatório'),
+                    _buildFieldLabel(Icons.description_outlined, 'Relatório *'),
                     InkWell(
                       onTap: _editarRelatorio,
                       borderRadius: BorderRadius.circular(16),
@@ -864,13 +896,11 @@ class _DataOsState extends State<DataOs> {
                     SizedBox(
                       width: double.infinity,
                       child: ElevatedButton.icon(
-                        onPressed: _formValido
-                            ? () {
-                                if (!_validarFormulario()) return;
+                        onPressed: () {
+                          if (!_validarFormulario()) return;
 
-                                DefaultTabController.of(context).animateTo(1);
-                              }
-                            : null,
+                          widget.avancarTab?.call();
+                        },
                         icon: const Icon(Icons.build),
                         label: const Text(
                           'Adicionar Peças',
@@ -904,8 +934,6 @@ class _DataOsState extends State<DataOs> {
                     ),
                   ],
                 ),
-              ),
-            ),
           ],
         ),
       ),
@@ -917,25 +945,41 @@ class _DataOsState extends State<DataOs> {
     VoidCallback? onAdd,
     String addLabel = 'Adicionar',
     required IconData icon,
+    String? dicaDesabilitado,
   }) {
-    return Row(
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      spacing: 6,
       children: [
-        SectionLabel(icon: icon, text: text),
-        const Spacer(),
-        if (onAdd != null || addLabel.isNotEmpty)
-          ElevatedButton.icon(
-            onPressed: onAdd,
-            icon: const Icon(Icons.add, size: 18),
-            label: Text(addLabel),
-            style: ElevatedButton.styleFrom(
-              backgroundColor: colors.secondary,
-              foregroundColor: Colors.white,
-              elevation: 0,
-              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(8),
+        Row(
+          children: [
+            SectionLabel(icon: icon, text: text),
+            const Spacer(),
+            if (onAdd != null || addLabel.isNotEmpty)
+              ElevatedButton.icon(
+                onPressed: onAdd,
+                icon: const Icon(Icons.add, size: 18),
+                label: Text(addLabel),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: colors.secondary,
+                  foregroundColor: Colors.white,
+                  elevation: 0,
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 14,
+                    vertical: 10,
+                  ),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                ),
               ),
-            ),
+          ],
+        ),
+        // Explica por que o botão está desabilitado.
+        if (onAdd == null && dicaDesabilitado != null)
+          Text(
+            dicaDesabilitado,
+            style: TextStyle(fontSize: 12, color: colors.onSurfaceVariant),
           ),
       ],
     );
@@ -1055,7 +1099,8 @@ class _DataOsState extends State<DataOs> {
           const SizedBox(width: 8),
           Expanded(
             child: Text(
-              'Selecione um cliente para liberar os demais campos.',
+              'Selecione um cliente para preencher o andamento da OS '
+              '(datas, status e relatório).',
               style: TextStyle(fontSize: 13, color: Colors.amber.shade900),
             ),
           ),

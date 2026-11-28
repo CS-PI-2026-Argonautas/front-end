@@ -1,22 +1,34 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:frontend/fire_base/models/dinheiro.dart';
+import 'package:frontend/ui/pages/os/tabs/values_os.dart';
 import 'package:frontend/ui/style/ColorScheme.dart' as custom_colors;
 import 'package:frontend/ui/style/inputDecorationStyles.dart';
-import 'package:frontend/ui/widgets/floatingButton.dart';
 import 'package:frontend/ui/widgets/bottom_sheet/bottom_sheet.dart';
 import 'package:frontend/ui/pages/os/tabs/service_registration.dart';
 import 'package:frontend/fire_base/services/service_service.dart';
 import 'package:frontend/fire_base/models/service.dart';
 
 class OsServicosTab extends StatefulWidget {
-  const OsServicosTab({super.key});
+  /// Chamado sempre que a lista de serviços da OS muda (alimenta a aba Valores).
+  final ValueChanged<List<ItemResumoOs>>? onItensChanged;
+
+  /// Avança para a próxima aba (Valores).
+  final VoidCallback? onAvancar;
+
+  const OsServicosTab({super.key, this.onItensChanged, this.onAvancar});
 
   @override
   State<OsServicosTab> createState() => _OsServicosTabState();
 }
 
-class _OsServicosTabState extends State<OsServicosTab> {
+class _OsServicosTabState extends State<OsServicosTab>
+    with AutomaticKeepAliveClientMixin {
+  // Mantém a aba viva ao trocar de aba; sem isso a lista de serviços da OS
+  // seria perdida e a aba Valores ficaria diferente dela.
+  @override
+  bool get wantKeepAlive => true;
+
   final colors = custom_colors.colorScheme;
   final ServicoService _servicoService = ServicoService();
 
@@ -62,6 +74,20 @@ class _OsServicosTabState extends State<OsServicosTab> {
     }
   }
 
+  void _notificar() {
+    widget.onItensChanged?.call(
+      _servicosExibidos
+          .map(
+            (s) => ItemResumoOs(
+              nome: s['nome'] as String,
+              valorUnitario: Dinheiro(s['valueInCents'] as int? ?? 0),
+              quantidade: s['quantidade'] as int? ?? 1,
+            ),
+          )
+          .toList(),
+    );
+  }
+
   List<Map<String, dynamic>> get _servicosExibidos =>
       _servicosNaOrdem.where((s) => s['removido'] == false).toList();
 
@@ -73,12 +99,34 @@ class _OsServicosTabState extends State<OsServicosTab> {
   Dinheiro get _subtotal {
     var total = Dinheiro.zero;
     for (final item in _servicosExibidos) {
-      total = total + Dinheiro(item['valueInCents'] as int? ?? 0);
+      total =
+          total +
+          Dinheiro(item['valueInCents'] as int? ?? 0) *
+              (item['quantidade'] as int? ?? 1);
     }
     return total;
   }
 
   void _adicionarServico(Map<String, dynamic> servico) {
+    // Serviço que já está na OS: soma na quantidade em vez de repetir o item.
+    final existente = _servicosExibidos
+        .where((s) => s['servicoId'] == servico['id'])
+        .firstOrNull;
+
+    if (existente != null) {
+      _alterarQuantidade(existente, 1);
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            'Quantidade de "${servico['nome']}" aumentada para '
+            '${existente['quantidade']}.',
+          ),
+          behavior: SnackBarBehavior.floating,
+        ),
+      );
+      return;
+    }
+
     setState(() {
       _servicosNaOrdem.add({
         'id': '${servico['id']}_${DateTime.now().millisecondsSinceEpoch}',
@@ -86,15 +134,26 @@ class _OsServicosTabState extends State<OsServicosTab> {
         'nome': servico['nome'],
         'descricao': servico['descricao'],
         'valueInCents': servico['valueInCents'],
+        'quantidade': 1,
         'removido': false,
       });
     });
+    _notificar();
+  }
+
+  void _alterarQuantidade(Map<String, dynamic> servico, int delta) {
+    final int nova = (servico['quantidade'] as int? ?? 1) + delta;
+    if (nova < 1) return;
+
+    setState(() => servico['quantidade'] = nova);
+    _notificar();
   }
 
   Future<void> _deletarServico(Map<String, dynamic> servico) async {
     setState(() {
       servico['removido'] = true;
     });
+    _notificar();
   }
 
   Future<void> _atualizarServico(Service atualizado) async {
@@ -112,6 +171,7 @@ class _OsServicosTabState extends State<OsServicosTab> {
         }
       }
     });
+    _notificar();
 
     await _carregarServicosDoBanco();
   }
@@ -181,11 +241,53 @@ class _OsServicosTabState extends State<OsServicosTab> {
 
   @override
   Widget build(BuildContext context) {
+    super.build(context);
     final listaAtual = _servicosExibidos;
 
-    return Stack(
-      children: [
-        SafeArea(
+    return Scaffold(
+      backgroundColor: colors.surface,
+      floatingActionButton: FloatingActionButton.extended(
+        onPressed: _abrirListaServicos,
+        backgroundColor: colors.primary,
+        foregroundColor: Colors.white,
+        icon: const Icon(Icons.add),
+        label: const Text('Adicionar serviço'),
+      ),
+      bottomNavigationBar: widget.onAvancar == null
+          ? null
+          : SafeArea(
+        child: Padding(
+          padding: const EdgeInsets.fromLTRB(16, 8, 16, 12),
+          child: Center(
+            heightFactor: 1,
+            child: ConstrainedBox(
+              constraints: const BoxConstraints(maxWidth: 650),
+              child: SizedBox(
+                width: double.infinity,
+                child: ElevatedButton.icon(
+                  onPressed: widget.onAvancar,
+                  icon: const Icon(Icons.arrow_forward),
+                  iconAlignment: IconAlignment.end,
+                  label: const Text(
+                    'Próximo: Valores',
+                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                  ),
+                  style: ElevatedButton.styleFrom(
+                    elevation: 3,
+                    backgroundColor: colors.primary,
+                    foregroundColor: colors.onSecondary,
+                    padding: const EdgeInsets.symmetric(vertical: 16),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(14),
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          ),
+        ),
+      ),
+      body: SafeArea(
           child: SingleChildScrollView(
             padding: const EdgeInsets.fromLTRB(16, 18, 16, 90),
             child: Center(
@@ -260,12 +362,6 @@ class _OsServicosTabState extends State<OsServicosTab> {
             ),
           ),
         ),
-        Positioned(
-          bottom: 16,
-          right: 16,
-          child: CustomFloatingButton(onPressed: _abrirListaServicos),
-        ),
-      ],
     );
   }
 
@@ -310,6 +406,7 @@ class _OsServicosTabState extends State<OsServicosTab> {
           textColor: Colors.white,
           onPressed: () {
             setState(() => servico['removido'] = false);
+            _notificar();
             messenger.hideCurrentSnackBar();
           },
         ),
@@ -317,10 +414,12 @@ class _OsServicosTabState extends State<OsServicosTab> {
     );
   }
 
-  /// Card no mesmo estilo dos itens da aba "Peças".
+  /// Card no mesmo estilo dos itens da aba "Peças" (com contador de quantidade).
   Widget _buildServiceCard(Map<String, dynamic> servico) {
     final int preco = servico['valueInCents'] as int? ?? 0;
+    final int quantidade = servico['quantidade'] as int? ?? 1;
     final String descricao = servico['descricao'] ?? '';
+    final Dinheiro totalItem = Dinheiro(preco) * quantidade;
 
     return Slidable(
       key: ValueKey(servico['id']),
@@ -344,35 +443,91 @@ class _OsServicosTabState extends State<OsServicosTab> {
           color: colors.surfaceContainerHigh,
           borderRadius: BorderRadius.circular(18),
         ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
+        child: Row(
           children: [
-            Text(
-              servico['nome'] as String,
-              style: TextStyle(
-                color: Colors.blueGrey.shade600,
-                fontWeight: FontWeight.bold,
-                fontSize: 18,
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    children: [
+                      Expanded(
+                        child: Text(
+                          servico['nome'] as String,
+                          style: TextStyle(
+                            color: Colors.blueGrey.shade600,
+                            fontWeight: FontWeight.bold,
+                            fontSize: 18,
+                          ),
+                        ),
+                      ),
+                      IconButton(
+                        onPressed: () => _confirmarRemocao(servico),
+                        tooltip: 'Remover serviço',
+                        visualDensity: VisualDensity.compact,
+                        icon: Icon(
+                          Icons.delete_outline,
+                          color: colors.error,
+                          size: 22,
+                        ),
+                      ),
+                    ],
+                  ),
+                  if (descricao.isNotEmpty) ...[
+                    const SizedBox(height: 6),
+                    Text(
+                      descricao,
+                      style: TextStyle(
+                        color: colors.onSurfaceVariant,
+                        fontSize: 13,
+                      ),
+                    ),
+                  ],
+                  const SizedBox(height: 6),
+                  Text(
+                    '$quantidade un x ${_formatar(preco)}/un',
+                    style: TextStyle(
+                      color: colors.onSurfaceVariant,
+                      fontSize: 13,
+                    ),
+                  ),
+                  const SizedBox(height: 2),
+                  Text(
+                    _formatar(totalItem.centavos),
+                    style: TextStyle(
+                      color: colors.onSurfaceVariant,
+                      fontWeight: FontWeight.bold,
+                      fontSize: 17,
+                    ),
+                  ),
+                ],
               ),
             ),
-            if (descricao.isNotEmpty) ...[
-              const SizedBox(height: 6),
-              Text(
-                descricao,
-                style: TextStyle(
-                  color: colors.onSurfaceVariant,
-                  fontSize: 13,
+            Row(
+              children: [
+                IconButton(
+                  onPressed: () => _alterarQuantidade(servico, 1),
+                  icon: Icon(Icons.add, color: colors.primary),
                 ),
-              ),
-            ],
-            const SizedBox(height: 2),
-            Text(
-              _formatar(preco),
-              style: TextStyle(
-                color: colors.onSurfaceVariant,
-                fontWeight: FontWeight.bold,
-                fontSize: 17,
-              ),
+                Text(
+                  '$quantidade',
+                  style: TextStyle(
+                    color: colors.onSurface,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                IconButton(
+                  onPressed: quantidade > 1
+                      ? () => _alterarQuantidade(servico, -1)
+                      : null,
+                  icon: Icon(
+                    Icons.remove,
+                    color: quantidade > 1
+                        ? colors.primary
+                        : colors.onSurfaceVariant,
+                  ),
+                ),
+              ],
             ),
           ],
         ),
