@@ -82,10 +82,17 @@ class _PersonRegistrationState1 extends State<PersonRegistration> {
           TextButton(
             onPressed: () => Navigator.pop(context, false),
             child: const Text('Continuar editando'),
+            style: TextButton.styleFrom(
+              foregroundColor: colors.onSurfaceVariant,
+            ),
           ),
           FilledButton(
             onPressed: () => Navigator.pop(context, true),
             child: const Text('Descartar'),
+            style: FilledButton.styleFrom(
+              backgroundColor: colors.error,
+              foregroundColor: colors.onError,
+            ),
           ),
         ],
       ),

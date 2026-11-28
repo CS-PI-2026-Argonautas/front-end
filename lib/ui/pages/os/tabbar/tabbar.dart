@@ -80,18 +80,25 @@ class _TabbarState extends State<Tabbar> with SingleTickerProviderStateMixin {
         await showDialog<bool>(
           context: context,
           builder: (dialogContext) => AlertDialog(
-            title: const Text('Sair da OS?'),
+            title: const Text('Sair da ordem serviço?'),
             content: const Text(
-              'Os dados desta OS ainda não foram salvos e serão perdidos.',
+              'Os dados desta ordem de serviço ainda não foram salvos e serão perdidos.',
             ),
             actions: [
               TextButton(
                 onPressed: () => Navigator.pop(dialogContext, false),
-                child: const Text('CONTINUAR EDITANDO'),
+                child: const Text('Continuar editando'),
+                style: TextButton.styleFrom(
+                  foregroundColor: colors.onSurfaceVariant,
+                ),
               ),
               TextButton(
                 onPressed: () => Navigator.pop(dialogContext, true),
-                child: Text('SAIR', style: TextStyle(color: colors.error)),
+                child: const Text('Sair'),
+                style: TextButton.styleFrom(
+                  foregroundColor: colors.onError,
+                  backgroundColor: colors.error,
+                ),
               ),
             ],
           ),
