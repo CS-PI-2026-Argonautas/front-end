@@ -30,7 +30,7 @@ class _PersonAlterationState extends State<PersonAlteration> {
   final _formKey = GlobalKey<FormState>();
   final colors = custom_colors.colorScheme;
   final ClientService _service = ClientService();
-  final AddressService _enderecoService = AddressService(); 
+  final AddressService _enderecoService = AddressService();
 
   late bool _isPessoaFisica;
   Contact? _contato;
@@ -48,6 +48,25 @@ class _PersonAlterationState extends State<PersonAlteration> {
 
   PersonType get _tipoPessoa =>
       _isPessoaFisica ? PersonType.physical : PersonType.legal;
+
+  bool get _possuiAlteracoes {
+    final original = widget.cliente;
+    final docOriginal = original.document.replaceAll(RegExp(r'[^0-9]'), '');
+    final docAtual =
+        _documentoController.text.replaceAll(RegExp(r'[^0-9]'), '');
+
+    final enderecosAlterados = _enderecos.length != _originais.length ||
+        List.generate(
+          _enderecos.length,
+          (i) => i >= _originais.length || _enderecos[i] != _originais[i],
+        ).any((diff) => diff);
+
+    return _nomeController.text.trim() != original.name.trim() ||
+        _tipoPessoa != original.personType ||
+        docAtual != docOriginal ||
+        _contato != original.contact ||
+        enderecosAlterados;
+  }
 
   @override
   void initState() {
@@ -113,23 +132,119 @@ class _PersonAlterationState extends State<PersonAlteration> {
     super.dispose();
   }
 
+  Future<void> _confirmarSaidaSeNecessario() async {
+    if (_salvando || !_possuiAlteracoes) {
+      if (mounted) Navigator.pop(context);
+      return;
+    }
+
+    final confirmar = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Descartar alterações?'),
+        content: const Text(
+          'Você possui alterações não salvas. Deseja realmente sair e descartá-las?',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: const Text('Continuar editando'),
+          ),
+          FilledButton(
+            onPressed: () => Navigator.pop(context, true),
+            child: const Text('Descartar'),
+          ),
+        ],
+      ),
+    );
+
+    if (confirmar == true && mounted) {
+      Navigator.pop(context);
+    }
+  }
+
+  String? _validarCpfCnpj(String value, PersonType tipo) {
+    final erroService = ClientService.validarDocumento(value, tipo);
+    if (erroService != null) return erroService;
+
+    final digitos = value.replaceAll(RegExp(r'[^0-9]'), '');
+    if (tipo == PersonType.physical) {
+      if (!_isCpfValido(digitos)) return 'CPF inválido';
+    } else {
+      if (!_isCnpjValido(digitos)) return 'CNPJ inválido';
+    }
+    return null;
+  }
+
+  bool _isCpfValido(String cpf) {
+    if (cpf.length != 11 || RegExp(r'^(\d)\1{10}$').hasMatch(cpf)) {
+      return false;
+    }
+
+    int soma = 0;
+    for (int i = 0; i < 9; i++) {
+      soma += int.parse(cpf[i]) * (10 - i);
+    }
+    int digito1 = (soma * 10) % 11;
+    if (digito1 == 10) digito1 = 0;
+    if (digito1 != int.parse(cpf[9])) return false;
+
+    soma = 0;
+    for (int i = 0; i < 10; i++) {
+      soma += int.parse(cpf[i]) * (11 - i);
+    }
+    int digito2 = (soma * 10) % 11;
+    if (digito2 == 10) digito2 = 0;
+    return digito2 == int.parse(cpf[10]);
+  }
+
+  bool _isCnpjValido(String cnpj) {
+    if (cnpj.length != 14 || RegExp(r'^(\d)\1{13}$').hasMatch(cnpj)) {
+      return false;
+    }
+
+    const pesos1 = [5, 4, 3, 2, 9, 8, 7, 6, 5, 4, 3, 2];
+    int soma = 0;
+    for (int i = 0; i < 12; i++) {
+      soma += int.parse(cnpj[i]) * pesos1[i];
+    }
+    int resto = soma % 11;
+    final digito1 = resto < 2 ? 0 : 11 - resto;
+    if (digito1 != int.parse(cnpj[12])) return false;
+
+    const pesos2 = [6, 5, 4, 3, 2, 9, 8, 7, 6, 5, 4, 3, 2];
+    soma = 0;
+    for (int i = 0; i < 13; i++) {
+      soma += int.parse(cnpj[i]) * pesos2[i];
+    }
+    resto = soma % 11;
+    final digito2 = resto < 2 ? 0 : 11 - resto;
+    return digito2 == int.parse(cnpj[13]);
+  }
+
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: colors.surface,
-      appBar: Header(
-        onBack: () {
-          Navigator.pop(context);
-        },
-        title: 'Edição de clientes',
-      ),
-      body: SafeArea(
-        child: SingleChildScrollView(
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 18),
-          child: Center(
-            child: ConstrainedBox(
-              constraints: const BoxConstraints(maxWidth: 650),
-              child: Column(spacing: 24, children: [_buildFormCard()]),
+    return PopScope(
+      canPop: false,
+      onPopInvokedWithResult: (didPop, _) {
+        if (!didPop) {
+          _confirmarSaidaSeNecessario();
+        }
+      },
+      child: Scaffold(
+        backgroundColor: colors.surface,
+        appBar: Header(
+          onBack: _confirmarSaidaSeNecessario,
+          title: 'Edição de clientes',
+        ),
+        body: SafeArea(
+          child: SingleChildScrollView(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 18),
+            child: Center(
+              child: ConstrainedBox(
+                constraints: const BoxConstraints(maxWidth: 650),
+                child: Column(spacing: 24, children: [_buildFormCard()]),
+              ),
             ),
           ),
         ),
@@ -145,7 +260,10 @@ class _PersonAlterationState extends State<PersonAlteration> {
       fieldSpacing: 18,
       autovalidateMode: AutovalidateMode.disabled,
       children: [
-        FormFieldLabel(icon: Icons.person_outline, label: "Nome completo *"),
+        const FormFieldLabel(
+          icon: Icons.person_outline,
+          label: "Nome completo *",
+        ),
 
         TextFormField(
           controller: _nomeController,
@@ -158,17 +276,78 @@ class _PersonAlterationState extends State<PersonAlteration> {
           },
         ),
 
+        const FormFieldLabel(
+          icon: Icons.swap_horiz_outlined,
+          label: "Tipo de pessoa *",
+        ),
+
+        SegmentedButton<bool>(
+          segments: const [
+            ButtonSegment<bool>(
+              value: false,
+              label: Text("Pessoa Jurídica"),
+              icon: Icon(Icons.business_outlined),
+            ),
+            ButtonSegment<bool>(
+              value: true,
+              label: Text("Pessoa Física"),
+              icon: Icon(Icons.person_outline),
+            ),
+          ],
+          selected: {_isPessoaFisica},
+          onSelectionChanged: (selection) {
+            final novoValor = selection.first;
+            if (novoValor == _isPessoaFisica) return;
+            setState(() {
+              _isPessoaFisica = novoValor;
+              _documentoController.clear();
+              _cpfFormatter.clear();
+              _cnpjFormatter.clear();
+            });
+          },
+          style: SegmentedButton.styleFrom(
+            side: const BorderSide(color: Colors.transparent),
+            backgroundColor: colors.surfaceContainerHighest,
+            foregroundColor: colors.onSurfaceVariant,
+            selectedBackgroundColor: colors.secondary,
+            selectedForegroundColor: colors.onSecondary,
+          ),
+        ),
+
+        FormFieldLabel(
+          icon: Icons.badge_outlined,
+          label: _isPessoaFisica ? "CPF *" : "CNPJ *",
+        ),
+
+        TextFormField(
+          key: ValueKey(_isPessoaFisica),
+          controller: _documentoController,
+          decoration: customInputDecoration(
+            hintText: _isPessoaFisica ? "000.000.000-00" : "00.000.000/0000-00",
+          ),
+          keyboardType: TextInputType.number,
+          inputFormatters: [_isPessoaFisica ? _cpfFormatter : _cnpjFormatter],
+          validator: (value) => _validarCpfCnpj(value ?? '', _tipoPessoa),
+        ),
+
         if (_carregandoEnderecos)
           const Center(child: CircularProgressIndicator())
         else
           SelectionField<Address>(
-            label: 'Endereço',
+            label: 'Endereço *',
             iconeLabel: Icons.home_outlined,
             textoBotao: 'Cadastrar endereço',
             iconeBotao: Icons.add,
             itens: _enderecos,
-            tituloItem: (endereco) =>
-                '${endereco.publicPlace}, ${endereco.number} - ${endereco.city}/${endereco.uf.name}',
+            tituloItem: (endereco) {
+              final complementoStr = endereco.complement.trim().isNotEmpty
+                  ? ' (${endereco.complement.trim()})'
+                  : '';
+              final numeroStr = endereco.number.trim().isNotEmpty
+                  ? ', ${endereco.number.trim()}'
+                  : '';
+              return '${endereco.publicPlace}$numeroStr$complementoStr - ${endereco.city}/${endereco.uf.name}';
+            },
             textoVazio: 'Nenhum endereço adicionado.',
             permitirExclusao: true,
             onPressed: () async {
@@ -222,8 +401,8 @@ class _PersonAlterationState extends State<PersonAlteration> {
             },
           ),
 
-       SelectionField<Contact>(
-          label: 'Informações de contato',
+        SelectionField<Contact>(
+          label: 'Informações de contato *',
           iconeLabel: Icons.phone_android_outlined,
           textoBotao: _contato == null ? 'Adicionar contato' : 'Alterar contato',
           iconeBotao: _contato == null ? Icons.add : Icons.swap_horiz_outlined,
@@ -235,7 +414,7 @@ class _PersonAlterationState extends State<PersonAlteration> {
             final resultadoContato = await Navigator.push<Contact>(
               context,
               MaterialPageRoute(
-                builder: (context) => PersonAlterationContact( // ou PersonRegistrationContact
+                builder: (context) => PersonAlterationContact(
                   contatoInicial: _contato,
                 ),
               ),
@@ -251,7 +430,7 @@ class _PersonAlterationState extends State<PersonAlteration> {
             final contatoEditado = await Navigator.push<Contact>(
               context,
               MaterialPageRoute(
-                builder: (context) => PersonAlterationContact( // ou PersonRegistrationContact
+                builder: (context) => PersonAlterationContact(
                   contatoInicial: contato,
                 ),
               ),
@@ -285,52 +464,11 @@ class _PersonAlterationState extends State<PersonAlteration> {
           },
         ),
 
-        
-
-        FormFieldLabel(
-          icon: Icons.badge_outlined,
-          label: _isPessoaFisica ? "CPF *" : "CNPJ *",
-        ),
-
-        TextFormField(
-          key: ValueKey(_isPessoaFisica),
-          controller: _documentoController,
-          decoration: customInputDecoration(
-            hintText: _isPessoaFisica
-                ? "000.000.000-00"
-                : "00.000.000/0000-00",
-          ),
-          keyboardType: TextInputType.number,
-          inputFormatters: [_isPessoaFisica ? _cpfFormatter : _cnpjFormatter],
-          validator: (value) =>
-              ClientService.validarDocumento(value ?? '', _tipoPessoa),
-        ),
-
-        CheckboxListTile(
-          value: _isPessoaFisica,
-          onChanged: (value) => setState(() {
-            _isPessoaFisica = value ?? false;
-            _documentoController.clear();
-            _cpfFormatter.clear();
-            _cnpjFormatter.clear();
-          }),
-          activeColor: colors.secondary,
-          contentPadding: EdgeInsets.zero,
-          controlAffinity: ListTileControlAffinity.leading,
-          title: Text(
-            "Pessoa física?",
-            style: TextStyle(
-              color: colors.onSurface,
-              fontWeight: FontWeight.w500,
-            ),
-          ),
-        ),
-
         ActionButtons(
           formKey: _formKey,
           colors: colors,
           textoConfirmar: 'Salvar',
-          onCancel: () => Navigator.pop(context),
+          onCancel: _confirmarSaidaSeNecessario,
           onSave: _salvar,
         ),
       ],
@@ -339,6 +477,9 @@ class _PersonAlterationState extends State<PersonAlteration> {
 
   Future<void> _salvar() async {
     if (_salvando) return;
+
+    final formValido = _formKey.currentState?.validate() ?? false;
+    if (!formValido) return;
 
     if (!_enderecosCarregados) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -350,16 +491,39 @@ class _PersonAlterationState extends State<PersonAlteration> {
       return;
     }
 
+    if (_enderecos.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Adicione ao menos um endereço'),
+          behavior: SnackBarBehavior.floating,
+        ),
+      );
+      return;
+    }
+
+    final contato = _contato;
+    if (contato == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Adicione ao menos um contato'),
+          behavior: SnackBarBehavior.floating,
+        ),
+      );
+      return;
+    }
+
     setState(() => _salvando = true);
 
     final original = widget.cliente;
+    final nomeLimpo = _nomeController.text.trim();
+    final documentoLimpo = _documentoController.text.trim();
 
     final atualizado = Client(
       id: original.id,
-      name: _nomeController.text.trim(),
+      name: nomeLimpo,
       personType: _tipoPessoa,
-      document: _documentoController.text,
-      contact: _contato!,
+      document: documentoLimpo,
+      contact: contato,
     );
 
     try {
@@ -391,6 +555,12 @@ class _PersonAlterationState extends State<PersonAlteration> {
 
       if (!mounted) return;
 
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Cliente ${atualizado.name} atualizado'),
+          behavior: SnackBarBehavior.floating,
+        ),
+      );
       Navigator.pop(context, true);
     } catch (e) {
       debugPrint('Erro ao salvar cliente: $e');

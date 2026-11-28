@@ -1,5 +1,7 @@
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+
 import 'package:frontend/ui/style/ColorScheme.dart' as custom_colors;
 import 'package:frontend/fire_base/models/dinheiro.dart';
 import 'package:frontend/fire_base/models/os.dart';
@@ -79,23 +81,31 @@ class _ValuesOsState extends State<ValuesOs>
     return (numero * 100).round();
   }
 
-  void _atualizarTaxa(String valor) {
-    _editarOs((os) => os.globalFeeCents = _converterParaCentavos(valor));
+  void _editarOs(void Function(ServiceOrder) editar) {
+    setState(() {
+      widget.serviceOrderState.applyUserEdit(editar);
+    });
+
     widget.onChanged?.call();
+  }
+
+  void _atualizarTaxa(String valor) {
+    _editarOs(
+      (os) => os.globalFeeCents = _converterParaCentavos(valor),
+    );
   }
 
   void _atualizarDesconto(String valor) {
-    _editarOs((os) => os.globalFeeCents = _converterParaCentavos(valor));
-    widget.onChanged?.call();
-  }
-
-  void _editarOs(void Function(ServiceOrder) editar) {
-    setState(() => widget.serviceOrderState.applyUserEdit(editar));
-    widget.onChanged?.call();
+    _editarOs(
+      (os) => os.globalDiscountCents = _converterParaCentavos(valor),
+    );
   }
 
   int get _subtotalPecas {
-    return os.parts.fold<int>(0, (total, peca) => total + peca.subtotalCents);
+    return os.parts.fold<int>(
+      0,
+      (total, peca) => total + peca.subtotalCents,
+    );
   }
 
   int get _subtotalServicos {
@@ -109,26 +119,36 @@ class _ValuesOsState extends State<ValuesOs>
 
   int get _desconto => os.globalDiscountCents;
 
-  int get _total {
-    return _subtotalPecas + _subtotalServicos + _taxas - _desconto;
-  }
+  int get _valorBruto => _subtotalPecas + _subtotalServicos + _taxas;
+
+  bool get _descontoExcedeTotal => _desconto > _valorBruto;
+
+  int get _total => _valorBruto - _desconto;
 
   void _concluir() {
-    if (_total < 0) {
+    if (_descontoExcedeTotal || _total < 0) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
-          content: Text('O desconto não pode deixar o total negativo.'),
+          content: Text(
+            'O desconto não pode ser maior que o valor da OS.',
+          ),
+          behavior: SnackBarBehavior.floating,
         ),
       );
       return;
     }
 
     if (widget.onConcluir == null) {
-      debugPrint('ERRO: onConcluir não foi conectado na Tabbar.');
+      debugPrint(
+        'ERRO: onConcluir não foi conectado na Tabbar.',
+      );
 
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
-          content: Text('Não foi possível concluir: ação não configurada.'),
+          content: Text(
+            'Não foi possível concluir: ação não configurada.',
+          ),
+          behavior: SnackBarBehavior.floating,
         ),
       );
       return;
@@ -143,9 +163,8 @@ class _ValuesOsState extends State<ValuesOs>
 
     final subtotalPecas = _subtotalPecas;
     final subtotalServicos = _subtotalServicos;
-    final taxas = _taxas;
-    final desconto = _desconto;
     final total = _total;
+    final excedeu = _descontoExcedeTotal;
 
     return SingleChildScrollView(
       padding: EdgeInsets.only(
@@ -165,7 +184,10 @@ class _ValuesOsState extends State<ValuesOs>
               borderRadius: BorderRadius.circular(22),
             ),
             child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 28),
+              padding: const EdgeInsets.symmetric(
+                horizontal: 24,
+                vertical: 28,
+              ),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -182,7 +204,9 @@ class _ValuesOsState extends State<ValuesOs>
                     icon: Icons.build,
                     children: os.parts.map((peca) {
                       return _buildItem(
-                        name: '${peca.name} (${peca.quantity}x)',
+                        name: peca.quantity > 1
+                            ? '${peca.quantity}× ${peca.name}'
+                            : peca.name,
                         value: peca.subtotalCents,
                       );
                     }).toList(),
@@ -196,7 +220,9 @@ class _ValuesOsState extends State<ValuesOs>
                     icon: Icons.handyman,
                     children: os.services.map((servico) {
                       return _buildItem(
-                        name: servico.description,
+                        name: servico.name.isNotEmpty
+                            ? servico.name
+                            : servico.description,
                         value: servico.subtotalCents,
                       );
                     }).toList(),
@@ -220,9 +246,20 @@ class _ValuesOsState extends State<ValuesOs>
                     cor: Colors.redAccent.shade400,
                   ),
 
+                  if (excedeu) ...[
+                    const SizedBox(height: 12),
+                    _buildAviso(
+                      'O desconto é maior que o valor da OS. '
+                      'Reduza o desconto para poder concluir.',
+                    ),
+                  ],
+
                   const SizedBox(height: 20),
 
-                  Divider(color: colors.outline, thickness: 1.2),
+                  Divider(
+                    color: colors.outline,
+                    thickness: 1.2,
+                  ),
 
                   const SizedBox(height: 12),
 
@@ -233,7 +270,7 @@ class _ValuesOsState extends State<ValuesOs>
                   SizedBox(
                     width: double.infinity,
                     child: ElevatedButton.icon(
-                      onPressed: total < 0 ? null : _concluir,
+                      onPressed: excedeu ? null : _concluir,
                       icon: const Icon(Icons.check),
                       label: const Text(
                         'Concluir ordem de serviço e voltar',
@@ -244,10 +281,16 @@ class _ValuesOsState extends State<ValuesOs>
                         ),
                       ),
                       style: ElevatedButton.styleFrom(
-                        elevation: 3,
+                        elevation: excedeu ? 0 : 3,
                         backgroundColor: colors.primary,
                         foregroundColor: colors.onSecondary,
-                        padding: const EdgeInsets.symmetric(vertical: 18),
+                        disabledBackgroundColor:
+                            colors.surfaceContainerLow,
+                        disabledForegroundColor:
+                            colors.onSurfaceVariant,
+                        padding: const EdgeInsets.symmetric(
+                          vertical: 18,
+                        ),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(14),
                         ),
@@ -259,13 +302,13 @@ class _ValuesOsState extends State<ValuesOs>
 
                   Center(
                     child: Text(
-                      total < 0
-                          ? 'O desconto não pode deixar o total negativo.'
+                      excedeu
+                          ? 'O desconto não pode ser maior que o valor da OS.'
                           : 'Confira os valores antes de concluir.',
                       textAlign: TextAlign.center,
                       style: TextStyle(
                         fontSize: 12,
-                        color: total < 0
+                        color: excedeu
                             ? colors.error
                             : Colors.blueGrey.shade600,
                       ),
@@ -286,14 +329,19 @@ class _ValuesOsState extends State<ValuesOs>
       children: [
         Row(
           children: [
-            Icon(Icons.attach_money, color: colors.secondary),
+            Icon(
+              Icons.attach_money,
+              color: colors.secondary,
+            ),
             const SizedBox(width: 8),
-            Text(
-              title,
-              style: TextStyle(
-                fontSize: 20,
-                fontWeight: FontWeight.bold,
-                color: colors.onSurface,
+            Expanded(
+              child: Text(
+                title,
+                style: TextStyle(
+                  fontSize: 20,
+                  fontWeight: FontWeight.bold,
+                  color: colors.onSurface,
+                ),
               ),
             ),
           ],
@@ -301,7 +349,10 @@ class _ValuesOsState extends State<ValuesOs>
         const SizedBox(height: 6),
         Text(
           subtitle,
-          style: TextStyle(fontSize: 14, color: colors.onSurfaceVariant),
+          style: TextStyle(
+            fontSize: 14,
+            color: colors.onSurfaceVariant,
+          ),
         ),
       ],
     );
@@ -324,7 +375,11 @@ class _ValuesOsState extends State<ValuesOs>
         children: [
           Row(
             children: [
-              Icon(icon, size: 20, color: colors.secondary),
+              Icon(
+                icon,
+                size: 20,
+                color: colors.secondary,
+              ),
               const SizedBox(width: 8),
               Expanded(
                 child: Text(
@@ -346,11 +401,15 @@ class _ValuesOsState extends State<ValuesOs>
               ),
             ],
           ),
+
           const SizedBox(height: 8),
+
           if (children.isEmpty)
             Text(
               'Nenhum item adicionado.',
-              style: TextStyle(color: colors.onSurfaceVariant),
+              style: TextStyle(
+                color: colors.onSurfaceVariant,
+              ),
             )
           else
             ...children,
@@ -359,22 +418,38 @@ class _ValuesOsState extends State<ValuesOs>
     );
   }
 
-  Widget _buildItem({required String name, required int value}) {
+  Widget _buildItem({
+    required String name,
+    required int value,
+  }) {
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 3),
+      padding: const EdgeInsets.symmetric(
+        horizontal: 4,
+        vertical: 3,
+      ),
       child: Row(
         children: [
-          Icon(Icons.chevron_right, size: 18, color: colors.onSurfaceVariant),
+          Icon(
+            Icons.chevron_right,
+            size: 18,
+            color: colors.onSurfaceVariant,
+          ),
           const SizedBox(width: 4),
           Expanded(
             child: Text(
               name,
-              style: TextStyle(color: colors.onSurfaceVariant, fontSize: 14),
+              style: TextStyle(
+                color: colors.onSurfaceVariant,
+                fontSize: 14,
+              ),
             ),
           ),
           Text(
             Dinheiro(value).formatado(),
-            style: TextStyle(color: colors.onSurfaceVariant, fontSize: 14),
+            style: TextStyle(
+              color: colors.onSurfaceVariant,
+              fontSize: 14,
+            ),
           ),
         ],
       ),
@@ -388,11 +463,17 @@ class _ValuesOsState extends State<ValuesOs>
     required Color cor,
   }) {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+      padding: const EdgeInsets.symmetric(
+        horizontal: 14,
+        vertical: 10,
+      ),
       decoration: BoxDecoration(
-        color: cor.withOpacity(0.09),
+        color: cor.withValues(alpha: 0.09),
         borderRadius: BorderRadius.circular(14),
-        border: Border.all(color: cor.withOpacity(0.3), width: 0.8),
+        border: Border.all(
+          color: cor.withValues(alpha: 0.3),
+          width: 0.8,
+        ),
       ),
       child: Row(
         children: [
@@ -414,7 +495,9 @@ class _ValuesOsState extends State<ValuesOs>
                 decimal: true,
               ),
               inputFormatters: [
-                FilteringTextInputFormatter.allow(RegExp(r'[0-9,.]')),
+                FilteringTextInputFormatter.allow(
+                  RegExp(r'[0-9,.]'),
+                ),
               ],
               textAlign: TextAlign.end,
               decoration: const InputDecoration(
@@ -431,12 +514,45 @@ class _ValuesOsState extends State<ValuesOs>
     );
   }
 
+  Widget _buildAviso(String texto) {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: Colors.red.shade50,
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: Row(
+        children: [
+          Icon(
+            Icons.error_outline,
+            color: Colors.red.shade700,
+            size: 18,
+          ),
+          const SizedBox(width: 8),
+          Expanded(
+            child: Text(
+              texto,
+              style: TextStyle(
+                fontSize: 13,
+                color: Colors.red.shade900,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
   Widget _buildTotalCard(int total) {
     return Container(
       width: double.infinity,
-      padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 18),
+      padding: const EdgeInsets.symmetric(
+        horizontal: 18,
+        vertical: 18,
+      ),
       decoration: BoxDecoration(
-        color: colors.primary.withOpacity(0.08),
+        color: colors.primary.withValues(alpha: 0.08),
         borderRadius: BorderRadius.circular(16),
       ),
       child: Row(

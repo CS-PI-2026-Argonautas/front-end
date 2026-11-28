@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:frontend/fire_base/models/contact.dart'; 
+import 'package:frontend/fire_base/models/contact.dart';
 import 'package:frontend/ui/style/ColorScheme.dart' as custom_colors;
 import 'package:frontend/ui/style/inputDecorationStyles.dart';
 import 'package:frontend/ui/widgets/form/action_buttons.dart';
@@ -53,6 +53,16 @@ class _PersonRegistration3State extends State<PersonRegistrationContact> {
   );
 
   @override
+  void dispose() {
+    _telefoneController.dispose();
+    _emailController.dispose();
+    _contatoAdicionalController.dispose();
+    _setorController.dispose();
+    _observacoesController.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: colors.surface,
@@ -60,7 +70,7 @@ class _PersonRegistration3State extends State<PersonRegistrationContact> {
         onBack: () {
           Navigator.pop(context);
         },
-        title: widget.titulo, 
+        title: widget.titulo,
       ),
       body: SafeArea(
         child: SingleChildScrollView(
@@ -80,11 +90,11 @@ class _PersonRegistration3State extends State<PersonRegistrationContact> {
     return FormCard(
       formKey: _formKey,
       title: "Canais de Comunicação",
-      subtitle: "Informe pelo menos um contato principal.",
+      subtitle: "O telefone principal e o email são obrigatórios.",
       fieldSpacing: 18,
       autovalidateMode: AutovalidateMode.disabled,
       children: [
-        FormFieldLabel(
+        const FormFieldLabel(
           icon: Icons.phone_outlined,
           label: "Telefone principal *",
         ),
@@ -95,24 +105,30 @@ class _PersonRegistration3State extends State<PersonRegistrationContact> {
           inputFormatters: [_phoneFormatter],
           keyboardType: TextInputType.phone,
           validator: (value) {
-            if (value == null || value.isEmpty) return 'Informe o telefone';
+            if (value == null || value.trim().isEmpty) {
+              return 'Informe o telefone';
+            }
             if (value.length < 15) return 'Telefone incompleto';
             return null;
           },
         ),
 
-        FormFieldLabel(icon: Icons.email_outlined, label: "Email"), 
+        const FormFieldLabel(icon: Icons.email_outlined, label: "Email *"),
 
         TextFormField(
           controller: _emailController,
           decoration: customInputDecoration(hintText: "exemplo@email.com"),
           keyboardType: TextInputType.emailAddress,
           validator: (value) {
-            return validateEmail(value);
+            final email = (value ?? '').trim();
+            if (email.isEmpty) {
+              return 'Informe o email';
+            }
+            return validateEmail(email);
           },
         ),
 
-        FormFieldLabel(
+        const FormFieldLabel(
           icon: Icons.contact_phone_outlined,
           label: "Contato adicional",
         ),
@@ -125,15 +141,17 @@ class _PersonRegistration3State extends State<PersonRegistrationContact> {
           maxLength: 50,
         ),
 
-        FormFieldLabel(icon: Icons.business_outlined, label: "Setor"),
+        const FormFieldLabel(icon: Icons.business_outlined, label: "Setor"),
 
         TextFormField(
           controller: _setorController,
-          decoration: customInputDecoration(hintText: "Exemplo: Financeiro, Compras..."),
+          decoration: customInputDecoration(
+            hintText: "Exemplo: Financeiro, Compras...",
+          ),
           maxLength: 50,
         ),
 
-        FormFieldLabel(icon: Icons.comment_outlined, label: "Observações"),
+        const FormFieldLabel(icon: Icons.comment_outlined, label: "Observações"),
 
         TextFormField(
           controller: _observacoesController,
@@ -148,9 +166,14 @@ class _PersonRegistration3State extends State<PersonRegistrationContact> {
         ActionButtons(
           formKey: _formKey,
           colors: colors,
-          textoConfirmar: widget.contatoInicial == null ? 'Cadastrar' : 'Salvar',
+          textoConfirmar:
+              widget.contatoInicial == null ? 'Adicionar' : 'Salvar',
           onCancel: () => Navigator.pop(context),
           onSave: () {
+            if (!(_formKey.currentState?.validate() ?? false)) {
+              return;
+            }
+
             Navigator.pop(
               context,
               Contact(

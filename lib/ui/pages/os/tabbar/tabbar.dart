@@ -1,6 +1,9 @@
+
 import 'dart:async';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+
 import 'package:frontend/fire_base/models/os.dart';
 import 'package:frontend/fire_base/Enums/StatusOrderService.dart';
 import 'package:frontend/fire_base/repositories/os_repository.dart';
@@ -25,7 +28,8 @@ class Tabbar extends StatefulWidget {
   State<Tabbar> createState() => _TabbarState();
 }
 
-class _TabbarState extends State<Tabbar> with SingleTickerProviderStateMixin {
+class _TabbarState extends State<Tabbar>
+    with SingleTickerProviderStateMixin {
   final colors = custom_colors.colorScheme;
 
   final OsRepository _osRepository = FirestoreOsRepository();
@@ -34,8 +38,7 @@ class _TabbarState extends State<Tabbar> with SingleTickerProviderStateMixin {
   late final AppLifecycleListener _lifecycleListener;
   late ServiceOrderState _serviceOrderState;
 
-  StreamSubscription<DocumentSnapshot<Map<String, dynamic>>>?
-  _sincronizacaoSubscription;
+  StreamSubscription<DocumentSnapshot>? _sincronizacaoSubscription;
 
   ServiceOrder get _serviceOrder => _serviceOrderState.serviceOrder;
 
@@ -48,6 +51,20 @@ class _TabbarState extends State<Tabbar> with SingleTickerProviderStateMixin {
 
   bool _carregando = false;
   String? _erroCarregamento;
+
+  String get _titulo {
+    final rawNumero = _serviceOrder.numeroOs ?? widget.serviceOrderNumber;
+    final numero = rawNumero?.toString().trim() ?? '';
+
+    return (numero.isEmpty || numero == '-1')
+        ? 'Nova OS'
+        : 'OS nº $numero';
+  }
+
+  bool get _temDados =>
+      _dadosObrigatoriosPreenchidos ||
+      _serviceOrder.parts.isNotEmpty ||
+      _serviceOrder.services.isNotEmpty;
 
   @override
   void initState() {
@@ -77,19 +94,19 @@ class _TabbarState extends State<Tabbar> with SingleTickerProviderStateMixin {
     _sincronizacaoSubscription = _osRepository
         .observarSincronizacao(_serviceOrder.id)
         .listen(
-          (snapshot) {
-            if (!mounted) return;
+      (snapshot) {
+        if (!mounted) return;
 
-            _serviceOrderState.updateSyncSnapshot(
-              documentExists: snapshot.exists,
-              hasPendingWrites: snapshot.metadata.hasPendingWrites,
-            );
-          },
-          onError: (Object erro, StackTrace stackTrace) {
-            debugPrint('Erro ao observar sincronização da OS: $erro');
-            debugPrintStack(stackTrace: stackTrace);
-          },
+        _serviceOrderState.updateSyncSnapshot(
+          documentExists: snapshot.exists,
+          hasPendingWrites: snapshot.metadata.hasPendingWrites,
         );
+      },
+      onError: (Object erro, StackTrace stackTrace) {
+        debugPrint('Erro ao observar sincronização da OS: $erro');
+        debugPrintStack(stackTrace: stackTrace);
+      },
+    );
   }
 
   Future<void> _carregarOs() async {
@@ -153,8 +170,46 @@ class _TabbarState extends State<Tabbar> with SingleTickerProviderStateMixin {
     super.dispose();
   }
 
+  Future<bool> _confirmarSaida() async {
+    if (!_temDados) return true;
+
+    final sair = await showDialog<bool>(
+          context: context,
+          builder: (dialogContext) => AlertDialog(
+            title: const Text('Sair da ordem de serviço?'),
+            content: const Text(
+              'As alterações desta ordem de serviço ainda não foram finalizadas. Deseja realmente sair?',
+            ),
+            actions: [
+              TextButton(
+                style: TextButton.styleFrom(
+                  foregroundColor: colors.onSurfaceVariant,
+                ),
+                onPressed: () => Navigator.pop(dialogContext, false),
+                child: const Text('Continuar editando'),
+              ),
+              TextButton(
+                style: TextButton.styleFrom(
+                  foregroundColor: colors.onError,
+                  backgroundColor: colors.error,
+                ),
+                onPressed: () => Navigator.pop(dialogContext, true),
+                child: const Text('Sair'),
+              ),
+            ],
+          ),
+        ) ??
+        false;
+
+    return sair;
+  }
+
   Future<void> _sair() async {
     if (_salvando || _saindo) return;
+
+    final podeSair = await _confirmarSaida();
+
+    if (!podeSair || !mounted) return;
 
     setState(() => _saindo = true);
 
@@ -178,44 +233,6 @@ class _TabbarState extends State<Tabbar> with SingleTickerProviderStateMixin {
           behavior: SnackBarBehavior.floating,
         ),
       );
-    }
-  }
-
-  Future<void> _salvarOs() async {
-    if (_salvando) return;
-
-    setState(() {
-      _salvando = true;
-    });
-
-    try {
-      await _osRepository.salvar(_serviceOrder);
-
-      if (!mounted) return;
-
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Ordem de serviço salva com sucesso!'),
-          backgroundColor: Colors.green,
-          behavior: SnackBarBehavior.floating,
-        ),
-      );
-    } catch (e) {
-      if (!mounted) return;
-
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(e.toString().replaceFirst('Exception: ', '')),
-          backgroundColor: Colors.red,
-          behavior: SnackBarBehavior.floating,
-        ),
-      );
-    } finally {
-      if (mounted) {
-        setState(() {
-          _salvando = false;
-        });
-      }
     }
   }
 
@@ -248,7 +265,9 @@ class _TabbarState extends State<Tabbar> with SingleTickerProviderStateMixin {
       if (!mounted) return;
 
       if (!savedLocally) {
-        throw Exception('Não foi possível gravar as alterações na fila local.');
+        throw Exception(
+          'Não foi possível gravar as alterações na fila local.',
+        );
       }
 
       if (_serviceOrder.status == ServiceOrderStatus.EM_ORCAMENTO ||
@@ -257,6 +276,7 @@ class _TabbarState extends State<Tabbar> with SingleTickerProviderStateMixin {
       }
 
       await _osRepository.salvar(_serviceOrder);
+
       _serviceOrderState.endCompletion(saved: true);
 
       if (!mounted) return;
@@ -391,7 +411,7 @@ class _TabbarState extends State<Tabbar> with SingleTickerProviderStateMixin {
     if (_carregando || _erroCarregamento != null) {
       return Scaffold(
         backgroundColor: colors.surface,
-        appBar: AppBar(title: Text('OS nº ${widget.serviceOrderNumber}')),
+        appBar: AppBar(title: Text(_titulo)),
         body: Center(
           child: _carregando
               ? const CircularProgressIndicator()
@@ -423,7 +443,7 @@ class _TabbarState extends State<Tabbar> with SingleTickerProviderStateMixin {
           onPressed: _salvando || _saindo ? null : _sair,
         ),
         title: Text(
-          'OS nº ${_serviceOrder.numeroOs ?? widget.serviceOrderNumber}',
+          _titulo,
           style: const TextStyle(
             color: Colors.white,
             fontWeight: FontWeight.bold,
@@ -478,9 +498,10 @@ class _TabbarState extends State<Tabbar> with SingleTickerProviderStateMixin {
                     'Selecione um cliente, um endereço e um equipamento antes de concluir.';
               } else if (_serviceOrder.parts.isEmpty && index >= 2) {
                 mensagem =
-                    'Adicione pelo menos uma peça ou marque a caixa de selecao antes de continuar.';
+                    'Adicione pelo menos uma peça ou marque a caixa de seleção antes de continuar.';
               } else {
-                mensagem = 'Adicione pelo menos um serviço antes de continuar.';
+                mensagem =
+                    'Adicione pelo menos um serviço antes de continuar.';
               }
 
               ScaffoldMessenger.of(context).showSnackBar(
@@ -504,10 +525,10 @@ class _TabbarState extends State<Tabbar> with SingleTickerProviderStateMixin {
         controller: _tabController,
         physics:
             _dadosObrigatoriosPreenchidos &&
-                (_serviceOrder.parts.isNotEmpty || _somenteServicos) &&
-                _serviceOrder.services.isNotEmpty
-            ? const BouncingScrollPhysics()
-            : const NeverScrollableScrollPhysics(),
+                    (_serviceOrder.parts.isNotEmpty || _somenteServicos) &&
+                    _serviceOrder.services.isNotEmpty
+                ? const BouncingScrollPhysics()
+                : const NeverScrollableScrollPhysics(),
         children: [
           DataOs(
             serviceOrderState: _serviceOrderState,
@@ -534,6 +555,7 @@ class _TabbarState extends State<Tabbar> with SingleTickerProviderStateMixin {
             },
             onChanged: _notificarAlteracaoOS,
           ),
+
           ValuesOs(
             serviceOrderState: _serviceOrderState,
             onConcluir: _concluirOs,

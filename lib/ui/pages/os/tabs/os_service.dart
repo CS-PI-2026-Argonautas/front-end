@@ -1,3 +1,4 @@
+
 import 'dart:async';
 
 import 'package:flutter/material.dart';
@@ -10,9 +11,9 @@ import 'package:frontend/ui/pages/os/service_order_state.dart';
 import 'package:frontend/ui/pages/service_registration/service_registration.dart';
 import 'package:frontend/ui/style/ColorScheme.dart' as custom_colors;
 import 'package:frontend/ui/style/inputDecorationStyles.dart';
-import 'package:frontend/ui/widgets/floatingButton.dart';
 import 'package:frontend/ui/widgets/bottom_sheet/bottom_sheet.dart';
 import 'package:frontend/utils/formatters/currency_input_formatter.dart';
+import 'package:frontend/ui/widgets/floatingButton.dart';
 
 class OsServicosTab extends StatefulWidget {
   final ServiceOrderState serviceOrderState;
@@ -30,7 +31,11 @@ class OsServicosTab extends StatefulWidget {
   State<OsServicosTab> createState() => _OsServicosTabState();
 }
 
-class _OsServicosTabState extends State<OsServicosTab> {
+class _OsServicosTabState extends State<OsServicosTab>
+    with AutomaticKeepAliveClientMixin {
+  @override
+  bool get wantKeepAlive => true;
+
   final colors = custom_colors.colorScheme;
 
   final ServiceService _servicoService = ServiceService();
@@ -53,7 +58,8 @@ class _OsServicosTabState extends State<OsServicosTab> {
     final query = _searchController.text.toLowerCase().trim();
 
     return _os.services.where((servico) {
-      return servico.description.toLowerCase().contains(query);
+      return servico.description.toLowerCase().contains(query) ||
+          servico.name.toLowerCase().contains(query);
     }).toList();
   }
 
@@ -109,14 +115,19 @@ class _OsServicosTabState extends State<OsServicosTab> {
         _carregandoServicos = false;
       });
 
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text('Erro ao carregar serviços: $e')));
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Erro ao carregar serviços: $e'),
+          behavior: SnackBarBehavior.floating,
+        ),
+      );
     }
   }
 
   String _formatar(int centavos) {
-    return Dinheiro(centavos).formatado().replaceAll(RegExp(r'[\s\u00A0]'), '');
+    return Dinheiro(centavos)
+        .formatado()
+        .replaceAll(RegExp(r'[\s\u00A0]'), '');
   }
 
   void _adicionarServico(Map<String, dynamic> servico) {
@@ -128,6 +139,7 @@ class _OsServicosTabState extends State<OsServicosTab> {
           content: Text(
             'Não foi possível adicionar o serviço: preço inválido.',
           ),
+          behavior: SnackBarBehavior.floating,
         ),
       );
       return;
@@ -138,7 +150,10 @@ class _OsServicosTabState extends State<OsServicosTab> {
 
     if (serviceId == null || serviceId.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Serviço sem identificador válido.')),
+        const SnackBar(
+          content: Text('Serviço sem identificador válido.'),
+          behavior: SnackBarBehavior.floating,
+        ),
       );
       return;
     }
@@ -228,7 +243,10 @@ class _OsServicosTabState extends State<OsServicosTab> {
                   onPressed: () {
                     Navigator.pop(dialogContext, true);
                   },
-                  child: Text('REMOVER', style: TextStyle(color: colors.error)),
+                  child: Text(
+                    'REMOVER',
+                    style: TextStyle(color: colors.error),
+                  ),
                 ),
               ],
             );
@@ -286,8 +304,10 @@ class _OsServicosTabState extends State<OsServicosTab> {
       context: context,
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
-      builder: (_) =>
-          _EditServiceSheet(servico: servico, onSave: _atualizarServico),
+      builder: (_) => _EditServiceSheet(
+        servico: servico,
+        onSave: _atualizarServico,
+      ),
     );
   }
 
@@ -388,172 +408,163 @@ class _OsServicosTabState extends State<OsServicosTab> {
 
   void _mostrarMensagem(String mensagem) {
     ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text(mensagem), behavior: SnackBarBehavior.floating),
+      SnackBar(
+        content: Text(mensagem),
+        behavior: SnackBarBehavior.floating,
+      ),
     );
   }
 
   @override
   Widget build(BuildContext context) {
+    super.build(context);
+
     final listaAtual = _servicosExibidos;
 
-    return Stack(
-      children: [
-        SafeArea(
-          child: SingleChildScrollView(
-            padding: const EdgeInsets.fromLTRB(16, 18, 16, 90),
-            child: Center(
-              child: ConstrainedBox(
-                constraints: const BoxConstraints(maxWidth: 650),
-                child: SizedBox(
-                  width: double.infinity,
-                  child: Card(
-                    color: Colors.white,
-                    elevation: 8,
-                    shadowColor: Colors.black26,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(22),
+    return Scaffold(
+      backgroundColor: colors.surface,
+      floatingActionButton: CustomFloatingButton(
+        onPressed: _abrirListaServicos,
+        icon: Icons.add,
+        tooltip: 'Adicionar serviço',
+      ),
+      body: SafeArea(
+        child: SingleChildScrollView(
+          padding: const EdgeInsets.fromLTRB(16, 18, 16, 90),
+          child: Center(
+            child: ConstrainedBox(
+              constraints: const BoxConstraints(maxWidth: 650),
+              child: SizedBox(
+                width: double.infinity,
+                child: Card(
+                  color: Colors.white,
+                  elevation: 8,
+                  shadowColor: Colors.black26,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(22),
+                  ),
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 24,
+                      vertical: 28,
                     ),
-                    child: Padding(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 24,
-                        vertical: 28,
-                      ),
-                      child: Column(
-                        mainAxisSize: MainAxisSize.min,
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              Row(
-                                children: [
-                                  Icon(Icons.handyman, color: colors.secondary),
-                                  const SizedBox(width: 8),
-                                  Text(
-                                    'Subtotal de serviços',
-                                    style: TextStyle(
-                                      color: colors.onSurface,
-                                      fontSize: 20,
-                                      fontWeight: FontWeight.bold,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                              Text(
-                                _formatar(_subtotal),
-                                style: TextStyle(
-                                  color: colors.onSurface,
-                                  fontSize: 20,
-                                  fontWeight: FontWeight.w600,
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Row(
+                              children: [
+                                Icon(
+                                  Icons.handyman,
+                                  color: colors.secondary,
                                 ),
-                              ),
-                            ],
-                          ),
-                          const SizedBox(height: 6),
-                          Text(
-                            'Selecione os serviços prestados nesta Ordem de Serviço.',
-                            style: TextStyle(
-                              fontSize: 14,
-                              color: colors.onSurfaceVariant,
-                            ),
-                          ),
-                          const SizedBox(height: 20),
-                          // TextFormField(
-                          //   controller: _searchController,
-                          //   onChanged: (_) {
-                          //     setState(() {});
-                          //   },
-                          //   decoration:
-                          //       customInputDecoration(
-                          //         hintText: 'Procurar serviço',
-                          //       ).copyWith(
-                          //         prefixIcon: Icon(
-                          //           Icons.search,
-                          //           color: colors.secondary,
-                          //         ),
-                          //       ),
-                          // ),
-                          // const SizedBox(height: 20),
-                          if (listaAtual.isEmpty)
-                            Padding(
-                              padding: const EdgeInsets.symmetric(vertical: 24),
-                              child: Center(
-                                child: Text(
-                                  'Nenhum serviço adicionado.',
+                                const SizedBox(width: 8),
+                                Text(
+                                  'Subtotal de serviços',
                                   style: TextStyle(
-                                    color: colors.onSurfaceVariant,
-                                    fontSize: 16,
+                                    color: colors.onSurface,
+                                    fontSize: 20,
+                                    fontWeight: FontWeight.bold,
                                   ),
                                 ),
-                              ),
-                            )
-                          else
-                            ListView.separated(
-                              shrinkWrap: true,
-                              physics: const NeverScrollableScrollPhysics(),
-                              itemCount: listaAtual.length,
-                              separatorBuilder: (context, index) {
-                                return const SizedBox(height: 12);
-                              },
-                              itemBuilder: (context, index) {
-                                return _buildServiceCard(
-                                  listaAtual[index],
-                                  index,
-                                );
-                              },
+                              ],
                             ),
-                          const SizedBox(height: 20),
-
-                          SizedBox(
-                            width: double.infinity,
-                            child: ElevatedButton.icon(
-                              onPressed:
-                                  _os.services.isNotEmpty &&
-                                      widget.avancarTab != null
-                                  ? () {
-                                      widget.avancarTab?.call();
-                                    }
-                                  : null,
-                              icon: const Icon(Icons.attach_money),
-                              label: const Text(
-                                'Conferir Resumo',
+                            Text(
+                              _formatar(_subtotal),
+                              style: TextStyle(
+                                color: colors.onSurface,
+                                fontSize: 20,
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 6),
+                        Text(
+                          'Selecione os serviços prestados nesta Ordem de Serviço.',
+                          style: TextStyle(
+                            fontSize: 14,
+                            color: colors.onSurfaceVariant,
+                          ),
+                        ),
+                        const SizedBox(height: 20),
+                        if (listaAtual.isEmpty)
+                          Padding(
+                            padding: const EdgeInsets.symmetric(vertical: 24),
+                            child: Center(
+                              child: Text(
+                                'Nenhum serviço adicionado.',
                                 style: TextStyle(
-                                  fontWeight: FontWeight.bold,
+                                  color: colors.onSurfaceVariant,
                                   fontSize: 16,
                                 ),
                               ),
-                              style: ElevatedButton.styleFrom(
-                                elevation: _os.services.isNotEmpty ? 3 : 0,
-                                backgroundColor: colors.primary,
-                                foregroundColor: colors.onSecondary,
-                                disabledBackgroundColor:
-                                    colors.surfaceContainerLow,
-                                disabledForegroundColor:
-                                    colors.onSurfaceVariant,
-                                padding: const EdgeInsets.symmetric(
-                                  vertical: 18,
-                                ),
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(14),
-                                ),
-                              ),
                             ),
+                          )
+                        else
+                          ListView.separated(
+                            shrinkWrap: true,
+                            physics: const NeverScrollableScrollPhysics(),
+                            itemCount: listaAtual.length,
+                            separatorBuilder: (context, index) {
+                              return const SizedBox(height: 12);
+                            },
+                            itemBuilder: (context, index) {
+                              return _buildServiceCard(
+                                listaAtual[index],
+                                index,
+                              );
+                            },
                           ),
-
-                          const SizedBox(height: 12),
-
-                          Center(
-                            child: Text(
-                              'Informe os serviços prestados para acessar o resumo da Ordem de Serviço.',
-                              textAlign: TextAlign.center,
+                        const SizedBox(height: 20),
+                        SizedBox(
+                          width: double.infinity,
+                          child: ElevatedButton.icon(
+                            onPressed:
+                                _os.services.isNotEmpty &&
+                                    widget.avancarTab != null
+                                ? widget.avancarTab
+                                : null,
+                            icon: const Icon(Icons.arrow_forward),
+                            label: const Text(
+                              'Próximo: Valores',
                               style: TextStyle(
-                                fontSize: 12,
-                                color: colors.onSurfaceVariant,
+                                fontWeight: FontWeight.bold,
+                                fontSize: 16,
+                              ),
+                            ),
+                            style: ElevatedButton.styleFrom(
+                              elevation: _os.services.isNotEmpty ? 3 : 0,
+                              backgroundColor: colors.primary,
+                              foregroundColor: colors.onSecondary,
+                              disabledBackgroundColor:
+                                  colors.surfaceContainerLow,
+                              disabledForegroundColor:
+                                  colors.onSurfaceVariant,
+                              padding: const EdgeInsets.symmetric(
+                                vertical: 18,
+                              ),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(14),
                               ),
                             ),
                           ),
-                        ],
-                      ),
+                        ),
+                        const SizedBox(height: 12),
+                        Center(
+                          child: Text(
+                            'Informe os serviços prestados para acessar o resumo da Ordem de Serviço.',
+                            textAlign: TextAlign.center,
+                            style: TextStyle(
+                              fontSize: 12,
+                              color: colors.onSurfaceVariant,
+                            ),
+                          ),
+                        ),
+                      ],
                     ),
                   ),
                 ),
@@ -561,12 +572,7 @@ class _OsServicosTabState extends State<OsServicosTab> {
             ),
           ),
         ),
-        Positioned(
-          bottom: 16,
-          right: 16,
-          child: CustomFloatingButton(onPressed: _abrirListaServicos),
-        ),
-      ],
+      ),
     );
   }
 
@@ -597,29 +603,40 @@ class _OsServicosTabState extends State<OsServicosTab> {
           color: colors.surfaceContainerLow,
           borderRadius: BorderRadius.circular(18),
         ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
+        child: Row(
           children: [
-            Text(
-              servico.name,
-              style: TextStyle(
-                color: colors.onSurface,
-                fontWeight: FontWeight.bold,
-                fontSize: 16,
-              ),
-            ),
-            const SizedBox(height: 6),
-            Text(
-              servico.description,
-              style: TextStyle(color: colors.onSurfaceVariant, fontSize: 14),
-            ),
-            const SizedBox(height: 2),
-            Text(
-              _formatar(preco),
-              style: TextStyle(
-                color: colors.onSurfaceVariant,
-                fontWeight: FontWeight.bold,
-                fontSize: 15,
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    servico.name,
+                    style: TextStyle(
+                      color: colors.onSurface,
+                      fontWeight: FontWeight.bold,
+                      fontSize: 16,
+                    ),
+                  ),
+                  if (servico.description.isNotEmpty) ...[
+                    const SizedBox(height: 4),
+                    Text(
+                      servico.description,
+                      style: TextStyle(
+                        color: colors.onSurfaceVariant,
+                        fontSize: 14,
+                      ),
+                    ),
+                  ],
+                  const SizedBox(height: 6),
+                  Text(
+                    _formatar(preco),
+                    style: TextStyle(
+                      color: colors.onSurface,
+                      fontWeight: FontWeight.bold,
+                      fontSize: 15,
+                    ),
+                  ),
+                ],
               ),
             ),
           ],
@@ -633,7 +650,10 @@ class _EditServiceSheet extends StatefulWidget {
   final Map<String, dynamic> servico;
   final Future<void> Function(Service atualizado) onSave;
 
-  const _EditServiceSheet({required this.servico, required this.onSave});
+  const _EditServiceSheet({
+    required this.servico,
+    required this.onSave,
+  });
 
   @override
   State<_EditServiceSheet> createState() => _EditServiceSheetState();
@@ -752,7 +772,10 @@ class _EditServiceSheetState extends State<_EditServiceSheet> {
 
   void _mostrarErro(String mensagem) {
     ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text(mensagem), behavior: SnackBarBehavior.floating),
+      SnackBar(
+        content: Text(mensagem),
+        behavior: SnackBarBehavior.floating,
+      ),
     );
   }
 
@@ -779,9 +802,14 @@ class _EditServiceSheetState extends State<_EditServiceSheet> {
       child: Container(
         decoration: const BoxDecoration(
           color: Colors.white,
-          borderRadius: BorderRadius.vertical(top: Radius.circular(26)),
+          borderRadius: BorderRadius.vertical(
+            top: Radius.circular(26),
+          ),
         ),
-        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 28),
+        padding: const EdgeInsets.symmetric(
+          horizontal: 24,
+          vertical: 28,
+        ),
         child: SafeArea(
           top: false,
           child: SingleChildScrollView(
@@ -806,7 +834,10 @@ class _EditServiceSheetState extends State<_EditServiceSheet> {
                   Row(
                     spacing: 6,
                     children: [
-                      Icon(Icons.edit_outlined, color: colors.primary),
+                      Icon(
+                        Icons.edit_outlined,
+                        color: colors.primary,
+                      ),
                       Text(
                         'Editar serviço',
                         style: TextStyle(
@@ -838,14 +869,13 @@ class _EditServiceSheetState extends State<_EditServiceSheet> {
                     controller: _descricaoController,
                     maxLength: 50,
                     textCapitalization: TextCapitalization.sentences,
-                    decoration:
-                        customInputDecoration(
-                          hintText: 'Descrição (opcional)',
-                        ).copyWith(
-                          counterStyle: TextStyle(
-                            color: colors.onSurfaceVariant,
-                          ),
-                        ),
+                    decoration: customInputDecoration(
+                      hintText: 'Descrição (opcional)',
+                    ).copyWith(
+                      counterStyle: TextStyle(
+                        color: colors.onSurfaceVariant,
+                      ),
+                    ),
                   ),
                   _label('Valor'),
                   TextFormField(
@@ -853,10 +883,14 @@ class _EditServiceSheetState extends State<_EditServiceSheet> {
                     keyboardType: const TextInputType.numberWithOptions(
                       decimal: true,
                     ),
-                    inputFormatters: [CurrencyInputFormatter()],
+                    inputFormatters: [
+                      CurrencyInputFormatter(),
+                    ],
                     decoration: customInputDecoration(
                       hintText: '0,00',
-                    ).copyWith(prefixText: 'R\$ '),
+                    ).copyWith(
+                      prefixText: 'R\$ ',
+                    ),
                     validator: (value) {
                       final valor = _parseCentavos(value ?? '');
 
@@ -876,12 +910,16 @@ class _EditServiceSheetState extends State<_EditServiceSheet> {
                           ? const SizedBox(
                               width: 18,
                               height: 18,
-                              child: CircularProgressIndicator(strokeWidth: 2),
+                              child: CircularProgressIndicator(
+                                strokeWidth: 2,
+                              ),
                             )
                           : const Icon(Icons.check),
                       label: const Text(
                         'Salvar alterações',
-                        style: TextStyle(fontWeight: FontWeight.bold),
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                        ),
                       ),
                       style: ElevatedButton.styleFrom(
                         elevation: 3,
@@ -889,7 +927,9 @@ class _EditServiceSheetState extends State<_EditServiceSheet> {
                         foregroundColor: colors.onSecondary,
                         disabledBackgroundColor: Colors.grey.shade300,
                         disabledForegroundColor: Colors.grey.shade600,
-                        padding: const EdgeInsets.symmetric(vertical: 16),
+                        padding: const EdgeInsets.symmetric(
+                          vertical: 16,
+                        ),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(14),
                         ),

@@ -1,3 +1,4 @@
+
 import 'dart:async';
 
 import 'package:flutter/material.dart';
@@ -63,7 +64,10 @@ class OrderServiceState extends State<TollsOs>
   }
 
   int _calcularSubtotal() {
-    return _os.parts.fold<int>(0, (total, peca) => total + peca.subtotalCents);
+    return _os.parts.fold<int>(
+      0,
+      (total, peca) => total + peca.subtotalCents,
+    );
   }
 
   Future<void> _abrirEdicao(Item peca) async {
@@ -82,15 +86,6 @@ class OrderServiceState extends State<TollsOs>
     _atualizarPecaNaOS(pecaAtualizada);
   }
 
-  Future<void> _atualizarItem(Item itemAtualizado) async {
-    await _itemService.update(itemAtualizado);
-
-    if (!mounted) return;
-
-    // Sincroniza nome e preço da peça que já está na OS
-    _atualizarPecaNaOS(itemAtualizado);
-  }
-
   void _atualizarPecaNaOS(Item pecaAtualizada) {
     if (pecaAtualizada.id == null) return;
 
@@ -102,6 +97,7 @@ class OrderServiceState extends State<TollsOs>
 
     _editarOs((os) {
       final pecaAntiga = os.parts[index];
+
       os.parts[index] = ServiceOrderPart(
         partId: pecaAntiga.partId,
         name: pecaAtualizada.name,
@@ -110,8 +106,6 @@ class OrderServiceState extends State<TollsOs>
         discountCents: pecaAntiga.discountCents,
       );
     });
-
-    widget.onChanged?.call();
   }
 
   void _removerPeca(int index) {
@@ -120,8 +114,6 @@ class OrderServiceState extends State<TollsOs>
     final pecaRemovida = _os.parts[index];
 
     _editarOs((os) => os.parts.removeAt(index));
-
-    widget.onChanged?.call();
 
     final messenger = ScaffoldMessenger.of(context);
 
@@ -136,7 +128,6 @@ class OrderServiceState extends State<TollsOs>
         behavior: SnackBarBehavior.floating,
         showCloseIcon: true,
         closeIconColor: Colors.white,
-
         action: SnackBarAction(
           label: 'DESFAZER',
           textColor: Colors.white,
@@ -146,10 +137,11 @@ class OrderServiceState extends State<TollsOs>
             if (!mounted) return;
 
             _editarOs((os) {
-              os.parts.insert(index.clamp(0, os.parts.length), pecaRemovida);
+              os.parts.insert(
+                index.clamp(0, os.parts.length),
+                pecaRemovida,
+              );
             });
-
-            widget.onChanged?.call();
           },
         ),
       ),
@@ -184,7 +176,10 @@ class OrderServiceState extends State<TollsOs>
               onPressed: () {
                 Navigator.pop(dialogContext, true);
               },
-              child: Text('REMOVER', style: TextStyle(color: colors.error)),
+              child: Text(
+                'REMOVER',
+                style: TextStyle(color: colors.error),
+              ),
             ),
           ],
         );
@@ -195,88 +190,84 @@ class OrderServiceState extends State<TollsOs>
 
     _removerPeca(index);
   }
-Future<void> _excluirPecaDoCadastro(Item peca) async {
-  final itemId = peca.id;
 
-  final bool naOs = _os.parts.any(
-    (item) => item.partId == itemId,
-  );
+  Future<void> _excluirPecaDoCadastro(Item peca) async {
+    final itemId = peca.id;
 
-  final confirmar = await showDialog<bool>(
-    context: context,
-    builder: (dialogContext) {
-      return AlertDialog(
-        title: const Text('Excluir peça'),
-        content: Text(
-          naOs
-              ? 'Deseja excluir "${peca.name}" do cadastro? '
-                  'Ela também será removida desta OS.'
-              : 'Deseja excluir "${peca.name}" do cadastro?',
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(dialogContext, false),
-            child: const Text('CANCELAR'),
+    final bool naOs = _os.parts.any(
+      (item) => item.partId == itemId,
+    );
+
+    final confirmar = await showDialog<bool>(
+      context: context,
+      builder: (dialogContext) {
+        return AlertDialog(
+          title: const Text('Excluir peça'),
+          content: Text(
+            naOs
+                ? 'Deseja excluir "${peca.name}" do cadastro? '
+                    'Ela também será removida desta OS.'
+                : 'Deseja excluir "${peca.name}" do cadastro?',
           ),
-          TextButton(
-            onPressed: () => Navigator.pop(dialogContext, true),
-            child: Text(
-              'EXCLUIR',
-              style: TextStyle(color: colors.error),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(dialogContext, false),
+              child: const Text('CANCELAR'),
             ),
+            TextButton(
+              onPressed: () => Navigator.pop(dialogContext, true),
+              child: Text(
+                'EXCLUIR',
+                style: TextStyle(color: colors.error),
+              ),
+            ),
+          ],
+        );
+      },
+    );
+
+    if (confirmar != true || !mounted) return;
+
+    if (itemId == null || itemId.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text(
+            'Não foi possível excluir: ID da peça não encontrado.',
           ),
-        ],
-      );
-    },
-  );
-
-  if (confirmar != true || !mounted) return;
-
-  // Verifica se a peça possui um ID válido.
-  if (itemId == null || itemId.isEmpty) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text(
-          'Não foi possível excluir: ID da peça não encontrado.',
+          behavior: SnackBarBehavior.floating,
         ),
-        behavior: SnackBarBehavior.floating,
-      ),
-    );
-    return;
-  }
-
-  try {
-    // Exclui a peça do cadastro no Firestore.
-    await _itemService.delete(itemId);
-
-    if (!mounted) return;
-
-    // Remove a referência da peça desta Ordem de Serviço.
-    _editarOs((os) {
-      os.parts.removeWhere(
-        (item) => item.partId == itemId,
       );
-    });
+      return;
+    }
 
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text('Peça excluída com sucesso.'),
-        behavior: SnackBarBehavior.floating,
-      ),
-    );
-  } catch (e) {
-    debugPrint('Erro ao excluir peça: $e');
+    try {
+      await _itemService.delete(itemId);
 
-    if (!mounted) return;
+      if (!mounted) return;
 
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text('Não foi possível excluir a peça.'),
-        behavior: SnackBarBehavior.floating,
-      ),
-    );
+      _editarOs((os) {
+        os.parts.removeWhere((item) => item.partId == itemId);
+      });
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Peça excluída com sucesso.'),
+          behavior: SnackBarBehavior.floating,
+        ),
+      );
+    } catch (e) {
+      debugPrint('Erro ao excluir peça: $e');
+
+      if (!mounted) return;
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Não foi possível excluir a peça.'),
+          behavior: SnackBarBehavior.floating,
+        ),
+      );
+    }
   }
-}
 
   @override
   void dispose() {
@@ -295,7 +286,6 @@ Future<void> _excluirPecaDoCadastro(Item peca) async {
 
         return Scaffold(
           backgroundColor: colors.surface,
-
           body: SafeArea(
             child: Padding(
               padding: EdgeInsets.only(
@@ -329,7 +319,10 @@ Future<void> _excluirPecaDoCadastro(Item peca) async {
                             children: [
                               Row(
                                 children: [
-                                  Icon(Icons.build, color: colors.secondary),
+                                  Icon(
+                                    Icons.build,
+                                    color: colors.secondary,
+                                  ),
                                   const SizedBox(width: 8),
                                   Text(
                                     'Subtotal de peças',
@@ -370,7 +363,9 @@ Future<void> _excluirPecaDoCadastro(Item peca) async {
                                   context: context,
                                   builder: (dialogContext) {
                                     return AlertDialog(
-                                      title: const Text('Remover peças da OS?'),
+                                      title: const Text(
+                                        'Remover peças da OS?',
+                                      ),
                                       content: const Text(
                                         'Ao selecionar esta opção, todas as peças adicionadas '
                                         'serão removidas da Ordem de Serviço. Deseja continuar?',
@@ -378,13 +373,19 @@ Future<void> _excluirPecaDoCadastro(Item peca) async {
                                       actions: [
                                         TextButton(
                                           onPressed: () {
-                                            Navigator.pop(dialogContext, false);
+                                            Navigator.pop(
+                                              dialogContext,
+                                              false,
+                                            );
                                           },
                                           child: const Text('CANCELAR'),
                                         ),
                                         TextButton(
                                           onPressed: () {
-                                            Navigator.pop(dialogContext, true);
+                                            Navigator.pop(
+                                              dialogContext,
+                                              true,
+                                            );
                                           },
                                           child: Text(
                                             'REMOVER PEÇAS',
@@ -400,12 +401,14 @@ Future<void> _excluirPecaDoCadastro(Item peca) async {
 
                                 if (!mounted || confirmar != true) return;
 
+                                _editarOs((os) {
+                                  os.parts.clear();
+                                });
+
                                 setState(() {
-                                  _os.parts.clear();
                                   _somenteServicos = true;
                                 });
 
-                                widget.onChanged?.call();
                                 widget.onSomenteServicosChanged?.call(
                                   _somenteServicos,
                                 );
@@ -418,12 +421,14 @@ Future<void> _excluirPecaDoCadastro(Item peca) async {
                               });
 
                               widget.onChanged?.call();
+
                               widget.onSomenteServicosChanged?.call(
                                 _somenteServicos,
                               );
                             },
                             contentPadding: EdgeInsets.zero,
-                            controlAffinity: ListTileControlAffinity.leading,
+                            controlAffinity:
+                                ListTileControlAffinity.leading,
                             activeColor: colors.primary,
                             title: Text(
                               'OS somente de serviços (sem peças)',
@@ -441,13 +446,10 @@ Future<void> _excluirPecaDoCadastro(Item peca) async {
                               ),
                             ),
                           ),
-
                           const SizedBox(height: 18),
-
                           if (snapshot.connectionState ==
                               ConnectionState.waiting)
                             const LinearProgressIndicator(),
-
                           if (snapshot.hasError)
                             Padding(
                               padding: const EdgeInsets.all(12),
@@ -456,7 +458,6 @@ Future<void> _excluirPecaDoCadastro(Item peca) async {
                                 style: TextStyle(color: colors.error),
                               ),
                             ),
-
                           _os.parts.isEmpty
                               ? Center(
                                   child: Text(
@@ -469,7 +470,8 @@ Future<void> _excluirPecaDoCadastro(Item peca) async {
                                 )
                               : ListView.separated(
                                   shrinkWrap: true,
-                                  physics: const NeverScrollableScrollPhysics(),
+                                  physics:
+                                      const NeverScrollableScrollPhysics(),
                                   padding: const EdgeInsets.all(4),
                                   itemCount: _os.parts.length,
                                   separatorBuilder: (context, index) {
@@ -483,7 +485,6 @@ Future<void> _excluirPecaDoCadastro(Item peca) async {
                                   },
                                 ),
                           const SizedBox(height: 20),
-
                           SizedBox(
                             width: double.infinity,
                             child: ElevatedButton.icon(
@@ -522,9 +523,7 @@ Future<void> _excluirPecaDoCadastro(Item peca) async {
                               ),
                             ),
                           ),
-
                           const SizedBox(height: 12),
-
                           Center(
                             child: Text(
                               _somenteServicos
@@ -545,7 +544,6 @@ Future<void> _excluirPecaDoCadastro(Item peca) async {
               ),
             ),
           ),
-
           floatingActionButton: CustomFloatingButton(
             onPressed: snapshot.hasData && !snapshot.hasError
                 ? () => abrirListaPecas(pecasDisponiveis)
@@ -562,7 +560,9 @@ Future<void> _excluirPecaDoCadastro(Item peca) async {
       backgroundColor: colors.surfaceContainer,
       isScrollControlled: true,
       shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+        borderRadius: BorderRadius.vertical(
+          top: Radius.circular(24),
+        ),
       ),
       builder: (sheetContext) {
         return StreamBuilder<List<Item>>(
@@ -577,26 +577,20 @@ Future<void> _excluirPecaDoCadastro(Item peca) async {
               searchText: 'Buscar peça...',
               actionText: 'Nova peça',
               itemIcon: Icons.build,
-
               itemTitle: (peca) => peca.name,
-
               itemSubtitle: (peca) {
                 return Dinheiro(peca.valueInCents).formatado();
               },
-
               onEdit: (peca) async {
                 await _abrirEdicao(peca);
               },
-
               onDelete: (peca) async {
                 await _excluirPecaDoCadastro(peca);
               },
-
               onSelect: (peca) {
                 _adicionarPeca(peca);
                 Navigator.pop(sheetContext);
               },
-
               onAction: () async {
                 await Navigator.push(
                   context,
@@ -617,7 +611,9 @@ Future<void> _excluirPecaDoCadastro(Item peca) async {
     if (peca.id == null) return;
 
     _editarOs((os) {
-      final index = os.parts.indexWhere((item) => item.partId == peca.id);
+      final index = os.parts.indexWhere(
+        (item) => item.partId == peca.id,
+      );
 
       if (index != -1) {
         final parteExistente = os.parts[index];
@@ -637,8 +633,6 @@ Future<void> _excluirPecaDoCadastro(Item peca) async {
         );
       }
     });
-
-    widget.onChanged?.call();
   }
 
   void _aumentarQuantidade(int index) {
@@ -647,8 +641,6 @@ Future<void> _excluirPecaDoCadastro(Item peca) async {
     _editarOs((os) {
       os.parts[index] = peca.withQuantity(peca.quantity + 1);
     });
-
-    widget.onChanged?.call();
   }
 
   void _diminuirQuantidade(int index) {
@@ -659,20 +651,15 @@ Future<void> _excluirPecaDoCadastro(Item peca) async {
     _editarOs((os) {
       os.parts[index] = peca.withQuantity(peca.quantity - 1);
     });
-
-    widget.onChanged?.call();
   }
 
   Widget _buildPieceCard(ServiceOrderPart peca, int index) {
     final int quantidade = peca.quantity;
-
     final Dinheiro preco = Dinheiro(peca.unitPriceCents);
-
     final Dinheiro totalItem = Dinheiro(peca.subtotalCents);
 
     return Slidable(
       key: ValueKey(peca.partId),
-
       endActionPane: ActionPane(
         motion: const DrawerMotion(),
         extentRatio: 0.22,
@@ -688,13 +675,11 @@ Future<void> _excluirPecaDoCadastro(Item peca) async {
           ),
         ],
       ),
-
       child: Container(
         padding: const EdgeInsets.all(14),
         decoration: BoxDecoration(
           color: colors.surfaceContainerLow,
           borderRadius: BorderRadius.circular(18),
-          // boxShadow: kElevationToShadow[4],
         ),
         child: Row(
           children: [
@@ -710,9 +695,7 @@ Future<void> _excluirPecaDoCadastro(Item peca) async {
                       fontSize: 16,
                     ),
                   ),
-
                   const SizedBox(height: 6),
-
                   Text(
                     '$quantidade un x ${preco.formatado()}/un',
                     style: TextStyle(
@@ -720,9 +703,7 @@ Future<void> _excluirPecaDoCadastro(Item peca) async {
                       fontSize: 14,
                     ),
                   ),
-
                   const SizedBox(height: 2),
-
                   Text(
                     totalItem.formatado(),
                     style: TextStyle(
@@ -734,14 +715,12 @@ Future<void> _excluirPecaDoCadastro(Item peca) async {
                 ],
               ),
             ),
-
             Row(
               children: [
                 IconButton(
                   onPressed: () => _aumentarQuantidade(index),
                   icon: Icon(Icons.add, color: colors.primary),
                 ),
-
                 Text(
                   '$quantidade',
                   style: TextStyle(
@@ -749,7 +728,6 @@ Future<void> _excluirPecaDoCadastro(Item peca) async {
                     fontWeight: FontWeight.bold,
                   ),
                 ),
-
                 IconButton(
                   onPressed: quantidade > 1
                       ? () => _diminuirQuantidade(index)
